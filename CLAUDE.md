@@ -8,48 +8,51 @@ Linsenkasten is an MCP (Model Context Protocol) server AND CLI tool that provide
 
 **Architecture**: Thin client (MCP/CLI) → REST API → NetworkX graph + Supabase
 
-## Related Repository: ~/xulfbot
+## Related Repository: ~/linsenkasten-api
 
-**IMPORTANT**: The backend API that powers this MCP server and CLI lives in a separate repository at `~/xulfbot`. This contains:
+**IMPORTANT**: The backend API that powers this MCP server and CLI lives in a separate repository at `~/linsenkasten-api`. This contains:
 - `lens_search_api.py` - Flask API with graph operations and creative thinking tools
+- `supabase_store.py` - Supabase integration module
 - NetworkX graph implementation
-- Supabase integration
 - Railway deployment configuration
 
-**API URL**: https://lens-api.up.railway.app/api/v1 (Railway deployment from xulfbot repo)
+**API URL**: https://lens-api.up.railway.app/api/v1 (Railway deployment)
 
-### Working with xulfbot
+**GitHub**: https://github.com/mistakeknot/linsenkasten-api
+
+### Working with the API
 
 When making changes to API endpoints or graph operations:
-1. Navigate to `~/xulfbot` directory
-2. Edit `lens_search_api.py`
-3. Commit and push to https://github.com/mistakeknot/XULFbot
-4. Deploy to Railway (see Railway Configuration section below)
+1. Navigate to `~/linsenkasten-api` directory
+2. Edit `lens_search_api.py` or `supabase_store.py`
+3. Commit and push to https://github.com/mistakeknot/linsenkasten-api
+4. Railway will auto-deploy from the main branch
 
-### Railway Configuration for lens-api Service
+### Railway Configuration
 
-The xulfbot repo contains multiple Railway services (Discord bot + lens API). The lens-api service needs specific configuration:
+The linsenkasten-api repo has a clean, dedicated Railway configuration:
 
-**Required Settings in Railway Dashboard**:
-- Builder: NIXPACKS (not Dockerfile)
+**Configuration** (`railway.json`):
+- Builder: NIXPACKS (Python auto-detection)
 - Start Command: `python lens_search_api.py`
 - Port: 8080 (auto-detected by Railway)
+- Restart Policy: ON_FAILURE with 10 retries
 
-**Configuration Files in xulfbot**:
-- `railway.json` - Bot configuration (runs Discord bot via honcho)
-- `railway.lens.json` - API configuration (runs lens_search_api.py) ← **Use this for lens-api service**
-
-**To deploy lens-api updates**:
+**To deploy API updates**:
 ```bash
-cd ~/xulfbot
+cd ~/linsenkasten-api
 # Make changes to lens_search_api.py
-git add lens_search_api.py
+git add -A
 git commit -m "Update API endpoints"
 git push origin main
-# Railway will auto-deploy, or manually trigger in dashboard
+# Railway auto-deploys on push to main
 ```
 
-**Known Issue**: Railway may default to using `railway.json` which runs the bot. Ensure the lens-api service in Railway dashboard is configured to use the settings from `railway.lens.json` (NIXPACKS + `python lens_search_api.py`).
+**Environment Variables Required**:
+- `SUPABASE_URL` - Supabase project URL
+- `SUPABASE_KEY` - Supabase anon key
+- `OPENAI_API_KEY` - OpenAI API key for embeddings
+- `PORT` - Server port (default: 8080)
 
 ## Development Commands
 
@@ -293,8 +296,9 @@ linsenkasten/
 ```
 
 **External Dependencies**:
-- `~/xulfbot/lens_search_api.py` - Backend API (see Related Repository section above)
+- `~/linsenkasten-api/` - Backend API repo (see Related Repository section above)
 - Railway deployment: https://lens-api.up.railway.app/api/v1
+- GitHub: https://github.com/mistakeknot/linsenkasten-api
 
 ## Important Constraints
 
