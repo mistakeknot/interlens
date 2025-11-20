@@ -176,7 +176,7 @@ This design is intentional:
 - Tools make direct API calls (no caching)
 
 **API Communication** (lines 66-77):
-- Base URL: `https://xulfbot-lens-api.up.railway.app/api/v1`
+- Base URL: `https://lens-api.up.railway.app/api/v1`
 - Override with `LINSENKASTEN_API_URL` env var
 - All responses are JSON
 - Errors bubble up as McpError
@@ -237,7 +237,7 @@ MCP Client (Claude Desktop)
     ↓ stdio
 LinsenkastenMCP (index.js)
     ↓ HTTPS
-Railway API (xulfbot-lens-api.up.railway.app)
+Railway API (lens-api.up.railway.app)
     ↓
 NetworkX Graph + Supabase
 ```
