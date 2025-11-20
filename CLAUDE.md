@@ -8,9 +8,12 @@ Linsenkasten is an MCP (Model Context Protocol) server AND CLI tool that provide
 
 **Architecture**: Thin client (MCP/CLI) → REST API → NetworkX graph + Supabase
 
-## Related Repository: ~/linsenkasten-api
+## Related Repositories
 
-**IMPORTANT**: The backend API that powers this MCP server and CLI lives in a separate repository at `~/linsenkasten-api`. This contains:
+### linsenkasten-api (~/linsenkasten-api)
+
+**IMPORTANT**: The backend API that powers this MCP server and CLI lives in a separate repository.
+
 - `lens_search_api.py` - Flask API with graph operations and creative thinking tools
 - `supabase_store.py` - Supabase integration module
 - NetworkX graph implementation
@@ -19,6 +22,19 @@ Linsenkasten is an MCP (Model Context Protocol) server AND CLI tool that provide
 **API URL**: https://lens-api.up.railway.app/api/v1 (Railway deployment)
 
 **GitHub**: https://github.com/mistakeknot/linsenkasten-api
+
+### linsenkasten-web (~/linsenkasten-web)
+
+The React web frontend for linsenkasten.com also lives in a separate repository.
+
+- React SPA with grid/table/graph views
+- D3 graph visualization
+- Deep linking for lenses/frames/tags
+- Vercel deployment
+
+**Live Site**: https://linsenkasten.com
+
+**GitHub**: https://github.com/mistakeknot/linsenkasten-web
 
 ### Working with the API
 
