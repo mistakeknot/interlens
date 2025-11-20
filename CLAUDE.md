@@ -170,7 +170,11 @@ HTTP status codes:
   - GitHub: https://github.com/mistakeknot/Linsenkasten
   - npm: `linsenkasten-mcp`
 
-- **xulfbot** (~/xulfbot) - Discord bot that may consume this API
+- **linsenkasten-web** (~/linsenkasten-web) - React web frontend that consumes this API
+  - GitHub: https://github.com/mistakeknot/linsenkasten-web
+  - Live: https://linsenkasten.com
+
+- **xulfbot** (~/xulfbot) - Discord bot
   - GitHub: https://github.com/mistakeknot/XULFbot
 
 ## Common Tasks
