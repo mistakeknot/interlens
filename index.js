@@ -9,21 +9,7 @@ import {
   McpError,
   ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import fetch from 'node-fetch';
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Configuration
-const API_BASE_URL = process.env.LINSENKASTEN_API_URL || 'https://xulfbot-lens-api.up.railway.app/api/v1';
-const CACHE_DIR = path.join(__dirname, '.cache');
-const CACHE_TTL = 3600000; // 1 hour in milliseconds
-
-// Ensure cache directory exists
-await fs.mkdir(CACHE_DIR, { recursive: true });
+import * as api from './api-client.js';
 
 class LinsenkastenMCP {
   constructor() {
@@ -41,39 +27,6 @@ class LinsenkastenMCP {
     );
 
     this.setupHandlers();
-    this.lensCache = new Map();
-  }
-
-  async getCachedData(key) {
-    const cacheFile = path.join(CACHE_DIR, `${key}.json`);
-    try {
-      const stat = await fs.stat(cacheFile);
-      if (Date.now() - stat.mtime.getTime() < CACHE_TTL) {
-        const data = await fs.readFile(cacheFile, 'utf-8');
-        return JSON.parse(data);
-      }
-    } catch (error) {
-      // Cache miss or expired
-    }
-    return null;
-  }
-
-  async setCachedData(key, data) {
-    const cacheFile = path.join(CACHE_DIR, `${key}.json`);
-    await fs.writeFile(cacheFile, JSON.stringify(data, null, 2));
-  }
-
-  async fetchFromAPI(endpoint) {
-    try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`);
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.statusText}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.error(`Error fetching from API: ${error.message}`);
-      throw error;
-    }
   }
 
   setupHandlers() {
@@ -331,11 +284,7 @@ class LinsenkastenMCP {
       try {
         switch (uri) {
           case 'lens://all': {
-            let lenses = await this.getCachedData('all-lenses');
-            if (!lenses) {
-              lenses = await this.fetchFromAPI('/api/v1/lenses?limit=500');
-              await this.setCachedData('all-lenses', lenses);
-            }
+            const lenses = await api.getAllLenses();
             return {
               contents: [
                 {
@@ -348,11 +297,7 @@ class LinsenkastenMCP {
           }
 
           case 'lens://frames': {
-            let frames = await this.getCachedData('frames');
-            if (!frames) {
-              frames = await this.fetchFromAPI('/api/v1/frames');
-              await this.setCachedData('frames', frames);
-            }
+            const frames = await api.getFrames();
             return {
               contents: [
                 {
@@ -365,9 +310,9 @@ class LinsenkastenMCP {
           }
 
           case 'lens://episodes': {
-            let episodes = await this.getCachedData('episodes');
+            let episodes = await api.getCachedData('episodes');
             if (!episodes) {
-              const lenses = await this.fetchFromAPI('/api/v1/lenses?limit=500');
+              const lenses = await api.fetchFromAPI('/lenses?limit=500');
               // Group by episode
               episodes = {};
               lenses.lenses.forEach(lens => {
@@ -375,7 +320,7 @@ class LinsenkastenMCP {
                 if (!episodes[ep]) episodes[ep] = [];
                 episodes[ep].push(lens);
               });
-              await this.setCachedData('episodes', episodes);
+              await api.setCachedData('episodes', episodes);
             }
             return {
               contents: [
@@ -389,10 +334,10 @@ class LinsenkastenMCP {
           }
 
           case 'lens://graph': {
-            let graph = await this.getCachedData('graph');
+            let graph = await api.getCachedData('graph');
             if (!graph) {
-              graph = await this.fetchFromAPI('/api/v1/connections');
-              await this.setCachedData('graph', graph);
+              graph = await api.fetchFromAPI('/connections');
+              await api.setCachedData('graph', graph);
             }
             return {
               contents: [
@@ -427,9 +372,7 @@ class LinsenkastenMCP {
         switch (name) {
           case 'search_lenses': {
             const { query, limit = 10 } = args;
-            const results = await this.fetchFromAPI(
-              `/api/v1/search?q=${encodeURIComponent(query)}&limit=${limit}`
-            );
+            const results = await api.searchLenses(query, limit);
             return {
               content: [
                 {
@@ -442,12 +385,9 @@ class LinsenkastenMCP {
 
           case 'get_lens': {
             const { name: lensName } = args;
-            const results = await this.fetchFromAPI(
-              `/api/v1/search?q=${encodeURIComponent(lensName)}&limit=1`
-            );
-            
-            if (results.results && results.results.length > 0) {
-              const lens = results.results[0];
+            const lens = await api.getLens(lensName);
+
+            if (lens) {
               return {
                 content: [
                   {
@@ -470,9 +410,7 @@ class LinsenkastenMCP {
 
           case 'get_lenses_by_episode': {
             const { episode } = args;
-            const results = await this.fetchFromAPI(
-              `/api/v1/lenses?episode=${episode}`
-            );
+            const results = await api.getLensesByEpisode(episode);
             return {
               content: [
                 {
@@ -485,12 +423,9 @@ class LinsenkastenMCP {
 
           case 'get_related_lenses': {
             const { lens_name, limit = 5 } = args;
-            // First find the lens
-            const searchResults = await this.fetchFromAPI(
-              `/api/v1/search?q=${encodeURIComponent(lens_name)}&limit=1`
-            );
-            
-            if (!searchResults.results || searchResults.results.length === 0) {
+            const connections = await api.getRelatedLenses(lens_name, limit);
+
+            if (!connections) {
               return {
                 content: [
                   {
@@ -501,11 +436,6 @@ class LinsenkastenMCP {
               };
             }
 
-            const lensId = searchResults.results[0].id;
-            const connections = await this.fetchFromAPI(
-              `/api/v1/connections?lens_id=${lensId}&limit=${limit}`
-            );
-            
             return {
               content: [
                 {
@@ -518,13 +448,11 @@ class LinsenkastenMCP {
 
           case 'analyze_with_lens': {
             const { text, lens_name } = args;
-            
+
             // Get lens details first
-            const searchResults = await this.fetchFromAPI(
-              `/api/v1/search?q=${encodeURIComponent(lens_name)}&limit=1`
-            );
-            
-            if (!searchResults.results || searchResults.results.length === 0) {
+            const lens = await api.getLens(lens_name);
+
+            if (!lens) {
               return {
                 content: [
                   {
@@ -534,8 +462,6 @@ class LinsenkastenMCP {
                 ],
               };
             }
-
-            const lens = searchResults.results[0];
             
             // Create analysis prompt
             const analysis = `Analyzing through the ${lens.name} lens:
@@ -567,7 +493,7 @@ Analysis of "${text}":
 
           case 'combine_lenses': {
             const { lenses, context = '' } = args;
-            
+
             if (!Array.isArray(lenses) || lenses.length < 2) {
               return {
                 content: [
@@ -582,10 +508,7 @@ Analysis of "${text}":
             // Fetch details for each lens
             const lensDetails = await Promise.all(
               lenses.map(async (lensName) => {
-                const results = await this.fetchFromAPI(
-                  `/api/v1/search?q=${encodeURIComponent(lensName)}&limit=1`
-                );
-                return results.results?.[0] || null;
+                return await api.getLens(lensName);
               })
             );
 
@@ -635,7 +558,7 @@ Applications:
             const { frame_id } = args;
 
             if (frame_id) {
-              const frames = await this.fetchFromAPI('/api/v1/frames');
+              const frames = await api.getFrames();
               const frame = frames.frames?.find(f => f.id === frame_id);
 
               if (frame) {
@@ -658,7 +581,7 @@ Applications:
                 };
               }
             } else {
-              const frames = await this.fetchFromAPI('/api/v1/frames');
+              const frames = await api.getFrames();
               return {
                 content: [
                   {
@@ -673,9 +596,7 @@ Applications:
           // Creative Thinking Tools
           case 'find_lens_journey': {
             const { source, target } = args;
-            const results = await this.fetchFromAPI(
-              `/api/v1/creative/journey?source=${encodeURIComponent(source)}&target=${encodeURIComponent(target)}`
-            );
+            const results = await api.findLensJourney(source, target);
 
             if (results.success && results.paths && results.paths.length > 0) {
               // Format the journey nicely
@@ -716,8 +637,7 @@ Applications:
 
           case 'find_bridge_lenses': {
             const { lenses } = args;
-            const params = lenses.map(l => `lenses=${encodeURIComponent(l)}`).join('&');
-            const results = await this.fetchFromAPI(`/api/v1/creative/bridges?${params}`);
+            const results = await api.findBridgeLenses(lenses);
 
             if (results.success && results.bridges && results.bridges.length > 0) {
               let response = `# Bridge Lenses\n\n`;
@@ -754,9 +674,7 @@ Applications:
 
           case 'find_contrasting_lenses': {
             const { lens } = args;
-            const results = await this.fetchFromAPI(
-              `/api/v1/creative/contrasts?lens=${encodeURIComponent(lens)}`
-            );
+            const results = await api.findContrastingLenses(lens);
 
             if (results.success && results.contrasts && results.contrasts.length > 0) {
               let response = `# Contrasting Lenses for "${lens}"\n\n`;
@@ -792,9 +710,7 @@ Applications:
 
           case 'get_central_lenses': {
             const { measure = 'betweenness', limit = 10 } = args;
-            const results = await this.fetchFromAPI(
-              `/api/v1/creative/central?measure=${measure}&limit=${limit}`
-            );
+            const results = await api.getCentralLenses(measure, limit);
 
             if (results.success && results.central_lenses) {
               let response = `# Central Lenses (${measure})\n\n`;
@@ -829,9 +745,7 @@ Applications:
 
           case 'get_lens_neighborhood': {
             const { lens, radius = 2 } = args;
-            const results = await this.fetchFromAPI(
-              `/api/v1/creative/neighborhood?lens=${encodeURIComponent(lens)}&radius=${radius}`
-            );
+            const results = await api.getLensNeighborhood(lens, radius);
 
             if (results.success && results.neighborhood) {
               let response = `# Neighborhood of "${lens}"\n\n`;
@@ -870,7 +784,7 @@ Applications:
           }
 
           case 'random_lens_provocation': {
-            const results = await this.fetchFromAPI('/api/v1/creative/random');
+            const results = await api.getRandomProvocation();
 
             if (results.success && results.provocation) {
               const lens = results.provocation;

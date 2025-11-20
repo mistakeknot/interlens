@@ -1,9 +1,12 @@
 {
   "name": "linsenkasten-mcp",
   "version": "1.0.0",
-  "description": "MCP server for FLUX lens exploration and analysis",
+  "description": "MCP server and CLI tool for FLUX lens exploration and analysis",
   "main": "index.js",
   "type": "module",
+  "bin": {
+    "linsenkasten": "./cli.js"
+  },
   "scripts": {
     "dev": "vercel dev",
     "build": "echo 'No build required'",
@@ -13,7 +16,10 @@
     "mcp",
     "flux",
     "lens",
-    "linsenkasten"
+    "linsenkasten",
+    "cli",
+    "systems-thinking",
+    "knowledge-graph"
   ],
   "author": "Mistake Knot",
   "license": "MIT",
@@ -23,6 +29,8 @@
   },
   "files": [
     "index.js",
+    "cli.js",
+    "api-client.js",
     "docs",
     "examples"
   ],

@@ -35,6 +35,82 @@ Add to your Claude Desktop config:
 
 Restart Claude Desktop. Done! 🎉
 
+## Command Line Interface
+
+Linsenkasten also includes a powerful CLI for exploring lenses directly from your terminal:
+
+```bash
+# Install globally
+npm install -g linsenkasten-mcp
+
+# Search for lenses
+linsenkasten search "systems thinking"
+
+# Get lens details
+linsenkasten get "Pace Layering"
+
+# Find conceptual journey
+linsenkasten journey "Systems Thinking" "Innovation"
+
+# Get random provocation
+linsenkasten random
+
+# Find bridge lenses
+linsenkasten bridge "Leadership" "Complexity" "Communication"
+
+# Get central lenses
+linsenkasten central --measure betweenness --limit 10
+
+# Explore neighborhood
+linsenkasten neighborhood "Pace Layering" --radius 2
+
+# Find contrasts
+linsenkasten contrasts "Explore vs Exploit"
+```
+
+### CLI Features
+- **Colorized output** - Beautiful terminal formatting
+- **Flexible queries** - Natural language lens names
+- **Scriptable** - Pipe-able output for automation
+- **Fast** - Direct API access with local caching
+- **Help system** - Run `linsenkasten help` for usage info
+
+### CLI Examples
+
+**Quick lens lookup:**
+```bash
+linsenkasten get "Systems Thinking"
+```
+
+**Find connections between concepts:**
+```bash
+linsenkasten journey "Pace Layering" "Innovation Cascade"
+```
+
+**Creative problem-solving workflow:**
+```bash
+# 1. Get random provocation
+linsenkasten random
+
+# 2. Bridge back to your domain
+linsenkasten bridge "Random Lens Name" "Product Design"
+
+# 3. Explore the bridge
+linsenkasten neighborhood "Bridge Lens Name"
+```
+
+**Explore the knowledge graph:**
+```bash
+# Find most important concepts
+linsenkasten central --measure pagerank
+
+# Explore around a concept
+linsenkasten neighborhood "Systems Thinking" --radius 2
+
+# Find paradoxes
+linsenkasten contrasts "Explore vs Exploit"
+```
+
 ## Features
 
 ### 13 Tools for Creative Thinking
