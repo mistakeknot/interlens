@@ -200,13 +200,20 @@ class SupabaseLensStore:
         """
         try:
             if not lens_names:
+                logger.warning("get_frame_ids_for_lenses: Empty lens_names provided")
                 return {}
+
+            logger.info(f"get_frame_ids_for_lenses: Looking up {len(lens_names)} lenses: {lens_names}")
 
             # Query lenses table for the specified lens names
             result = self.client.table('lenses') \
                 .select('lens_name, frame_ids') \
                 .in_('lens_name', lens_names) \
                 .execute()
+
+            logger.info(f"get_frame_ids_for_lenses: Query returned {len(result.data) if result.data else 0} results")
+            if result.data:
+                logger.info(f"get_frame_ids_for_lenses: First result sample: {result.data[0] if result.data else 'none'}")
 
             if result.data:
                 # Build mapping of lens name to frame_ids
@@ -223,11 +230,15 @@ class SupabaseLensStore:
 
                     lens_frame_map[name] = frame_ids
 
+                logger.info(f"get_frame_ids_for_lenses: Built map with {len(lens_frame_map)} entries")
                 return lens_frame_map
 
+            logger.warning("get_frame_ids_for_lenses: No results from Supabase query")
             return {}
         except Exception as e:
             logger.error(f"Error getting frame_ids for lenses {lens_names}: {e}")
+            import traceback
+            traceback.print_exc()
             return {}
 
     def text_search_lenses(self, search_query: str, k: int = 20) -> List[Dict[str, Any]]:
