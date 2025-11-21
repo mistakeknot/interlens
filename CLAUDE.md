@@ -8,6 +8,12 @@ Linsenkasten API is a Flask-based REST API that provides access to 256+ FLUX ana
 
 **Architecture**: Flask API → NetworkX graph operations → Supabase PostgreSQL
 
+**Recent Updates (2025-01)**:
+- ✅ Semantic search fixed: Now uses OpenAI embeddings + pgvector (was using keyword matching)
+- ✅ Graph module integrated: All creative endpoints working with NetworkX 3.1
+- ✅ Scipy dependency added: Required for NetworkX centrality calculations
+- ⚠️ PageRank centrality: Works locally but fails on Railway (use betweenness/eigenvector instead)
+
 ## Key Files
 
 - **`lens_search_api.py`** (2,029 lines) - Main Flask application with all API endpoints
