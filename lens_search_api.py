@@ -125,6 +125,144 @@ try:
 except Exception as e:
     print(f"Failed to load frames: {e}")
 
+
+# ============================================================================
+# Gap Detection Helper Functions
+# ============================================================================
+
+def calculate_frame_coverage(context_lens_names: List[str]) -> Dict:
+    """
+    Analyze which frames have been explored vs. unexplored.
+
+    Args:
+        context_lens_names: List of recently explored lens names
+
+    Returns:
+        Dictionary with explored/unexplored/underexplored frame lists
+    """
+    try:
+        # Get all available frames
+        all_frames_result = supabase_store.client.table('frames').select('name').execute()
+        all_frame_names = [f['name'] for f in all_frames_result.data] if all_frames_result.data else []
+
+        # If no frames in DB, fall back to loaded FRAMES
+        if not all_frame_names and FRAMES:
+            all_frame_names = [f['name'] for f in FRAMES]
+
+        # Map context lenses to their frames
+        lens_frame_map = supabase_store.get_frames_for_lenses(context_lens_names)
+
+        # Count frame usage
+        explored_frames = {}
+        for lens, frames in lens_frame_map.items():
+            for frame in frames:
+                explored_frames[frame] = explored_frames.get(frame, 0) + 1
+
+        # Categorize frames
+        unexplored = [f for f in all_frame_names if f not in explored_frames]
+        underexplored = [f for f, count in explored_frames.items() if count == 1]
+
+        return {
+            'explored': explored_frames,
+            'unexplored': unexplored,
+            'underexplored': underexplored,
+            'total_frames': len(all_frame_names)
+        }
+    except Exception as e:
+        print(f"Error calculating frame coverage: {e}")
+        return {
+            'explored': {},
+            'unexplored': [],
+            'underexplored': [],
+            'total_frames': 0
+        }
+
+
+def bias_lens_selection(all_lenses: List[Dict], coverage_data: Dict) -> Optional[Dict]:
+    """
+    Apply 80/15/5 weighted random selection toward gaps.
+
+    Args:
+        all_lenses: Full lens catalog
+        coverage_data: Output from calculate_frame_coverage()
+
+    Returns:
+        Selected lens dictionary, or None if no lenses available
+    """
+    import random
+
+    if not all_lenses:
+        return None
+
+    # Categorize lenses by frame coverage
+    unexplored_lenses = []
+    underexplored_lenses = []
+
+    for lens in all_lenses:
+        lens_frames = lens.get('frames', [])
+        # Handle frames as string or list
+        if isinstance(lens_frames, str):
+            lens_frames = [lens_frames]
+        elif not isinstance(lens_frames, list):
+            lens_frames = []
+
+        # Check if lens belongs to unexplored or underexplored frames
+        if any(f in coverage_data['unexplored'] for f in lens_frames):
+            unexplored_lenses.append(lens)
+        elif any(f in coverage_data['underexplored'] for f in lens_frames):
+            underexplored_lenses.append(lens)
+
+    # Apply weighted random selection (80/15/5)
+    rand = random.random()
+
+    if rand < 0.80 and unexplored_lenses:
+        return random.choice(unexplored_lenses)
+    elif rand < 0.95 and underexplored_lenses:
+        return random.choice(underexplored_lenses)
+    else:
+        return random.choice(all_lenses)
+
+
+def generate_gap_report(coverage_data: Dict, selected_lens: Dict) -> Dict:
+    """
+    Format gap analysis for API response.
+
+    Args:
+        coverage_data: Output from calculate_frame_coverage()
+        selected_lens: The lens that was selected
+
+    Returns:
+        Gap analysis dictionary for response
+    """
+    # Get frame of selected lens
+    lens_frames = selected_lens.get('frames', [])
+    if isinstance(lens_frames, str):
+        lens_frames = [lens_frames]
+    elif not isinstance(lens_frames, list):
+        lens_frames = []
+
+    lens_frame = lens_frames[0] if lens_frames else 'Unknown'
+
+    # Determine if suggestion was gap-biased
+    was_gap_biased = lens_frame in coverage_data['unexplored']
+
+    return {
+        'explored_frames': list(coverage_data['explored'].keys()),
+        'unexplored_count': len(coverage_data['unexplored']),
+        'suggested_from_frame': lens_frame,
+        'was_gap_biased': was_gap_biased,
+        'coverage': {
+            'explored': len(coverage_data['explored']),
+            'unexplored': len(coverage_data['unexplored']),
+            'total': coverage_data['total_frames']
+        }
+    }
+
+
+# ============================================================================
+# API Routes
+# ============================================================================
+
 @app.route('/api/v1/lenses', methods=['GET'])
 def get_lenses():
     """Get all lenses with optional filtering"""
@@ -1418,7 +1556,13 @@ def get_lens_neighborhood():
 
 @app.route('/api/v1/creative/random', methods=['GET'])
 def random_lens_provocation():
-    """Get a random lens for creative provocation"""
+    """
+    Get a random lens for creative provocation.
+    Optionally provide context to bias toward unexplored conceptual dimensions.
+    """
+    # Get optional context parameter
+    context = request.args.getlist('context')
+
     all_lenses = supabase_store.get_all_lenses(limit=500)
 
     if not all_lenses:
@@ -1427,13 +1571,28 @@ def random_lens_provocation():
             'error': 'No lenses found'
         }), 404
 
-    import random
-    random_lens = random.choice(all_lenses)
+    # Determine selection strategy
+    gap_analysis = None
+    if context:
+        # Gap-biased mode
+        coverage = calculate_frame_coverage(context)
+        random_lens = bias_lens_selection(all_lenses, coverage)
+
+        if random_lens is None:
+            # Fallback to pure random if bias fails
+            import random
+            random_lens = random.choice(all_lenses)
+        else:
+            gap_analysis = generate_gap_report(coverage, random_lens)
+    else:
+        # Original behavior: pure randomness
+        import random
+        random_lens = random.choice(all_lenses)
 
     # Get related lenses for follow-up exploration
     related = supabase_store.get_related_lenses(random_lens['id'], k=3)
 
-    return jsonify({
+    response = {
         'success': True,
         'provocation': {
             'id': random_lens['id'],
@@ -1445,7 +1604,95 @@ def random_lens_provocation():
         },
         'related': related,
         'suggestion': f"Try viewing your problem through the '{random_lens.get('name')}' lens"
+    }
+
+    # Include gap analysis if context was provided
+    if gap_analysis:
+        response['gap_analysis'] = gap_analysis
+
+    return jsonify(response)
+
+
+@app.route('/api/v1/creative/gaps', methods=['GET'])
+def detect_thinking_gaps():
+    """
+    Analyze exploration coverage and identify unexplored conceptual dimensions.
+    Requires context parameter with list of explored lens names.
+    """
+    # Get required context parameter
+    context = request.args.getlist('context')
+
+    if not context:
+        return jsonify({
+            'success': False,
+            'error': 'context parameter required (list of explored lens names)'
+        }), 400
+
+    # Calculate coverage
+    coverage = calculate_frame_coverage(context)
+
+    # Get all lenses for sampling
+    all_lenses = supabase_store.get_all_lenses(limit=500)
+
+    if not all_lenses:
+        return jsonify({
+            'success': False,
+            'error': 'No lenses found'
+        }), 404
+
+    # Generate suggestions from unexplored frames (top 5)
+    import random
+    suggestions = []
+
+    for frame in coverage['unexplored'][:5]:
+        # Find lenses belonging to this frame
+        frame_lenses = []
+        for lens in all_lenses:
+            lens_frames = lens.get('frames', [])
+            if isinstance(lens_frames, str):
+                lens_frames = [lens_frames]
+            elif not isinstance(lens_frames, list):
+                lens_frames = []
+
+            if frame in lens_frames:
+                frame_lenses.append(lens)
+
+        # Sample up to 3 lenses from this frame
+        if frame_lenses:
+            sample_count = min(3, len(frame_lenses))
+            sampled = random.sample(frame_lenses, sample_count)
+
+            suggestions.append({
+                'frame': frame,
+                'sample_lenses': [
+                    {
+                        'id': l['id'],
+                        'name': l.get('name'),
+                        'definition': l.get('definition'),
+                        'episode': l.get('episode')
+                    }
+                    for l in sampled
+                ]
+            })
+
+    # Calculate coverage percentage
+    coverage_percentage = 0
+    if coverage['total_frames'] > 0:
+        coverage_percentage = (len(coverage['explored']) / coverage['total_frames']) * 100
+
+    return jsonify({
+        'success': True,
+        'coverage': {
+            'explored_frames': coverage['explored'],
+            'unexplored_frames': coverage['unexplored'],
+            'underexplored_frames': coverage['underexplored'],
+            'total_frames': coverage['total_frames'],
+            'coverage_percentage': round(coverage_percentage, 1)
+        },
+        'suggestions': suggestions,
+        'insight': f"You've explored {len(coverage['explored'])} of {coverage['total_frames']} conceptual dimensions. Consider these unexplored areas for fresh perspectives."
     })
+
 
 if __name__ == '__main__':
     # Railway provides PORT env var

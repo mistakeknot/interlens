@@ -179,14 +179,57 @@ class SupabaseLensStore:
                 'lens_id': lens_id,
                 'match_count': k
             }).execute()
-            
+
             if result.data:
                 return result.data
             return []
         except Exception as e:
             logger.error(f"Error getting related lenses for {lens_id}: {e}")
             return []
-    
+
+    def get_frames_for_lenses(self, lens_names: List[str]) -> Dict[str, List[str]]:
+        """
+        Get frame associations for a list of lens names.
+
+        Args:
+            lens_names: List of lens names to look up
+
+        Returns:
+            Dictionary mapping lens_name -> [frame_names]
+            Example: {"Systems Thinking": ["Systems & Complexity"], ...}
+        """
+        try:
+            if not lens_names:
+                return {}
+
+            # Query lenses table for the specified lens names
+            result = self.client.table('lenses') \
+                .select('name, frames') \
+                .in_('name', lens_names) \
+                .execute()
+
+            if result.data:
+                # Build mapping of lens name to frames
+                lens_frame_map = {}
+                for lens in result.data:
+                    name = lens.get('name')
+                    frames = lens.get('frames', [])
+
+                    # Handle frames as either list or single string
+                    if isinstance(frames, str):
+                        frames = [frames]
+                    elif not isinstance(frames, list):
+                        frames = []
+
+                    lens_frame_map[name] = frames
+
+                return lens_frame_map
+
+            return {}
+        except Exception as e:
+            logger.error(f"Error getting frames for lenses {lens_names}: {e}")
+            return {}
+
     def text_search_lenses(self, search_query: str, k: int = 20) -> List[Dict[str, Any]]:
         """Full-text search on lens names and definitions."""
         try:
