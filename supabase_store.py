@@ -206,9 +206,9 @@ class SupabaseLensStore:
             logger.info(f"get_frame_ids_for_lenses: Looking up {len(lens_names)} lenses: {lens_names}")
 
             # Strategy: Query all lenses and filter in Python
-            # This is more reliable than trying to match Supabase query syntax
+            # NOTE: Supabase uses 'name' field, not 'lens_name'
             result = self.client.table('lenses') \
-                .select('lens_name, frame_ids') \
+                .select('name, frame_ids') \
                 .execute()
 
             logger.info(f"get_frame_ids_for_lenses: Query returned {len(result.data) if result.data else 0} total lenses")
@@ -219,13 +219,13 @@ class SupabaseLensStore:
 
             if result.data:
                 # Debug: Log first 5 lens names from database
-                db_sample = [lens.get('lens_name') for lens in result.data[:5]]
+                db_sample = [lens.get('name') for lens in result.data[:5]]
                 logger.info(f"get_frame_ids_for_lenses: Database sample (first 5): {db_sample}")
 
                 # Build mapping of lens name to frame_ids (only for target lenses)
                 lens_frame_map = {}
                 for lens in result.data:
-                    name = lens.get('lens_name')
+                    name = lens.get('name')  # Use 'name' not 'lens_name'
 
                     # Debug: Log each comparison for target lenses
                     if name in ['The Thinking Hat', 'Getting over the Hump', 'Footguns']:
@@ -250,7 +250,7 @@ class SupabaseLensStore:
                     logger.warning(f"get_frame_ids_for_lenses: No matches found!")
                     logger.warning(f"get_frame_ids_for_lenses: Target names (repr): {[repr(n) for n in target_names]}")
                     # Log some potential matches for debugging
-                    potential = [lens.get('lens_name') for lens in result.data if 'Thinking' in lens.get('lens_name', '')][:3]
+                    potential = [lens.get('name') for lens in result.data if 'Thinking' in lens.get('name', '')][:3]
                     logger.warning(f"get_frame_ids_for_lenses: Potential 'Thinking' matches in DB: {potential}")
                 return lens_frame_map
 

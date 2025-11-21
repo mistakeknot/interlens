@@ -1722,13 +1722,14 @@ def debug_lens_lookup():
     # Get all lenses from database
     all_lenses = supabase_store.get_all_lenses(limit=500)
 
+    # NOTE: Supabase uses 'name' field, not 'lens_name'
     # Find exact matches
-    exact_matches = [l for l in all_lenses if l.get('lens_name') in context]
+    exact_matches = [l for l in all_lenses if l.get('name') in context]
 
     # Find partial matches
     partial_matches = []
     for target in context:
-        partials = [l.get('lens_name') for l in all_lenses if target.lower() in l.get('lens_name', '').lower()][:3]
+        partials = [l.get('name') for l in all_lenses if target.lower() in l.get('name', '').lower()][:3]
         if partials:
             partial_matches.append({
                 'target': target,
@@ -1736,7 +1737,7 @@ def debug_lens_lookup():
             })
 
     # Get sample of all lens names
-    sample_names = [l.get('lens_name') for l in all_lenses[:20]]
+    sample_names = [l.get('name') for l in all_lenses[:20]]
 
     return jsonify({
         'success': True,
