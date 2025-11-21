@@ -4,11 +4,15 @@ This module enhances lens discovery by leveraging the network structure of lens 
 """
 import json
 import logging
+import os
 from typing import List, Dict, Set, Tuple, Optional
 from collections import defaultdict, deque
 import networkx as nx
 
 logger = logging.getLogger(__name__)
+
+# Get the directory containing the data files (project root)
+DATA_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 class LensGraph:
@@ -23,7 +27,8 @@ class LensGraph:
     def _load_lenses(self):
         """Load all lenses as nodes in the graph"""
         try:
-            with open('all_lenses_for_analysis.json', 'r') as f:
+            lens_file = os.path.join(DATA_DIR, 'all_lenses_for_analysis.json')
+            with open(lens_file, 'r') as f:
                 lenses = json.load(f)
                 
             for lens in lenses:
@@ -44,7 +49,8 @@ class LensGraph:
         """Load lens relationships from various sources"""
         # Load AI-discovered connections
         try:
-            with open('claude_lens_connections_analysis.json', 'r') as f:
+            connections_file = os.path.join(DATA_DIR, 'claude_lens_connections_analysis.json')
+            with open(connections_file, 'r') as f:
                 data = json.load(f)
                 connections = data.get('connections', [])
                 
@@ -63,7 +69,8 @@ class LensGraph:
         
         # Load frame-based relationships
         try:
-            with open('lens_frames_thematic.json', 'r') as f:
+            frames_file = os.path.join(DATA_DIR, 'lens_frames_thematic.json')
+            with open(frames_file, 'r') as f:
                 data = json.load(f)
                 frames = data.get('frames', [])
                 
