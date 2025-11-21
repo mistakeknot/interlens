@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 FLUX Lens Search API - RESTful API for lens exploration
+Updated: 2025-11-21 - Added gap detection endpoints
 """
 from flask import Flask, request, jsonify
 from flask_cors import CORS
