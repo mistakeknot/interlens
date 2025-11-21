@@ -1711,6 +1711,46 @@ def detect_thinking_gaps():
     })
 
 
+@app.route('/api/v1/debug/lens-lookup', methods=['GET'])
+def debug_lens_lookup():
+    """Temporary debug endpoint to diagnose lens name matching issues"""
+    context = request.args.getlist('context')
+
+    if not context:
+        return jsonify({'error': 'context parameter required'}), 400
+
+    # Get all lenses from database
+    all_lenses = supabase_store.get_all_lenses(limit=500)
+
+    # Find exact matches
+    exact_matches = [l for l in all_lenses if l.get('lens_name') in context]
+
+    # Find partial matches
+    partial_matches = []
+    for target in context:
+        partials = [l.get('lens_name') for l in all_lenses if target.lower() in l.get('lens_name', '').lower()][:3]
+        if partials:
+            partial_matches.append({
+                'target': target,
+                'matches': partials
+            })
+
+    # Get sample of all lens names
+    sample_names = [l.get('lens_name') for l in all_lenses[:20]]
+
+    return jsonify({
+        'success': True,
+        'debug': {
+            'requested_lenses': context,
+            'exact_matches_found': len(exact_matches),
+            'exact_match_names': [l.get('lens_name') for l in exact_matches],
+            'partial_matches': partial_matches,
+            'database_sample': sample_names,
+            'total_lenses_in_db': len(all_lenses)
+        }
+    })
+
+
 if __name__ == '__main__':
     # Railway provides PORT env var
     port = int(os.getenv('PORT', os.getenv('LENS_API_PORT', 5002)))

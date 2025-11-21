@@ -218,10 +218,18 @@ class SupabaseLensStore:
             logger.info(f"get_frame_ids_for_lenses: Filtering for {len(target_names)} target lenses")
 
             if result.data:
+                # Debug: Log first 5 lens names from database
+                db_sample = [lens.get('lens_name') for lens in result.data[:5]]
+                logger.info(f"get_frame_ids_for_lenses: Database sample (first 5): {db_sample}")
+
                 # Build mapping of lens name to frame_ids (only for target lenses)
                 lens_frame_map = {}
                 for lens in result.data:
                     name = lens.get('lens_name')
+
+                    # Debug: Log each comparison for target lenses
+                    if name in ['The Thinking Hat', 'Getting over the Hump', 'Footguns']:
+                        logger.info(f"get_frame_ids_for_lenses: Found target lens: '{name}' (repr: {repr(name)})")
 
                     # Only include if this lens is in our target set
                     if name in target_names:
@@ -239,7 +247,11 @@ class SupabaseLensStore:
                 if lens_frame_map:
                     logger.info(f"get_frame_ids_for_lenses: Sample match: {list(lens_frame_map.items())[0]}")
                 else:
-                    logger.warning(f"get_frame_ids_for_lenses: No matches found for target lenses: {target_names}")
+                    logger.warning(f"get_frame_ids_for_lenses: No matches found!")
+                    logger.warning(f"get_frame_ids_for_lenses: Target names (repr): {[repr(n) for n in target_names]}")
+                    # Log some potential matches for debugging
+                    potential = [lens.get('lens_name') for lens in result.data if 'Thinking' in lens.get('lens_name', '')][:3]
+                    logger.warning(f"get_frame_ids_for_lenses: Potential 'Thinking' matches in DB: {potential}")
                 return lens_frame_map
 
             logger.warning("get_frame_ids_for_lenses: No results from Supabase query")
