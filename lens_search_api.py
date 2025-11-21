@@ -1646,6 +1646,15 @@ def detect_thinking_gaps():
     # Calculate coverage
     coverage = calculate_frame_coverage(context)
 
+    # Debug: Add diagnostic info to response
+    lens_frame_map = supabase_store.get_frame_ids_for_lenses(context)
+    debug_info = {
+        'context_received': context,
+        'lens_frame_map_size': len(lens_frame_map),
+        'lens_frame_map_keys': list(lens_frame_map.keys())[:5],
+        'coverage_explored_count': len(coverage.get('explored', {}))
+    }
+
     # Get all lenses for sampling
     all_lenses = supabase_store.get_all_lenses(limit=500)
 
@@ -1707,7 +1716,8 @@ def detect_thinking_gaps():
             'coverage_percentage': round(coverage_percentage, 1)
         },
         'suggestions': suggestions,
-        'insight': f"You've explored {len(coverage['explored'])} of {coverage['total_frames']} conceptual dimensions. Consider these unexplored areas for fresh perspectives."
+        'insight': f"You've explored {len(coverage['explored'])} of {coverage['total_frames']} conceptual dimensions. Consider these unexplored areas for fresh perspectives.",
+        'debug': debug_info  # Temporary debug info
     })
 
 
