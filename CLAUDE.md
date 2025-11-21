@@ -101,6 +101,8 @@ linsenkasten contrasts "Explore vs Exploit"
 node cli.js search "systems thinking"
 ```
 
+**Known Limitation**: The `central --measure pagerank` command works locally but fails on the Railway-hosted API due to platform constraints. Use `--measure betweenness` or `--measure eigenvector` instead - both work perfectly on Railway and provide similar hub-finding functionality.
+
 ### Installation
 
 ```bash
