@@ -296,14 +296,16 @@ class LensGraph:
     
     def get_central_lenses(self, measure: str = 'betweenness') -> List[Tuple[str, float]]:
         """Get most central/important lenses in the graph"""
-        if measure == 'betweenness':
+        measure_lower = measure.lower()
+
+        if measure_lower == 'betweenness':
             centrality = nx.betweenness_centrality(self.graph)
-        elif measure == 'eigenvector':
+        elif measure_lower == 'eigenvector':
             try:
                 centrality = nx.eigenvector_centrality(self.graph, max_iter=100)
             except:
                 centrality = nx.degree_centrality(self.graph)
-        elif measure == 'pagerank':
+        elif measure_lower == 'pagerank':
             try:
                 centrality = nx.pagerank(self.graph, max_iter=100, tol=1e-06)
             except Exception:
