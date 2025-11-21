@@ -307,7 +307,8 @@ class LensGraph:
                 centrality = nx.degree_centrality(self.graph)
         elif measure_lower == 'pagerank':
             try:
-                centrality = nx.pagerank(self.graph, max_iter=100, tol=1e-06)
+                # Use default parameters for PageRank
+                centrality = nx.pagerank(self.graph)
             except Exception:
                 # Fall back to degree centrality if PageRank fails
                 centrality = nx.degree_centrality(self.graph)
