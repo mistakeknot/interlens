@@ -213,6 +213,10 @@ async function cmdCentral(options) {
     const results = await api.getCentralLenses(measure, limit);
 
     if (results.success && results.central_lenses) {
+      if (results.note) {
+        console.log(`${yellow('⚠')}  ${dim(results.note)}\n`);
+      }
+
       if (results.insight) {
         console.log(`${dim(results.insight)}\n`);
       }
