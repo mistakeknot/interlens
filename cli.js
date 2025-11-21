@@ -384,7 +384,13 @@ ${bold('COMMANDS:')}
     ${dim('Example: linsenkasten journey "Systems Thinking" "Innovation"')}
 
   ${green('random')}                      Get a random lens provocation
+    ${dim('--context <lens>         Lens names already explored (enables gap-aware selection)')}
     ${dim('Example: linsenkasten random')}
+    ${dim('Example: linsenkasten random --context "Pace Layering" --context "Systems Thinking"')}
+
+  ${green('gaps')}                        Analyze thinking gaps across FLUX frames
+    ${dim('--context <lens>         Required: Lens names that have been explored')}
+    ${dim('Example: linsenkasten gaps --context "Pace Layering" --context "Systems Thinking"')}
 
   ${green('bridge')} <lens1> <lens2>...   Find lenses that bridge between concepts
     ${dim('Example: linsenkasten bridge "Leadership" "Complexity" "Communication"')}
@@ -411,6 +417,8 @@ ${bold('EXAMPLES:')}
   linsenkasten get "Systems Thinking"
   linsenkasten journey "Pace Layering" "Innovation Cascade"
   linsenkasten random
+  linsenkasten random --context "Pace Layering" --context "Systems Thinking"
+  linsenkasten gaps --context "Innovation" --context "Leadership" --context "Systems Thinking"
   linsenkasten bridge "Leadership" "Complexity"
   linsenkasten central --measure betweenness --limit 10
   linsenkasten neighborhood "Systems Thinking" --radius 2
