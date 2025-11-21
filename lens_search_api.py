@@ -1346,9 +1346,20 @@ def get_central_lenses():
 
         measure = request.args.get('measure', 'betweenness')  # betweenness, pagerank, eigenvector
         limit = int(request.args.get('limit', 10))
+        fallback_note = None
 
-        # Get central lenses
-        central = lens_graph.get_central_lenses(measure=measure)[:limit]
+        # Try to get central lenses, with fallback for PageRank issues
+        try:
+            central = lens_graph.get_central_lenses(measure=measure)[:limit]
+        except Exception as e:
+            # If PageRank fails, fall back to betweenness
+            if measure.lower() == 'pagerank':
+                print(f"PageRank failed, falling back to betweenness: {e}")
+                central = lens_graph.get_central_lenses(measure='betweenness')[:limit]
+                fallback_note = "Note: Using betweenness centrality (PageRank temporarily unavailable)"
+                measure = 'betweenness (pagerank fallback)'
+            else:
+                raise
 
         # Enrich with details
         enriched = []
@@ -1364,13 +1375,18 @@ def get_central_lenses():
                     'related_concepts': lens.get('related_concepts', [])
                 })
 
-        return jsonify({
+        response = {
             'success': True,
             'measure': measure,
             'central_lenses': enriched,
             'count': len(enriched),
             'insight': f"These lenses are hubs in the {measure} network - they connect many other concepts"
-        })
+        }
+
+        if fallback_note:
+            response['note'] = fallback_note
+
+        return jsonify(response)
     except Exception as e:
         import traceback
         print(f"Error in get_central_lenses: {e}")
