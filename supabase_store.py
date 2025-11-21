@@ -206,9 +206,13 @@ class SupabaseLensStore:
             logger.info(f"get_frame_ids_for_lenses: Looking up {len(lens_names)} lenses: {lens_names}")
 
             # Query lenses table for the specified lens names
+            # Using filter with PostgREST 'in' syntax
+            lens_names_formatted = f"({','.join(f'{name}' for name in lens_names)})"
+            logger.info(f"get_frame_ids_for_lenses: Formatted filter: lens_name.in.{lens_names_formatted}")
+
             result = self.client.table('lenses') \
                 .select('lens_name, frame_ids') \
-                .in_('lens_name', lens_names) \
+                .filter('lens_name', 'in', lens_names_formatted) \
                 .execute()
 
             logger.info(f"get_frame_ids_for_lenses: Query returned {len(result.data) if result.data else 0} results")
