@@ -1337,39 +1337,48 @@ def find_contrasting_lenses():
 @app.route('/api/v1/creative/central', methods=['GET'])
 def get_central_lenses():
     """Get most central/important lenses for creative exploration"""
-    if not HAS_GRAPH:
+    try:
+        if not HAS_GRAPH:
+            return jsonify({
+                'success': False,
+                'error': 'Graph functionality not available'
+            }), 503
+
+        measure = request.args.get('measure', 'betweenness')  # betweenness, pagerank, eigenvector
+        limit = int(request.args.get('limit', 10))
+
+        # Get central lenses
+        central = lens_graph.get_central_lenses(measure=measure)[:limit]
+
+        # Enrich with details
+        enriched = []
+        for lens_id, score, name in central:
+            lens = supabase_store.get_lens_by_id(lens_id)
+            if lens:
+                enriched.append({
+                    'id': lens_id,
+                    'name': name,
+                    'definition': lens.get('definition'),
+                    'episode': lens.get('episode'),
+                    'centrality_score': round(score, 4),
+                    'related_concepts': lens.get('related_concepts', [])
+                })
+
+        return jsonify({
+            'success': True,
+            'measure': measure,
+            'central_lenses': enriched,
+            'count': len(enriched),
+            'insight': f"These lenses are hubs in the {measure} network - they connect many other concepts"
+        })
+    except Exception as e:
+        import traceback
+        print(f"Error in get_central_lenses: {e}")
+        print(traceback.format_exc())
         return jsonify({
             'success': False,
-            'error': 'Graph functionality not available'
-        }), 503
-
-    measure = request.args.get('measure', 'betweenness')  # betweenness, pagerank, eigenvector
-    limit = int(request.args.get('limit', 10))
-
-    # Get central lenses
-    central = lens_graph.get_central_lenses(measure=measure)[:limit]
-
-    # Enrich with details
-    enriched = []
-    for lens_id, score, name in central:
-        lens = supabase_store.get_lens_by_id(lens_id)
-        if lens:
-            enriched.append({
-                'id': lens_id,
-                'name': name,
-                'definition': lens.get('definition'),
-                'episode': lens.get('episode'),
-                'centrality_score': round(score, 4),
-                'related_concepts': lens.get('related_concepts', [])
-            })
-
-    return jsonify({
-        'success': True,
-        'measure': measure,
-        'central_lenses': enriched,
-        'count': len(enriched),
-        'insight': f"These lenses are hubs in the {measure} network - they connect many other concepts"
-    })
+            'error': f'Failed to get central lenses: {str(e)}'
+        }), 500
 
 @app.route('/api/v1/creative/neighborhood', methods=['GET'])
 def get_lens_neighborhood():
