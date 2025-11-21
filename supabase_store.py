@@ -187,16 +187,16 @@ class SupabaseLensStore:
             logger.error(f"Error getting related lenses for {lens_id}: {e}")
             return []
 
-    def get_frames_for_lenses(self, lens_names: List[str]) -> Dict[str, List[str]]:
+    def get_frame_ids_for_lenses(self, lens_names: List[str]) -> Dict[str, List[str]]:
         """
-        Get frame associations for a list of lens names.
+        Get frame_id associations for a list of lens names.
 
         Args:
             lens_names: List of lens names to look up
 
         Returns:
-            Dictionary mapping lens_name -> [frame_names]
-            Example: {"Systems Thinking": ["Systems & Complexity"], ...}
+            Dictionary mapping lens_name -> [frame_ids]
+            Example: {"Systems Thinking": ["frame_systems_complexity"], ...}
         """
         try:
             if not lens_names:
@@ -204,30 +204,30 @@ class SupabaseLensStore:
 
             # Query lenses table for the specified lens names
             result = self.client.table('lenses') \
-                .select('name, frames') \
-                .in_('name', lens_names) \
+                .select('lens_name, frame_ids') \
+                .in_('lens_name', lens_names) \
                 .execute()
 
             if result.data:
-                # Build mapping of lens name to frames
+                # Build mapping of lens name to frame_ids
                 lens_frame_map = {}
                 for lens in result.data:
-                    name = lens.get('name')
-                    frames = lens.get('frames', [])
+                    name = lens.get('lens_name')
+                    frame_ids = lens.get('frame_ids', [])
 
-                    # Handle frames as either list or single string
-                    if isinstance(frames, str):
-                        frames = [frames]
-                    elif not isinstance(frames, list):
-                        frames = []
+                    # Handle frame_ids as either list or single string
+                    if isinstance(frame_ids, str):
+                        frame_ids = [frame_ids]
+                    elif not isinstance(frame_ids, list):
+                        frame_ids = []
 
-                    lens_frame_map[name] = frames
+                    lens_frame_map[name] = frame_ids
 
                 return lens_frame_map
 
             return {}
         except Exception as e:
-            logger.error(f"Error getting frames for lenses {lens_names}: {e}")
+            logger.error(f"Error getting frame_ids for lenses {lens_names}: {e}")
             return {}
 
     def text_search_lenses(self, search_query: str, k: int = 20) -> List[Dict[str, Any]]:

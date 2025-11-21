@@ -130,6 +130,19 @@ except Exception as e:
 # Gap Detection Helper Functions
 # ============================================================================
 
+def get_frame_name_from_id(frame_id: str) -> str:
+    """Convert frame_id to human-readable frame name."""
+    for frame in FRAMES:
+        if frame['id'] == frame_id:
+            return frame.get('name', frame_id)
+    return frame_id  # Fallback to ID if name not found
+
+
+def get_all_frame_names() -> List[str]:
+    """Get list of all frame names."""
+    return [frame.get('name', frame['id']) for frame in FRAMES]
+
+
 def calculate_frame_coverage(context_lens_names: List[str]) -> Dict:
     """
     Analyze which frames have been explored vs. unexplored.
@@ -138,25 +151,21 @@ def calculate_frame_coverage(context_lens_names: List[str]) -> Dict:
         context_lens_names: List of recently explored lens names
 
     Returns:
-        Dictionary with explored/unexplored/underexplored frame lists
+        Dictionary with explored/unexplored/underexplored frame lists (using frame names)
     """
     try:
-        # Get all available frames
-        all_frames_result = supabase_store.client.table('frames').select('name').execute()
-        all_frame_names = [f['name'] for f in all_frames_result.data] if all_frames_result.data else []
+        # Get all available frame names from loaded FRAMES
+        all_frame_names = get_all_frame_names()
 
-        # If no frames in DB, fall back to loaded FRAMES
-        if not all_frame_names and FRAMES:
-            all_frame_names = [f['name'] for f in FRAMES]
+        # Get frame_ids for context lenses from Supabase
+        lens_frame_map = supabase_store.get_frame_ids_for_lenses(context_lens_names)
 
-        # Map context lenses to their frames
-        lens_frame_map = supabase_store.get_frames_for_lenses(context_lens_names)
-
-        # Count frame usage
+        # Count frame usage (converting frame_ids to names)
         explored_frames = {}
-        for lens, frames in lens_frame_map.items():
-            for frame in frames:
-                explored_frames[frame] = explored_frames.get(frame, 0) + 1
+        for lens, frame_ids in lens_frame_map.items():
+            for frame_id in frame_ids:
+                frame_name = get_frame_name_from_id(frame_id)
+                explored_frames[frame_name] = explored_frames.get(frame_name, 0) + 1
 
         # Categorize frames
         unexplored = [f for f in all_frame_names if f not in explored_frames]
@@ -170,6 +179,8 @@ def calculate_frame_coverage(context_lens_names: List[str]) -> Dict:
         }
     except Exception as e:
         print(f"Error calculating frame coverage: {e}")
+        import traceback
+        traceback.print_exc()
         return {
             'explored': {},
             'unexplored': [],
@@ -194,22 +205,25 @@ def bias_lens_selection(all_lenses: List[Dict], coverage_data: Dict) -> Optional
     if not all_lenses:
         return None
 
-    # Categorize lenses by frame coverage
+    # Categorize lenses by frame coverage (convert frame_ids to names for comparison)
     unexplored_lenses = []
     underexplored_lenses = []
 
     for lens in all_lenses:
-        lens_frames = lens.get('frames', [])
-        # Handle frames as string or list
-        if isinstance(lens_frames, str):
-            lens_frames = [lens_frames]
-        elif not isinstance(lens_frames, list):
-            lens_frames = []
+        lens_frame_ids = lens.get('frame_ids', [])
+        # Handle frame_ids as string or list
+        if isinstance(lens_frame_ids, str):
+            lens_frame_ids = [lens_frame_ids]
+        elif not isinstance(lens_frame_ids, list):
+            lens_frame_ids = []
+
+        # Convert frame_ids to frame_names
+        lens_frame_names = [get_frame_name_from_id(fid) for fid in lens_frame_ids]
 
         # Check if lens belongs to unexplored or underexplored frames
-        if any(f in coverage_data['unexplored'] for f in lens_frames):
+        if any(f in coverage_data['unexplored'] for f in lens_frame_names):
             unexplored_lenses.append(lens)
-        elif any(f in coverage_data['underexplored'] for f in lens_frames):
+        elif any(f in coverage_data['underexplored'] for f in lens_frame_names):
             underexplored_lenses.append(lens)
 
     # Apply weighted random selection (80/15/5)
@@ -234,14 +248,15 @@ def generate_gap_report(coverage_data: Dict, selected_lens: Dict) -> Dict:
     Returns:
         Gap analysis dictionary for response
     """
-    # Get frame of selected lens
-    lens_frames = selected_lens.get('frames', [])
-    if isinstance(lens_frames, str):
-        lens_frames = [lens_frames]
-    elif not isinstance(lens_frames, list):
-        lens_frames = []
+    # Get frame_ids of selected lens and convert to names
+    lens_frame_ids = selected_lens.get('frame_ids', [])
+    if isinstance(lens_frame_ids, str):
+        lens_frame_ids = [lens_frame_ids]
+    elif not isinstance(lens_frame_ids, list):
+        lens_frame_ids = []
 
-    lens_frame = lens_frames[0] if lens_frames else 'Unknown'
+    lens_frame_names = [get_frame_name_from_id(fid) for fid in lens_frame_ids]
+    lens_frame = lens_frame_names[0] if lens_frame_names else 'Unknown'
 
     # Determine if suggestion was gap-biased
     was_gap_biased = lens_frame in coverage_data['unexplored']
@@ -1644,17 +1659,19 @@ def detect_thinking_gaps():
     import random
     suggestions = []
 
-    for frame in coverage['unexplored'][:5]:
-        # Find lenses belonging to this frame
+    for frame_name in coverage['unexplored'][:5]:
+        # Find lenses belonging to this frame (convert frame_name to frame_id for matching)
         frame_lenses = []
         for lens in all_lenses:
-            lens_frames = lens.get('frames', [])
-            if isinstance(lens_frames, str):
-                lens_frames = [lens_frames]
-            elif not isinstance(lens_frames, list):
-                lens_frames = []
+            lens_frame_ids = lens.get('frame_ids', [])
+            if isinstance(lens_frame_ids, str):
+                lens_frame_ids = [lens_frame_ids]
+            elif not isinstance(lens_frame_ids, list):
+                lens_frame_ids = []
 
-            if frame in lens_frames:
+            # Convert frame_ids to names and check if this lens belongs to the frame
+            lens_frame_names = [get_frame_name_from_id(fid) for fid in lens_frame_ids]
+            if frame_name in lens_frame_names:
                 frame_lenses.append(lens)
 
         # Sample up to 3 lenses from this frame
@@ -1663,11 +1680,11 @@ def detect_thinking_gaps():
             sampled = random.sample(frame_lenses, sample_count)
 
             suggestions.append({
-                'frame': frame,
+                'frame': frame_name,
                 'sample_lenses': [
                     {
                         'id': l['id'],
-                        'name': l.get('name'),
+                        'name': l.get('lens_name'),
                         'definition': l.get('definition'),
                         'episode': l.get('episode')
                     }
