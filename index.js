@@ -11,6 +11,13 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import * as api from './api-client.js';
 
+// Phase 0 Modules: Enhanced thinking capabilities
+import { matchThinkingMode, getWorkflowForMode } from './lib/thinking-modes.js';
+import { generateBeliefStatements } from './lib/belief-statements.js';
+import { evaluateWithOverall } from './lib/quality-evaluation.js';
+import { synthesizeSolution } from './lib/synthesis.js';
+import { refineApplication, getRefinementSummary } from './lib/refinement.js';
+
 class LinsenkastenMCP {
   constructor() {
     this.server = new Server(
@@ -35,7 +42,7 @@ class LinsenkastenMCP {
       tools: [
         {
           name: 'search_lenses',
-          description: 'Search for FLUX lenses by query string',
+          description: 'Search for FLUX lenses by query string. Optionally provide problem context to generate specific belief statements and quality scores for each result.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -48,19 +55,27 @@ class LinsenkastenMCP {
                 description: 'Maximum number of results to return (default: 10)',
                 default: 10,
               },
+              problem_context: {
+                type: 'string',
+                description: 'Optional: Problem description to generate specific insights for each lens',
+              },
             },
             required: ['query'],
           },
         },
         {
           name: 'get_lens',
-          description: 'Get detailed information about a specific FLUX lens',
+          description: 'Get detailed information about a specific FLUX lens. Optionally provide problem context to generate problem-specific insights, belief statements, and quality evaluation.',
           inputSchema: {
             type: 'object',
             properties: {
               name: {
                 type: 'string',
                 description: 'Name of the lens to retrieve',
+              },
+              problem_context: {
+                type: 'string',
+                description: 'Optional: Problem description to generate specific insights and belief statements',
               },
             },
             required: ['name'],
@@ -101,7 +116,7 @@ class LinsenkastenMCP {
         },
         {
           name: 'analyze_with_lens',
-          description: 'Analyze a text or concept through a specific FLUX lens',
+          description: 'Analyze a text or concept through a specific FLUX lens. Returns lens definition with problem-specific belief statements and quality scores.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -265,6 +280,67 @@ class LinsenkastenMCP {
             required: ['context'],
           },
         },
+        // Phase 0 Tools: Enhanced thinking workflows
+        {
+          name: 'suggest_thinking_mode',
+          description: 'Recommend the best thinking mode for your problem. Returns mode + relevant lenses + workflow guidance. Simplifies discovery by grouping 256+ lenses into 6 hierarchical modes.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              problem_description: {
+                type: 'string',
+                description: 'Description of the problem or challenge you are facing',
+              },
+            },
+            required: ['problem_description'],
+          },
+        },
+        {
+          name: 'synthesize_solution',
+          description: 'Synthesize insights from multiple lens applications into a structured solution report with problem reframe, root cause, and sequenced actions. Use after applying multiple lenses to tie insights together.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              problem: {
+                type: 'string',
+                description: 'Original problem description',
+              },
+              lenses_applied: {
+                type: 'array',
+                items: { type: 'object' },
+                description: 'Array of lens applications with beliefs (from enhanced get_lens or analyze_with_lens)',
+              },
+              thinking_mode: {
+                type: 'string',
+                description: 'Thinking mode used (optional, from suggest_thinking_mode)',
+              },
+            },
+            required: ['problem', 'lenses_applied'],
+          },
+        },
+        {
+          name: 'refine_lens_application',
+          description: 'Iteratively improve a lens application until quality threshold met (max 3 iterations). Returns refined beliefs with quality scores. Use when initial lens application feels too vague or generic.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              lens: {
+                type: 'string',
+                description: 'Lens name to refine application of',
+              },
+              problem_context: {
+                type: 'string',
+                description: 'Problem description to apply lens to',
+              },
+              quality_threshold: {
+                type: 'number',
+                description: 'Minimum quality score (0-1, default: 0.7)',
+                default: 0.7,
+              },
+            },
+            required: ['lens', 'problem_context'],
+          },
+        },
       ],
     }));
 
@@ -392,8 +468,27 @@ class LinsenkastenMCP {
       try {
         switch (name) {
           case 'search_lenses': {
-            const { query, limit = 10 } = args;
+            const { query, limit = 10, problem_context } = args;
             const results = await api.searchLenses(query, limit);
+
+            // If problem context provided, enrich each result with beliefs
+            if (problem_context && results.lenses) {
+              results.lenses = results.lenses.map(lens => {
+                const beliefs = generateBeliefStatements(lens.name, problem_context, lens);
+                const quality = evaluateWithOverall({
+                  lens: lens.name,
+                  belief_statements: beliefs,
+                  problem_context
+                });
+
+                return {
+                  ...lens,
+                  belief_statements: beliefs,
+                  quality_scores: quality
+                };
+              });
+            }
+
             return {
               content: [
                 {
@@ -405,10 +500,23 @@ class LinsenkastenMCP {
           }
 
           case 'get_lens': {
-            const { name: lensName } = args;
+            const { name: lensName, problem_context } = args;
             const lens = await api.getLens(lensName);
 
             if (lens) {
+              // If problem context provided, generate beliefs and quality scores
+              if (problem_context) {
+                const beliefs = generateBeliefStatements(lensName, problem_context, lens);
+                const quality = evaluateWithOverall({
+                  lens: lensName,
+                  belief_statements: beliefs,
+                  problem_context
+                });
+
+                lens.belief_statements = beliefs;
+                lens.quality_scores = quality;
+              }
+
               return {
                 content: [
                   {
@@ -483,30 +591,24 @@ class LinsenkastenMCP {
                 ],
               };
             }
-            
-            // Create analysis prompt
-            const analysis = `Analyzing through the ${lens.name} lens:
 
-Lens Definition: ${lens.definition || 'No definition available'}
+            // Generate belief statements for this analysis
+            const beliefs = generateBeliefStatements(lens_name, text, lens);
+            const quality = evaluateWithOverall({
+              lens: lens_name,
+              belief_statements: beliefs,
+              problem_context: text
+            });
 
-Analysis of "${text}":
-
-1. Core Lens Application:
-   Through the ${lens.name} lens, we can see that ${text} represents a system where ${lens.definition ? lens.definition.toLowerCase() : 'patterns emerge'}.
-
-2. Key Insights:
-   - This lens reveals hidden dynamics in the context
-   - It highlights the importance of understanding ${lens.related_concepts ? lens.related_concepts[0] : 'systemic relationships'}
-   - The lens suggests new approaches to the challenge
-
-3. Practical Implications:
-   Applying this lens to ${text} suggests specific actions and considerations for moving forward.`;
+            // Add beliefs and quality to lens object
+            lens.belief_statements = beliefs;
+            lens.quality_scores = quality;
 
             return {
               content: [
                 {
                   type: 'text',
-                  text: analysis,
+                  text: JSON.stringify(lens, null, 2),
                 },
               ],
             };
@@ -934,6 +1036,78 @@ Applications:
                 }],
               };
             }
+          }
+
+          case 'suggest_thinking_mode': {
+            const { problem_description } = args;
+            const matches = matchThinkingMode(problem_description);
+
+            return {
+              content: [{
+                type: 'text',
+                text: JSON.stringify({
+                  recommended_modes: matches,
+                  top_mode: matches[0],
+                  workflow: getWorkflowForMode(matches[0].id),
+                  next_steps: [
+                    `Apply ${matches[0].lenses.slice(0, 3).join(', ')} lenses`,
+                    `Use tools: ${getWorkflowForMode(matches[0].id).tools.join(', ')}`
+                  ]
+                }, null, 2)
+              }]
+            };
+          }
+
+          case 'synthesize_solution': {
+            const { problem, lenses_applied, thinking_mode } = args;
+
+            const report = synthesizeSolution({
+              problem,
+              lenses_applied,
+              thinking_mode
+            });
+
+            return {
+              content: [{
+                type: 'text',
+                text: report // Already formatted markdown
+              }]
+            };
+          }
+
+          case 'refine_lens_application': {
+            const { lens, problem_context, quality_threshold = 0.7 } = args;
+
+            // Get lens definition from API
+            const lensData = await api.getLens(lens);
+
+            if (!lensData) {
+              return {
+                content: [{
+                  type: 'text',
+                  text: `Lens "${lens}" not found. Please check the lens name and try again.`
+                }]
+              };
+            }
+
+            const result = refineApplication({
+              lens,
+              problem_context,
+              lens_definition: lensData,
+              quality_threshold
+            });
+
+            const summary = getRefinementSummary(result);
+
+            return {
+              content: [{
+                type: 'text',
+                text: JSON.stringify({
+                  ...summary,
+                  refined_beliefs: result.belief_statements
+                }, null, 2)
+              }]
+            };
           }
 
           default:
