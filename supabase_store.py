@@ -38,15 +38,10 @@ class SupabaseLensStore:
 
         self.client: Client = create_client(self.supabase_url, self.supabase_key)
 
-        # Initialize local embedding model (free, runs on CPU)
-        self.local_model = None
-        if HAS_SENTENCE_TRANSFORMERS:
-            try:
-                # Load lightweight model compatible with OpenAI text-embedding-3-small (384 dims)
-                self.local_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
-                logger.info("Loaded sentence-transformers model for free local embeddings")
-            except Exception as e:
-                logger.warning(f"Failed to load sentence-transformers model: {e}")
+        # Lazy-load local embedding model (free, runs on CPU)
+        # Model loads on first search request, not on startup (faster deploys!)
+        self._local_model = None
+        self._model_load_attempted = False
 
         # Initialize OpenAI for pre-computing lens embeddings (admin/batch operations only)
         openai_api_key = os.getenv('OPENAI_API_KEY')
@@ -55,7 +50,21 @@ class SupabaseLensStore:
         else:
             logger.warning("OPENAI_API_KEY not found. Admin embedding generation will not be available.")
             self.openai_client = None
-    
+
+    @property
+    def local_model(self):
+        """Lazy-load sentence-transformers model on first access (not on init)."""
+        if not self._model_load_attempted and HAS_SENTENCE_TRANSFORMERS:
+            self._model_load_attempted = True
+            try:
+                logger.info("Loading sentence-transformers model (lazy load on first search)...")
+                self._local_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+                logger.info("✅ Loaded sentence-transformers model for free local embeddings")
+            except Exception as e:
+                logger.warning(f"Failed to load sentence-transformers model: {e}")
+                self._local_model = None
+        return self._local_model
+
     def generate_query_embedding(self, text: str) -> List[float]:
         """
         Generate embedding for search queries using FREE local model.
