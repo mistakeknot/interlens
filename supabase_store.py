@@ -13,6 +13,14 @@ import numpy as np
 from supabase import create_client, Client
 import openai
 
+# Import sentence-transformers for free local embeddings
+try:
+    from sentence_transformers import SentenceTransformer
+    HAS_SENTENCE_TRANSFORMERS = True
+except ImportError:
+    HAS_SENTENCE_TRANSFORMERS = False
+    logger.warning("sentence-transformers not installed. Will fall back to OpenAI for query embeddings.")
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -24,25 +32,58 @@ class SupabaseLensStore:
         """Initialize Supabase connection."""
         self.supabase_url = supabase_url or os.getenv('SUPABASE_URL')
         self.supabase_key = supabase_key or os.getenv('SUPABASE_KEY')
-        
+
         if not self.supabase_url or not self.supabase_key:
             raise ValueError("SUPABASE_URL and SUPABASE_KEY must be provided")
-        
+
         self.client: Client = create_client(self.supabase_url, self.supabase_key)
-        
-        # Initialize OpenAI for embeddings
+
+        # Initialize local embedding model (free, runs on CPU)
+        self.local_model = None
+        if HAS_SENTENCE_TRANSFORMERS:
+            try:
+                # Load lightweight model compatible with OpenAI text-embedding-3-small (384 dims)
+                self.local_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+                logger.info("Loaded sentence-transformers model for free local embeddings")
+            except Exception as e:
+                logger.warning(f"Failed to load sentence-transformers model: {e}")
+
+        # Initialize OpenAI for pre-computing lens embeddings (admin/batch operations only)
         openai_api_key = os.getenv('OPENAI_API_KEY')
         if openai_api_key:
             self.openai_client = openai.OpenAI(api_key=openai_api_key)
         else:
-            logger.warning("OPENAI_API_KEY not found. Embedding generation will not be available.")
+            logger.warning("OPENAI_API_KEY not found. Admin embedding generation will not be available.")
             self.openai_client = None
     
-    def generate_embedding(self, text: str) -> List[float]:
-        """Generate embedding for text using OpenAI."""
+    def generate_query_embedding(self, text: str) -> List[float]:
+        """
+        Generate embedding for search queries using FREE local model.
+        This runs on the server's CPU, no API costs!
+        """
+        if self.local_model:
+            try:
+                embedding = self.local_model.encode(text, convert_to_numpy=True)
+                return embedding.tolist()
+            except Exception as e:
+                logger.error(f"Error generating local embedding: {e}")
+                # Fall back to OpenAI if local fails
+
+        # Fallback to OpenAI (only if local model unavailable)
+        if self.openai_client:
+            logger.warning("Using OpenAI for query embedding (local model unavailable)")
+            return self.generate_embedding_openai(text)
+
+        raise ValueError("No embedding model available (neither local nor OpenAI)")
+
+    def generate_embedding_openai(self, text: str) -> List[float]:
+        """
+        Generate embedding using OpenAI (for admin/batch operations only).
+        Use this to pre-compute lens embeddings, not for runtime queries!
+        """
         if not self.openai_client:
             raise ValueError("OpenAI client not initialized")
-        
+
         try:
             response = self.openai_client.embeddings.create(
                 model="text-embedding-3-small",
@@ -51,8 +92,13 @@ class SupabaseLensStore:
             )
             return response.data[0].embedding
         except Exception as e:
-            logger.error(f"Error generating embedding: {e}")
+            logger.error(f"Error generating OpenAI embedding: {e}")
             raise
+
+    # Keep old method name for backward compatibility
+    def generate_embedding(self, text: str) -> List[float]:
+        """Legacy method - redirects to OpenAI for admin operations."""
+        return self.generate_embedding_openai(text)
     
     def search_lenses(
         self, 
@@ -78,8 +124,8 @@ class SupabaseLensStore:
             List of lens dictionaries with similarity scores
         """
         try:
-            # Generate embedding for query
-            query_embedding = self.generate_embedding(query)
+            # Generate embedding for query using FREE local model
+            query_embedding = self.generate_query_embedding(query)
             
             # Call Supabase RPC function for vector search
             params = {

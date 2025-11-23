@@ -1,0 +1,57 @@
+name: Pre-compute Embeddings
+
+# Run when new lenses are added to Supabase
+# Trigger manually or via webhook from lens ingestion system
+
+on:
+  workflow_dispatch:  # Manual trigger
+    inputs:
+      limit:
+        description: 'Limit number of lenses (leave empty for all)'
+        required: false
+        type: string
+
+  # Also run on schedule to catch any missed lenses
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday at midnight
+
+jobs:
+  precompute:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Pre-compute embeddings
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -n "${{ inputs.limit }}" ]; then
+            python scripts/precompute_embeddings.py --limit ${{ inputs.limit }}
+          else
+            python scripts/precompute_embeddings.py
+          fi
+
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "✅ Embeddings pre-computed successfully"
+          echo "🎉 Search now works without OpenAI API costs!"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Embedding pre-computation failed"
+          echo "Check the logs for errors"
