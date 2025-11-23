@@ -1713,6 +1713,102 @@ def detect_thinking_gaps():
     })
 
 
+@app.route('/api/v1/creative/clusters', methods=['GET'])
+def get_lens_clusters():
+    """
+    Get lens clusters/communities using Louvain community detection or connected components.
+    Reveals groups of highly interconnected lenses for deeper exploration.
+    """
+    if not HAS_GRAPH:
+        return jsonify({
+            'success': False,
+            'error': 'Graph functionality not available'
+        }), 503
+
+    try:
+        # Get clusters from graph
+        clusters = lens_graph.get_lens_clusters()
+
+        # Enrich clusters with lens metadata
+        enriched_clusters = []
+        for cluster_id, lens_ids in clusters.items():
+            # Get lens details from Supabase
+            lenses = []
+            for lens_id in lens_ids:
+                lens = supabase_store.get_lens_by_id(lens_id)
+                if lens:
+                    lenses.append(lens)
+
+            if not lenses:
+                continue
+
+            # Extract shared characteristics
+            frames = set()
+            concepts = []
+            for l in lenses:
+                # Get frame names
+                frame_ids = l.get('frame_ids', [])
+                if isinstance(frame_ids, str):
+                    frame_ids = [frame_ids]
+                elif not isinstance(frame_ids, list):
+                    frame_ids = []
+
+                for fid in frame_ids:
+                    frame_name = get_frame_name_from_id(fid)
+                    if frame_name:
+                        frames.add(frame_name)
+
+                # Get concepts
+                related_concepts = l.get('related_concepts', [])
+                if isinstance(related_concepts, list):
+                    concepts.extend(related_concepts)
+
+            # Count concept frequency
+            from collections import Counter
+            concept_counts = Counter(concepts)
+            top_concepts = [c for c, count in concept_counts.most_common(10)]
+
+            enriched_clusters.append({
+                'cluster_id': cluster_id,
+                'size': len(lenses),
+                'lenses': [
+                    {
+                        'id': l['id'],
+                        'name': l.get('name'),
+                        'definition': l.get('definition', '')[:100] + '...' if l.get('definition', '') else ''
+                    }
+                    for l in lenses
+                ],
+                'shared_frames': list(frames),
+                'shared_concepts': top_concepts
+            })
+
+        # Sort by cluster size (largest first)
+        enriched_clusters.sort(key=lambda x: x['size'], reverse=True)
+
+        # Check which algorithm was used
+        algorithm = "unknown"
+        try:
+            import community
+            algorithm = "louvain"
+        except ImportError:
+            algorithm = "connected_components"
+
+        return jsonify({
+            'success': True,
+            'total_clusters': len(enriched_clusters),
+            'algorithm': algorithm,
+            'clusters': enriched_clusters
+        })
+
+    except Exception as e:
+        logger.error(f"Error getting clusters: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @app.route('/api/v1/debug/lens-lookup', methods=['GET'])
 def debug_lens_lookup():
     """Temporary debug endpoint to diagnose lens name matching issues"""
