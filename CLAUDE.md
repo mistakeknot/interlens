@@ -112,7 +112,7 @@ git push origin main
 # Railway auto-deploys
 ```
 
-**Production URL**: https://lens-api.up.railway.app/api/v1
+**Production URL**: https://linsenkasten-api-production.up.railway.app/api/v1
 
 ### Environment Variables in Railway
 
