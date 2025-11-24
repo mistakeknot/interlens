@@ -8,20 +8,20 @@ Linsenkasten API is a Flask-based REST API that provides access to 256+ FLUX ana
 
 **Architecture**: Flask API → NetworkX graph operations → Supabase PostgreSQL
 
-**Recent Updates (2025-11-23)**:
-- ✅ **FREE Search Implemented**: Now uses sentence-transformers (no OpenAI costs!)
+**Recent Updates (2025-11-24)**:
+- ✅ **Dialectic Contrasts: 100% Coverage!** - All 288 lenses now have contrast relationships
+  - Total contrasts: 25 → 232 (827% increase)
+  - Coverage: 100% of lenses have at least one dialectic relationship
+  - 5 automated batches + 15 manually curated contrasts for edge cases
+  - Algorithm: 70% embedding distance + 30% dialectic keyword scoring
+  - Distance sweet spot: 0.65-0.92 for true thesis/antithesis pairs
+  - Scripts: `scripts/generate_contrasts_json.py` and `scripts/merge_contrasts.py`
+- ✅ **FREE Search**: sentence-transformers (no OpenAI costs!)
   - Query embeddings: sentence-transformers/all-MiniLM-L6-v2 (local, CPU-based)
-  - Corpus embeddings: All 288 lenses re-embedded with same model for consistency
-  - Database: Migrated to pgvector VECTOR(384) type for efficient similarity search
-  - Quality: 2x better similarity scores vs. cross-model approach (0.24-0.46 range)
-  - Cost: Zero ongoing embedding costs (was $0.0001/query with OpenAI)
-- ✅ **Contrast Generation Complete**: Automated dialectic relationship discovery
-  - Generated 71 new high-quality contrasts (subagent-reviewed)
-  - Total contrasts: 25 → 96 (284% increase)
-  - Coverage: ~18% → ~48% of lenses now have dialectic relationships
-  - Scripts: `generate_contrasts_json.py` and `merge_contrasts.py` for future updates
+  - Corpus embeddings: All 288 lenses embedded with same model
+  - Database: pgvector VECTOR(384) for efficient similarity search
+  - Cost: Zero ongoing embedding costs
 - ✅ Graph module integrated: All creative endpoints working with NetworkX 3.1
-- ✅ Scipy dependency added: Required for NetworkX centrality calculations
 - ⚠️ PageRank centrality: Works locally but fails on Railway (use betweenness/eigenvector instead)
 
 ## Key Files
@@ -48,7 +48,7 @@ These use NetworkX graph operations:
 
 - `GET /api/v1/creative/journey?source=A&target=B` - Find conceptual paths between lenses
 - `GET /api/v1/creative/bridges?lenses=A&lenses=B&lenses=C` - Find bridge lenses connecting multiple concepts
-- `GET /api/v1/creative/contrasts?lens=A` - Find paradoxical/contrasting lenses
+- `GET /api/v1/creative/contrasts?lens=A` - Find paradoxical/contrasting lenses (232 contrasts, 100% coverage!)
 - `GET /api/v1/creative/central?measure=betweenness&limit=10` - Get central lenses (betweenness, pagerank, eigenvector)
 - `GET /api/v1/creative/neighborhood?lens=A&radius=2` - Explore conceptual neighborhood
 - `GET /api/v1/creative/random` - Get random lens provocation with suggestions
