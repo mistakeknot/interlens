@@ -15,6 +15,11 @@ Linsenkasten API is a Flask-based REST API that provides access to 256+ FLUX ana
   - Database: Migrated to pgvector VECTOR(384) type for efficient similarity search
   - Quality: 2x better similarity scores vs. cross-model approach (0.24-0.46 range)
   - Cost: Zero ongoing embedding costs (was $0.0001/query with OpenAI)
+- ✅ **Contrast Generation Complete**: Automated dialectic relationship discovery
+  - Generated 71 new high-quality contrasts (subagent-reviewed)
+  - Total contrasts: 25 → 96 (284% increase)
+  - Coverage: ~18% → ~48% of lenses now have dialectic relationships
+  - Scripts: `generate_contrasts_json.py` and `merge_contrasts.py` for future updates
 - ✅ Graph module integrated: All creative endpoints working with NetworkX 3.1
 - ✅ Scipy dependency added: Required for NetworkX centrality calculations
 - ⚠️ PageRank centrality: Works locally but fails on Railway (use betweenness/eigenvector instead)

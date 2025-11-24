@@ -706,7 +706,7 @@ Well-designed conceptual dimensions covering:
 - Well-balanced across cognitive domains
 - Uneven distribution (some frames richer than others)
 
-#### AI-Discovered Connections: **73 relationships** ✅ **OUTSTANDING**
+#### AI-Discovered Connections: **144 relationships** ✅ **OUTSTANDING**
 
 High-quality human-AI curated relationships with rich insights:
 
@@ -723,15 +723,16 @@ High-quality human-AI curated relationships with rich insights:
 ```
 
 **Relationship types:**
-- **Contrast** (weight: 0.83-0.91) - Opposing perspectives for dialectic thinking (23 pairs)
-- **Synthesis** (weight: 0.87-0.90) - Complementary combinations (50 pairs)
+- **Contrast** (weight: 0.80-0.95) - Opposing perspectives for dialectic thinking (96 pairs)
+- **Synthesis** (weight: 0.87-0.90) - Complementary combinations (48 pairs)
 - Weighted by strength (not binary)
 - Explanatory insights included (not just numeric scores)
 
 **Recent additions (2025-11-23):**
-- 23 high-quality dialectic contrasts added via AI-assisted curation
-- Contrasts now cover diverse conceptual domains (time, accountability, simplicity, certainty, etc.)
-- 46% increase in dialectic relationships (8 → 23 contrasts)
+- 71 new high-quality dialectic contrasts generated via automated discovery + subagent review
+- Contrasts cover diverse conceptual domains (time, systems thinking, feedback loops, self-reflection, etc.)
+- 284% increase in dialectic relationships (25 → 96 contrasts)
+- Created reusable scripts for future contrast generation (`generate_contrasts_json.py`, `merge_contrasts.py`)
 
 ### Creative Capabilities Analysis
 
@@ -1104,12 +1105,13 @@ Query: Creative exploration starting from "innovation"
 
 #### Current Limitations
 
-1. **~~Limited Contrast Relationships~~** ✅ **RESOLVED (2025-11-23)**
-   - ~~Only 50 AI-discovered connections~~
-   - **NOW:** 73 AI-discovered connections with 23 dialectic contrasts
-   - Contrasts generated via AI-assisted curation with parallel subagents
-   - Comprehensive dialectic coverage across conceptual domains
-   - **Status:** Dialectic thinking now well-served
+1. **~~Limited Contrast Relationships~~** ✅ **FULLY RESOLVED (2025-11-23)**
+   - ~~Only 25 dialectic contrasts~~
+   - **NOW:** 144 AI-discovered connections with 96 dialectic contrasts (284% increase)
+   - Contrasts generated via automated embedding-based discovery + subagent quality review
+   - Comprehensive dialectic coverage across 211+ lenses spanning diverse conceptual domains
+   - Created reusable automation scripts for future contrast generation
+   - **Status:** Dialectic thinking excellently served, automated pipeline in place
 
 2. **~~No Cluster/Community Detection Exposed~~** ✅ **RESOLVED (2025-11-23)**
    - ~~Graph has `get_lens_clusters()` method (graph.py:279)~~
@@ -1140,8 +1142,8 @@ Query: Creative exploration starting from "innovation"
 ### Creative Enhancement Roadmap
 
 #### High Impact, Low Effort 🎯 (1-2 days each)
-1. **Expose cluster detection** - `get_lens_clusters()` already exists
-2. **Auto-generate contrasts** - Use embedding distance for opposing perspectives
+1. ~~**Expose cluster detection**~~ - ✅ COMPLETE (2025-11-23)
+2. ~~**Auto-generate contrasts**~~ - ✅ COMPLETE (2025-11-23)
 3. **Add synthesis suggestions** - "Lens A + Lens B → ?"
 4. **Temporal exploration** - "Show me how this concept evolved across episodes"
 
