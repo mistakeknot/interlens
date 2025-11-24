@@ -1,15 +1,15 @@
 # Linsenkasten
 
-A cognitive augmentation toolkit that gives AI agents access to 256+ FLUX analytical lenses through graph-based navigation, creative thinking tools, and conceptual exploration.
+A cognitive augmentation toolkit that gives AI agents access to 288 FLUX analytical lenses through graph-based navigation, creative thinking tools, and conceptual exploration. Works with Claude, ChatGPT, Codex CLI, and any AI platform via REST API.
 
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-green)](https://modelcontextprotocol.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## What is Linsenkasten?
 
-> **✨ New in v1.0.1**: Semantic search now works properly! Search queries use AI embeddings for true conceptual similarity instead of keyword matching. Queries like "decision making" or "leadership" now return highly relevant results.
+> **✨ New in v2.1.0**: Cross-platform support! Use Linsenkasten with ChatGPT, Codex CLI, and any AI agent via OpenAPI/function calling schemas. Plus: dialectic triads (thesis/antithesis/synthesis) and learning progressions.
 
-Linsenkasten ("lens box" in German) is a knowledge graph of analytical frameworks from the [FLUX Collective](https://read.fluxcollective.org/) newsletter. It transforms 256+ conceptual lenses into an explorable graph that AI agents can navigate to:
+Linsenkasten ("lens box" in German) is a knowledge graph of analytical frameworks from the [FLUX Collective](https://read.fluxcollective.org/) newsletter. It transforms 288 conceptual lenses into an explorable graph that AI agents can navigate to:
 
 - **Make logical leaps** through bridge discovery
 - **Navigate concept space** systematically
@@ -280,6 +280,40 @@ get_central_lenses → get_lens_neighborhood → explore territory
 **Your Costs:**
 - Only your Claude/AI API usage
 - No hidden charges from Linsenkasten
+
+## Cross-Platform Support
+
+Linsenkasten works with multiple AI platforms:
+
+| Platform | Support | Setup Guide |
+|----------|---------|-------------|
+| **Claude Code** | ✅ Full MCP | See Quick Start above |
+| **Claude Desktop** | ✅ Full MCP | See Quick Start above |
+| **ChatGPT** | ✅ Via GPT Actions | [docs/chatgpt-gpt-config.md](docs/chatgpt-gpt-config.md) |
+| **Codex CLI** | ✅ Function Calling | [docs/codex-cli-integration.md](docs/codex-cli-integration.md) |
+| **Claude.ai** | 📋 Project Template | [docs/claude-project-template.md](docs/claude-project-template.md) |
+| **Any Agent** | ✅ REST API | [schemas/openapi.yaml](schemas/openapi.yaml) |
+
+### Export Schemas
+
+Generate schemas for integration with other platforms:
+
+```bash
+# OpenAI function calling schema (ChatGPT, Codex CLI)
+linsenkasten export --format openai > functions.json
+
+# OpenAPI 3.0 specification (any REST client)
+linsenkasten export --format openapi > api.yaml
+```
+
+### Creating a ChatGPT GPT
+
+1. Export the OpenAPI schema: `linsenkasten export --format openapi`
+2. Create a new GPT at https://chatgpt.com/gpts/editor
+3. Add Actions using the OpenAPI schema
+4. Point to API: `https://linsenkasten-api-production.up.railway.app/api/v1`
+
+See [docs/chatgpt-gpt-config.md](docs/chatgpt-gpt-config.md) for detailed instructions.
 
 ## Installation Options
 

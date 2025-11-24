@@ -1,0 +1,559 @@
+openapi: 3.0.3
+info:
+  title: Linsenkasten API
+  description: |
+    FLUX analytical lenses for creative problem-solving. Access 288 lenses with
+    dialectic contrasts, graph navigation, and thinking workflows.
+
+    ## What is Linsenkasten?
+
+    Linsenkasten provides structured analytical lenses from the FLUX newsletter
+    (read.fluxcollective.org) for reframing problems and generating insights.
+
+    ## Key Features
+
+    - **288 Analytical Lenses** - Curated thinking tools with definitions and examples
+    - **232 Dialectic Contrast Pairs** - Thesis/antithesis relationships for every lens
+    - **Knowledge Graph** - Navigate conceptual connections between lenses
+    - **Thinking Workflows** - Guided patterns for effective lens application
+
+    ## Recommended Workflows
+
+    ### Quick Analysis (5 min)
+    1. `search_lenses` with problem keywords
+    2. Apply top result to your problem
+    3. `find_contrasting_lenses` for opposing perspective
+    4. Synthesize both views
+
+    ### Dialectic Exploration
+    1. Choose thesis lens → find antithesis via contrasts → get synthesis via triads
+    2. Apply all three lenses
+    3. Integrate into unified insight
+
+    ### Comprehensive Audit
+    1. Apply lenses from multiple domains
+    2. Use `detect_thinking_gaps` to find blind spots
+    3. Fill gaps with targeted lenses
+  version: 2.1.0
+  contact:
+    name: Linsenkasten
+    url: https://github.com/mistakeknot/Linsenkasten
+servers:
+  - url: https://linsenkasten-api-production.up.railway.app/api/v1
+    description: Production API
+
+paths:
+  /lenses/search:
+    get:
+      operationId: searchLenses
+      summary: Search for lenses
+      description: Semantic search for FLUX analytical lenses by query string. Returns ranked results with definitions, examples, and related concepts.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search query (e.g., "systems thinking", "feedback loops")
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+          description: Maximum results to return
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+
+  /lenses/episodes/{episode}:
+    get:
+      operationId: getLensesByEpisode
+      summary: Get lenses by episode
+      description: Get all lenses from a specific FLUX newsletter episode.
+      parameters:
+        - name: episode
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 196
+          description: Episode number
+      responses:
+        '200':
+          description: Episode lenses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EpisodeResponse'
+
+  /frames:
+    get:
+      operationId: getFrames
+      summary: Get thematic frames
+      description: Get thematic frames that group related lenses into categories.
+      responses:
+        '200':
+          description: Frames list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FramesResponse'
+
+  /creative/journey:
+    get:
+      operationId: findLensJourney
+      summary: Find path between lenses
+      description: Find conceptual path between two lenses through the knowledge graph. Reveals how ideas connect through intermediate concepts.
+      parameters:
+        - name: source
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Starting lens name
+        - name: target
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Target lens name
+      responses:
+        '200':
+          description: Journey path
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JourneyResponse'
+
+  /creative/bridges:
+    get:
+      operationId: findBridgeLenses
+      summary: Find bridge lenses
+      description: Find lenses that bridge between multiple disparate concepts. Perfect for lateral thinking and unexpected connections.
+      parameters:
+        - name: lenses
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          description: Array of lens names to find bridges between (2-4 lenses)
+      responses:
+        '200':
+          description: Bridge lenses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BridgesResponse'
+
+  /creative/contrasts:
+    get:
+      operationId: findContrastingLenses
+      summary: Find contrasting lenses
+      description: Find dialectically contrasting lenses (thesis/antithesis pairs). 232 contrast pairs with 100% lens coverage.
+      parameters:
+        - name: lens
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Lens name to find contrasts for
+      responses:
+        '200':
+          description: Contrasting lenses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContrastsResponse'
+
+  /creative/central:
+    get:
+      operationId: getCentralLenses
+      summary: Get central lenses
+      description: Get the most central/influential lenses in the knowledge graph. Hub lenses that connect many concepts.
+      parameters:
+        - name: measure
+          in: query
+          schema:
+            type: string
+            enum: [betweenness, eigenvector]
+            default: betweenness
+          description: Centrality measure
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Number of results
+      responses:
+        '200':
+          description: Central lenses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CentralResponse'
+
+  /creative/neighborhood:
+    get:
+      operationId: getLensNeighborhood
+      summary: Get lens neighborhood
+      description: Explore the conceptual neighborhood around a lens. Returns nearby lenses within specified radius.
+      parameters:
+        - name: lens
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Center lens name
+        - name: radius
+          in: query
+          schema:
+            type: integer
+            enum: [1, 2]
+            default: 2
+          description: Exploration depth
+      responses:
+        '200':
+          description: Neighborhood lenses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NeighborhoodResponse'
+
+  /creative/random:
+    get:
+      operationId: randomLensProvocation
+      summary: Get random lens
+      description: Get a random lens as creative provocation. Provide context for gap-aware selection.
+      parameters:
+        - name: context
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          description: Optional lens names already explored for intelligent selection
+      responses:
+        '200':
+          description: Random lens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RandomResponse'
+
+  /creative/gaps:
+    get:
+      operationId: detectThinkingGaps
+      summary: Detect thinking gaps
+      description: Analyze which conceptual frames have been explored vs neglected. Identifies blind spots.
+      parameters:
+        - name: context
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          description: Lens names that have been explored
+      responses:
+        '200':
+          description: Gap analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GapsResponse'
+
+  /creative/triads:
+    get:
+      operationId: getDialecticTriads
+      summary: Get dialectic triads
+      description: Get thesis/antithesis/synthesis triads for a lens. Use for dialectical reasoning and creative synthesis.
+      parameters:
+        - name: lens
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Thesis lens name
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 3
+          description: Maximum triads to return
+      responses:
+        '200':
+          description: Dialectic triads
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TriadsResponse'
+
+  /creative/progressions:
+    get:
+      operationId: getLensProgressions
+      summary: Get learning progressions
+      description: Get a sequence of lenses that build conceptually from start to target. Use for structured learning paths.
+      parameters:
+        - name: start
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Starting lens name
+        - name: target
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Target lens name
+        - name: max_steps
+          in: query
+          schema:
+            type: integer
+            default: 5
+          description: Maximum steps in progression
+      responses:
+        '200':
+          description: Learning progression
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgressionsResponse'
+
+components:
+  schemas:
+    Lens:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        definition:
+          type: string
+        episode:
+          type: integer
+        examples:
+          type: array
+          items:
+            type: string
+        related_concepts:
+          type: array
+          items:
+            type: string
+
+    SearchResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lens'
+        count:
+          type: integer
+
+    EpisodeResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        episode:
+          type: integer
+        lenses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lens'
+
+    FramesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        frames:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              description:
+                type: string
+              lens_count:
+                type: integer
+
+    JourneyResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        path:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lens'
+        path_length:
+          type: integer
+
+    BridgesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        bridges:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lens'
+
+    ContrastsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        lens:
+          $ref: '#/components/schemas/Lens'
+        contrasts:
+          type: array
+          items:
+            type: object
+            properties:
+              lens:
+                $ref: '#/components/schemas/Lens'
+              contrast_insight:
+                type: string
+
+    CentralResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        measure:
+          type: string
+        central_lenses:
+          type: array
+          items:
+            type: object
+            properties:
+              lens:
+                $ref: '#/components/schemas/Lens'
+              score:
+                type: number
+
+    NeighborhoodResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        center:
+          $ref: '#/components/schemas/Lens'
+        neighbors:
+          type: array
+          items:
+            type: object
+            properties:
+              lens:
+                $ref: '#/components/schemas/Lens'
+              distance:
+                type: integer
+
+    RandomResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        lens:
+          $ref: '#/components/schemas/Lens'
+        suggestion:
+          type: string
+        related:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lens'
+
+    GapsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        coverage:
+          type: object
+          properties:
+            explored_frames:
+              type: object
+            unexplored_frames:
+              type: array
+              items:
+                type: string
+            coverage_percentage:
+              type: number
+        suggestions:
+          type: array
+          items:
+            type: object
+            properties:
+              frame:
+                type: string
+              sample_lenses:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lens'
+        insight:
+          type: string
+
+    TriadsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        thesis:
+          $ref: '#/components/schemas/Lens'
+        triads:
+          type: array
+          items:
+            type: object
+            properties:
+              antithesis:
+                $ref: '#/components/schemas/Lens'
+              synthesis:
+                $ref: '#/components/schemas/Lens'
+              contrast_insight:
+                type: string
+              synthesis_insight:
+                type: string
+
+    ProgressionsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        start_lens:
+          $ref: '#/components/schemas/Lens'
+        target_lens:
+          $ref: '#/components/schemas/Lens'
+        progression:
+          type: array
+          items:
+            type: object
+            properties:
+              lens:
+                $ref: '#/components/schemas/Lens'
+              insight:
+                type: string
+        overall_insight:
+          type: string

@@ -425,6 +425,49 @@ async function cmdProgressions(start, target, options = {}) {
   }
 }
 
+async function cmdExport(format, options = {}) {
+  const fs = await import('fs/promises');
+  const path = await import('path');
+  const { fileURLToPath } = await import('url');
+
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
+  const validFormats = ['openai', 'openapi'];
+
+  if (!format || !validFormats.includes(format)) {
+    printError(`Invalid format. Use: linsenkasten export --format <openai|openapi>`);
+    console.log(`\n${bold('Available formats:')}`);
+    console.log(`  ${green('openai')}   - OpenAI function calling schema (JSON)`);
+    console.log(`  ${green('openapi')}  - OpenAPI 3.0 specification (YAML)`);
+    process.exit(1);
+  }
+
+  try {
+    const schemaDir = path.join(__dirname, 'schemas');
+    let filePath, content;
+
+    if (format === 'openai') {
+      filePath = path.join(schemaDir, 'openai-functions.json');
+      content = await fs.readFile(filePath, 'utf-8');
+    } else if (format === 'openapi') {
+      filePath = path.join(schemaDir, 'openapi.yaml');
+      content = await fs.readFile(filePath, 'utf-8');
+    }
+
+    if (options.output) {
+      await fs.writeFile(options.output, content);
+      console.log(`${green('✓')} Exported ${format} schema to ${options.output}`);
+    } else {
+      // Output to stdout
+      console.log(content);
+    }
+  } catch (error) {
+    printError(`Failed to export schema: ${error.message}`);
+    process.exit(1);
+  }
+}
+
 function printHelp() {
   console.log(`
 ${bold(cyan('Linsenkasten CLI'))} - FLUX Lens Exploration Tool
@@ -474,6 +517,12 @@ ${bold('COMMANDS:')}
   ${green('progressions')} <start> <target>  Get learning progression between lenses
     ${dim('--max-steps <n>          Maximum steps (default: 5)')}
     ${dim('Example: linsenkasten progressions "Systems Thinking" "Innovation"')}
+
+  ${green('export')}                      Export schemas for other platforms
+    ${dim('--format <type>          Schema format: openai, openapi')}
+    ${dim('--output <file>          Write to file (default: stdout)')}
+    ${dim('Example: linsenkasten export --format openai')}
+    ${dim('Example: linsenkasten export --format openapi --output api.yaml')}
 
   ${green('help')}                        Show this help message
 
@@ -617,6 +666,10 @@ async function main() {
           process.exit(1);
         }
         await cmdProgressions(params[0], params.slice(1).join(' '), options);
+        break;
+
+      case 'export':
+        await cmdExport(options.format, options);
         break;
 
       default:

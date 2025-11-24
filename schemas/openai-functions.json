@@ -1,0 +1,269 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "linsenkasten",
+  "description": "FLUX analytical lenses for creative problem-solving. 288 lenses with dialectic contrasts, graph navigation, and thinking workflows.",
+  "version": "2.1.0",
+  "functions": [
+    {
+      "name": "search_lenses",
+      "description": "Search for FLUX analytical lenses by semantic query. Returns lenses ranked by relevance with definitions, examples, and related concepts. Use this to find lenses relevant to a problem or topic.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Search query (e.g., 'systems thinking', 'feedback loops', 'decision making')"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Maximum results to return (default: 10, max: 50)",
+            "default": 10
+          }
+        },
+        "required": ["q"]
+      }
+    },
+    {
+      "name": "get_lens",
+      "description": "Get detailed information about a specific FLUX lens by name. Returns full definition, examples, related concepts, and episode reference.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Exact lens name (e.g., 'Pace Layering', 'Explore vs Exploit', 'Feedback Loops')"
+          }
+        },
+        "required": ["name"]
+      }
+    },
+    {
+      "name": "find_contrasting_lenses",
+      "description": "Find dialectically contrasting lenses (thesis/antithesis pairs). 232 contrast pairs with 100% lens coverage. Use this to explore opposing perspectives and creative tensions.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "lens": {
+            "type": "string",
+            "description": "Lens name to find contrasts for (e.g., 'Pace Layering' returns 'Fleet of Theseus')"
+          }
+        },
+        "required": ["lens"]
+      }
+    },
+    {
+      "name": "find_lens_journey",
+      "description": "Find conceptual path between two lenses through the knowledge graph. Reveals how ideas connect through intermediate concepts. Great for understanding conceptual relationships.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "Starting lens name"
+          },
+          "target": {
+            "type": "string",
+            "description": "Target lens name"
+          }
+        },
+        "required": ["source", "target"]
+      }
+    },
+    {
+      "name": "find_bridge_lenses",
+      "description": "Find lenses that bridge between multiple disparate concepts. Perfect for lateral thinking and making unexpected connections across domains.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "lenses": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Array of 2-4 lens names to find bridges between"
+          }
+        },
+        "required": ["lenses"]
+      }
+    },
+    {
+      "name": "get_central_lenses",
+      "description": "Get the most central/influential lenses in the knowledge graph. Hub lenses that connect many concepts. Useful for finding foundational thinking tools.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "measure": {
+            "type": "string",
+            "enum": ["betweenness", "eigenvector"],
+            "description": "Centrality measure: 'betweenness' (bridges between clusters) or 'eigenvector' (connected to other important nodes)",
+            "default": "betweenness"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Number of results (default: 10)",
+            "default": 10
+          }
+        }
+      }
+    },
+    {
+      "name": "get_lens_neighborhood",
+      "description": "Explore the conceptual neighborhood around a lens. Returns nearby lenses within specified radius in the knowledge graph.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "lens": {
+            "type": "string",
+            "description": "Center lens name"
+          },
+          "radius": {
+            "type": "integer",
+            "enum": [1, 2],
+            "description": "Exploration depth: 1 (immediate neighbors) or 2 (neighbors of neighbors)",
+            "default": 2
+          }
+        },
+        "required": ["lens"]
+      }
+    },
+    {
+      "name": "random_lens_provocation",
+      "description": "Get a random lens as creative provocation. Optionally provide context of already-explored lenses for gap-aware selection that avoids redundancy.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "context": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Optional: lens names already explored in this session. Enables intelligent selection that fills gaps."
+          }
+        }
+      }
+    },
+    {
+      "name": "detect_thinking_gaps",
+      "description": "Analyze which conceptual frames have been explored vs neglected. Identifies blind spots in thinking based on lenses used so far.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "context": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Lens names that have been explored/applied"
+          }
+        },
+        "required": ["context"]
+      }
+    },
+    {
+      "name": "get_dialectic_triads",
+      "description": "Get thesis/antithesis/synthesis triads for a lens. Returns combinations of contrasting lenses with a synthesizing third lens. Use for dialectical reasoning and creative synthesis.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "lens": {
+            "type": "string",
+            "description": "Thesis lens name"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Maximum triads to return (default: 3)",
+            "default": 3
+          }
+        },
+        "required": ["lens"]
+      }
+    },
+    {
+      "name": "get_lens_progressions",
+      "description": "Get learning progressions between two lenses. Returns a sequence of lenses that build conceptually from start to target. Use for structured learning paths.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string",
+            "description": "Starting lens name"
+          },
+          "target": {
+            "type": "string",
+            "description": "Target lens name"
+          },
+          "max_steps": {
+            "type": "integer",
+            "description": "Maximum steps in progression (default: 5)",
+            "default": 5
+          }
+        },
+        "required": ["start", "target"]
+      }
+    },
+    {
+      "name": "get_frames",
+      "description": "Get thematic frames that group related lenses. Frames are high-level categories like 'Systems Thinking', 'Decision Making', 'Team Dynamics'.",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "get_lenses_by_episode",
+      "description": "Get all lenses from a specific FLUX newsletter episode.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "episode": {
+            "type": "integer",
+            "description": "Episode number (1-196)"
+          }
+        },
+        "required": ["episode"]
+      }
+    }
+  ],
+  "api_base_url": "https://linsenkasten-api-production.up.railway.app/api/v1",
+  "endpoint_mapping": {
+    "search_lenses": "/lenses/search",
+    "get_lens": "/lenses/search",
+    "find_contrasting_lenses": "/creative/contrasts",
+    "find_lens_journey": "/creative/journey",
+    "find_bridge_lenses": "/creative/bridges",
+    "get_central_lenses": "/creative/central",
+    "get_lens_neighborhood": "/creative/neighborhood",
+    "random_lens_provocation": "/creative/random",
+    "detect_thinking_gaps": "/creative/gaps",
+    "get_dialectic_triads": "/creative/triads",
+    "get_lens_progressions": "/creative/progressions",
+    "get_frames": "/frames",
+    "get_lenses_by_episode": "/lenses/episodes/{episode}"
+  },
+  "workflows": {
+    "quick_analysis": {
+      "description": "Fast 2-lens analysis with synthesis",
+      "steps": [
+        "1. search_lenses with problem keywords",
+        "2. Apply top lens to problem",
+        "3. find_contrasting_lenses for opposing view",
+        "4. Apply contrast lens",
+        "5. Synthesize both perspectives"
+      ]
+    },
+    "dialectic_exploration": {
+      "description": "Thesis/antithesis/synthesis reasoning",
+      "steps": [
+        "1. search_lenses for initial lens (thesis)",
+        "2. find_contrasting_lenses (antithesis)",
+        "3. get_dialectic_triads for synthesis candidates",
+        "4. Apply all three lenses sequentially",
+        "5. Integrate into unified insight"
+      ]
+    },
+    "comprehensive_audit": {
+      "description": "Full coverage analysis across all thinking modes",
+      "steps": [
+        "1. Apply 2-3 lenses from different domains",
+        "2. detect_thinking_gaps to find blind spots",
+        "3. Apply lenses from underexplored frames",
+        "4. random_lens_provocation with context for fresh perspective",
+        "5. Synthesize all insights"
+      ]
+    }
+  }
+}
