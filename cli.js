@@ -365,6 +365,66 @@ async function cmdContrasts(lens) {
   }
 }
 
+async function cmdTriads(lens, options = {}) {
+  try {
+    const limit = parseInt(options.limit) || 3;
+    printHeader(`Dialectic triads for "${lens}"`);
+
+    const results = await api.getDialecticTriads(lens, limit);
+
+    if (results.success && results.triads && results.triads.length > 0) {
+      console.log(`${bold('Source:')} ${bold(results.source_lens.name)} ${dim(`(Ep. ${results.source_lens.episode})`)}`);
+      console.log(`${results.source_lens.definition}\n`);
+      console.log(`${bold(magenta(`Thesis/Antithesis/Synthesis Triads (${results.count}):`))}\n`);
+
+      results.triads.forEach((triad, idx) => {
+        console.log(`${bold(yellow(`Triad ${idx + 1}:`))}`);
+        console.log(`   ${green('THESIS:')} ${bold(triad.thesis.name)} ${dim(`(Ep. ${triad.thesis.episode})`)}`);
+        console.log(`   ${triad.thesis.definition.slice(0, 150)}...\n`);
+        console.log(`   ${red('ANTITHESIS:')} ${bold(triad.antithesis.name)} ${dim(`(Ep. ${triad.antithesis.episode})`)}`);
+        console.log(`   ${triad.antithesis.definition.slice(0, 150)}...\n`);
+        console.log(`   ${blue('SYNTHESIS:')} ${bold(triad.synthesis.name)} ${dim(`(Ep. ${triad.synthesis.episode})`)}`);
+        console.log(`   ${triad.synthesis.definition.slice(0, 150)}...\n`);
+        console.log(`   ${magenta('💡')} ${triad.synthesis_insight}\n`);
+      });
+    } else {
+      console.log(dim(results.error || results.message || 'No triads found for this lens.'));
+    }
+  } catch (error) {
+    printError(error.message);
+    process.exit(1);
+  }
+}
+
+async function cmdProgressions(start, target, options = {}) {
+  try {
+    const maxSteps = parseInt(options['max-steps']) || 5;
+    printHeader(`Learning progression: "${start}" → "${target}"`);
+
+    const results = await api.getLensProgressions(start, target, maxSteps);
+
+    if (results.success && results.progression && results.progression.length > 0) {
+      console.log(`${results.summary}\n`);
+      console.log(`${bold(cyan('PROGRESSION:'))}\n`);
+
+      results.progression.forEach((step, idx) => {
+        const isFirst = idx === 0;
+        const isLast = idx === results.progression.length - 1;
+        const marker = isFirst ? '🚀' : isLast ? '🎯' : '→';
+
+        console.log(`${bold(yellow(`Step ${step.step}`))} ${marker} ${bold(step.lens.name)} ${dim(`(Ep. ${step.lens.episode})`)}`);
+        console.log(`   ${step.lens.definition.slice(0, 150)}...`);
+        console.log(`   ${dim(step.insight)}\n`);
+      });
+    } else {
+      console.log(dim(results.error || 'No progression found between these lenses.'));
+    }
+  } catch (error) {
+    printError(error.message);
+    process.exit(1);
+  }
+}
+
 function printHelp() {
   console.log(`
 ${bold(cyan('Linsenkasten CLI'))} - FLUX Lens Exploration Tool
@@ -407,6 +467,14 @@ ${bold('COMMANDS:')}
   ${green('contrasts')} <lens>            Find contrasting/paradoxical lenses
     ${dim('Example: linsenkasten contrasts "Explore vs Exploit"')}
 
+  ${green('triads')} <lens>               Get thesis/antithesis/synthesis triads
+    ${dim('--limit <n>              Number of triads (default: 3)')}
+    ${dim('Example: linsenkasten triads "Pace Layering"')}
+
+  ${green('progressions')} <start> <target>  Get learning progression between lenses
+    ${dim('--max-steps <n>          Maximum steps (default: 5)')}
+    ${dim('Example: linsenkasten progressions "Systems Thinking" "Innovation"')}
+
   ${green('help')}                        Show this help message
 
 ${bold('ENVIRONMENT:')}
@@ -423,6 +491,8 @@ ${bold('EXAMPLES:')}
   linsenkasten central --measure betweenness --limit 10
   linsenkasten neighborhood "Systems Thinking" --radius 2
   linsenkasten contrasts "Explore vs Exploit"
+  linsenkasten triads "Pace Layering" --limit 2
+  linsenkasten progressions "Systems Thinking" "Innovation"
 
 ${bold('LEARN MORE:')}
   GitHub: https://github.com/mistakeknot/Linsenkasten
@@ -531,6 +601,22 @@ async function main() {
           process.exit(1);
         }
         await cmdContrasts(params.join(' '));
+        break;
+
+      case 'triads':
+        if (params.length === 0) {
+          printError('Missing lens name. Usage: linsenkasten triads <lens> [--limit n]');
+          process.exit(1);
+        }
+        await cmdTriads(params.join(' '), options);
+        break;
+
+      case 'progressions':
+        if (params.length < 2) {
+          printError('Missing lens names. Usage: linsenkasten progressions <start> <target> [--max-steps n]');
+          process.exit(1);
+        }
+        await cmdProgressions(params[0], params.slice(1).join(' '), options);
         break;
 
       default:

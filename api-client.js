@@ -152,6 +152,25 @@ export async function detectThinkingGaps(context) {
 }
 
 /**
+ * Get dialectic triads (thesis/antithesis/synthesis)
+ * @param {string} lens - Source lens name
+ * @param {number} limit - Maximum triads to return (default: 3)
+ */
+export async function getDialecticTriads(lens, limit = 3) {
+  return fetchFromAPI(`/creative/triads?lens=${encodeURIComponent(lens)}&limit=${limit}`);
+}
+
+/**
+ * Get learning progressions between two lenses
+ * @param {string} start - Starting lens name
+ * @param {string} target - Target lens name
+ * @param {number} maxSteps - Maximum steps in progression (default: 5)
+ */
+export async function getLensProgressions(start, target, maxSteps = 5) {
+  return fetchFromAPI(`/creative/progressions?start=${encodeURIComponent(start)}&target=${encodeURIComponent(target)}&max_steps=${maxSteps}`);
+}
+
+/**
  * Get all lenses (cached)
  */
 export async function getAllLenses() {

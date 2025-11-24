@@ -341,6 +341,48 @@ class LinsenkastenMCP {
             required: ['lens', 'problem_context'],
           },
         },
+        {
+          name: 'get_dialectic_triads',
+          description: 'Get thesis/antithesis/synthesis triads for a lens. Returns combinations of contrasting lenses with a synthesizing third lens, including insights about each triad. Use for dialectical thinking and creative synthesis.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              lens: {
+                type: 'string',
+                description: 'Name of the lens to find triads for',
+              },
+              limit: {
+                type: 'number',
+                description: 'Maximum number of triads to return (default: 3)',
+                default: 3,
+              },
+            },
+            required: ['lens'],
+          },
+        },
+        {
+          name: 'get_lens_progressions',
+          description: 'Get learning progressions between two lenses. Returns a sequence of lenses that build conceptually from start to target, with insights about each step. Use for structured learning paths or gradual concept exploration.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              start: {
+                type: 'string',
+                description: 'Starting lens name',
+              },
+              target: {
+                type: 'string',
+                description: 'Target lens name',
+              },
+              max_steps: {
+                type: 'number',
+                description: 'Maximum steps in progression (default: 5)',
+                default: 5,
+              },
+            },
+            required: ['start', 'target'],
+          },
+        },
       ],
     }));
 
@@ -1108,6 +1150,85 @@ Applications:
                 }, null, 2)
               }]
             };
+          }
+
+          case 'get_dialectic_triads': {
+            const { lens, limit = 3 } = args;
+            const results = await api.getDialecticTriads(lens, limit);
+
+            if (results.success && results.triads && results.triads.length > 0) {
+              let response = `# ⚖️ Dialectic Triads for "${results.thesis.name}"\n\n`;
+              response += `**Thesis**: ${results.thesis.name}\n`;
+              response += `> ${results.thesis.definition}\n\n`;
+
+              response += `---\n\n`;
+
+              results.triads.forEach((triad, idx) => {
+                response += `## Triad ${idx + 1}\n\n`;
+                response += `### ↔️ Antithesis: ${triad.antithesis.name}\n`;
+                response += `> ${triad.antithesis.definition}\n\n`;
+                if (triad.contrast_insight) {
+                  response += `**Dialectic Tension**: ${triad.contrast_insight}\n\n`;
+                }
+
+                response += `### 🔄 Synthesis: ${triad.synthesis.name}\n`;
+                response += `> ${triad.synthesis.definition}\n\n`;
+                if (triad.synthesis_insight) {
+                  response += `**How it integrates**: ${triad.synthesis_insight}\n\n`;
+                }
+                response += `---\n\n`;
+              });
+
+              return {
+                content: [{ type: 'text', text: response }]
+              };
+            } else {
+              return {
+                content: [{
+                  type: 'text',
+                  text: results.error || `No triads found for "${lens}". The lens may not have contrasting relationships or may not exist.`
+                }]
+              };
+            }
+          }
+
+          case 'get_lens_progressions': {
+            const { start, target, max_steps = 5 } = args;
+            const results = await api.getLensProgressions(start, target, max_steps);
+
+            if (results.success && results.progression && results.progression.length > 0) {
+              let response = `# 📚 Learning Progression\n\n`;
+              response += `**From**: ${results.start_lens.name}\n`;
+              response += `**To**: ${results.target_lens.name}\n`;
+              response += `**Steps**: ${results.progression.length}\n\n`;
+
+              response += `---\n\n`;
+
+              results.progression.forEach((step, idx) => {
+                const marker = idx === 0 ? '🏁' : idx === results.progression.length - 1 ? '🎯' : `${idx + 1}.`;
+                response += `## ${marker} ${step.lens.name}\n`;
+                response += `> ${step.lens.definition}\n\n`;
+                if (step.insight) {
+                  response += `**Step insight**: ${step.insight}\n\n`;
+                }
+              });
+
+              if (results.overall_insight) {
+                response += `---\n\n`;
+                response += `## 💡 Journey Insight\n${results.overall_insight}\n`;
+              }
+
+              return {
+                content: [{ type: 'text', text: response }]
+              };
+            } else {
+              return {
+                content: [{
+                  type: 'text',
+                  text: results.error || `No progression found between "${start}" and "${target}". One or both lenses may not exist, or there may be no path between them.`
+                }]
+              };
+            }
           }
 
           default:
