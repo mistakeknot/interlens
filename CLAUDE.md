@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Linsenkasten is an MCP (Model Context Protocol) server AND CLI tool that provides AI agents and developers access to 256+ FLUX analytical lenses through graph-based navigation. It acts as a bridge between the Linsenkasten API (hosted on Railway) and MCP clients (like Claude Desktop) or terminal users.
+Linsenkasten is an MCP (Model Context Protocol) server AND CLI tool that provides AI agents and developers access to 288 FLUX analytical lenses through graph-based navigation. It acts as a bridge between the Linsenkasten API (hosted on Railway) and MCP clients (like Claude Desktop) or terminal users.
+
+**Key Feature**: 232 dialectic contrast pairs with 100% lens coverage - every lens has at least one thesis/antithesis relationship for deeper analytical thinking.
 
 **Architecture**: Thin client (MCP/CLI) → REST API → NetworkX graph + Supabase
 
@@ -96,6 +98,8 @@ linsenkasten bridge "Leadership" "Complexity"
 linsenkasten central --measure betweenness --limit 10
 linsenkasten neighborhood "Pace Layering" --radius 2
 linsenkasten contrasts "Explore vs Exploit"
+linsenkasten contrasts "Kintsugi"           # Returns: Fleet of Theseus
+linsenkasten contrasts "Steelmanning"       # Returns: Blind Spots
 
 # During development (without global install)
 node cli.js search "systems thinking"
@@ -188,7 +192,7 @@ This design is intentional:
 **1. ListToolsRequestSchema** (lines 81-295):
 Declares 13 tools in two categories:
 - Basic: search_lenses, get_lens, get_related_lenses, analyze_with_lens, combine_lenses
-- Creative: find_lens_journey, find_bridge_lenses, find_contrasting_lenses, get_central_lenses, get_lens_neighborhood, random_lens_provocation
+- Creative: find_lens_journey, find_bridge_lenses, find_contrasting_lenses (232 pairs!), get_central_lenses, get_lens_neighborhood, random_lens_provocation
 
 **2. ListResourcesRequestSchema** (lines 298-325):
 Provides 4 read-only resources:

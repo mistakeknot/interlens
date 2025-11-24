@@ -13,7 +13,7 @@ Linsenkasten ("lens box" in German) is a knowledge graph of analytical framework
 
 - **Make logical leaps** through bridge discovery
 - **Navigate concept space** systematically
-- **Find paradoxes** for dialectic thinking
+- **Find paradoxes** for dialectic thinking (232 contrast pairs, 100% lens coverage!)
 - **Break habitual patterns** with creative provocations
 - **Explore connections** between disparate ideas
 
@@ -115,8 +115,21 @@ linsenkasten central --measure pagerank
 # Explore around a concept
 linsenkasten neighborhood "Systems Thinking" --radius 2
 
-# Find paradoxes
+# Find paradoxes (232 contrast pairs available!)
 linsenkasten contrasts "Explore vs Exploit"
+```
+
+**Dialectic Thinking Workflow (NEW!):**
+```bash
+# Every lens now has at least one contrast pair
+linsenkasten contrasts "Kintsugi"
+# Returns: Fleet of Theseus (repair vs replacement philosophies)
+
+linsenkasten contrasts "Steelmanning"
+# Returns: Blind Spots (engaging vs avoiding opposition)
+
+linsenkasten contrasts "Regression to the Mean"
+# Returns: Compounding Loops (returning to average vs amplifying deviation)
 ```
 
 ## Features
@@ -132,7 +145,7 @@ linsenkasten contrasts "Explore vs Exploit"
 **Creative Navigation:**
 - `find_lens_journey` - Discover conceptual paths between ideas
 - `find_bridge_lenses` - Connect disparate concepts for lateral thinking
-- `find_contrasting_lenses` - Explore paradoxes and tensions
+- `find_contrasting_lenses` - Explore paradoxes and tensions (232 pairs, 100% coverage)
 - `get_central_lenses` - Identify hub concepts in the network
 - `get_lens_neighborhood` - Explore conceptual neighborhoods
 - `random_lens_provocation` - Break thinking patterns with randomness (now with gap-aware selection!)
@@ -144,7 +157,8 @@ linsenkasten contrasts "Explore vs Exploit"
 ### Graph-Powered Intelligence
 
 Built on a NetworkX graph with:
-- **256 lenses** from FLUX episodes 11-200
+- **288 lenses** from FLUX episodes 11-200+
+- **232 dialectic contrast pairs** - Every lens has thesis/antithesis relationships
 - **Weighted relationships**: AI-discovered, frame-based, temporal, conceptual
 - **Centrality measures**: Betweenness, PageRank, eigenvector
 - **Path finding**: Navigate between any two concepts
@@ -165,12 +179,16 @@ Use find_bridge_lenses to find lenses connecting "Leadership", "Complexity", and
 
 Discover unexpected connections for creative problem-solving.
 
-### Explore Paradoxes
+### Explore Paradoxes (232 Contrast Pairs!)
 ```
 Use find_contrasting_lenses on "Exploit vs Explore" to find complementary tensions
 ```
 
-Reveal deeper insights through dialectic exploration.
+Every lens now has at least one dialectic contrast. Examples:
+- **Kintsugi** ↔ **Fleet of Theseus** (repair with history vs identity through replacement)
+- **Fuzzy Planning** ↔ **Draw Me a Bridge** (embracing uncertainty vs demanding precision)
+- **Stoicism and Gratitude** ↔ **Jevons Paradox** (contentment vs never-enough)
+- **Composable Alphabets** ↔ **Conceptual Integrity** (flexibility vs coherence)
 
 ### Find Hub Concepts
 ```
@@ -237,9 +255,9 @@ random_lens_provocation → find_bridge_lenses → combine_lenses
 find_lens_journey(start, end) → explore intermediate concepts
 ```
 
-**Dialectic Exploration:**
+**Dialectic Exploration (232 contrast pairs, 100% coverage!):**
 ```
-find_contrasting_lenses → synthesize paradoxes
+find_contrasting_lenses → synthesize thesis/antithesis → generate insights
 ```
 
 **Strategic Mapping:**
