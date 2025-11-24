@@ -200,13 +200,13 @@ class LinsenkastenMCP {
         },
         {
           name: 'find_contrasting_lenses',
-          description: 'Find paradoxical/contrasting lenses for dialectic thinking - explore tensions and contradictions',
+          description: 'Find paradoxical/contrasting lenses for dialectic thinking - 96 high-quality contrasts available across diverse domains. Use when exploring tensions, avoiding one-sided thinking, or examining complex problems that benefit from holding contradictions. Each contrast includes insight explaining the dialectic relationship.',
           inputSchema: {
             type: 'object',
             properties: {
               lens: {
                 type: 'string',
-                description: 'Lens name to find contrasts for',
+                description: 'Lens name to find contrasts for (semantic search will find closest match)',
               },
             },
             required: ['lens'],
