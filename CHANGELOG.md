@@ -2,6 +2,34 @@
 
 All notable changes to linsenkasten-mcp will be documented in this file.
 
+## [2.1.0] - 2025-11-24
+
+### Added
+- **100% Dialectic Contrast Coverage**: All 288 lenses now have at least one thesis/antithesis relationship
+- **232 contrast pairs**: 827% increase from the original 25 pairs
+- **Curated contrasts for edge cases**: 15 manually curated high-quality contrasts for lenses that didn't match automatically
+
+### Improved
+- **Contrast quality**: All pairs within semantic sweet spot (0.65-0.92 cosine distance)
+- **Dialectic detection**: Algorithm uses 70% embedding distance + 30% dialectic keyword scoring
+- **Documentation**: Updated README and CLAUDE.md with contrast examples and workflows
+
+### Example Contrasts
+```
+Kintsugi ↔ Fleet of Theseus (repair with history vs identity through replacement)
+Steelmanning ↔ Blind Spots (engaging vs avoiding opposition)
+Regression to the Mean ↔ Compounding Loops (returning to average vs amplifying deviation)
+Fuzzy Planning ↔ Draw Me a Bridge (embracing uncertainty vs demanding precision)
+```
+
+### CLI Usage
+```bash
+# Every lens now returns meaningful contrasts
+linsenkasten contrasts "Kintsugi"
+linsenkasten contrasts "Stoicism and Gratitude"
+linsenkasten contrasts "Composable Alphabets"
+```
+
 ## [1.1.0] - 2025-11-21
 
 ### Added
