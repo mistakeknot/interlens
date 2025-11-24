@@ -1809,6 +1809,269 @@ def get_lens_clusters():
         }), 500
 
 
+@app.route('/api/v1/creative/triads', methods=['GET'])
+def get_dialectic_triads():
+    """
+    Get thesis/antithesis/synthesis triads for a lens.
+
+    Finds a contrasting lens (antithesis) and then identifies a synthesis lens
+    that bridges or transcends the tension between them.
+
+    Parameters:
+        lens: Source lens name (required)
+        limit: Maximum triads to return (default: 3)
+
+    Returns:
+        List of triads, each containing:
+        - thesis: The source lens
+        - antithesis: A contrasting lens
+        - synthesis: A lens that bridges/transcends the contrast
+        - insight: Explanation of how the synthesis resolves or transcends the tension
+    """
+    if not HAS_GRAPH:
+        return jsonify({
+            'success': False,
+            'error': 'Graph functionality not available'
+        }), 503
+
+    lens_name = request.args.get('lens')
+    limit = int(request.args.get('limit', 3))
+
+    if not lens_name:
+        return jsonify({
+            'success': False,
+            'error': 'Lens name required'
+        }), 400
+
+    # Find thesis lens
+    results = supabase_store.search_lenses(lens_name, k=1)
+    if not results:
+        return jsonify({
+            'success': False,
+            'error': 'Lens not found'
+        }), 404
+
+    thesis = results[0]
+    thesis_id = thesis['id']
+
+    # Find antithesis (contrasting) lenses
+    contrasts = lens_graph.find_contrasts(thesis_id)
+
+    if not contrasts:
+        return jsonify({
+            'success': True,
+            'source_lens': thesis,
+            'triads': [],
+            'count': 0,
+            'message': 'No contrasts found for this lens'
+        })
+
+    triads = []
+
+    for antithesis_id, contrast_insight in contrasts[:limit * 2]:  # Get more to find valid syntheses
+        if len(triads) >= limit:
+            break
+
+        antithesis = supabase_store.get_lens_by_id(antithesis_id)
+        if not antithesis:
+            continue
+
+        # Find synthesis lens - a lens that bridges thesis and antithesis
+        # Strategy: Find lenses connected to BOTH thesis and antithesis
+        thesis_neighbors = set(lens_graph.graph.neighbors(thesis_id)) if lens_graph.graph.has_node(thesis_id) else set()
+        antithesis_neighbors = set(lens_graph.graph.neighbors(antithesis_id)) if lens_graph.graph.has_node(antithesis_id) else set()
+
+        # Common neighbors (excluding thesis and antithesis themselves)
+        common = thesis_neighbors.intersection(antithesis_neighbors) - {thesis_id, antithesis_id}
+
+        if not common:
+            # Fallback: Find bridge lenses between thesis and antithesis
+            try:
+                path = lens_graph.find_path(thesis_id, antithesis_id)
+                if path and len(path) >= 3:
+                    # Middle lens is potential synthesis
+                    mid_idx = len(path) // 2
+                    common = {path[mid_idx]}
+            except Exception:
+                continue
+
+        if not common:
+            continue
+
+        # Get the best synthesis candidate
+        synthesis_id = list(common)[0]
+        synthesis = supabase_store.get_lens_by_id(synthesis_id)
+
+        if not synthesis:
+            continue
+
+        # Generate synthesis insight
+        synthesis_insight = _generate_synthesis_insight(thesis, antithesis, synthesis, contrast_insight)
+
+        triads.append({
+            'thesis': {
+                'id': thesis['id'],
+                'name': thesis.get('name') or thesis.get('lens_name'),
+                'definition': thesis.get('definition'),
+                'episode': thesis.get('episode')
+            },
+            'antithesis': {
+                'id': antithesis['id'],
+                'name': antithesis.get('name') or antithesis.get('lens_name'),
+                'definition': antithesis.get('definition'),
+                'episode': antithesis.get('episode')
+            },
+            'synthesis': {
+                'id': synthesis['id'],
+                'name': synthesis.get('name') or synthesis.get('lens_name'),
+                'definition': synthesis.get('definition'),
+                'episode': synthesis.get('episode')
+            },
+            'contrast_insight': contrast_insight,
+            'synthesis_insight': synthesis_insight
+        })
+
+    return jsonify({
+        'success': True,
+        'source_lens': thesis,
+        'triads': triads,
+        'count': len(triads)
+    })
+
+
+def _generate_synthesis_insight(thesis: dict, antithesis: dict, synthesis: dict, contrast_insight: str) -> str:
+    """Generate insight explaining how synthesis transcends thesis/antithesis tension."""
+    thesis_name = thesis.get('name') or thesis.get('lens_name', 'Unknown')
+    antithesis_name = antithesis.get('name') or antithesis.get('lens_name', 'Unknown')
+    synthesis_name = synthesis.get('name') or synthesis.get('lens_name', 'Unknown')
+
+    return (
+        f"The tension between {thesis_name} and {antithesis_name} "
+        f"can be transcended through {synthesis_name}, which offers a higher-order "
+        f"perspective that integrates both viewpoints rather than choosing between them."
+    )
+
+
+@app.route('/api/v1/creative/progressions', methods=['GET'])
+def get_lens_progressions():
+    """
+    Get learning progressions - sequences of lenses that build on each other.
+
+    Finds a logical learning path from a starting lens to a target concept,
+    where each lens builds on the insights of the previous one.
+
+    Parameters:
+        start: Starting lens name (required)
+        target: Target lens name OR concept (required)
+        max_steps: Maximum steps in progression (default: 5)
+
+    Returns:
+        A progression sequence with rationale for each step.
+    """
+    if not HAS_GRAPH:
+        return jsonify({
+            'success': False,
+            'error': 'Graph functionality not available'
+        }), 503
+
+    start_name = request.args.get('start')
+    target_name = request.args.get('target')
+    max_steps = int(request.args.get('max_steps', 5))
+
+    if not start_name or not target_name:
+        return jsonify({
+            'success': False,
+            'error': 'Both start and target lens names required'
+        }), 400
+
+    # Find start lens
+    start_results = supabase_store.search_lenses(start_name, k=1)
+    if not start_results:
+        return jsonify({
+            'success': False,
+            'error': f'Start lens "{start_name}" not found'
+        }), 404
+
+    start_lens = start_results[0]
+    start_id = start_lens['id']
+
+    # Find target lens
+    target_results = supabase_store.search_lenses(target_name, k=1)
+    if not target_results:
+        return jsonify({
+            'success': False,
+            'error': f'Target lens "{target_name}" not found'
+        }), 404
+
+    target_lens = target_results[0]
+    target_id = target_lens['id']
+
+    # Find path between lenses
+    try:
+        path = lens_graph.find_path(start_id, target_id)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'No path found between lenses: {str(e)}'
+        }), 404
+
+    if not path:
+        return jsonify({
+            'success': False,
+            'error': 'No path found between these lenses'
+        }), 404
+
+    # Limit path length
+    if len(path) > max_steps:
+        # Sample evenly through the path
+        step = len(path) / max_steps
+        indices = [int(i * step) for i in range(max_steps)]
+        indices[-1] = len(path) - 1  # Ensure we include the target
+        path = [path[i] for i in indices]
+
+    # Build progression with insights
+    progression = []
+    for i, lens_id in enumerate(path):
+        lens = supabase_store.get_lens_by_id(lens_id)
+        if not lens:
+            continue
+
+        step_insight = _generate_progression_insight(i, len(path), lens, path, progression)
+
+        progression.append({
+            'step': i + 1,
+            'lens': {
+                'id': lens['id'],
+                'name': lens.get('name') or lens.get('lens_name'),
+                'definition': lens.get('definition'),
+                'episode': lens.get('episode')
+            },
+            'insight': step_insight
+        })
+
+    return jsonify({
+        'success': True,
+        'start_lens': start_lens,
+        'target_lens': target_lens,
+        'total_steps': len(progression),
+        'progression': progression,
+        'summary': f"A {len(progression)}-step journey from {start_lens.get('name') or start_lens.get('lens_name')} to {target_lens.get('name') or target_lens.get('lens_name')}"
+    })
+
+
+def _generate_progression_insight(step_idx: int, total_steps: int, lens: dict, path: list, previous_steps: list) -> str:
+    """Generate insight explaining how this lens builds on previous ones."""
+    lens_name = lens.get('name') or lens.get('lens_name', 'Unknown')
+
+    if step_idx == 0:
+        return f"Begin with {lens_name} to establish the foundation for this conceptual journey."
+    elif step_idx == total_steps - 1:
+        return f"Arrive at {lens_name}, integrating insights from the preceding lenses."
+    else:
+        prev_name = previous_steps[-1]['lens']['name'] if previous_steps else 'the previous lens'
+        return f"{lens_name} builds on {prev_name}, adding a new dimension to the exploration."
+
+
 @app.route('/api/v1/debug/lens-lookup', methods=['GET'])
 def debug_lens_lookup():
     """Temporary debug endpoint to diagnose lens name matching issues"""
