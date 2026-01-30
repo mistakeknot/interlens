@@ -1,0 +1,48 @@
+{
+  "name": "linsenkasten",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "d3": "^7.8.5",
+    "lodash.debounce": "^4.0.8",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^7.6.3",
+    "react-scripts": "5.0.1",
+    "serve": "^14.2.0",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start:frontend": "REACT_APP_LENS_API_URL=http://localhost:5003/api/v1 react-scripts start",
+    "start:backend": "cd .. && LENS_API_PORT=5003 python lens_search_api.py",
+    "dev": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "proxy": "http://localhost:5003"
+}
