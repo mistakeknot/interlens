@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration
-const API_BASE_URL = process.env.LINSENKASTEN_API_URL || 'https://linsenkasten-api-production.up.railway.app/api/v1';
+const API_BASE_URL = process.env.INTERLENS_API_URL || 'https://interlens-api-production.up.railway.app/api/v1';
 const CACHE_DIR = path.join(__dirname, '.cache');
 const CACHE_TTL = 3600000; // 1 hour in milliseconds
 
@@ -40,7 +40,7 @@ export async function setCachedData(key, data) {
 }
 
 /**
- * Fetch data from the Linsenkasten API
+ * Fetch data from the Interlens API
  */
 export async function fetchFromAPI(endpoint) {
   try {

@@ -1,5 +1,5 @@
 /**
- * Thinking Modes for Linsenkasten
+ * Thinking Modes for Interlens
  *
  * Inspired by Six Thinking Hats - provides structured entry points for agents.
  * Groups lenses into coherent modes based on problem type and reasoning goal.

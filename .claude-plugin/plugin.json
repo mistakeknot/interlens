@@ -1,0 +1,28 @@
+{
+  "name": "interlens",
+  "version": "2.2.2",
+  "description": "288 FLUX cognitive lenses for structured thinking — MCP server with lens search, thinking mode workflows, belief statement generation, quality evaluation, and solution synthesis.",
+  "author": {
+    "name": "mistakeknot"
+  },
+  "license": "MIT",
+  "keywords": [
+    "flux",
+    "lenses",
+    "cognitive-augmentation",
+    "mcp",
+    "thinking-modes",
+    "systems-thinking",
+    "creative-problem-solving",
+    "dialectic-thinking"
+  ],
+  "mcpServers": {
+    "interlens": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "packages/mcp/index.js"
+      ]
+    }
+  }
+}

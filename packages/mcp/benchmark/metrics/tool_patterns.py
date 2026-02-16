@@ -2,7 +2,7 @@
 """
 Tool Usage Pattern Analyzer
 
-Analyzes how an agent uses linsenkasten MCP/CLI tools during problem-solving.
+Analyzes how an agent uses interlens MCP/CLI tools during problem-solving.
 
 Metrics:
 1. Tool Diversity - How many different tools used
@@ -26,7 +26,7 @@ import json
 from typing import List, Dict, Set, Tuple
 from collections import Counter
 
-# Linsenkasten tool inventory
+# Interlens tool inventory
 BASIC_TOOLS = {
     'search_lenses': ['search', 'searching for', 'searched for'],
     'get_lens': ['get lens', 'retrieved', 'fetched lens'],
@@ -284,7 +284,7 @@ def analyze_response_text(text: str) -> Dict:
             'tool_score': 0.0,
             'tools_used': [],
             'tool_count': 0,
-            'message': 'No linsenkasten tools detected in response'
+            'message': 'No interlens tools detected in response'
         }
 
     categorized = categorize_tools(tool_calls)
@@ -397,7 +397,7 @@ def print_report(result: Dict):
 
     if 'message' in result and result['tool_count'] == 0:
         print(f"\n⚠️  {result['message']}")
-        print("   (This might be baseline condition - no linsenkasten tools used)")
+        print("   (This might be baseline condition - no interlens tools used)")
         print("\n" + "="*60 + "\n")
         return
 

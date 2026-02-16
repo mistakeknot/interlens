@@ -1,8 +1,8 @@
-# Linsenkasten API Documentation
+# Interlens API Documentation
 
 ## Overview
 
-Linsenkasten provides REST API endpoints for lens exploration and graph-based navigation. All endpoints return JSON and are optimized for AI agent consumption.
+Interlens provides REST API endpoints for lens exploration and graph-based navigation. All endpoints return JSON and are optimized for AI agent consumption.
 
 **Base URL**: `https://xulfbot-lens-api.up.railway.app/api/v1`
 

@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with the Linsenkasten API backend.
+This file provides guidance to Claude Code (claude.ai/code) when working with the Interlens API backend.
 
 ## Project Overview
 
-Linsenkasten API is a Flask-based REST API that provides access to 256+ FLUX analytical lenses through graph-based navigation and creative thinking tools. It uses NetworkX for graph operations and Supabase for data storage.
+Interlens API is a Flask-based REST API that provides access to 256+ FLUX analytical lenses through graph-based navigation and creative thinking tools. It uses NetworkX for graph operations and Supabase for data storage.
 
 **Architecture**: Flask API → NetworkX graph operations → Supabase PostgreSQL
 
@@ -119,7 +119,7 @@ git push origin main
 # Railway auto-deploys
 ```
 
-**Production URL**: https://linsenkasten-api-production.up.railway.app/api/v1
+**Production URL**: https://interlens-api-production.up.railway.app/api/v1
 
 ### Environment Variables in Railway
 
@@ -188,13 +188,13 @@ HTTP status codes:
 
 ## Related Projects
 
-- **linsenkasten** (~/linsenkasten) - MCP server + CLI that consumes this API
-  - GitHub: https://github.com/mistakeknot/Linsenkasten
-  - npm: `linsenkasten-mcp`
+- **interlens** (~/interlens) - MCP server + CLI that consumes this API
+  - GitHub: https://github.com/mistakeknot/Interlens
+  - npm: `interlens-mcp`
 
-- **linsenkasten-web** (~/linsenkasten-web) - React web frontend that consumes this API
-  - GitHub: https://github.com/mistakeknot/linsenkasten-web
-  - Live: https://linsenkasten.com
+- **interlens-web** (~/interlens-web) - React web frontend that consumes this API
+  - GitHub: https://github.com/mistakeknot/interlens-web
+  - Live: https://interlens.com
 
 - **xulfbot** (~/xulfbot) - Discord bot
   - GitHub: https://github.com/mistakeknot/XULFbot

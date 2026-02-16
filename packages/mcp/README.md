@@ -1,15 +1,15 @@
-# Linsenkasten
+# Interlens
 
 A cognitive augmentation toolkit that gives AI agents access to 288 FLUX analytical lenses through graph-based navigation, creative thinking tools, and conceptual exploration. Works with Claude, ChatGPT, Codex CLI, and any AI platform via REST API.
 
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-green)](https://modelcontextprotocol.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## What is Linsenkasten?
+## What is Interlens?
 
-> **✨ New in v2.2.1**: Fixed MCP server startup issues with Claude Desktop. Now provides separate `linsenkasten` (CLI) and `linsenkasten-mcp` (MCP server) commands.
+> **✨ New in v2.2.1**: Fixed MCP server startup issues with Claude Desktop. Now provides separate `interlens` (CLI) and `interlens-mcp` (MCP server) commands.
 
-Linsenkasten ("lens box" in German) is a knowledge graph of analytical frameworks from the [FLUX Collective](https://read.fluxcollective.org/) newsletter. It transforms 288 conceptual lenses into an explorable graph that AI agents can navigate to:
+Interlens ("lens box" in German) is a knowledge graph of analytical frameworks from the [FLUX Collective](https://read.fluxcollective.org/) newsletter. It transforms 288 conceptual lenses into an explorable graph that AI agents can navigate to:
 
 - **Make logical leaps** through bridge discovery
 - **Navigate concept space** systematically
@@ -24,8 +24,8 @@ Add to your Claude Desktop config:
 ```json
 {
   "mcpServers": {
-    "linsenkasten": {
-      "url": "https://linsenkasten.com/api/mcp/v1/sse"
+    "interlens": {
+      "url": "https://interlens.com/api/mcp/v1/sse"
     }
   }
 }
@@ -39,41 +39,41 @@ Restart Claude Desktop. Done! 🎉
 
 ## Command Line Interface
 
-Linsenkasten also includes a powerful CLI for exploring lenses directly from your terminal:
+Interlens also includes a powerful CLI for exploring lenses directly from your terminal:
 
 ```bash
 # Install globally
-npm install -g linsenkasten-mcp
+npm install -g interlens-mcp
 
 # Search for lenses
-linsenkasten search "systems thinking"
+interlens search "systems thinking"
 
 # Get lens details
-linsenkasten get "Pace Layering"
+interlens get "Pace Layering"
 
 # Find conceptual journey
-linsenkasten journey "Systems Thinking" "Innovation"
+interlens journey "Systems Thinking" "Innovation"
 
 # Get random provocation
-linsenkasten random
+interlens random
 
 # Analyze thinking gaps (NEW in v1.1.0)
-linsenkasten gaps --context "Pace Layering" --context "Innovation"
+interlens gaps --context "Pace Layering" --context "Innovation"
 
 # Get gap-aware random lens (NEW in v1.1.0)
-linsenkasten random --context "Pace Layering" --context "Innovation"
+interlens random --context "Pace Layering" --context "Innovation"
 
 # Find bridge lenses
-linsenkasten bridge "Leadership" "Complexity" "Communication"
+interlens bridge "Leadership" "Complexity" "Communication"
 
 # Get central lenses
-linsenkasten central --measure betweenness --limit 10
+interlens central --measure betweenness --limit 10
 
 # Explore neighborhood
-linsenkasten neighborhood "Pace Layering" --radius 2
+interlens neighborhood "Pace Layering" --radius 2
 
 # Find contrasts
-linsenkasten contrasts "Explore vs Exploit"
+interlens contrasts "Explore vs Exploit"
 ```
 
 ### CLI Features
@@ -81,54 +81,54 @@ linsenkasten contrasts "Explore vs Exploit"
 - **Flexible queries** - Natural language lens names
 - **Scriptable** - Pipe-able output for automation
 - **Fast** - Direct API access with local caching
-- **Help system** - Run `linsenkasten help` for usage info
+- **Help system** - Run `interlens help` for usage info
 
 ### CLI Examples
 
 **Quick lens lookup:**
 ```bash
-linsenkasten get "Systems Thinking"
+interlens get "Systems Thinking"
 ```
 
 **Find connections between concepts:**
 ```bash
-linsenkasten journey "Pace Layering" "Innovation Cascade"
+interlens journey "Pace Layering" "Innovation Cascade"
 ```
 
 **Creative problem-solving workflow:**
 ```bash
 # 1. Get random provocation
-linsenkasten random
+interlens random
 
 # 2. Bridge back to your domain
-linsenkasten bridge "Random Lens Name" "Product Design"
+interlens bridge "Random Lens Name" "Product Design"
 
 # 3. Explore the bridge
-linsenkasten neighborhood "Bridge Lens Name"
+interlens neighborhood "Bridge Lens Name"
 ```
 
 **Explore the knowledge graph:**
 ```bash
 # Find most important concepts
-linsenkasten central --measure pagerank
+interlens central --measure pagerank
 
 # Explore around a concept
-linsenkasten neighborhood "Systems Thinking" --radius 2
+interlens neighborhood "Systems Thinking" --radius 2
 
 # Find paradoxes (232 contrast pairs available!)
-linsenkasten contrasts "Explore vs Exploit"
+interlens contrasts "Explore vs Exploit"
 ```
 
 **Dialectic Thinking Workflow (NEW!):**
 ```bash
 # Every lens now has at least one contrast pair
-linsenkasten contrasts "Kintsugi"
+interlens contrasts "Kintsugi"
 # Returns: Fleet of Theseus (repair vs replacement philosophies)
 
-linsenkasten contrasts "Steelmanning"
+interlens contrasts "Steelmanning"
 # Returns: Blind Spots (engaging vs avoiding opposition)
 
-linsenkasten contrasts "Regression to the Mean"
+interlens contrasts "Regression to the Mean"
 # Returns: Compounding Loops (returning to average vs amplifying deviation)
 ```
 
@@ -210,7 +210,7 @@ Break out of local thinking patterns.
 
 ```bash
 # Check what frames you've covered
-linsenkasten gaps --context "Pace Layering" --context "Innovation" --context "Systems Thinking"
+interlens gaps --context "Pace Layering" --context "Innovation" --context "Systems Thinking"
 
 # Output:
 # Coverage: 7.1% (2/28 frames)
@@ -221,7 +221,7 @@ linsenkasten gaps --context "Pace Layering" --context "Innovation" --context "Sy
 
 ```bash
 # System biases toward unexplored frames (80% chance)
-linsenkasten random --context "Pace Layering" --context "Innovation" --context "Systems Thinking"
+interlens random --context "Pace Layering" --context "Innovation" --context "Systems Thinking"
 
 # Suggests: "Logic and Gut" (decision-making lens)
 # Coverage jumps to 14.3% (4/28 frames)
@@ -230,12 +230,12 @@ linsenkasten random --context "Pace Layering" --context "Innovation" --context "
 **Continue exploring to build comprehensive coverage:**
 
 ```bash
-linsenkasten random --context "Pace Layering" --context "Innovation" --context "Logic and Gut"
+interlens random --context "Pace Layering" --context "Innovation" --context "Logic and Gut"
 
 # Suggests: "Dancing with Art" (artistic expression evolution)
 # Coverage: 18% (5/28 frames)
 
-linsenkasten random --context "Pace Layering" --context "Innovation" --context "Logic and Gut" --context "Dancing with Art"
+interlens random --context "Pace Layering" --context "Innovation" --context "Logic and Gut" --context "Dancing with Art"
 
 # Suggests: "The Geometry of Dissent" (organizational dynamics)
 # Coverage: 21.4% (6/28 frames)
@@ -269,21 +269,21 @@ get_central_lenses → get_lens_neighborhood → explore territory
 
 **Zero LLM Costs for You:**
 - Users bring their own AI (Claude Desktop, Cursor, etc.)
-- Linsenkasten provides structured lens data
+- Interlens provides structured lens data
 - All reasoning happens client-side with user's API keys
 
-**What Linsenkasten Provides:**
+**What Interlens Provides:**
 - NetworkX graph operations (path finding, centrality, etc.)
 - Supabase queries for lens metadata
 - Structured JSON responses
 
 **Your Costs:**
 - Only your Claude/AI API usage
-- No hidden charges from Linsenkasten
+- No hidden charges from Interlens
 
 ## Cross-Platform Support
 
-Linsenkasten works with multiple AI platforms:
+Interlens works with multiple AI platforms:
 
 | Platform | Support | Setup Guide |
 |----------|---------|-------------|
@@ -300,18 +300,18 @@ Generate schemas for integration with other platforms:
 
 ```bash
 # OpenAI function calling schema (ChatGPT, Codex CLI)
-linsenkasten export --format openai > functions.json
+interlens export --format openai > functions.json
 
 # OpenAPI 3.0 specification (any REST client)
-linsenkasten export --format openapi > api.yaml
+interlens export --format openapi > api.yaml
 ```
 
 ### Creating a ChatGPT GPT
 
-1. Export the OpenAPI schema: `linsenkasten export --format openapi`
+1. Export the OpenAPI schema: `interlens export --format openapi`
 2. Create a new GPT at https://chatgpt.com/gpts/editor
 3. Add Actions using the OpenAPI schema
-4. Point to API: `https://linsenkasten-api-production.up.railway.app/api/v1`
+4. Point to API: `https://interlens-api-production.up.railway.app/api/v1`
 
 See [docs/chatgpt-gpt-config.md](docs/chatgpt-gpt-config.md) for detailed instructions.
 
@@ -324,9 +324,9 @@ Add to your Claude Desktop config:
 ```json
 {
   "mcpServers": {
-    "linsenkasten": {
+    "interlens": {
       "command": "npx",
-      "args": ["-y", "-p", "linsenkasten-mcp@latest", "linsenkasten-mcp"]
+      "args": ["-y", "-p", "interlens-mcp@latest", "interlens-mcp"]
     }
   }
 }
@@ -337,7 +337,7 @@ Add to your Claude Desktop config:
 Install via npm:
 
 ```bash
-npm install -g linsenkasten-mcp
+npm install -g interlens-mcp
 ```
 
 Add to your Claude Desktop config:
@@ -345,8 +345,8 @@ Add to your Claude Desktop config:
 ```json
 {
   "mcpServers": {
-    "linsenkasten": {
-      "command": "linsenkasten-mcp"
+    "interlens": {
+      "command": "interlens-mcp"
     }
   }
 }
@@ -358,8 +358,8 @@ Want to run from source?
 
 ```bash
 # Clone this repo
-git clone https://github.com/mistakeknot/Linsenkasten.git
-cd linsenkasten
+git clone https://github.com/mistakeknot/Interlens.git
+cd interlens
 
 # Install dependencies
 npm install
@@ -370,9 +370,9 @@ npm start
 # Update Claude Desktop config
 {
   "mcpServers": {
-    "linsenkasten": {
+    "interlens": {
       "command": "node",
-      "args": ["/path/to/linsenkasten/index.js"]
+      "args": ["/path/to/interlens/index.js"]
     }
   }
 }
@@ -393,7 +393,7 @@ See [docs/API.md](docs/API.md) for full API documentation.
 
 ## Resources
 
-Linsenkasten provides three MCP resources:
+Interlens provides three MCP resources:
 
 - `lens://all` - Complete lens catalog (256+ lenses)
 - `lens://frames` - Thematic groupings (20+ frames)
@@ -423,7 +423,7 @@ Linsenkasten provides three MCP resources:
 
 FLUX is a weekly newsletter from the [FLUX Collective](https://read.fluxcollective.org/) exploring systems thinking, organizational dynamics, and complexity. Each episode introduces analytical lenses for understanding complex systems.
 
-Linsenkasten makes these lenses computationally accessible for AI agents and tools.
+Interlens makes these lenses computationally accessible for AI agents and tools.
 
 ## Contributing
 
@@ -435,10 +435,10 @@ MIT License - see [LICENSE](LICENSE)
 
 ## Links
 
-- **Live API**: https://linsenkasten.com/api/mcp/v1/sse
+- **Live API**: https://interlens.com/api/mcp/v1/sse
 - **FLUX Newsletter**: https://read.fluxcollective.org/
 - **Documentation**: [docs/](docs/)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/linsenkasten/issues)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/interlens/issues)
 
 ---
 

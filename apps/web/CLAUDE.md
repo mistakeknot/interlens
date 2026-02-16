@@ -1,13 +1,13 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with the Linsenkasten web frontend.
+This file provides guidance to Claude Code (claude.ai/code) when working with the Interlens web frontend.
 
 ## Project Overview
 
-Linsenkasten Web is a React-based single-page application for exploring 256+ FLUX analytical lenses. It provides interactive browsing, search, graph visualization, and deep linking.
+Interlens Web is a React-based single-page application for exploring 256+ FLUX analytical lenses. It provides interactive browsing, search, graph visualization, and deep linking.
 
-**Live Site**: https://linsenkasten.com
-**API Backend**: https://lens-api.up.railway.app/api/v1 (linsenkasten-api repo)
+**Live Site**: https://interlens.com
+**API Backend**: https://lens-api.up.railway.app/api/v1 (interlens-api repo)
 
 ## Key Files
 
@@ -151,7 +151,7 @@ Connected to GitHub, auto-deploys on push to `main`:
 
 1. Push to GitHub
 2. Vercel builds and deploys
-3. Live at https://linsenkasten.com
+3. Live at https://interlens.com
 
 **Manual deploy**:
 ```bash
@@ -166,11 +166,11 @@ railway up
 
 ## Related Repositories
 
-- **linsenkasten** (`~/linsenkasten`) - MCP server + CLI
-  - GitHub: https://github.com/mistakeknot/Linsenkasten
+- **interlens** (`~/interlens`) - MCP server + CLI
+  - GitHub: https://github.com/mistakeknot/Interlens
 
-- **linsenkasten-api** (`~/linsenkasten-api`) - Backend API
-  - GitHub: https://github.com/mistakeknot/linsenkasten-api
+- **interlens-api** (`~/interlens-api`) - Backend API
+  - GitHub: https://github.com/mistakeknot/interlens-api
 
 - **xulfbot** (`~/xulfbot`) - Discord bot
   - GitHub: https://github.com/mistakeknot/XULFbot

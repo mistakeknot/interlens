@@ -1,4 +1,4 @@
-# Session Summary: Linsenkasten Agent Improvements
+# Session Summary: Interlens Agent Improvements
 
 **Date:** 2025-01-21
 **Branch:** `feature/research-informed-agent-improvements`
@@ -30,7 +30,7 @@
 **Tested:** 3 sample problems (performance-stuck, accessibility-improvements, feature-prioritization)
 
 **Results:**
-| Metric | Baseline | With Linsenkasten | Improvement |
+| Metric | Baseline | With Interlens | Improvement |
 |--------|----------|-------------------|-------------|
 | Frame Coverage | 1.0/10 | 7.5/10 | **+650%** |
 | Semantic Diversity | 3.0/10 | 7.0/10 | **+133%** |
@@ -127,7 +127,7 @@
 ## Files Created
 
 ```
-linsenkasten/
+interlens/
 ├── benchmark/
 │   ├── README.md
 │   ├── IMPLEMENTATION_STATUS.md
@@ -169,7 +169,7 @@ linsenkasten/
 
 1. **Benchmark-first approach**: Validate before implementing (de-risks)
 2. **Hybrid evaluation**: Tier 1 (automated) + Tier 2 (LLM-judge) + Tier 3 (human)
-3. **No LLM in linsenkasten**: All logic is template/heuristic-based (zero cost)
+3. **No LLM in interlens**: All logic is template/heuristic-based (zero cost)
 4. **Thinking modes**: Hierarchical structure reduces cognitive load
 5. **Belief statements**: Bridge from abstract concepts to specific insights
 6. **Phase 0 before Phase 1**: Critical foundations first
@@ -187,7 +187,7 @@ linsenkasten/
 ## Impact Summary
 
 **Before this session:**
-- Linsenkasten had good concept (FLUX lenses)
+- Interlens had good concept (FLUX lenses)
 - Agents used it shallowly (abstract definitions)
 - No measurement of effectiveness
 - No structured application workflow
@@ -210,13 +210,13 @@ linsenkasten/
 
 1. **Re-test benchmark** (1-2 hours):
    - Run 3 sample problems with Phase 0 complete
-   - Compare: baseline → with-linsenkasten → with-phase0
+   - Compare: baseline → with-interlens → with-phase0
    - Validate +67% maintained/exceeded
    - Document improvements in Phase 0 vs baseline
 
 2. **CLI Integration** (optional, 1-2 hours):
-   - Add `linsenkasten mode <problem>` command
-   - Add `linsenkasten refine <lens> <problem>` command
+   - Add `interlens mode <problem>` command
+   - Add `interlens refine <lens> <problem>` command
    - Enhance existing commands with belief generation
    - Update help text and examples
 

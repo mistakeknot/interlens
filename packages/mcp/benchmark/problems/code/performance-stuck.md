@@ -86,7 +86,7 @@ Your role: Help us break through this performance plateau with a fresh perspecti
 
 ## Baseline Solution Pattern
 
-WITHOUT linsenkasten, typical responses:
+WITHOUT interlens, typical responses:
 
 ```
 "Have you tried:
@@ -109,7 +109,7 @@ WITHOUT linsenkasten, typical responses:
 
 ## Target Solution Pattern
 
-WITH linsenkasten (using Pace Layering + System Boundaries):
+WITH interlens (using Pace Layering + System Boundaries):
 
 ```
 "I'm applying Pace Layering lens to this problem.

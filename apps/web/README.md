@@ -1,8 +1,8 @@
-# Linsenkasten Web
+# Interlens Web
 
 React-based web interface for exploring 256+ FLUX analytical lenses. Provides interactive browsing, search, and visualization of the lens knowledge graph.
 
-**Live Site**: https://linsenkasten.com
+**Live Site**: https://interlens.com
 
 ## Features
 
@@ -24,9 +24,9 @@ React-based web interface for exploring 256+ FLUX analytical lenses. Provides in
 
 ## API Backend
 
-This frontend consumes the Linsenkasten API:
+This frontend consumes the Interlens API:
 - **API**: https://lens-api.up.railway.app/api/v1
-- **Repo**: https://github.com/mistakeknot/linsenkasten-api
+- **Repo**: https://github.com/mistakeknot/interlens-api
 
 ## Development
 
@@ -56,7 +56,7 @@ REACT_APP_API_URL=http://localhost:5002/api/v1
 ## Project Structure
 
 ```
-linsenkasten-web/
+interlens-web/
 ├── public/               # Static assets
 ├── src/
 │   ├── components/       # React components
@@ -74,7 +74,7 @@ linsenkasten-web/
 
 ### Vercel (Production)
 
-This repo is deployed to Vercel and served at linsenkasten.com.
+This repo is deployed to Vercel and served at interlens.com.
 
 **Deploy from CLI**:
 ```bash
@@ -93,8 +93,8 @@ railway up
 
 ## Related Projects
 
-- **linsenkasten** - MCP server + CLI ([GitHub](https://github.com/mistakeknot/Linsenkasten))
-- **linsenkasten-api** - Backend API ([GitHub](https://github.com/mistakeknot/linsenkasten-api))
+- **interlens** - MCP server + CLI ([GitHub](https://github.com/mistakeknot/Interlens))
+- **interlens-api** - Backend API ([GitHub](https://github.com/mistakeknot/interlens-api))
 
 ## Routes
 

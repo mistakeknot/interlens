@@ -1,6 +1,6 @@
 # Database Migrations
 
-This directory contains SQL migrations for the Linsenkasten API Supabase database.
+This directory contains SQL migrations for the Interlens API Supabase database.
 
 ## How to Run Migrations
 

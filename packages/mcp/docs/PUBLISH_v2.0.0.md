@@ -1,9 +1,9 @@
-# Linsenkasten v2.0.0 Published to npm
+# Interlens v2.0.0 Published to npm
 
 **Date:** 2025-01-22
-**Package:** linsenkasten-mcp@2.0.0
+**Package:** interlens-mcp@2.0.0
 **Registry:** https://registry.npmjs.org/
-**npm URL:** https://www.npmjs.com/package/linsenkasten-mcp
+**npm URL:** https://www.npmjs.com/package/interlens-mcp
 
 ## Publication Details
 
@@ -87,7 +87,7 @@ All modules in `lib/` directory (2,224 total lines):
 
 **Zero LLM Costs Maintained:**
 - All logic is template/heuristic-based
-- No API keys required for Linsenkasten
+- No API keys required for Interlens
 - Users bring their own AI (Claude Desktop, etc.)
 
 **ES Module Syntax:**
@@ -103,7 +103,7 @@ All modules in `lib/` directory (2,224 total lines):
 
 **Results:**
 - Phase 0 (v2.0.0) avg: 0.87/10
-- With-Linsenkasten (v1.x) avg: 0.648/10
+- With-Interlens (v1.x) avg: 0.648/10
 - Baseline (no tools) avg: 0.242/10
 
 **Improvements:**
@@ -121,24 +121,24 @@ All modules in `lib/` directory (2,224 total lines):
 ### Global Installation (Recommended)
 
 ```bash
-npm install -g linsenkasten-mcp
+npm install -g interlens-mcp
 ```
 
 This installs both:
 - **MCP server** (for Claude Desktop, etc.)
-- **CLI tool** (terminal command: `linsenkasten`)
+- **CLI tool** (terminal command: `interlens`)
 
 ### Local Installation
 
 ```bash
-npm install linsenkasten-mcp
+npm install interlens-mcp
 ```
 
 ### Verify Installation
 
 ```bash
-linsenkasten --version  # Should show: 2.0.0
-linsenkasten search "systems thinking"
+interlens --version  # Should show: 2.0.0
+interlens search "systems thinking"
 ```
 
 ## Usage
@@ -150,9 +150,9 @@ Update `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "linsenkasten": {
+    "interlens": {
       "command": "npx",
-      "args": ["-y", "-p", "linsenkasten-mcp@latest", "linsenkasten-mcp"]
+      "args": ["-y", "-p", "interlens-mcp@latest", "interlens-mcp"]
     }
   }
 }
@@ -163,14 +163,14 @@ Or with global installation:
 ```json
 {
   "mcpServers": {
-    "linsenkasten": {
-      "command": "linsenkasten-mcp"
+    "interlens": {
+      "command": "interlens-mcp"
     }
   }
 }
 ```
 
-> **Note:** As of v2.2.1, you must explicitly invoke `linsenkasten-mcp` (the MCP server binary) rather than just the package name, since the package also includes a CLI tool (`linsenkasten`).
+> **Note:** As of v2.2.1, you must explicitly invoke `interlens-mcp` (the MCP server binary) rather than just the package name, since the package also includes a CLI tool (`interlens`).
 
 Restart Claude Desktop to load the server.
 
@@ -178,18 +178,18 @@ Restart Claude Desktop to load the server.
 
 ```bash
 # Search for lenses
-linsenkasten search "systems thinking"
+interlens search "systems thinking"
 
 # Get specific lens
-linsenkasten get "Pace Layering"
+interlens get "Pace Layering"
 
 # Random provocation
-linsenkasten random
+interlens random
 
 # Creative exploration
-linsenkasten journey "Leadership" "Innovation"
-linsenkasten bridge "Strategy" "Design"
-linsenkasten central --measure betweenness
+interlens journey "Leadership" "Innovation"
+interlens bridge "Strategy" "Design"
+interlens central --measure betweenness
 ```
 
 ### Phase 0 Workflow (MCP)
@@ -286,9 +286,9 @@ No dependency changes from v1.x.
 
 ## Links
 
-- **npm Package:** https://www.npmjs.com/package/linsenkasten-mcp
-- **GitHub:** https://github.com/mistakeknot/Linsenkasten
-- **Documentation:** https://github.com/mistakeknot/Linsenkasten#readme
+- **npm Package:** https://www.npmjs.com/package/interlens-mcp
+- **GitHub:** https://github.com/mistakeknot/Interlens
+- **Documentation:** https://github.com/mistakeknot/Interlens#readme
 - **API Docs:** docs/API.md
 - **Usage Guide:** docs/USAGE.md
 - **Phase 0 Integration:** docs/PHASE0C_INTEGRATION.md
@@ -300,18 +300,18 @@ New keywords in v2.0.0:
 - belief-statements
 - quality-evaluation
 
-Full list: mcp, flux, lens, linsenkasten, cli, systems-thinking, knowledge-graph, creative-problem-solving, belief-statements, quality-evaluation
+Full list: mcp, flux, lens, interlens, cli, systems-thinking, knowledge-graph, creative-problem-solving, belief-statements, quality-evaluation
 
 ## Support
 
-- **Issues:** https://github.com/mistakeknot/Linsenkasten/issues
+- **Issues:** https://github.com/mistakeknot/Interlens/issues
 - **License:** MIT
 - **Maintainer:** gensysven <mistakeknot@vibeguider.org>
 
 ## Next Steps
 
 **For Users:**
-1. Update installation: `npm install -g linsenkasten-mcp@2.0.0`
+1. Update installation: `npm install -g interlens-mcp@2.0.0`
 2. Restart Claude Desktop (if using MCP)
 3. Try new workflow: suggest_thinking_mode → analyze_with_lens → synthesize_solution
 

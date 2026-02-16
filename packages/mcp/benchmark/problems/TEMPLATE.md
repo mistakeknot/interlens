@@ -57,7 +57,7 @@ Which lenses would be particularly relevant? (for evaluation scoring)
 - Low relevance: [Lenses that are a stretch]
 
 ## Baseline Solution Pattern
-What would a typical solution look like WITHOUT linsenkasten?
+What would a typical solution look like WITHOUT interlens?
 
 - Common approaches
 - Typical recommendations
@@ -65,7 +65,7 @@ What would a typical solution look like WITHOUT linsenkasten?
 - Estimated novelty: [2-4/10]
 
 ## Target Solution Pattern
-What could a solution look like WITH linsenkasten?
+What could a solution look like WITH interlens?
 
 - Lens-based reframes
 - Novel connections

@@ -98,7 +98,7 @@ Your role: Help us break through this onboarding impasse.
 
 ## Baseline Solution Pattern
 
-WITHOUT linsenkasten:
+WITHOUT interlens:
 
 ```
 "Try these onboarding improvements:
@@ -120,7 +120,7 @@ WITHOUT linsenkasten:
 
 ## Target Solution Pattern
 
-WITH linsenkasten (using Zone of Proximal Development + Pace Layering):
+WITH interlens (using Zone of Proximal Development + Pace Layering):
 
 ```
 "Applying Zone of Proximal Development + Pace Layering:

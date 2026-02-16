@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-Once you've added Linsenkasten to Claude Desktop, you can start using it immediately. Here are practical examples of how to leverage its creative thinking tools.
+Once you've added Interlens to Claude Desktop, you can start using it immediately. Here are practical examples of how to leverage its creative thinking tools.
 
 ## Basic Exploration
 
@@ -377,4 +377,4 @@ For API-level integration, see [API.md](API.md)
 
 For contributing, see [CONTRIBUTING.md](../CONTRIBUTING.md)
 
-For issues and discussion, see [GitHub Issues](https://github.com/yourusername/linsenkasten/issues)
+For issues and discussion, see [GitHub Issues](https://github.com/yourusername/interlens/issues)

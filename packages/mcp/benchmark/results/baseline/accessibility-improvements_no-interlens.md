@@ -1,4 +1,4 @@
-# Solution: Accessibility vs Velocity (Baseline - No Linsenkasten)
+# Solution: Accessibility vs Velocity (Baseline - No Interlens)
 
 ## Problem Analysis
 

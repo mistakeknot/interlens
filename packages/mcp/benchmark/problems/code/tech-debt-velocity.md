@@ -96,7 +96,7 @@ Your role: Help us break out of this tech debt trap.
 
 ## Baseline Solution Pattern
 
-WITHOUT linsenkasten:
+WITHOUT interlens:
 
 ```
 "Stop all feature work for 2-4 weeks. Focus on:
@@ -127,7 +127,7 @@ OR:
 
 ## Target Solution Pattern
 
-WITH linsenkasten (using Feedback Loops + Pace Layering + Leverage Points):
+WITH interlens (using Feedback Loops + Pace Layering + Leverage Points):
 
 ```
 "Applying Feedback Loops + Pace Layering + Leverage Points:

@@ -1,12 +1,12 @@
-# Design: Making Linsenkasten More Useful for Agents
+# Design: Making Interlens More Useful for Agents
 
 **Date:** 2025-01-21
 **Status:** Design Complete
-**Target Users:** AI agents (Claude Code, Codex CLI, Claude Desktop) using linsenkasten for creative problem-solving
+**Target Users:** AI agents (Claude Code, Codex CLI, Claude Desktop) using interlens for creative problem-solving
 
 ## Executive Summary
 
-Transform linsenkasten from a "lookup tool" into an **intelligent creative thinking partner** for AI agents through:
+Transform interlens from a "lookup tool" into an **intelligent creative thinking partner** for AI agents through:
 
 1. **Meta-tool for strategy** - Agents get recommendations, not just raw data
 2. **Contextual guidance** - Every response suggests next steps
@@ -22,11 +22,11 @@ Transform linsenkasten from a "lookup tool" into an **intelligent creative think
 
 ### Current State
 
-Agents struggle to use linsenkasten effectively:
+Agents struggle to use interlens effectively:
 
 - **Discovery problem**: Don't know which tool to use when (13 tools, vague descriptions)
 - **Integration problem**: Hard to chain operations or integrate with other workflows
-- **Proactivity problem**: Only use linsenkasten when explicitly told to
+- **Proactivity problem**: Only use interlens when explicitly told to
 - **Workflow problem**: Get one result, then don't know what to do next
 
 ### Example of Poor Usage
@@ -164,7 +164,7 @@ Let me bridge this back to feature design...
 - Need creative breakthrough
 - Facing complex, multi-faceted problem
 - User asks "how should I think about this?"
-- You're unsure which linsenkasten tool to use
+- You're unsure which interlens tool to use
 
 INPUT:
 - problem: Natural language description of situation
@@ -176,7 +176,7 @@ OUTPUT:
 - Step-by-step tool recommendations with rationale
 - Example calls you can execute
 
-💡 This is your entry point to linsenkasten when you don't know where to start.`,
+💡 This is your entry point to interlens when you don't know where to start.`,
   inputSchema: {
     type: 'object',
     properties: {
@@ -202,8 +202,8 @@ OUTPUT:
 
 **CLI Support:**
 ```bash
-linsenkasten suggest "Team can't decide between option A and B"
-linsenkasten suggest "I'm stuck on this design problem" --goal creativity
+interlens suggest "Team can't decide between option A and B"
+interlens suggest "I'm stuck on this design problem" --goal creativity
 ```
 
 ---
@@ -679,7 +679,7 @@ Add flexible output formatting for different use cases.
 
 **Full format (default):**
 ```bash
-$ linsenkasten search "innovation"
+$ interlens search "innovation"
 
 🔍 Search Results for "innovation"
 
@@ -701,7 +701,7 @@ Found 2 lenses
 
 **JSON format:**
 ```bash
-$ linsenkasten search "innovation" --format=json
+$ interlens search "innovation" --format=json
 
 {
   "tool": "search_lenses",
@@ -736,7 +736,7 @@ $ linsenkasten search "innovation" --format=json
 
 **Compact format:**
 ```bash
-$ linsenkasten search "innovation" --format=compact --no-hints
+$ interlens search "innovation" --format=compact --no-hints
 
 Innovation Cascade - Episode 45
 Systems Innovation - Episode 78
@@ -744,7 +744,7 @@ Systems Innovation - Episode 78
 
 **Field selection:**
 ```bash
-$ linsenkasten search "innovation" --fields=name,episode
+$ interlens search "innovation" --fields=name,episode
 
 Innovation Cascade (45)
 Systems Innovation (78)
@@ -752,7 +752,7 @@ Systems Innovation (78)
 
 **JSON + fields (for piping):**
 ```bash
-$ linsenkasten search "innovation" --format=json --fields=name,episode | jq '.results.lenses[]'
+$ interlens search "innovation" --format=json --fields=name,episode | jq '.results.lenses[]'
 
 {"name": "Innovation Cascade", "episode": 45}
 {"name": "Systems Innovation", "episode": 78}
@@ -791,14 +791,14 @@ function formatResponse(data, format, fields, hints) {
 
 ### 5. Proactivity Mechanisms
 
-Help agents recognize WHEN to use linsenkasten without explicit prompting.
+Help agents recognize WHEN to use interlens without explicit prompting.
 
 #### 5.1 Usage Guide Resource
 
 **New MCP resource:** `lens://guide/when-to-use`
 
 ```markdown
-# When to Use Linsenkasten: Agent Guide
+# When to Use Interlens: Agent Guide
 
 This guide helps you recognize situations where lens-based thinking would be valuable.
 
@@ -1111,7 +1111,7 @@ function afterLensTool() {
 
 ### Applying Insights Back to Problem
 
-Linsenkasten provides frameworks, but **you** (the agent) apply them:
+Interlens provides frameworks, but **you** (the agent) apply them:
 
 **Bad:**
 ```
@@ -1286,14 +1286,14 @@ Include helpful metadata when patterns detected:
 1. ✅ Pattern detection logic
    - Implement keyword matching for common patterns
    - Map patterns to tool sequences
-   - File: `linsenkasten-api/pattern_detection.py`
+   - File: `interlens-api/pattern_detection.py`
    - Estimated: 4-6 hours
 
 2. ✅ Flask endpoint
    - `/api/v1/creative/suggest-strategy`
    - Accept problem, context, goal
    - Return recommended steps with rationale
-   - File: `linsenkasten-api/lens_search_api.py`
+   - File: `interlens-api/lens_search_api.py`
    - Estimated: 3-4 hours
 
 3. ✅ Test endpoint
@@ -1323,7 +1323,7 @@ curl -X POST https://lens-api.up.railway.app/api/v1/creative/suggest-strategy \
 1. ✅ Define hint rules for each tool
    - Document next_steps for all 13 tools
    - Create hint generation functions
-   - File: `linsenkasten-api/hint_generator.py`
+   - File: `interlens-api/hint_generator.py`
    - Estimated: 6-8 hours
 
 2. ✅ Update all endpoints
@@ -1359,25 +1359,25 @@ curl -X POST https://lens-api.up.railway.app/api/v1/creative/suggest-strategy \
    - Add to ListToolsRequestSchema
    - Add to CallToolRequestSchema
    - Format response nicely
-   - File: `linsenkasten/index.js`
+   - File: `interlens/index.js`
    - Estimated: 2-3 hours
 
 2. ✅ Add usage guide resource
    - Add `lens://guide/when-to-use` to resources
    - Serve `docs/agent-guide.md` content
-   - File: `linsenkasten/index.js`
+   - File: `interlens/index.js`
    - Estimated: 1-2 hours
 
 3. ✅ Update all tool descriptions
    - Copy enhanced descriptions from Phase 1
    - Verify formatting in Claude Desktop
-   - File: `linsenkasten/index.js`
+   - File: `interlens/index.js`
    - Estimated: 2-3 hours
 
 4. ✅ Handle next_steps in responses
    - Format hints nicely for MCP clients
    - Add hint suppression flag if needed
-   - File: `linsenkasten/index.js`
+   - File: `interlens/index.js`
    - Estimated: 2-3 hours
 
 **Deliverables:**
@@ -1400,22 +1400,22 @@ curl -X POST https://lens-api.up.railway.app/api/v1/creative/suggest-strategy \
 
 **Tasks:**
 1. ✅ Add suggest command
-   - `linsenkasten suggest "<problem>"`
+   - `interlens suggest "<problem>"`
    - Support --goal flag
    - Format output nicely
-   - File: `linsenkasten/cli.js`
+   - File: `interlens/cli.js`
    - Estimated: 2-3 hours
 
 2. ✅ Update help text
    - Document all new features
    - Include examples
-   - File: `linsenkasten/cli.js`
+   - File: `interlens/cli.js`
    - Estimated: 1-2 hours
 
 3. ✅ Format next_steps in CLI
    - Pretty-print hints with colors
    - Respect --no-hints flag
-   - File: `linsenkasten/cli.js`
+   - File: `interlens/cli.js`
    - Estimated: 2-3 hours
 
 **Deliverables:**
@@ -1425,9 +1425,9 @@ curl -X POST https://lens-api.up.railway.app/api/v1/creative/suggest-strategy \
 
 **Testing:**
 ```bash
-linsenkasten suggest "Team can't decide on approach"
-linsenkasten suggest "I'm stuck" --goal creativity
-linsenkasten search "innovation" --format=json --no-hints
+interlens suggest "Team can't decide on approach"
+interlens suggest "I'm stuck" --goal creativity
+interlens search "innovation" --format=json --no-hints
 ```
 
 ---
@@ -1441,26 +1441,26 @@ linsenkasten search "innovation" --format=json --no-hints
    - Document suggest_lens_strategy
    - Add workflow examples
    - Update feature list
-   - File: `linsenkasten/README.md`
+   - File: `interlens/README.md`
    - Estimated: 2-3 hours
 
 2. ✅ Update USAGE.md
    - Add agent integration guide
    - Include workflow examples
    - Document all new flags/features
-   - File: `linsenkasten/docs/USAGE.md`
+   - File: `interlens/docs/USAGE.md`
    - Estimated: 2-3 hours
 
 3. ✅ Create examples
    - Example agent conversations
    - CLI workflow examples
-   - File: `linsenkasten/docs/examples/`
+   - File: `interlens/docs/examples/`
    - Estimated: 2-3 hours
 
 4. ✅ Update CLAUDE.md
    - Document new architecture
    - Update development guide
-   - File: `linsenkasten/CLAUDE.md`
+   - File: `interlens/CLAUDE.md`
    - Estimated: 1-2 hours
 
 **Deliverables:**
@@ -1475,7 +1475,7 @@ linsenkasten search "innovation" --format=json --no-hints
 ### Before Implementation
 
 **Agent behavior:**
-- Uses linsenkasten only when explicitly told
+- Uses interlens only when explicitly told
 - Common pattern: single search call, read result, done
 - No multi-tool workflows
 - Doesn't know which tool to use
@@ -1532,7 +1532,7 @@ linsenkasten search "innovation" --format=json --no-hints
 
 **1. LLM-Enhanced Pattern Detection**
 - Use small LLM to detect problem patterns (more accurate than keywords)
-- Still zero-cost for users (Linsenkasten pays)
+- Still zero-cost for users (Interlens pays)
 - Better strategy recommendations
 
 **2. Session Support (Optional)**
@@ -1543,7 +1543,7 @@ linsenkasten search "innovation" --format=json --no-hints
 **3. Workflow Templates**
 - Predefined sequences: "creative_exploration", "decision_support", "comprehensive_analysis"
 - Execute multiple tools in one call
-- Example: `linsenkasten workflow creative --topic "product strategy"`
+- Example: `interlens workflow creative --topic "product strategy"`
 
 **4. Telemetry & Analytics**
 - Optional opt-in usage tracking
@@ -1644,7 +1644,7 @@ progressive disclosure (simple start, reveal complexity gradually) and half
 want comprehensive upfront (show everything, let users choose their path).
 Both have good arguments. How do we decide?
 
-Claude: This is a classic design tension. Let me use linsenkasten to help frame this decision.
+Claude: This is a classic design tension. Let me use interlens to help frame this decision.
 
 [Calls: suggest_lens_strategy(problem="Team split on progressive vs comprehensive onboarding", goal="decision_making")]
 
@@ -1897,7 +1897,7 @@ Sound like a useful reframe? Want to explore more perspectives on this?
 
 ## Conclusion
 
-This design transforms linsenkasten from a passive lookup tool into an active thinking partner for AI agents. By implementing:
+This design transforms interlens from a passive lookup tool into an active thinking partner for AI agents. By implementing:
 
 1. **suggest_lens_strategy** - Strategic entry point
 2. **Contextual hints** - Workflow guidance in responses

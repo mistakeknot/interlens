@@ -100,7 +100,7 @@ From Railway dashboard, copy:
 ### 2. Create .env file
 
 ```bash
-# In linsenkasten-api directory
+# In interlens-api directory
 cat > .env << EOF
 SUPABASE_URL=your_supabase_url
 SUPABASE_KEY=your_supabase_key

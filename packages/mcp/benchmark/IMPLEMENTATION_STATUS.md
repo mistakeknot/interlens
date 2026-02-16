@@ -5,7 +5,7 @@
 
 ## Summary
 
-Implemented complete hybrid benchmark suite for measuring linsenkasten agent improvements:
+Implemented complete hybrid benchmark suite for measuring interlens agent improvements:
 - **15 test problems** across 5 domains (code, design, strategy, product, team)
 - **3 Tier 1 automated metrics** (semantic diversity, frame coverage, tool patterns)
 - **1 Tier 2 LLM-as-judge** (quality scorer with 4 dimensions)
@@ -60,7 +60,7 @@ Implemented complete hybrid benchmark suite for measuring linsenkasten agent imp
    - Cost: Free (local computation)
 
 3. `tool_patterns.py` ✅
-   - Detects linsenkasten tool calls (search, journey, bridge, etc.)
+   - Detects interlens tool calls (search, journey, bridge, etc.)
    - Categorizes basic vs creative tools
    - Identifies effective sequences
    - Detects anti-patterns
@@ -146,18 +146,18 @@ python benchmark/run_benchmark.py --results results/baseline/ --no-llm-judge
 
 Pick 3-5 problems from `benchmark/problems/` and solve them in two conditions:
 
-**Condition A: No Linsenkasten**
+**Condition A: No Interlens**
 - Open Claude Code
 - Paste problem prompt
-- Solve WITHOUT mentioning or using linsenkasten
-- Save response to: `benchmark/results/baseline/problem-name_no-linsenkasten.md`
+- Solve WITHOUT mentioning or using interlens
+- Save response to: `benchmark/results/baseline/problem-name_no-interlens.md`
 
-**Condition B: With Linsenkasten**
+**Condition B: With Interlens**
 - Open Claude Code
 - Paste problem prompt
-- Linsenkasten MCP available in Claude Desktop
-- Use linsenkasten tools to solve
-- Save response to: `benchmark/results/current/problem-name_with-linsenkasten.md`
+- Interlens MCP available in Claude Desktop
+- Use interlens tools to solve
+- Save response to: `benchmark/results/current/problem-name_with-interlens.md`
 
 ### 2. Run Automated Scoring (2-5 min)
 
@@ -173,7 +173,7 @@ This will output:
 ### 3. Analyze Results
 
 **If hitting +67% target:**
-- Great! Current linsenkasten is effective
+- Great! Current interlens is effective
 - Proceed with Phase 0 implementation to push further
 - Document baseline for paper trail
 
@@ -195,14 +195,14 @@ Once satisfied with improvements:
 
 Based on design targets:
 
-**Without Linsenkasten (Baseline):**
+**Without Interlens (Baseline):**
 - Semantic Diversity: 2.5/10 (clustered generic advice)
 - Frame Coverage: 1.0/10 (no FLUX lenses mentioned)
-- Tool Usage: 0.0/10 (no linsenkasten tools used)
+- Tool Usage: 0.0/10 (no interlens tools used)
 - Quality: 3.5/10 (generic best practices)
 - **Overall: ~1.75/10**
 
-**With Current Linsenkasten:**
+**With Current Interlens:**
 - Semantic Diversity: 3.5-4.5/10 (some lens exploration)
 - Frame Coverage: 3.5-4.5/10 (mentions lenses, shallow application)
 - Tool Usage: 2.5-3.5/10 (basic tool usage)

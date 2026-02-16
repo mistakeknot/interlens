@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     jsonrpc: "2.0",
     method: "connection.init",
     params: {
-      name: "linsenkasten",
+      name: "interlens",
       version: "1.0.0"
     }
   })}\n\n`);
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
               resources: {}
             },
             serverInfo: {
-              name: 'linsenkasten',
+              name: 'interlens',
               version: '1.0.0'
             }
           }

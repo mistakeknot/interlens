@@ -18,11 +18,11 @@ import { evaluateWithOverall } from './lib/quality-evaluation.js';
 import { synthesizeSolution } from './lib/synthesis.js';
 import { refineApplication, getRefinementSummary } from './lib/refinement.js';
 
-class LinsenkastenMCP {
+class InterlensMCP {
   constructor() {
     this.server = new Server(
       {
-        name: 'linsenkasten-mcp',
+        name: 'interlens-mcp',
         version: '1.0.0',
       },
       {
@@ -1252,10 +1252,10 @@ Applications:
   async run() {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error('Linsenkasten MCP server running on stdio');
+    console.error('Interlens MCP server running on stdio');
   }
 }
 
 // Create and run the server
-const mcp = new LinsenkastenMCP();
+const mcp = new InterlensMCP();
 mcp.run().catch(console.error);

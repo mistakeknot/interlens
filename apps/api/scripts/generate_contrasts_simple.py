@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Simple Contrast Generation Using Linsenkasten API
+Simple Contrast Generation Using Interlens API
 
-Uses the public linsenkasten API to fetch lenses and generates contrast candidates
+Uses the public interlens API to fetch lenses and generates contrast candidates
 that Claude Code (the user) can review and evaluate.
 
 This version doesn't require credentials - just uses the public API.

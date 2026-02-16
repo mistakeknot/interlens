@@ -210,7 +210,7 @@ If `python-louvain` fails to install, the cluster endpoint will use connected co
 
 ## Files Modified
 
-**linsenkasten-api:**
+**interlens-api:**
 1. `requirements.txt` - Added python-louvain==0.16
 2. `lens_search_api.py` - Added `/api/v1/creative/clusters` endpoint (lines 1716-1810)
 3. `scripts/generate_contrasts.py` - New file (436 lines)
@@ -246,8 +246,8 @@ When you next work on this project:
 
 After successful deployment:
 - [ ] Update PROJECT_EVALUATION.md with new features
-- [ ] Update linsenkasten MCP server to expose cluster endpoint
-- [ ] Update linsenkasten-web to display clusters (optional)
+- [ ] Update interlens MCP server to expose cluster endpoint
+- [ ] Update interlens-web to display clusters (optional)
 - [ ] Create blog post/announcement about creative enhancements (optional)
 
 ---

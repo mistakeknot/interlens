@@ -1,4 +1,4 @@
-# Solution: API Performance Stuck (Baseline - No Linsenkasten)
+# Solution: API Performance Stuck (Baseline - No Interlens)
 
 ## Problem Analysis
 

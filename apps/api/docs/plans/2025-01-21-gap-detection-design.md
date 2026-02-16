@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-This design adds intelligent gap detection to Linsenkasten's creative thinking tools, transforming it from a "pull" system (agents request lenses) to a "nudge" system that guides agents toward unexplored conceptual dimensions. This enhances cognitive coverage and prevents agents from getting stuck in familiar thinking patterns.
+This design adds intelligent gap detection to Interlens's creative thinking tools, transforming it from a "pull" system (agents request lenses) to a "nudge" system that guides agents toward unexplored conceptual dimensions. This enhances cognitive coverage and prevents agents from getting stuck in familiar thinking patterns.
 
 ## Goals
 
@@ -46,7 +46,7 @@ Apply weighted random selection to suggestions:
 
 **No changes to existing usage:**
 ```bash
-linsenkasten random
+interlens random
 → Pure randomness, no bias
 ```
 
@@ -54,13 +54,13 @@ linsenkasten random
 
 **Random provocation with context:**
 ```bash
-linsenkasten random --context "Systems Thinking,Feedback Loops,Emergence"
+interlens random --context "Systems Thinking,Feedback Loops,Emergence"
 → Gap-biased suggestion with explanation
 ```
 
 **Bridge discovery with context:**
 ```bash
-linsenkasten bridge "Leadership" "Innovation" --context "Systems Thinking,Strategy"
+interlens bridge "Leadership" "Innovation" --context "Systems Thinking,Strategy"
 → Prioritizes bridges crossing from explored→unexplored frames
 ```
 
@@ -68,7 +68,7 @@ linsenkasten bridge "Leadership" "Innovation" --context "Systems Thinking,Strate
 
 **Explicit gap detection:**
 ```bash
-linsenkasten gaps --context "Systems Thinking,Feedback Loops,Strategy,Leadership"
+interlens gaps --context "Systems Thinking,Feedback Loops,Strategy,Leadership"
 → Full coverage report + specific suggestions from gaps
 ```
 
@@ -104,9 +104,9 @@ linsenkasten gaps --context "Systems Thinking,Feedback Loops,Strategy,Leadership
 ### Architecture Overview
 
 **Components:**
-- **API Layer** (linsenkasten-api): Core logic in `lens_search_api.py`
+- **API Layer** (interlens-api): Core logic in `lens_search_api.py`
 - **Data Layer** (Supabase): Frame metadata and lens-frame relationships
-- **MCP/CLI Layer** (linsenkasten): Updated tool schemas and CLI flags
+- **MCP/CLI Layer** (interlens): Updated tool schemas and CLI flags
 
 **Key Principle:** Stateless design - context is optional, agent-controlled, no session tracking required.
 
@@ -373,7 +373,7 @@ def detect_thinking_gaps():
     })
 ```
 
-### MCP Tool Updates (linsenkasten/index.js)
+### MCP Tool Updates (interlens/index.js)
 
 **Updated `random_lens_provocation` tool:**
 ```javascript
@@ -466,7 +466,7 @@ case 'detect_thinking_gaps': {
 }
 ```
 
-### CLI Updates (linsenkasten/cli.js)
+### CLI Updates (interlens/cli.js)
 
 **Add `--context` flag to random command:**
 ```javascript
@@ -494,7 +494,7 @@ if (args[0] === 'gaps') {
 
   if (contextIdx === -1) {
     console.error('Error: --context required for gaps command');
-    console.log('Usage: linsenkasten gaps --context "Lens1,Lens2,Lens3"');
+    console.log('Usage: interlens gaps --context "Lens1,Lens2,Lens3"');
     process.exit(1);
   }
 
@@ -552,8 +552,8 @@ curl "https://lens-api.up.railway.app/api/v1/creative/gaps?context[]=Systems%20T
 
 **5. Test CLI:**
 ```bash
-linsenkasten random --context "Systems Thinking,Feedback Loops"
-linsenkasten gaps --context "Systems Thinking,Feedback Loops,Strategy"
+interlens random --context "Systems Thinking,Feedback Loops"
+interlens gaps --context "Systems Thinking,Feedback Loops,Strategy"
 ```
 
 **6. Test MCP in Claude Desktop:**
@@ -649,7 +649,7 @@ curl "...?context[]="
 
 ## Implementation Plan
 
-### Phase 1: API Foundation (linsenkasten-api)
+### Phase 1: API Foundation (interlens-api)
 
 **Files to modify:**
 1. `supabase_store.py` - Add `get_frames_for_lenses()`
@@ -667,7 +667,7 @@ curl "...?context[]="
 - [ ] Deploy to Railway
 - [ ] Test production endpoints
 
-### Phase 2: MCP Integration (linsenkasten)
+### Phase 2: MCP Integration (interlens)
 
 **Files to modify:**
 1. `api-client.js` - Add functions for new endpoints/parameters
@@ -682,7 +682,7 @@ curl "...?context[]="
 - [ ] Test locally with MCP inspector
 - [ ] Test in Claude Desktop
 
-### Phase 3: CLI Integration (linsenkasten)
+### Phase 3: CLI Integration (interlens)
 
 **Files to modify:**
 1. `cli.js` - Add `--context` flag and `gaps` command
@@ -698,11 +698,11 @@ curl "...?context[]="
 ### Phase 4: Documentation & Release
 
 **Files to modify/create:**
-1. `linsenkasten-api/CHANGELOG.md` - Document new feature
-2. `linsenkasten-api/CLAUDE.md` - Update with gap detection info
-3. `linsenkasten/CHANGELOG.md` - Document new tools
-4. `linsenkasten/README.md` - Add gap detection examples
-5. `linsenkasten/docs/USAGE.md` - Add gap detection workflows
+1. `interlens-api/CHANGELOG.md` - Document new feature
+2. `interlens-api/CLAUDE.md` - Update with gap detection info
+3. `interlens/CHANGELOG.md` - Document new tools
+4. `interlens/README.md` - Add gap detection examples
+5. `interlens/docs/USAGE.md` - Add gap detection workflows
 
 **Tasks:**
 - [ ] Update API documentation

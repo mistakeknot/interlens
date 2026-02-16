@@ -1,4 +1,4 @@
-# Linsenkasten API - Comprehensive Project Evaluation
+# Interlens API - Comprehensive Project Evaluation
 
 **Date:** 2025-11-22 (Updated: 2025-11-23)
 **Evaluator:** Claude Code
@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-The Linsenkasten API is a **well-architected Flask-based REST API** that provides access to 256+ FLUX analytical lenses through graph-based navigation and creative thinking tools. After comprehensive analysis, the project demonstrates **solid engineering practices** with a few areas for improvement, and **exceptional creative design** that genuinely innovates in the cognitive augmentation space.
+The Interlens API is a **well-architected Flask-based REST API** that provides access to 256+ FLUX analytical lenses through graph-based navigation and creative thinking tools. After comprehensive analysis, the project demonstrates **solid engineering practices** with a few areas for improvement, and **exceptional creative design** that genuinely innovates in the cognitive augmentation space.
 
 ### Dual Assessment
 - **Technical Implementation:** B+ (Very Good) - Clean code, good architecture, needs production hardening
@@ -985,7 +985,7 @@ Temporal (0.1)              # Adjacent episodes
 ### Integration with Agent Workflows
 
 #### MCP Server Integration
-The API is consumed by the **linsenkasten MCP server**, which provides Claude Desktop with:
+The API is consumed by the **interlens MCP server**, which provides Claude Desktop with:
 - Natural language lens access
 - Creative thinking tools
 - Gap detection in conversation context
@@ -1003,9 +1003,9 @@ Claude: *uses MCP to check conversation context*
 #### CLI Integration
 Also powers a CLI tool for developers:
 ```bash
-linsenkasten random --context "Systems,Strategy"
-linsenkasten gaps --context "Leadership,Innovation"
-linsenkasten journey "Problem" "Solution"
+interlens random --context "Systems,Strategy"
+interlens gaps --context "Leadership,Innovation"
+interlens journey "Problem" "Solution"
 ```
 
 ---
@@ -1019,7 +1019,7 @@ Query: "innovation"
 → Problem: No relationships, no coverage analysis, no serendipity
 ```
 
-#### Linsenkasten Approach: Multi-Modal Discovery
+#### Interlens Approach: Multi-Modal Discovery
 ```
 Query: Creative exploration starting from "innovation"
 → Semantic search (embedding-based)

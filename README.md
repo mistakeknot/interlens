@@ -1,10 +1,10 @@
-# Linsenkasten (monorepo)
+# Interlens (monorepo)
 
-Linsenkasten is a cognitive augmentation toolkit that provides access to 288 FLUX analytical lenses through a graph-powered API, a web explorer, and an MCP server + CLI.
+Interlens is a cognitive augmentation toolkit that provides access to 288 FLUX analytical lenses through a graph-powered API, a web explorer, and an MCP server + CLI.
 
 ## Repo layout
 
-- `packages/mcp` — **MCP server + CLI** (npm package: `linsenkasten-mcp`)
+- `packages/mcp` — **MCP server + CLI** (npm package: `interlens-mcp`)
 - `apps/api` — **Backend API** (Flask + NetworkX)
 - `apps/web` — **Web frontend** (React)
 

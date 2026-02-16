@@ -3,7 +3,7 @@ export default function handler(req, res) {
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Linsenkasten MCP Server</title>
+  <title>Interlens MCP Server</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -48,7 +48,7 @@ export default function handler(req, res) {
   </style>
 </head>
 <body>
-  <h1>🎯 Linsenkasten MCP Server</h1>
+  <h1>🎯 Interlens MCP Server</h1>
   
   <div class="status">✅ Server is running</div>
   
@@ -57,8 +57,8 @@ export default function handler(req, res) {
     <p>Add this configuration to your Claude Desktop config file:</p>
     <pre>{
   "mcpServers": {
-    "linsenkasten": {
-      "url": "https://mcp.linsenkasten.com/api/mcp/v1/sse"
+    "interlens": {
+      "url": "https://mcp.interlens.com/api/mcp/v1/sse"
     }
   }
 }</pre>
@@ -109,7 +109,7 @@ export default function handler(req, res) {
     <h2>Links</h2>
     <ul>
       <li><a href="https://github.com/mistakeknot/XULFbot">GitHub Repository</a></li>
-      <li><a href="https://linsenkasten.com">Linsenkasten Web App</a></li>
+      <li><a href="https://interlens.com">Interlens Web App</a></li>
       <li><a href="https://read.fluxcollective.org">FLUX Collective</a></li>
     </ul>
   </div>

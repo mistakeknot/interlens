@@ -1,4 +1,4 @@
-# Solution: Feature Prioritization Deadlock (Baseline - No Linsenkasten)
+# Solution: Feature Prioritization Deadlock (Baseline - No Interlens)
 
 ## Problem Analysis
 

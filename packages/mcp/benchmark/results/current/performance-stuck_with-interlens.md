@@ -1,10 +1,10 @@
-# Solution: API Performance Stuck (With Linsenkasten)
+# Solution: API Performance Stuck (With Interlens)
 
 ## Lens Application: Pace Layering
 
 Let me search for relevant lenses to analyze this performance problem...
 
-*[Using linsenkasten: search for "performance bottleneck optimization"]*
+*[Using interlens: search for "performance bottleneck optimization"]*
 
 The key insight here is applying **Pace Layering** to understand why your optimizations aren't working.
 

@@ -174,7 +174,7 @@ class BenchmarkRunner:
 
 def compare_conditions(baseline_dir: str, improved_dir: str, use_llm_judge: bool = True) -> Dict:
     """
-    Compare two conditions (e.g., baseline vs with-linsenkasten).
+    Compare two conditions (e.g., baseline vs with-interlens).
 
     Assumes files are named consistently:
     - baseline/problem1.md
@@ -287,7 +287,7 @@ def compare_conditions(baseline_dir: str, improved_dir: str, use_llm_judge: bool
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Run linsenkasten benchmark evaluation')
+    parser = argparse.ArgumentParser(description='Run interlens benchmark evaluation')
     parser.add_argument('--results', help='Results directory to evaluate')
     parser.add_argument('--compare', nargs=2, metavar=('BASELINE', 'IMPROVED'),
                         help='Compare two result directories')

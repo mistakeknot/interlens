@@ -1,4 +1,4 @@
-# Linsenkasten Creative Thinking Benchmark Suite
+# Interlens Creative Thinking Benchmark Suite
 
 Research-backed evaluation framework for measuring agent creative problem-solving improvements.
 
@@ -20,8 +20,8 @@ benchmark/
 │   ├── product/             # Product problems (3)
 │   └── team/                # Team problems (3)
 ├── results/                 # Test results and logs
-│   ├── baseline/            # Baseline (no linsenkasten)
-│   ├── current/             # Current (with linsenkasten)
+│   ├── baseline/            # Baseline (no interlens)
+│   ├── current/             # Current (with interlens)
 │   └── phase0/              # After Phase 0 improvements
 └── run_benchmark.py         # Main test runner
 ```
@@ -101,7 +101,7 @@ python benchmark/run_benchmark.py --results results/baseline/ --no-llm-judge
 - Cost: Free (local computation)
 
 **Tool Usage Patterns (0-10)**
-- Measures: Sophistication of linsenkasten tool usage
+- Measures: Sophistication of interlens tool usage
 - Method: Detect tool calls + effective sequences + anti-patterns
 - Baseline expectation: 0/10 (no tools used)
 - Target: 6-8/10 (creative tool sequences)
@@ -175,11 +175,11 @@ Starting from baseline ~3/10 average → target 5/10 average
 
 For 3-5 sample problems:
 
-1. **Baseline condition** - Open Claude Code, paste problem, solve WITHOUT using linsenkasten
-   - Save to: `benchmark/results/baseline/problem-name_no-linsenkasten.md`
+1. **Baseline condition** - Open Claude Code, paste problem, solve WITHOUT using interlens
+   - Save to: `benchmark/results/baseline/problem-name_no-interlens.md`
 
-2. **Current condition** - Open Claude Code, paste problem, linsenkasten MCP available, use it
-   - Save to: `benchmark/results/current/problem-name_with-linsenkasten.md`
+2. **Current condition** - Open Claude Code, paste problem, interlens MCP available, use it
+   - Save to: `benchmark/results/current/problem-name_with-interlens.md`
 
 3. **Run automated scoring:**
    ```bash

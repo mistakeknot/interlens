@@ -1,10 +1,10 @@
-This file provides guidance when working in the **Linsenkasten monorepo**.
+This file provides guidance when working in the **Interlens monorepo**.
 
 ## Layout
 
-- `packages/mcp` — MCP server + CLI (published as `linsenkasten-mcp`)
+- `packages/mcp` — MCP server + CLI (published as `interlens-mcp`)
 - `apps/api` — Flask API powering lens search + graph operations
-- `apps/web` — React frontend for linsenkasten.com
+- `apps/web` — React frontend for interlens.com
 
 ## Conventions
 

@@ -1,6 +1,6 @@
-# Creating a Linsenkasten GPT for ChatGPT
+# Creating a Interlens GPT for ChatGPT
 
-This guide walks you through creating a custom GPT that gives ChatGPT access to Linsenkasten's 288 analytical lenses.
+This guide walks you through creating a custom GPT that gives ChatGPT access to Interlens's 288 analytical lenses.
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ This guide walks you through creating a custom GPT that gives ChatGPT access to 
 
 ### Name
 ```
-Linsenkasten - FLUX Lens Explorer
+Interlens - FLUX Lens Explorer
 ```
 
 ### Description
@@ -25,18 +25,18 @@ Creative problem-solving with 288 analytical lenses from FLUX. Explore dialectic
 ```
 
 ### Profile Picture
-Use the Linsenkasten logo or a lens/prism icon.
+Use the Interlens logo or a lens/prism icon.
 
 ## Step 3: Add Instructions (System Prompt)
 
 Copy this into the "Instructions" field:
 
 ```
-You are a creative problem-solving assistant powered by Linsenkasten - a collection of 288 analytical lenses from the FLUX newsletter. Your role is to help users reframe problems, generate insights, and explore ideas through structured thinking frameworks.
+You are a creative problem-solving assistant powered by Interlens - a collection of 288 analytical lenses from the FLUX newsletter. Your role is to help users reframe problems, generate insights, and explore ideas through structured thinking frameworks.
 
 ## Your Capabilities
 
-You have access to these tools via the Linsenkasten API:
+You have access to these tools via the Interlens API:
 
 1. **search_lenses** - Find relevant lenses by keyword
 2. **find_contrasting_lenses** - Get dialectic opposites (232 contrast pairs, 100% coverage)
@@ -105,7 +105,7 @@ Add these as conversation starters:
 
 ## Step 5: Configure Actions
 
-### Add the Linsenkasten API
+### Add the Interlens API
 
 1. Click "Create new action"
 2. Choose "Import from URL" or paste the OpenAPI schema
@@ -113,17 +113,17 @@ Add these as conversation starters:
 ### Option A: Import from URL
 If you've hosted the OpenAPI spec:
 ```
-https://raw.githubusercontent.com/mistakeknot/Linsenkasten/main/schemas/openapi.yaml
+https://raw.githubusercontent.com/mistakeknot/Interlens/main/schemas/openapi.yaml
 ```
 
 ### Option B: Paste Schema Directly
 
 1. Run this command to get the schema:
    ```bash
-   linsenkasten export --format openapi
+   interlens export --format openapi
    ```
 
-2. Or copy from `schemas/openapi.yaml` in the Linsenkasten repository
+2. Or copy from `schemas/openapi.yaml` in the Interlens repository
 
 3. Paste the entire YAML content into the schema field
 
@@ -131,7 +131,7 @@ https://raw.githubusercontent.com/mistakeknot/Linsenkasten/main/schemas/openapi.
 - Set to "None" (the API is public)
 
 ### Privacy Policy
-- Link to your privacy policy or use: `https://github.com/mistakeknot/Linsenkasten`
+- Link to your privacy policy or use: `https://github.com/mistakeknot/Interlens`
 
 ## Step 6: Test the GPT
 
@@ -158,7 +158,7 @@ Before publishing, test these scenarios:
 ## Troubleshooting
 
 ### "Action failed" errors
-- Verify the API URL: `https://linsenkasten-api-production.up.railway.app/api/v1`
+- Verify the API URL: `https://interlens-api-production.up.railway.app/api/v1`
 - Check that endpoint paths match the OpenAPI spec
 - Ensure no authentication is configured (API is public)
 
@@ -201,7 +201,7 @@ The contrast to Jobs to be Done is **Competitive Dynamics** - which focuses on m
 
 ## Resources
 
-- **Linsenkasten GitHub**: https://github.com/mistakeknot/Linsenkasten
+- **Interlens GitHub**: https://github.com/mistakeknot/Interlens
 - **FLUX Newsletter**: https://read.fluxcollective.org/
 - **API Documentation**: See `schemas/openapi.yaml`
 - **OpenAI GPT Documentation**: https://platform.openai.com/docs/actions

@@ -93,7 +93,7 @@ Your role: Help us break through this impasse with a fresh perspective.
 
 ## Baseline Solution Pattern
 
-WITHOUT linsenkasten:
+WITHOUT interlens:
 
 ```
 "Here's a migration plan:
@@ -118,7 +118,7 @@ Or: Do modular monolith instead."
 
 ## Target Solution Pattern
 
-WITH linsenkasten (using Explore vs Exploit + Pace Layering):
+WITH interlens (using Explore vs Exploit + Pace Layering):
 
 ```
 "Applying Explore vs Exploit + Pace Layering lenses:

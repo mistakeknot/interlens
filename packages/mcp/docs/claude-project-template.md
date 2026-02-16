@@ -1,21 +1,21 @@
-# Claude.ai Project Template for Linsenkasten
+# Claude.ai Project Template for Interlens
 
-Since Claude.ai doesn't yet support MCP or external tool calls, this template provides a way to use Linsenkasten's analytical lenses through a Claude Project with embedded knowledge.
+Since Claude.ai doesn't yet support MCP or external tool calls, this template provides a way to use Interlens's analytical lenses through a Claude Project with embedded knowledge.
 
 ## Quick Setup
 
 ### Option 1: Use the Web Interface
 
-The easiest way to explore lenses in Claude.ai is to use the Linsenkasten web interface alongside your conversation:
+The easiest way to explore lenses in Claude.ai is to use the Interlens web interface alongside your conversation:
 
-1. Open https://linsenkasten.com in another tab
+1. Open https://interlens.com in another tab
 2. Search for relevant lenses
 3. Copy lens definitions into your Claude conversation
 4. Ask Claude to apply the lens to your problem
 
 ### Option 2: Create a Claude Project
 
-For repeated use, create a Claude Project with Linsenkasten knowledge embedded.
+For repeated use, create a Claude Project with Interlens knowledge embedded.
 
 ## Creating the Project
 
@@ -24,7 +24,7 @@ For repeated use, create a Claude Project with Linsenkasten knowledge embedded.
 1. Go to https://claude.ai
 2. Click "Projects" in the sidebar
 3. Click "New Project"
-4. Name it "Linsenkasten Lens Explorer"
+4. Name it "Interlens Lens Explorer"
 
 ### Step 2: Add Project Instructions
 
@@ -35,7 +35,7 @@ You are a creative problem-solving assistant with knowledge of 288 analytical le
 
 ## Your Knowledge
 
-You have access to the Linsenkasten lens corpus (attached as knowledge). Each lens includes:
+You have access to the Interlens lens corpus (attached as knowledge). Each lens includes:
 - Name and definition
 - Examples of application
 - Related concepts
@@ -130,7 +130,7 @@ For the full lens corpus, you have several options:
 #### Option A: Link to Web Interface
 Add this to knowledge:
 ```
-For the complete lens database with search, visit: https://linsenkasten.com
+For the complete lens database with search, visit: https://interlens.com
 
 Key features:
 - Search across 288 lenses
@@ -143,7 +143,7 @@ Key features:
 Create a document with the most commonly useful lenses:
 
 ```markdown
-# Core Linsenkasten Lenses
+# Core Interlens Lenses
 
 ## Pace Layering
 **Definition:** Different parts of a system change at different rates. Fast layers innovate; slow layers stabilize.
@@ -208,7 +208,7 @@ Create a document with the most commonly useful lenses:
 
 **User:** "Our engineering team keeps missing deadlines despite working overtime. What lenses might help?"
 
-**Claude (with Linsenkasten project):**
+**Claude (with Interlens project):**
 
 Let me apply several lenses to your deadline challenge:
 
@@ -236,7 +236,7 @@ Look for where to break these cycles.
 
 ## Limitations
 
-Since Claude.ai doesn't have direct API access to Linsenkasten:
+Since Claude.ai doesn't have direct API access to Interlens:
 
 1. **No real-time search** - Claude uses embedded knowledge, not live API
 2. **No graph navigation** - Can't compute paths between lenses dynamically
@@ -244,11 +244,11 @@ Since Claude.ai doesn't have direct API access to Linsenkasten:
 
 For full functionality, use:
 - **Claude Code** with MCP integration
-- **ChatGPT** with the Linsenkasten GPT (see chatgpt-gpt-config.md)
-- **Web interface** at https://linsenkasten.com
+- **ChatGPT** with the Interlens GPT (see chatgpt-gpt-config.md)
+- **Web interface** at https://interlens.com
 
 ## Resources
 
-- **Linsenkasten Web**: https://linsenkasten.com
-- **GitHub**: https://github.com/mistakeknot/Linsenkasten
+- **Interlens Web**: https://interlens.com
+- **GitHub**: https://github.com/mistakeknot/Interlens
 - **FLUX Newsletter**: https://read.fluxcollective.org/

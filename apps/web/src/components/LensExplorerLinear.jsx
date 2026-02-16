@@ -507,7 +507,7 @@ const LensExplorerLinear = () => {
           <div className="brand">
             <div className="brand-icon">🌀</div>
             <div className="brand-text">
-              <h1>Linsenkasten</h1>
+              <h1>Interlens</h1>
               <p>FLUX Lens Collection</p>
             </div>
           </div>

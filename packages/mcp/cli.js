@@ -193,7 +193,7 @@ async function cmdGaps(context) {
     printHeader('🔍 Thinking Gap Analysis');
 
     if (!context || context.length === 0) {
-      printError('No context provided. Usage: linsenkasten gaps --context "Lens 1" --context "Lens 2"');
+      printError('No context provided. Usage: interlens gaps --context "Lens 1" --context "Lens 2"');
       process.exit(1);
     }
 
@@ -436,7 +436,7 @@ async function cmdExport(format, options = {}) {
   const validFormats = ['openai', 'openapi'];
 
   if (!format || !validFormats.includes(format)) {
-    printError(`Invalid format. Use: linsenkasten export --format <openai|openapi>`);
+    printError(`Invalid format. Use: interlens export --format <openai|openapi>`);
     console.log(`\n${bold('Available formats:')}`);
     console.log(`  ${green('openai')}   - OpenAI function calling schema (JSON)`);
     console.log(`  ${green('openapi')}  - OpenAPI 3.0 specification (YAML)`);
@@ -470,81 +470,81 @@ async function cmdExport(format, options = {}) {
 
 function printHelp() {
   console.log(`
-${bold(cyan('Linsenkasten CLI'))} - FLUX Lens Exploration Tool
+${bold(cyan('Interlens CLI'))} - FLUX Lens Exploration Tool
 
 ${bold('USAGE:')}
-  linsenkasten <command> [options]
+  interlens <command> [options]
 
 ${bold('COMMANDS:')}
   ${green('search')} <query>              Search for lenses
     ${dim('--limit <n>              Number of results (default: 10)')}
-    ${dim('Example: linsenkasten search "systems thinking" --limit 5')}
+    ${dim('Example: interlens search "systems thinking" --limit 5')}
 
   ${green('get')} <name>                  Get detailed lens information
-    ${dim('Example: linsenkasten get "Pace Layering"')}
+    ${dim('Example: interlens get "Pace Layering"')}
 
   ${green('journey')} <source> <target>   Find conceptual path between two lenses
-    ${dim('Example: linsenkasten journey "Systems Thinking" "Innovation"')}
+    ${dim('Example: interlens journey "Systems Thinking" "Innovation"')}
 
   ${green('random')}                      Get a random lens provocation
     ${dim('--context <lens>         Lens names already explored (enables gap-aware selection)')}
-    ${dim('Example: linsenkasten random')}
-    ${dim('Example: linsenkasten random --context "Pace Layering" --context "Systems Thinking"')}
+    ${dim('Example: interlens random')}
+    ${dim('Example: interlens random --context "Pace Layering" --context "Systems Thinking"')}
 
   ${green('gaps')}                        Analyze thinking gaps across FLUX frames
     ${dim('--context <lens>         Required: Lens names that have been explored')}
-    ${dim('Example: linsenkasten gaps --context "Pace Layering" --context "Systems Thinking"')}
+    ${dim('Example: interlens gaps --context "Pace Layering" --context "Systems Thinking"')}
 
   ${green('bridge')} <lens1> <lens2>...   Find lenses that bridge between concepts
-    ${dim('Example: linsenkasten bridge "Leadership" "Complexity" "Communication"')}
+    ${dim('Example: interlens bridge "Leadership" "Complexity" "Communication"')}
 
   ${green('central')}                     Get most central lenses in the network
     ${dim('--measure <type>         Centrality measure: betweenness, pagerank, eigenvector (default: betweenness)')}
     ${dim('--limit <n>              Number of results (default: 10)')}
-    ${dim('Example: linsenkasten central --measure pagerank --limit 5')}
+    ${dim('Example: interlens central --measure pagerank --limit 5')}
 
   ${green('neighborhood')} <lens>         Explore conceptual neighborhood around a lens
     ${dim('--radius <n>             Exploration depth: 1 or 2 (default: 2)')}
-    ${dim('Example: linsenkasten neighborhood "Pace Layering" --radius 1')}
+    ${dim('Example: interlens neighborhood "Pace Layering" --radius 1')}
 
   ${green('contrasts')} <lens>            Find contrasting/paradoxical lenses
-    ${dim('Example: linsenkasten contrasts "Explore vs Exploit"')}
+    ${dim('Example: interlens contrasts "Explore vs Exploit"')}
 
   ${green('triads')} <lens>               Get thesis/antithesis/synthesis triads
     ${dim('--limit <n>              Number of triads (default: 3)')}
-    ${dim('Example: linsenkasten triads "Pace Layering"')}
+    ${dim('Example: interlens triads "Pace Layering"')}
 
   ${green('progressions')} <start> <target>  Get learning progression between lenses
     ${dim('--max-steps <n>          Maximum steps (default: 5)')}
-    ${dim('Example: linsenkasten progressions "Systems Thinking" "Innovation"')}
+    ${dim('Example: interlens progressions "Systems Thinking" "Innovation"')}
 
   ${green('export')}                      Export schemas for other platforms
     ${dim('--format <type>          Schema format: openai, openapi')}
     ${dim('--output <file>          Write to file (default: stdout)')}
-    ${dim('Example: linsenkasten export --format openai')}
-    ${dim('Example: linsenkasten export --format openapi --output api.yaml')}
+    ${dim('Example: interlens export --format openai')}
+    ${dim('Example: interlens export --format openapi --output api.yaml')}
 
   ${green('help')}                        Show this help message
 
 ${bold('ENVIRONMENT:')}
-  LINSENKASTEN_API_URL    Override API endpoint (default: hosted API)
+  INTERLENS_API_URL       Override API endpoint (default: hosted API)
 
 ${bold('EXAMPLES:')}
-  linsenkasten search innovation
-  linsenkasten get "Systems Thinking"
-  linsenkasten journey "Pace Layering" "Innovation Cascade"
-  linsenkasten random
-  linsenkasten random --context "Pace Layering" --context "Systems Thinking"
-  linsenkasten gaps --context "Innovation" --context "Leadership" --context "Systems Thinking"
-  linsenkasten bridge "Leadership" "Complexity"
-  linsenkasten central --measure betweenness --limit 10
-  linsenkasten neighborhood "Systems Thinking" --radius 2
-  linsenkasten contrasts "Explore vs Exploit"
-  linsenkasten triads "Pace Layering" --limit 2
-  linsenkasten progressions "Systems Thinking" "Innovation"
+  interlens search innovation
+  interlens get "Systems Thinking"
+  interlens journey "Pace Layering" "Innovation Cascade"
+  interlens random
+  interlens random --context "Pace Layering" --context "Systems Thinking"
+  interlens gaps --context "Innovation" --context "Leadership" --context "Systems Thinking"
+  interlens bridge "Leadership" "Complexity"
+  interlens central --measure betweenness --limit 10
+  interlens neighborhood "Systems Thinking" --radius 2
+  interlens contrasts "Explore vs Exploit"
+  interlens triads "Pace Layering" --limit 2
+  interlens progressions "Systems Thinking" "Innovation"
 
 ${bold('LEARN MORE:')}
-  GitHub: https://github.com/mistakeknot/Linsenkasten
+  GitHub: https://github.com/mistakeknot/Interlens
   FLUX:   https://read.fluxcollective.org/
 `);
 }
@@ -594,7 +594,7 @@ async function main() {
     switch (command) {
       case 'search':
         if (params.length === 0) {
-          printError('Missing search query. Usage: linsenkasten search <query>');
+          printError('Missing search query. Usage: interlens search <query>');
           process.exit(1);
         }
         await cmdSearch(params.join(' '), options);
@@ -602,7 +602,7 @@ async function main() {
 
       case 'get':
         if (params.length === 0) {
-          printError('Missing lens name. Usage: linsenkasten get <name>');
+          printError('Missing lens name. Usage: interlens get <name>');
           process.exit(1);
         }
         await cmdGet(params.join(' '));
@@ -610,7 +610,7 @@ async function main() {
 
       case 'journey':
         if (params.length < 2) {
-          printError('Missing source or target. Usage: linsenkasten journey <source> <target>');
+          printError('Missing source or target. Usage: interlens journey <source> <target>');
           process.exit(1);
         }
         await cmdJourney(params[0], params.slice(1).join(' '));
@@ -626,7 +626,7 @@ async function main() {
 
       case 'bridge':
         if (params.length < 2) {
-          printError('Need at least 2 lenses. Usage: linsenkasten bridge <lens1> <lens2> [lens3...]');
+          printError('Need at least 2 lenses. Usage: interlens bridge <lens1> <lens2> [lens3...]');
           process.exit(1);
         }
         await cmdBridge(params);
@@ -638,7 +638,7 @@ async function main() {
 
       case 'neighborhood':
         if (params.length === 0) {
-          printError('Missing lens name. Usage: linsenkasten neighborhood <lens>');
+          printError('Missing lens name. Usage: interlens neighborhood <lens>');
           process.exit(1);
         }
         await cmdNeighborhood(params.join(' '), options);
@@ -646,7 +646,7 @@ async function main() {
 
       case 'contrasts':
         if (params.length === 0) {
-          printError('Missing lens name. Usage: linsenkasten contrasts <lens>');
+          printError('Missing lens name. Usage: interlens contrasts <lens>');
           process.exit(1);
         }
         await cmdContrasts(params.join(' '));
@@ -654,7 +654,7 @@ async function main() {
 
       case 'triads':
         if (params.length === 0) {
-          printError('Missing lens name. Usage: linsenkasten triads <lens> [--limit n]');
+          printError('Missing lens name. Usage: interlens triads <lens> [--limit n]');
           process.exit(1);
         }
         await cmdTriads(params.join(' '), options);
@@ -662,7 +662,7 @@ async function main() {
 
       case 'progressions':
         if (params.length < 2) {
-          printError('Missing lens names. Usage: linsenkasten progressions <start> <target> [--max-steps n]');
+          printError('Missing lens names. Usage: interlens progressions <start> <target> [--max-steps n]');
           process.exit(1);
         }
         await cmdProgressions(params[0], params.slice(1).join(' '), options);
@@ -674,7 +674,7 @@ async function main() {
 
       default:
         printError(`Unknown command: ${command}`);
-        console.log(dim('\nRun "linsenkasten help" for usage information.'));
+        console.log(dim('\nRun "interlens help" for usage information.'));
         process.exit(1);
     }
   } catch (error) {

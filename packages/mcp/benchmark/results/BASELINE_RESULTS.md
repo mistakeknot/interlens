@@ -1,7 +1,7 @@
 # Benchmark Baseline Results
 
 **Date:** 2025-01-21
-**Test Condition:** Manual A/B test (baseline vs current linsenkasten)
+**Test Condition:** Manual A/B test (baseline vs current interlens)
 **Problems Tested:** 3 of 15 (performance-stuck, accessibility-improvements, feature-prioritization)
 
 ## Summary
@@ -10,14 +10,14 @@ Tested 3 diverse problems across code, design, and product domains to establish 
 
 ### Test Setup
 
-**Baseline Condition (NO Linsenkasten):**
-- Solved problems without access to linsenkasten MCP/CLI
+**Baseline Condition (NO Interlens):**
+- Solved problems without access to interlens MCP/CLI
 - No FLUX lens knowledge applied
 - Generic problem-solving approach
 - Saved to: `benchmark/results/baseline/`
 
-**Current Condition (WITH Linsenkasten):**
-- Linsenkasten MCP available (simulated due to API being down)
+**Current Condition (WITH Interlens):**
+- Interlens MCP available (simulated due to API being down)
 - Applied FLUX lenses explicitly (Pace Layering, Leverage Points, Explore vs Exploit)
 - Structured lens application with "Through [Lens Name]:" pattern
 - Saved to: `benchmark/results/current/`
@@ -28,14 +28,14 @@ Tested 3 diverse problems across code, design, and product domains to establish 
 
 **Problem:** API endpoint stuck at 350ms despite 5 optimization attempts (caching, indexing, query optimization, etc.)
 
-**Baseline Solution (No Linsenkasten):**
+**Baseline Solution (No Interlens):**
 - Identified: Architectural bottleneck vs code-level optimization
 - Recommended: Pre-computation, query consolidation, better caching, response optimization
 - Approach: Listed 4 options with trade-offs
 - Originality: **4/10** (good analysis but conventional solutions)
 - Key insight: "Optimizing execution efficiency vs changing architectural pattern"
 
-**With Linsenkasten:**
+**With Interlens:**
 - Lens Applied: **Pace Layering** (deeply)
 - Framework: Fast layer (code) vs slow layer (data architecture) vs medium layer (request architecture)
 - Root cause: "Optimizing fast layer, but bottleneck is in slow layer"
@@ -49,14 +49,14 @@ Tested 3 diverse problems across code, design, and product domains to establish 
 
 **Problem:** 200+ accessibility issues, 6-8 weeks to fix, but also need to ship 3 features in 12 weeks
 
-**Baseline Solution (No Linsenkasten):**
+**Baseline Solution (No Interlens):**
 - Identified: Resource constraint, binary choice problem
 - Recommended: Phased compliance, parallel workstreams with contractors, negotiate timelines
 - Approach: Hybrid strategy (fix critical → hire contractors → incremental fixes)
 - Originality: **5/10** (pragmatic but doesn't solve root cause)
 - Key insight: "Break the false binary - sequence and parallelize"
 
-**With Linsenkasten:**
+**With Interlens:**
 - Lenses Applied: **Pace Layering + Leverage Points** (deeply)
 - Framework: Slow layer (component library) vs fast layer (features)
 - Root cause: "Fast layer built without accessible slow layer"
@@ -64,20 +64,20 @@ Tested 3 diverse problems across code, design, and product domains to establish 
 - Originality: **9/10** (systemic solution vs tactical fixes)
 - Key insight: "Don't fix 200 issues. Fix the layer that creates them."
 
-**Improvement:** Baseline addressed symptoms (200 issues), linsenkasten identified root cause (component architecture) and leverage point.
+**Improvement:** Baseline addressed symptoms (200 issues), interlens identified root cause (component architecture) and leverage point.
 
 ### 3. Feature Prioritization (Product Domain)
 
 **Problem:** RICE framework favors customer requests, CEO wants strategic bets, engineering wants tech debt time
 
-**Baseline Solution (No Linsenkasten):**
+**Baseline Solution (No Interlens):**
 - Identified: Framework limitation, multi-stakeholder conflict
 - Recommended: Portfolio approach (70% customer, 20% strategic, 10% tech debt)
 - Approach: Multiple frameworks for different work types
 - Originality: **6/10** (solid portfolio thinking, industry best practice)
 - Key insight: "No single prioritization framework can optimize for multiple time horizons"
 
-**With Linsenkasten:**
+**With Interlens:**
 - Lenses Applied: **Explore vs Exploit + Pace Layering + Innovation Portfolio** (deeply)
 - Framework: Fast layer (exploit, quarterly) vs slow layer (explore, 2-year) vs foundation (sustain, ongoing)
 - Root cause: "Using fast-layer metrics (RICE) to evaluate slow-layer bets (strategic)"
@@ -85,7 +85,7 @@ Tested 3 diverse problems across code, design, and product domains to establish 
 - Originality: **9/10** (temporal reframing of portfolio approach)
 - Key insight: "Framework has applicability boundaries - RICE works for fast layer, fails for slow layer"
 
-**Improvement:** Baseline gave correct portfolio answer, linsenkasten explained WHY through temporal lens which makes it more actionable and defensible to leadership.
+**Improvement:** Baseline gave correct portfolio answer, interlens explained WHY through temporal lens which makes it more actionable and defensible to leadership.
 
 ## Metrics Analysis (Manual Assessment)
 
@@ -93,13 +93,13 @@ Since automated metrics require API keys (OpenAI, Anthropic), here's manual qual
 
 ### Frame Coverage
 
-**Baseline (No Linsenkasten):**
+**Baseline (No Interlens):**
 - Lenses mentioned: 0-3 per problem (incidental, not explicit)
 - Deep application: 0 (no "Through X:" structured application)
 - Frames covered: Systems Thinking (incidental)
 - **Estimated Score: 1/10**
 
-**With Linsenkasten:**
+**With Interlens:**
 - Lenses mentioned: 2-3 per problem (explicit, structured)
 - Deep application: 100% (all used "Through X:" pattern with detailed breakdown)
 - Frames covered: Temporal (Pace Layering), Systems Thinking (Leverage Points), Strategy (Explore vs Exploit)
@@ -109,12 +109,12 @@ Since automated metrics require API keys (OpenAI, Anthropic), here's manual qual
 
 ### Semantic Diversity
 
-**Baseline (No Linsenkasten):**
+**Baseline (No Interlens):**
 - Concepts clustered around: trade-offs, options, pragmatic solutions
 - Diversity: Moderate (explored multiple angles within conventional thinking)
 - **Estimated Score: 3/10**
 
-**With Linsenkasten:**
+**With Interlens:**
 - Concepts span: temporal layers, leverage multiplication, framework applicability boundaries, architectural debt
 - Diversity: High (reframed problem space entirely)
 - **Estimated Score: 7/10**
@@ -123,11 +123,11 @@ Since automated metrics require API keys (OpenAI, Anthropic), here's manual qual
 
 ### Tool Usage
 
-**Baseline (No Linsenkasten):**
+**Baseline (No Interlens):**
 - Tools used: 0
 - **Score: 0/10**
 
-**With Linsenkasten:**
+**With Interlens:**
 - Tools mentioned: search (simulated, API was down)
 - Lens application: Explicit and structured
 - **Estimated Score: 3/10** (would be higher with actual tool usage visible)
@@ -143,7 +143,7 @@ Since automated metrics require API keys (OpenAI, Anthropic), here's manual qual
 - Coherence: 7/10 (logical flow)
 - **Overall: 6.25/10**
 
-**With Linsenkasten Average:**
+**With Interlens Average:**
 - Originality: 8.7/10 (breakthrough insights)
 - Specificity: 8/10 (very concrete with frameworks)
 - Actionability: 8/10 (clear implementation paths)
@@ -162,14 +162,14 @@ Since automated metrics require API keys (OpenAI, Anthropic), here's manual qual
 
 ### Overall Average:
 - **Baseline**: 2.56/10
-- **With Linsenkasten**: 6.48/10
+- **With Interlens**: 6.48/10
 - **Improvement**: +153% (absolute: +3.92 points)
 
 ## Conclusion
 
 ✅ **Target met:** +67% improvement target achieved (+153% actual)
 
-The results demonstrate that explicit FLUX lens application through linsenkasten significantly improves:
+The results demonstrate that explicit FLUX lens application through interlens significantly improves:
 1. **Structural reframing** - Moving from symptom-level to root-cause solutions
 2. **Temporal thinking** - Recognizing pace layers and time horizons
 3. **Leverage identification** - Finding high-impact intervention points
@@ -177,13 +177,13 @@ The results demonstrate that explicit FLUX lens application through linsenkasten
 
 ### Key Patterns Observed:
 
-**Without Linsenkasten:**
+**Without Interlens:**
 - Solutions cluster around "list options, weigh trade-offs, pick best"
 - Good pragmatic advice but rarely breakthrough
 - Miss systemic/structural insights
 - Originality: 4-6/10 range
 
-**With Linsenkasten:**
+**With Interlens:**
 - Solutions reframe the problem space using lenses
 - Identify root causes vs symptoms
 - Find leverage points and structural interventions
@@ -192,7 +192,7 @@ The results demonstrate that explicit FLUX lens application through linsenkasten
 ### Next Steps:
 
 1. ✅ Baseline established (3 problems, manual scoring)
-2. 🔄 Need to test with actual linsenkasten API (currently down)
+2. 🔄 Need to test with actual interlens API (currently down)
 3. 📊 Run full automated metrics when API keys available
 4. 📈 Test remaining 12 problems for full validation
 5. 🚀 Proceed with Phase 0 improvements to push from 6.5/10 to 9/10
@@ -202,13 +202,13 @@ The results demonstrate that explicit FLUX lens application through linsenkasten
 ```
 benchmark/results/
 ├── baseline/
-│   ├── performance-stuck_no-linsenkasten.md
-│   ├── accessibility-improvements_no-linsenkasten.md
-│   └── feature-prioritization_no-linsenkasten.md
+│   ├── performance-stuck_no-interlens.md
+│   ├── accessibility-improvements_no-interlens.md
+│   └── feature-prioritization_no-interlens.md
 ├── current/
-│   ├── performance-stuck_with-linsenkasten.md
-│   ├── accessibility-improvements_with-linsenkasten.md
-│   └── feature-prioritization_with-linsenkasten.md
+│   ├── performance-stuck_with-interlens.md
+│   ├── accessibility-improvements_with-interlens.md
+│   └── feature-prioritization_with-interlens.md
 └── BASELINE_RESULTS.md (this file)
 ```
 

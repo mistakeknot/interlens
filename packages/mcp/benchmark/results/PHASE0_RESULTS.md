@@ -2,11 +2,11 @@
 
 **Date:** 2025-01-22
 **Branch:** `feature/research-informed-agent-improvements`
-**Comparison:** Baseline (no tools) vs With-Linsenkasten vs Phase 0 Enhanced
+**Comparison:** Baseline (no tools) vs With-Interlens vs Phase 0 Enhanced
 
 ## Executive Summary
 
-Phase 0 implementation (**v2.0.0**) was tested on 3 benchmark problems and demonstrates significant qualitative improvements over both baseline and original linsenkasten approaches.
+Phase 0 implementation (**v2.0.0**) was tested on 3 benchmark problems and demonstrates significant qualitative improvements over both baseline and original interlens approaches.
 
 **Key Findings:**
 - **Structured workflow** - Phase 0 tools (suggest_thinking_mode, analyze_with_lens, synthesize_solution) create coherent multi-lens analysis
@@ -18,13 +18,13 @@ Phase 0 implementation (**v2.0.0**) was tested on 3 benchmark problems and demon
 
 ### 1. Performance Stuck (code/performance-stuck)
 
-**Baseline Response (no linsenkasten):**
+**Baseline Response (no interlens):**
 - Generic suggestions: "Try async processing, CDN, horizontal scaling, microservices, GraphQL, faster database, rewrite in Go/Rust"
 - No explanation of why previous optimizations failed
 - Violates constraints (can't rewrite framework, limited budget)
 - **Estimated Scores:** Originality 2/10, Novelty 2/10, Actionability 4/10
 
-**With-Linsenkasten Response (v1.x):**
+**With-Interlens Response (v1.x):**
 - Applied Pace Layering lens through search + get_lens
 - Identified fast vs slow layer mismatch
 - Explained diminishing returns pattern
@@ -49,18 +49,18 @@ Phase 0 implementation (**v2.0.0**) was tested on 3 benchmark problems and demon
 
 **Improvement:**
 - vs Baseline: +232% (0.85 vs 0.256)
-- vs With-Linsenkasten: +31% (0.85 vs 0.648)
+- vs With-Interlens: +31% (0.85 vs 0.648)
 
 ---
 
 ### 2. Accessibility Improvements (design/accessibility-improvements)
 
-**Baseline Response (no linsenkasten):**
+**Baseline Response (no interlens):**
 - "Hire contractors to fix accessibility while team ships features. Or renegotiate timelines. Or work overtime."
 - Doesn't solve constraint (money, time, burnout)
 - **Estimated Scores:** Originality 2/10, Novelty 2/10, Actionability 3/10
 
-**With-Linsenkasten Response (v1.x):**
+**With-Interlens Response (v1.x):**
 - Applied Pace Layering + Leverage Points
 - Identified slow-layer component library as root cause
 - Suggested fixing 15-20 components vs 200 instances
@@ -83,18 +83,18 @@ Phase 0 implementation (**v2.0.0**) was tested on 3 benchmark problems and demon
 
 **Improvement:**
 - vs Baseline: +270% (0.87 vs 0.235)
-- vs With-Linsenkasten: +34% (0.87 vs 0.648)
+- vs With-Interlens: +34% (0.87 vs 0.648)
 
 ---
 
 ### 3. Feature Prioritization (product/feature-prioritization)
 
-**Baseline Response (no linsenkasten):**
+**Baseline Response (no interlens):**
 - "Split roadmap 70/30. Or use different framework (ICE, WSJF). Or let CEO override."
 - Doesn't resolve underlying tension
 - **Estimated Scores:** Originality 3/10, Novelty 2/10, Actionability 3/10
 
-**With-Linsenkasten Response (v1.x):**
+**With-Interlens Response (v1.x):**
 - Applied Explore vs Exploit + Pace Layering
 - Identified framework bias toward exploit (customer requests)
 - Suggested portfolio approach (50% exploit, 35% explore, 15% sustain)
@@ -117,13 +117,13 @@ Phase 0 implementation (**v2.0.0**) was tested on 3 benchmark problems and demon
 
 **Improvement:**
 - vs Baseline: +279% (0.89 vs 0.235)
-- vs With-Linsenkasten: +37% (0.89 vs 0.648)
+- vs With-Interlens: +37% (0.89 vs 0.648)
 
 ---
 
 ## Aggregate Results
 
-| Metric | Baseline (no tools) | With-Linsenkasten (v1.x) | Phase 0 (v2.0.0) | Improvement (Phase 0 vs Baseline) | Improvement (Phase 0 vs v1.x) |
+| Metric | Baseline (no tools) | With-Interlens (v1.x) | Phase 0 (v2.0.0) | Improvement (Phase 0 vs Baseline) | Improvement (Phase 0 vs v1.x) |
 |--------|---------------------|--------------------------|------------------|----------------------------------|------------------------------|
 | **Performance-Stuck** | 0.256 | 0.648 | 0.85 | **+232%** | **+31%** |
 | **Accessibility** | 0.235 | 0.648 | 0.87 | **+270%** | **+34%** |
@@ -269,7 +269,7 @@ Implications: [4 specific, testable actions]
 - Pattern: Tactical suggestions, no deep analysis
 - Avg score: 0.242/10
 
-**With-Linsenkasten (v1.x):** Agent uses search_lenses, get_lens, analyze_with_lens
+**With-Interlens (v1.x):** Agent uses search_lenses, get_lens, analyze_with_lens
 - Pattern: Lens application with reframing
 - Avg score: 0.648/10
 
@@ -312,8 +312,8 @@ Despite limitations, the pattern is clear:
    - Use LLM-judge for quality scoring (Claude Sonnet 4.5)
 
 2. **CLI integration** (optional):
-   - Add `linsenkasten mode <problem>` command
-   - Add `linsenkasten refine <lens> <problem>` command
+   - Add `interlens mode <problem>` command
+   - Add `interlens refine <lens> <problem>` command
    - Enhance existing commands with belief generation
 
 3. **Documentation updates:**

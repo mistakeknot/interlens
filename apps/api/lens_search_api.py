@@ -82,12 +82,12 @@ app = Flask(__name__)
 CORS(app, origins=[
     "http://localhost:3000",
     "http://localhost:3001", 
-    "https://linsenkasten.com",  # Your main domain
-    "https://www.linsenkasten.com",  # www subdomain
-    "http://linsenkasten.com",  # HTTP version
-    "http://www.linsenkasten.com",  # HTTP www
-    "https://linsenkasten.vercel.app",  # Your Vercel app
-    "https://linsenkasten-*.vercel.app",  # Vercel preview deployments
+    "https://interlens.com",  # Your main domain
+    "https://www.interlens.com",  # www subdomain
+    "http://interlens.com",  # HTTP version
+    "http://www.interlens.com",  # HTTP www
+    "https://interlens.vercel.app",  # Your Vercel app
+    "https://interlens-*.vercel.app",  # Vercel preview deployments
     "https://*.vercel.app",  # Allow all Vercel deployments
     "https://*.netlify.app",  # Allow Netlify deployments
     "https://*.surge.sh",  # Allow Surge deployments

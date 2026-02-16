@@ -1,8 +1,8 @@
-# Solution: Accessibility vs Velocity (With Linsenkasten)
+# Solution: Accessibility vs Velocity (With Interlens)
 
 ## Applying FLUX Lenses: Pace Layering + Leverage Points
 
-*[Using linsenkasten to search for "system layers leverage points"]*
+*[Using interlens to search for "system layers leverage points"]*
 
 This isn't an accessibility vs features problem. It's slow-layer debt preventing fast-layer velocity.
 

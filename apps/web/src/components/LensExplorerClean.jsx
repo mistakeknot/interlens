@@ -71,7 +71,7 @@ const LensExplorerClean = () => {
       {/* Header */}
       <header className="explorer-header">
         <div className="header-content">
-          <h1>Linsenkasten</h1>
+          <h1>Interlens</h1>
           <p className="tagline">A curated collection of {stats?.total_lenses || 0} conceptual lenses from FLUX newsletters</p>
         </div>
       </header>

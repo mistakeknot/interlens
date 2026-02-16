@@ -1,8 +1,8 @@
-# Solution: Feature Prioritization Deadlock (With Linsenkasten)
+# Solution: Feature Prioritization Deadlock (With Interlens)
 
 ## Applying FLUX Lenses: Explore vs Exploit + Pace Layering + Innovation Portfolio
 
-*[Using linsenkasten to search for "strategic prioritization time horizons"]*
+*[Using interlens to search for "strategic prioritization time horizons"]*
 
 RICE optimizes for exploit (known value). You also need explore (unknown value). Single framework can't serve both.
 

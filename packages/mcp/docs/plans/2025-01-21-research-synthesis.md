@@ -2,7 +2,7 @@
 
 **Date:** 2025-01-21
 **Research Phase:** Deep analysis of existing frameworks
-**Purpose:** Inform linsenkasten agent improvements with validated patterns
+**Purpose:** Inform interlens agent improvements with validated patterns
 
 ## Research Questions
 
@@ -34,7 +34,7 @@ Multi-agent system implementing System-2 reasoning through lateral information f
 **Key Insight:**
 > "Lateral information flow across long-distance agent interactions, combined with fine-grained belief management, yields richer information contexts and enhanced reasoning."
 
-**Application to Linsenkasten:**
+**Application to Interlens:**
 
 Instead of returning abstract lens definitions, generate **belief statements**:
 
@@ -87,11 +87,11 @@ Fixed Knowledge Base + LLM Reasoning + Structured Workflow = Creative Solutions
 
 LLMs provide domain expertise, TRIZ provides structure.
 
-**Application to Linsenkasten:**
+**Application to Interlens:**
 
 We have components 1-3, but missing 4 (synthesis):
 
-| AutoTRIZ Module | Linsenkasten Equivalent | Status |
+| AutoTRIZ Module | Interlens Equivalent | Status |
 |----------------|------------------------|--------|
 | 1. Problem extraction | `suggest_lens_strategy` - parse problem | ✅ Planned |
 | 2. Contradiction identification | `find_contrasting_lenses` - surface tensions | ✅ Exists |
@@ -136,7 +136,7 @@ Same agent wears different hats at different times.
 - Prevents groupthink by forcing perspective shifts
 - Structured output per hat
 
-**Application to Linsenkasten:**
+**Application to Interlens:**
 
 Instead of 13+ tools (overwhelming), create 5-6 **thinking modes** that group lenses:
 
@@ -203,7 +203,7 @@ MCP server implementing "dynamic and reflective problem-solving through thought 
 - Progressive refinement
 - State management across reasoning chain
 
-**Application to Linsenkasten:**
+**Application to Interlens:**
 
 Instead of one-shot lens application, use **iterative refinement**:
 
@@ -280,7 +280,7 @@ Every creative problem-solving system needs:
    - Criteria for "good" vs "bad" applications
    - Feedback for refinement
 
-**Current Linsenkasten Coverage:**
+**Current Interlens Coverage:**
 
 | Component | Status | Notes |
 |-----------|--------|-------|
@@ -334,7 +334,7 @@ Every creative problem-solving system needs:
 - Use when: Exploring, unclear problem, need flexibility
 - Example: SaLT's lateral propagation
 
-**For Linsenkasten:**
+**For Interlens:**
 ```javascript
 // Linear (decision support):
 find_contrasting_lenses → apply_iteratively → synthesize_insights
@@ -356,7 +356,7 @@ search_lenses →
 - Clear hierarchy
 - Agents wrapped as callable functions
 
-**For Linsenkasten:**
+**For Interlens:**
 ```javascript
 {
   "orchestrator": "suggest_thinking_mode", // Decides which mode
@@ -375,7 +375,7 @@ search_lenses →
 **Best Practice:**
 > "Retrieved and remembered content is ranked, compressed, and organized into structured prompts to ensure high-value information fits within token constraints."
 
-**For Linsenkasten:**
+**For Interlens:**
 - Lens responses should be **progressive disclosure**
 - Start with summary, expand on demand
 - Rank by relevance to problem
@@ -404,10 +404,10 @@ search_lenses →
 
 **Key Differences:**
 - **BMAD:** Concrete deliverables (code, docs)
-- **Linsenkasten:** Conceptual frameworks (lenses, insights)
+- **Interlens:** Conceptual frameworks (lenses, insights)
 
 **Critical Learning:**
-> BMAD works because outputs are clear. Linsenkasten needs to bridge "here's a lens" → "here's how to apply it" gap.
+> BMAD works because outputs are clear. Interlens needs to bridge "here's a lens" → "here's how to apply it" gap.
 
 **Solution:** Add structured outputs (belief statements, synthesis reports) like BMAD's concrete deliverables.
 
@@ -423,7 +423,7 @@ search_lenses →
 - Six Hats: Per-hat structured analysis
 - SaLT: Belief statements with confidence
 
-**Linsenkasten must provide:**
+**Interlens must provide:**
 - Belief statements (not just definitions)
 - Synthesis reports (not just lens lists)
 - Quality scores (not just content)
@@ -439,7 +439,7 @@ search_lenses →
 - SaLT: Belief propagation with updates
 - Six Hats: Hat sequences (not all at once)
 
-**Linsenkasten must:**
+**Interlens must:**
 - Apply lenses iteratively until quality threshold
 - Reflect between steps
 - Refine insights progressively
@@ -454,12 +454,12 @@ search_lenses →
 - BMAD: 3 workflow tracks (not infinite customization)
 - AutoTRIZ: 40 principles (from thousands of patents)
 
-**Linsenkasten currently:**
+**Interlens currently:**
 - 13+ tools (too many)
 - 256 lenses (overwhelming)
 - No clear entry points
 
-**Linsenkasten should:**
+**Interlens should:**
 - 5-6 thinking modes (group tools)
 - Entry point tool recommends mode
 - Progressive disclosure of complexity
@@ -591,7 +591,7 @@ search_lenses →
 **AutoTRIZ showed:** LLMs + structure = effective ideation
 **Six Hats showed:** Mode-based thinking prevents groupthink
 
-**Expected for Linsenkasten:**
+**Expected for Interlens:**
 
 **Before:**
 - Agents use once, read definition, stop

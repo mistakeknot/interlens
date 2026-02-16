@@ -605,7 +605,7 @@ python-louvain==0.16  # For community detection in cluster endpoint
 **Local:**
 ```bash
 # Start API
-cd linsenkasten-api
+cd interlens-api
 python lens_search_api.py
 
 # Test endpoint
@@ -627,7 +627,7 @@ curl https://lens-api.up.railway.app/api/v1/creative/clusters | jq '.clusters[0]
 
 **Dry-run test:**
 ```bash
-cd linsenkasten-api
+cd interlens-api
 python scripts/generate_contrasts.py --limit 5 --dry-run
 ```
 
@@ -734,7 +734,7 @@ curl "https://lens-api.up.railway.app/api/v1/creative/contrasts?lens=Move+Fast+a
 
 - Add `?min_size=N` parameter to filter small clusters
 - Add `?frame=X` to find clusters within specific frame
-- Visualize clusters in web UI (linsenkasten-web)
+- Visualize clusters in web UI (interlens-web)
 
 ### Auto-Generated Contrasts
 

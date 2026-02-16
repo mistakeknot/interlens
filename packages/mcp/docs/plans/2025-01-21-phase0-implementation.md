@@ -248,7 +248,7 @@ Re-run 3 sample problems with Phase 0 enhancements:
 ## Implementation Files
 
 ```
-linsenkasten/
+interlens/
 ├── index.js                          # Update with new tools
 ├── api-client.js                     # Add belief statement generation
 ├── lib/

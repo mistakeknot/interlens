@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to linsenkasten-mcp will be documented in this file.
+All notable changes to interlens-mcp will be documented in this file.
 
 ## [2.1.0] - 2025-11-24
 
@@ -25,17 +25,17 @@ Fuzzy Planning ↔ Draw Me a Bridge (embracing uncertainty vs demanding precisio
 ### CLI Usage
 ```bash
 # Every lens now returns meaningful contrasts
-linsenkasten contrasts "Kintsugi"
-linsenkasten contrasts "Stoicism and Gratitude"
-linsenkasten contrasts "Composable Alphabets"
+interlens contrasts "Kintsugi"
+interlens contrasts "Stoicism and Gratitude"
+interlens contrasts "Composable Alphabets"
 ```
 
 ## [1.1.0] - 2025-11-21
 
 ### Added
 - **Gap Detection System**: Analyze conceptual coverage across 28 FLUX thematic frames to identify thinking blind spots
-- **`gaps` CLI command**: `linsenkasten gaps --context "Lens1" --context "Lens2"` shows which frames you've explored vs. neglected
-- **Gap-aware random selection**: `linsenkasten random --context "Lens1" --context "Lens2"` uses 80/15/5 biasing to favor unexplored dimensions
+- **`gaps` CLI command**: `interlens gaps --context "Lens1" --context "Lens2"` shows which frames you've explored vs. neglected
+- **Gap-aware random selection**: `interlens random --context "Lens1" --context "Lens2"` uses 80/15/5 biasing to favor unexplored dimensions
 - **`detect_thinking_gaps` MCP tool**: Full gap analysis for AI agents in Claude Desktop
 - **Context parameter for `random_lens_provocation` MCP tool**: Enables stateless gap tracking
 
@@ -48,11 +48,11 @@ linsenkasten contrasts "Composable Alphabets"
 
 ### Example
 ```bash
-linsenkasten gaps --context "Pace Layering" --context "Innovation" --context "Systems Thinking"
+interlens gaps --context "Pace Layering" --context "Innovation" --context "Systems Thinking"
 # Output: Coverage: 7.1% (2/28 frames)
 #         Blind spots: 26 unexplored frames
 
-linsenkasten random --context "Pace Layering" --context "Innovation"
+interlens random --context "Pace Layering" --context "Innovation"
 # Returns: Lens from unexplored frame (80% chance)
 ```
 

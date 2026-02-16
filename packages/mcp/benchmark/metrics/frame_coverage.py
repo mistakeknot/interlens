@@ -286,7 +286,7 @@ def analyze_file(response_file: str, problem_file: str = None) -> Dict:
     # Auto-detect problem file if not provided
     if not problem_file:
         # Try to infer from filename
-        # E.g., "results/baseline/performance-stuck_with-linsenkasten.md"
+        # E.g., "results/baseline/performance-stuck_with-interlens.md"
         #    → "problems/code/performance-stuck.md"
         basename = os.path.basename(response_file)
         problem_id = basename.split('_')[0]  # Get "performance-stuck"

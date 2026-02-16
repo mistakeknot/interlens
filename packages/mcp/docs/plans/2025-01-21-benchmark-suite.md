@@ -1,19 +1,19 @@
-# Linsenkasten Creative Thinking Benchmark Suite
+# Interlens Creative Thinking Benchmark Suite
 
 **Date:** 2025-01-21
-**Purpose:** Measure improvement in agent creative problem-solving with linsenkasten
+**Purpose:** Measure improvement in agent creative problem-solving with interlens
 **Based on:** LatEval, Divergent, LiveIdeaBench, Torrance Tests research
 
 ## Overview
 
-This benchmark suite evaluates whether linsenkasten actually improves agent creative thinking across three tiers:
+This benchmark suite evaluates whether interlens actually improves agent creative thinking across three tiers:
 - **Tier 1:** Automated metrics (diversity, coverage, patterns)
 - **Tier 2:** Semi-automated quality scoring (originality, feasibility, fluency, flexibility)
 - **Tier 3:** Interactive reasoning evaluation (real problems, expert review)
 
 ## Design Principles
 
-1. **Comparative:** Always test WITH and WITHOUT linsenkasten
+1. **Comparative:** Always test WITH and WITHOUT interlens
 2. **Quantitative:** Numeric scores for objective comparison
 3. **Domain-diverse:** Test across code, design, strategy, product problems
 4. **Reproducible:** Same prompts, same scoring criteria
@@ -33,7 +33,7 @@ This benchmark suite evaluates whether linsenkasten actually improves agent crea
 
 **Test procedure:**
 ```javascript
-// Give agent topic + linsenkasten access
+// Give agent topic + interlens access
 // Measure semantic diversity of lenses explored
 
 prompt = "Explore lenses related to 'team collaboration'"
@@ -57,10 +57,10 @@ diversity_score = avg_pairwise_distance(embeddings(lenses_explored))
 - Calculate pairwise cosine distance
 - Average all pairs → diversity score
 
-**Baseline without linsenkasten:**
+**Baseline without interlens:**
 - Agent picks lenses manually: ~0.3-0.4 (low diversity)
 
-**Target with linsenkasten (gap-aware random):**
+**Target with interlens (gap-aware random):**
 - System guides to diverse frames: ~0.6-0.8 (high diversity)
 
 **Expected improvement:** +50-100% diversity score
@@ -73,7 +73,7 @@ diversity_score = avg_pairwise_distance(embeddings(lenses_explored))
 
 **Test procedure:**
 ```javascript
-// Give agent problem + linsenkasten
+// Give agent problem + interlens
 // Measure % of 28 FLUX frames explored
 
 prompt = "Analyze: Should we pivot our product strategy?"
@@ -91,10 +91,10 @@ coverage_score = frames_covered.length / 28
 - Count unique frames touched
 - Divide by 28 (total FLUX frames)
 
-**Baseline without linsenkasten:**
+**Baseline without interlens:**
 - Agent explores naturally: ~10-15% coverage (2-4 frames)
 
-**Target with linsenkasten (gap detection + random):**
+**Target with interlens (gap detection + random):**
 - System guides to unexplored: ~30-50% coverage (8-14 frames)
 
 **Expected improvement:** +200-300% frame coverage
@@ -135,10 +135,10 @@ tools_called = [
   - 3: 4-5 tools, some branching
   - 4: 6+ tools, adaptive workflow with gap detection
 
-**Baseline without linsenkasten:**
+**Baseline without interlens:**
 - Average sophistication: ~1.2 (single tool or simple chain)
 
-**Target with linsenkasten (workflow guidance):**
+**Target with interlens (workflow guidance):**
 - Average sophistication: ~3.5 (multi-tool adaptive)
 
 **Expected improvement:** +200% workflow sophistication
@@ -188,10 +188,10 @@ Score (0-10):
 Reasoning:
 ```
 
-**Baseline without linsenkasten:**
+**Baseline without interlens:**
 - Score: ~3-4 (generic advice, obvious solutions)
 
-**Target with linsenkasten (lens-based reframing):**
+**Target with interlens (lens-based reframing):**
 - Score: ~7-8 (novel reframes, unexpected connections)
 
 **Expected improvement:** +3-4 points
@@ -219,10 +219,10 @@ Score (0-10):
 Reasoning:
 ```
 
-**Baseline without linsenkasten:**
+**Baseline without interlens:**
 - Score: ~7-8 (practical but generic)
 
-**Target with linsenkasten (grounded insights):**
+**Target with interlens (grounded insights):**
 - Score: ~7-8 (maintain practicality)
 
 **Expected improvement:** 0 points (maintain feasibility)
@@ -242,10 +242,10 @@ fluency_score = min(unique_insights.length, 10)
 // Cap at 10 to normalize scale
 ```
 
-**Baseline without linsenkasten:**
+**Baseline without interlens:**
 - Score: ~3-4 (3-4 distinct insights)
 
-**Target with linsenkasten (multi-lens exploration):**
+**Target with interlens (multi-lens exploration):**
 - Score: ~7-8 (7-8 distinct insights from different lenses)
 
 **Expected improvement:** +3-4 points
@@ -265,10 +265,10 @@ scores = [code_score, design_score, strategy_score, product_score]
 flexibility_score = percentile(scores, 0.30)
 ```
 
-**Baseline without linsenkasten:**
+**Baseline without interlens:**
 - Score: ~4-5 (good in familiar domains, weak in others)
 
-**Target with linsenkasten (universal frameworks):**
+**Target with interlens (universal frameworks):**
 - Score: ~6-7 (consistent across domains)
 
 **Expected improvement:** +1-2 points
@@ -295,10 +295,10 @@ Examples:
 - **Originality:** Statistical rarity (LLM judge 0-10, target: 7-8)
 - **Elaboration:** Detail level (simple mention vs worked example, target: 7-8)
 
-**Baseline without linsenkasten:**
+**Baseline without interlens:**
 - Fluency: 4-5, Flexibility: 2-3, Originality: 3-4, Elaboration: 4-5
 
-**Target with linsenkasten:**
+**Target with interlens:**
 - Fluency: 8-10, Flexibility: 5-7, Originality: 7-8, Elaboration: 7-8
 
 **Expected improvement:** +50-100% across all dimensions
@@ -319,7 +319,7 @@ Examples:
 
 1. **Setup:**
    - Give agent real-world design problem
-   - No specific instructions (let agent decide how to use linsenkasten)
+   - No specific instructions (let agent decide how to use interlens)
    - Time limit: 20 minutes
 
 2. **Example problems:**
@@ -346,7 +346,7 @@ Examples:
    ```
 
 3. **Agent interaction:**
-   - Agent can use any linsenkasten tools
+   - Agent can use any interlens tools
    - Track: which tools, in what sequence, what insights
    - Record: final recommendation/solution
 
@@ -382,10 +382,10 @@ Examples:
 - 4-6: Slight reframe
 - 7-10: Unexpected, creative
 
-**Baseline without linsenkasten:**
+**Baseline without interlens:**
 - QR: N/A, QD: 2-3, AC: N/A, SQ: 5-6, N: 3-4
 
-**Target with linsenkasten:**
+**Target with interlens:**
 - QR: 7-8, QD: 7-9, AC: 7-8, SQ: 7-8, N: 7-8
 
 **Expected improvement:** +50-100% on diversity, novelty, solution quality
@@ -510,7 +510,7 @@ Target: 7+ (good), 8+ (excellent)
 
 ### Phase 1: Baseline
 
-- [ ] Run full test battery WITHOUT linsenkasten
+- [ ] Run full test battery WITHOUT interlens
 - [ ] Record baseline scores across all metrics
 - [ ] Document agent behavior patterns
 - [ ] Identify weakest areas (lowest scores)
@@ -524,7 +524,7 @@ Target: 7+ (good), 8+ (excellent)
 
 ### Phase 3: Validation
 
-- [ ] Run full test battery WITH linsenkasten
+- [ ] Run full test battery WITH interlens
 - [ ] Compare to baseline
 - [ ] Verify expected improvements achieved
 - [ ] Document unexpected findings

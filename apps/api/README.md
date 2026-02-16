@@ -1,6 +1,6 @@
-# Linsenkasten API
+# Interlens API
 
-Backend API for the Linsenkasten cognitive augmentation toolkit. Provides REST endpoints for accessing 256+ FLUX analytical lenses through graph-based navigation and creative thinking tools.
+Backend API for the Interlens cognitive augmentation toolkit. Provides REST endpoints for accessing 256+ FLUX analytical lenses through graph-based navigation and creative thinking tools.
 
 ## Architecture
 
@@ -74,14 +74,14 @@ This repo is configured for Railway deployment:
 
 ## Related Projects
 
-- **linsenkasten** - MCP server + CLI tool ([GitHub](https://github.com/mistakeknot/Linsenkasten))
+- **interlens** - MCP server + CLI tool ([GitHub](https://github.com/mistakeknot/Interlens))
 - **xulfbot** - Discord bot that uses this API
 
 ## API Clients
 
 This API is consumed by:
-- Linsenkasten MCP server (for Claude Desktop)
-- Linsenkasten CLI tool (for terminal)
+- Interlens MCP server (for Claude Desktop)
+- Interlens CLI tool (for terminal)
 - XULFbot Discord bot
 
 ## Development

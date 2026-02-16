@@ -1,10 +1,10 @@
 # Codex CLI Integration Guide
 
-This guide shows how to integrate Linsenkasten tools with OpenAI's Codex CLI for creative problem-solving during coding sessions.
+This guide shows how to integrate Interlens tools with OpenAI's Codex CLI for creative problem-solving during coding sessions.
 
 ## Overview
 
-Codex CLI supports function calling, allowing it to interact with external APIs. By adding Linsenkasten functions, Codex can access 288 analytical lenses to help reframe problems, generate insights, and explore creative solutions.
+Codex CLI supports function calling, allowing it to interact with external APIs. By adding Interlens functions, Codex can access 288 analytical lenses to help reframe problems, generate insights, and explore creative solutions.
 
 ## Prerequisites
 
@@ -18,26 +18,26 @@ Codex CLI supports function calling, allowing it to interact with external APIs.
 Get the OpenAI-compatible function schema:
 
 ```bash
-# Using Linsenkasten CLI
-linsenkasten export --format openai > linsenkasten-functions.json
+# Using Interlens CLI
+interlens export --format openai > interlens-functions.json
 
 # Or download from GitHub
-curl -O https://raw.githubusercontent.com/mistakeknot/Linsenkasten/main/schemas/openai-functions.json
+curl -O https://raw.githubusercontent.com/mistakeknot/Interlens/main/schemas/openai-functions.json
 ```
 
 ### Step 2: Create a Wrapper Script
 
-Create a script that Codex can call to interact with the Linsenkasten API:
+Create a script that Codex can call to interact with the Interlens API:
 
 ```python
 #!/usr/bin/env python3
-# linsenkasten_tools.py
+# interlens_tools.py
 
 import requests
 import json
 import sys
 
-API_BASE = "https://linsenkasten-api-production.up.railway.app/api/v1"
+API_BASE = "https://interlens-api-production.up.railway.app/api/v1"
 
 def search_lenses(q: str, limit: int = 10):
     """Search for FLUX analytical lenses."""
@@ -102,7 +102,7 @@ def get_lens_progressions(start: str, target: str, max_steps: int = 5):
 # CLI interface for testing
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python linsenkasten_tools.py <function> [args...]")
+        print("Usage: python interlens_tools.py <function> [args...]")
         sys.exit(1)
 
     func_name = sys.argv[1]
@@ -132,14 +132,14 @@ if __name__ == "__main__":
 
 ### Step 3: Configure Codex CLI
 
-Add Linsenkasten tools to your Codex configuration. The exact method depends on your Codex CLI version.
+Add Interlens tools to your Codex configuration. The exact method depends on your Codex CLI version.
 
 #### Option A: System Prompt Approach
 
 Add to your Codex system prompt or configuration:
 
 ```
-You have access to Linsenkasten tools for creative problem-solving. These tools connect to an API with 288 analytical lenses from the FLUX newsletter.
+You have access to Interlens tools for creative problem-solving. These tools connect to an API with 288 analytical lenses from the FLUX newsletter.
 
 Available functions:
 - search_lenses(q, limit) - Search for lenses by keyword
@@ -155,7 +155,7 @@ When a user is stuck on a problem, use these tools to:
 4. Synthesize insights into actionable recommendations
 
 To call a function, use the Python wrapper:
-python linsenkasten_tools.py <function> [args...]
+python interlens_tools.py <function> [args...]
 ```
 
 #### Option B: Function Calling Configuration
@@ -266,10 +266,10 @@ Suggested lenses to explore:
 ### Quick Analysis
 ```bash
 # 1. Search for relevant lens
-python linsenkasten_tools.py search "your problem keywords"
+python interlens_tools.py search "your problem keywords"
 
 # 2. Get contrasting view
-python linsenkasten_tools.py contrasts "Lens Name"
+python interlens_tools.py contrasts "Lens Name"
 
 # 3. Apply both to your problem
 ```
@@ -277,19 +277,19 @@ python linsenkasten_tools.py contrasts "Lens Name"
 ### Deep Exploration
 ```bash
 # 1. Get thesis lens
-python linsenkasten_tools.py get "Pace Layering"
+python interlens_tools.py get "Pace Layering"
 
 # 2. Get full triad
-python linsenkasten_tools.py triads "Pace Layering"
+python interlens_tools.py triads "Pace Layering"
 
 # 3. Explore neighborhood
-python linsenkasten_tools.py neighborhood "Pace Layering" 2
+python interlens_tools.py neighborhood "Pace Layering" 2
 ```
 
 ### Coverage Check
 ```bash
 # After applying several lenses, check for gaps
-python linsenkasten_tools.py gaps "Lens1" "Lens2" "Lens3"
+python interlens_tools.py gaps "Lens1" "Lens2" "Lens3"
 ```
 
 ## Troubleshooting
@@ -297,7 +297,7 @@ python linsenkasten_tools.py gaps "Lens1" "Lens2" "Lens3"
 ### API Connection Issues
 ```bash
 # Test API connectivity
-curl https://linsenkasten-api-production.up.railway.app/api/v1/lenses/stats
+curl https://interlens-api-production.up.railway.app/api/v1/lenses/stats
 ```
 
 ### Lens Not Found
@@ -313,5 +313,5 @@ curl https://linsenkasten-api-production.up.railway.app/api/v1/lenses/stats
 
 - **Full Function Schema**: `schemas/openai-functions.json`
 - **OpenAPI Spec**: `schemas/openapi.yaml`
-- **Web Interface**: https://linsenkasten.com
-- **GitHub**: https://github.com/mistakeknot/Linsenkasten
+- **Web Interface**: https://interlens.com
+- **GitHub**: https://github.com/mistakeknot/Interlens
