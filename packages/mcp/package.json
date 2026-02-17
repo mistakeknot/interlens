@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "vercel dev",
-    "build": "echo 'No build required'",
+    "build": "npx esbuild index.js --bundle --platform=node --format=esm --outfile=dist/bundle.mjs --external:express --external:cors",
     "start:local": "node index.js"
   },
   "keywords": [
