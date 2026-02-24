@@ -15,14 +15,14 @@ React-based web interface for exploring 256+ FLUX analytical lenses. Provides in
 - **Keyboard Navigation**: Arrow keys, j/k, Escape for quick browsing
 - **Responsive Design**: Works on desktop and mobile
 
-## Tech Stack
+## Tech stack
 
 - **React** 18 - UI framework
 - **React Router** - Client-side routing
 - **D3.js** - Graph visualization
 - **CSS Modules** - Component styling
 
-## API Backend
+## API backend
 
 This frontend consumes the Interlens API:
 - **API**: https://lens-api.up.railway.app/api/v1
@@ -44,7 +44,7 @@ npm run build
 npm test
 ```
 
-### Environment Variables
+### Environment variables
 
 The app uses the production API by default. To use a different API:
 
@@ -53,7 +53,7 @@ Create `.env.local`:
 REACT_APP_API_URL=http://localhost:5002/api/v1
 ```
 
-## Project Structure
+## Project structure
 
 ```
 interlens-web/
@@ -91,7 +91,7 @@ The repo includes `railway.toml` for Railway deployment:
 railway up
 ```
 
-## Related Projects
+## Related projects
 
 - **interlens** - MCP server + CLI ([GitHub](https://github.com/mistakeknot/Interlens))
 - **interlens-api** - Backend API ([GitHub](https://github.com/mistakeknot/interlens-api))
@@ -103,9 +103,9 @@ railway up
 - `/frame/:id` - Frame detail view with all lenses
 - `/tag/:name` - Tag detail view with filtered lenses
 
-## Features in Detail
+## Features in detail
 
-### Graph View
+### Graph view
 
 The graph visualization shows:
 - **Nodes**: Lenses (sized by centrality)
@@ -119,14 +119,14 @@ Semantic search powered by OpenAI embeddings:
 - Returns relevance-ranked results
 - Updates in real-time as you type
 
-### Keyboard Shortcuts
+### Keyboard shortcuts
 
 - `j/→` - Next lens/frame/tag
 - `k/←` - Previous lens/frame/tag
 - `Esc` - Close modal/return to home
 - `Tab` - Switch between tabs
 
-## Error Handling
+## Error handling
 
 - **Invalid tags**: Redirects to home with console warning
 - **404 lenses**: Shows "not found" message

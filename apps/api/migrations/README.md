@@ -2,7 +2,7 @@
 
 This directory contains SQL migrations for the Interlens API Supabase database.
 
-## How to Run Migrations
+## How to run migrations
 
 1. **Open Supabase Dashboard**
    - Go to https://supabase.com/dashboard
@@ -25,7 +25,7 @@ This directory contains SQL migrations for the Interlens API Supabase database.
    - Check the output shows 288 migrated rows
    - Verify the final schema check shows `data_type: USER-DEFINED, udt_name: vector`
 
-## Current Migrations
+## Current migrations
 
 ### 001_fix_embedding_vector_type.sql (2025-11-23)
 

@@ -9,9 +9,9 @@ Backend API for the Interlens cognitive augmentation toolkit. Provides REST endp
 - **Supabase** - PostgreSQL database for lens metadata
 - **OpenAI** - Embeddings for semantic search
 
-## API Endpoints
+## API endpoints
 
-### Basic Endpoints
+### Basic endpoints
 
 - `GET /api/v1/lenses` - Get all lenses
 - `GET /api/v1/lenses/search?q=query` - Semantic search
@@ -20,7 +20,7 @@ Backend API for the Interlens cognitive augmentation toolkit. Provides REST endp
 - `GET /api/v1/frames` - Get thematic groupings
 - `GET /api/v1/lenses/stats` - API statistics
 
-### Creative Thinking Endpoints
+### Creative thinking endpoints
 
 - `GET /api/v1/creative/journey?source=A&target=B` - Find conceptual path
 - `GET /api/v1/creative/bridges?lenses=A&lenses=B` - Find bridge lenses
@@ -43,7 +43,7 @@ cp .env.example .env
 python lens_search_api.py
 ```
 
-## Environment Variables
+## Environment variables
 
 See `.env.example` for required configuration.
 
@@ -67,17 +67,17 @@ This repo is configured for Railway deployment:
 3. Railway will auto-detect Python and use `railway.json` config
 4. Start command: `python lens_search_api.py`
 
-### Health Check
+### Health check
 
 - Endpoint: `/api/v1/lenses/stats`
 - Returns lens count and API status
 
-## Related Projects
+## Related projects
 
 - **interlens** - MCP server + CLI tool ([GitHub](https://github.com/mistakeknot/Interlens))
 - **xulfbot** - Discord bot that uses this API
 
-## API Clients
+## API clients
 
 This API is consumed by:
 - Interlens MCP server (for Claude Desktop)

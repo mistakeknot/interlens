@@ -5,7 +5,7 @@ A cognitive augmentation toolkit that gives AI agents access to 288 FLUX analyti
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-green)](https://modelcontextprotocol.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## What is Interlens?
+## What is interlens?
 
 > **✨ New in v2.2.1**: Fixed MCP server startup issues with Claude Desktop. Now provides separate `interlens` (CLI) and `interlens-mcp` (MCP server) commands.
 
@@ -17,7 +17,7 @@ Interlens ("lens box" in German) is a knowledge graph of analytical frameworks f
 - **Break habitual patterns** with creative provocations
 - **Explore connections** between disparate ideas
 
-## Quick Start
+## Quick start
 
 Add to your Claude Desktop config:
 
@@ -37,7 +37,7 @@ Add to your Claude Desktop config:
 
 Restart Claude Desktop. Done! 🎉
 
-## Command Line Interface
+## Command line interface
 
 Interlens also includes a powerful CLI for exploring lenses directly from your terminal:
 
@@ -76,14 +76,14 @@ interlens neighborhood "Pace Layering" --radius 2
 interlens contrasts "Explore vs Exploit"
 ```
 
-### CLI Features
+### CLI features
 - **Colorized output** - Beautiful terminal formatting
 - **Flexible queries** - Natural language lens names
 - **Scriptable** - Pipe-able output for automation
 - **Fast** - Direct API access with local caching
 - **Help system** - Run `interlens help` for usage info
 
-### CLI Examples
+### CLI examples
 
 **Quick lens lookup:**
 ```bash
@@ -154,7 +154,7 @@ interlens contrasts "Regression to the Mean"
 - `detect_thinking_gaps` - Analyze conceptual coverage across 28 FLUX frames
 - Gap-aware random selection - 80/15/5 biasing toward unexplored dimensions
 
-### Graph-Powered Intelligence
+### Graph-Powered intelligence
 
 Built on a NetworkX graph with:
 - **288 lenses** from FLUX episodes 11-200+
@@ -163,23 +163,23 @@ Built on a NetworkX graph with:
 - **Centrality measures**: Betweenness, PageRank, eigenvector
 - **Path finding**: Navigate between any two concepts
 
-## Usage Examples
+## Usage examples
 
-### Find a Conceptual Journey
+### Find a conceptual journey
 ```
 Use find_lens_journey to discover how "Systems Thinking" connects to "Innovation"
 ```
 
 Output shows the intermediate concepts that bridge these ideas.
 
-### Bridge Disparate Ideas
+### Bridge disparate ideas
 ```
 Use find_bridge_lenses to find lenses connecting "Leadership", "Complexity", and "Communication"
 ```
 
 Discover unexpected connections for creative problem-solving.
 
-### Explore Paradoxes (232 Contrast Pairs!)
+### Explore paradoxes (232 contrast pairs!)
 ```
 Use find_contrasting_lenses on "Exploit vs Explore" to find complementary tensions
 ```
@@ -190,21 +190,21 @@ Every lens now has at least one dialectic contrast. Examples:
 - **Stoicism and Gratitude** ↔ **Jevons Paradox** (contentment vs never-enough)
 - **Composable Alphabets** ↔ **Conceptual Integrity** (flexibility vs coherence)
 
-### Find Hub Concepts
+### Find hub concepts
 ```
 Use get_central_lenses with measure="betweenness" to identify key conceptual bridges
 ```
 
 Map the conceptual landscape strategically.
 
-### Random Provocation
+### Random provocation
 ```
 Use random_lens_provocation to get a creative spark
 ```
 
 Break out of local thinking patterns.
 
-### Gap Detection Workflow (NEW in v1.1.0)
+### Gap detection workflow (NEW in v1.1.0)
 
 **Scenario:** You've been exploring lenses about systems and technology. Are you missing important perspectives?
 
@@ -243,7 +243,7 @@ interlens random --context "Pace Layering" --context "Innovation" --context "Log
 
 **The Result:** Started in tech/systems comfort zone → guided to cognitive processes, creative expression, and social dynamics. Exactly the lateral moves that break habitual thinking!
 
-## Creative Workflows
+## Creative workflows
 
 **Lateral Thinking:**
 ```
@@ -281,7 +281,7 @@ get_central_lenses → get_lens_neighborhood → explore territory
 - Only your Claude/AI API usage
 - No hidden charges from Interlens
 
-## Cross-Platform Support
+## Cross-Platform support
 
 Interlens works with multiple AI platforms:
 
@@ -294,7 +294,7 @@ Interlens works with multiple AI platforms:
 | **Claude.ai** | 📋 Project Template | [docs/claude-project-template.md](docs/claude-project-template.md) |
 | **Any Agent** | ✅ REST API | [schemas/openapi.yaml](schemas/openapi.yaml) |
 
-### Export Schemas
+### Export schemas
 
 Generate schemas for integration with other platforms:
 
@@ -306,7 +306,7 @@ interlens export --format openai > functions.json
 interlens export --format openapi > api.yaml
 ```
 
-### Creating a ChatGPT GPT
+### Creating a chatGPT GPT
 
 1. Export the OpenAPI schema: `interlens export --format openapi`
 2. Create a new GPT at https://chatgpt.com/gpts/editor
@@ -315,9 +315,9 @@ interlens export --format openapi > api.yaml
 
 See [docs/chatgpt-gpt-config.md](docs/chatgpt-gpt-config.md) for detailed instructions.
 
-## Installation Options
+## Installation options
 
-### Option 1: npx (Recommended - No Install)
+### Option 1: npx (Recommended - no install)
 
 Add to your Claude Desktop config:
 
@@ -332,7 +332,7 @@ Add to your Claude Desktop config:
 }
 ```
 
-### Option 2: Global Install
+### Option 2: global install
 
 Install via npm:
 
@@ -352,7 +352,7 @@ Add to your Claude Desktop config:
 }
 ```
 
-### Option 3: Local Development
+### Option 3: local development
 
 Want to run from source?
 
@@ -378,7 +378,7 @@ npm start
 }
 ```
 
-## API Endpoints
+## API endpoints
 
 All tools are backed by REST API endpoints:
 
@@ -399,7 +399,7 @@ Interlens provides three MCP resources:
 - `lens://frames` - Thematic groupings (20+ frames)
 - `lens://graph` - Relationship network structure
 
-## Use Cases
+## Use cases
 
 **For AI Agents:**
 - Enhance reasoning with proven analytical frameworks
@@ -419,7 +419,7 @@ Interlens provides three MCP resources:
 - Create knowledge navigation interfaces
 - Integrate FLUX lenses into workflows
 
-## About FLUX
+## About fLUX
 
 FLUX is a weekly newsletter from the [FLUX Collective](https://read.fluxcollective.org/) exploring systems thinking, organizational dynamics, and complexity. Each episode introduces analytical lenses for understanding complex systems.
 

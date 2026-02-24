@@ -2,7 +2,7 @@
 
 Research-backed evaluation framework for measuring agent creative problem-solving improvements.
 
-## Directory Structure
+## Directory structure
 
 ```
 benchmark/
@@ -26,7 +26,7 @@ benchmark/
 └── run_benchmark.py         # Main test runner
 ```
 
-## Quick Start
+## Quick start
 
 ### Prerequisites
 ```bash
@@ -38,7 +38,7 @@ export OPENAI_API_KEY=your_key_here
 export ANTHROPIC_API_KEY=your_key_here
 ```
 
-### Run Individual Metrics
+### Run individual metrics
 
 **Semantic Diversity:**
 ```bash
@@ -60,7 +60,7 @@ python benchmark/metrics/tool_patterns.py results/baseline/problem1.md
 python benchmark/metrics/quality_scorer.py results/baseline/problem1.md
 ```
 
-### Run Full Benchmark
+### Run full benchmark
 
 **Evaluate single directory:**
 ```bash
@@ -84,7 +84,7 @@ python benchmark/run_benchmark.py --results results/baseline/ --no-llm-judge
 
 ## Metrics
 
-### Tier 1: Automated (Fast, Cheap)
+### Tier 1: automated (Fast, cheap)
 
 **Semantic Diversity (0-10)**
 - Measures: Conceptual diversity via embedding distances
@@ -107,7 +107,7 @@ python benchmark/run_benchmark.py --results results/baseline/ --no-llm-judge
 - Target: 6-8/10 (creative tool sequences)
 - Cost: Free (local computation)
 
-### Tier 2: LLM-as-Judge (Moderate Cost)
+### Tier 2: lLM-as-Judge (Moderate cost)
 
 **Quality Score (0-10, 4 dimensions)**
 - Specificity: Concrete vs vague (1-10)
@@ -119,7 +119,7 @@ python benchmark/run_benchmark.py --results results/baseline/ --no-llm-judge
 - Target: 7-8/10 average
 - Cost: ~$0.01-0.05 per evaluation
 
-### Tier 3: Human Validation (Milestones Only)
+### Tier 3: human validation (Milestones only)
 
 **Manual Review:**
 - Qualitative assessment of solution quality
@@ -128,7 +128,7 @@ python benchmark/run_benchmark.py --results results/baseline/ --no-llm-judge
 - Run at: baseline, post-Phase0, final
 - Cost: 2-4 hours of human time per milestone
 
-## Test Problems
+## Test problems
 
 ### Code (3 problems)
 1. Performance optimization stuck
@@ -155,9 +155,9 @@ python benchmark/run_benchmark.py --results results/baseline/ --no-llm-judge
 2. Cross-functional alignment
 3. Retrospective effectiveness
 
-## Success Criteria
+## Success criteria
 
-### Target Improvement: +67%
+### Target improvement: +67%
 
 Starting from baseline ~3/10 average → target 5/10 average
 
@@ -169,7 +169,7 @@ Starting from baseline ~3/10 average → target 5/10 average
 
 **Overall Average: 1.75 → 6.875 (+293% absolute, +67% toward maximum)**
 
-### Evaluation Workflow
+### Evaluation workflow
 
 **Step 1: Manual Testing (You)**
 
@@ -210,12 +210,12 @@ Once sample shows +67%:
 
 ## Development
 
-### Adding New Test Problems
+### Adding new test problems
 1. Create problem file in appropriate domain directory
 2. Follow template in `problems/TEMPLATE.md`
 3. Include: context, challenge, constraints, success criteria
 
-### Adding New Metrics
+### Adding new metrics
 1. Implement metric in appropriate tier directory
 2. Add to `run_benchmark.py` test suite
 3. Update CTS calculation if needed

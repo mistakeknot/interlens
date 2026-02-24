@@ -1,33 +1,33 @@
 # interlens
 
-288 cognitive lenses for structured thinking — a graph-powered toolkit for analyzing problems from multiple perspectives.
+Most people think about problems with whatever framework happens to be in their head. interlens gives you 288 named alternatives, connected as a graph.
 
-## What This Does
+## What this does
 
-A "lens" is a named thinking pattern extracted from the [FLUX podcast](https://read.fluxcollective.org/) — things like "second-order effects," "pace layers," "Chesterton's fence," or "explore/exploit tradeoff." Each lens has a description, framing questions, and connections to related lenses, forming a graph of 288 nodes across epistemology, systems thinking, decision-making, creativity, and more.
+A "lens" is a thinking pattern extracted from the [FLUX Review](https://read.fluxcollective.org/): "second-order effects," "pace layers," "Chesterton's fence," "explore/exploit tradeoff." Each lens has a description, framing questions, and connections to related lenses, forming a graph of 288 nodes across epistemology, systems thinking, decision-making, and creativity.
 
-interlens makes this graph queryable. Search for lenses by keyword or concept, traverse relationships between them, find thinking paths between distant ideas, detect gaps in your reasoning, or get a random provocation when you're stuck. The MCP server and CLI put all of this inside Claude Code; the web explorer lets you browse visually.
+interlens makes this graph queryable. Search by keyword or concept, traverse relationships, find thinking paths between distant ideas, detect gaps in your reasoning, or get a random provocation when you're stuck. The MCP server and CLI put all of this inside Claude Code; the web explorer lets you browse visually.
 
-## Who This Is For
+## Who this is for
 
-Anyone using Claude Code for strategic thinking, architecture decisions, or problem analysis. The lenses are most useful during brainstorming, PRD writing, and design review — moments where structured thinking patterns prevent blind spots.
+Anyone using Claude Code for strategic thinking, architecture decisions, or problem analysis. The lenses are most useful during brainstorming, PRD writing, and design review: moments where structured thinking patterns prevent blind spots.
 
-## Quick Start
+## Quick start
 
-### MCP Server + CLI (Claude Code)
+### MCP server + CLI (Claude Code)
 
 ```bash
 pnpm -r install
 pnpm dev:mcp
 ```
 
-### Web Explorer
+### Web explorer
 
 ```bash
 pnpm dev:web
 ```
 
-### API Server
+### API server
 
 ```bash
 cd apps/api
@@ -35,7 +35,7 @@ pip install -r requirements.txt
 python lens_search_api.py
 ```
 
-## Repo Layout
+## Repo layout
 
 ```
 packages/mcp/    MCP server + CLI (npm: interlens-mcp)
