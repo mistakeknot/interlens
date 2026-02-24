@@ -1,39 +1,54 @@
-# Interlens (monorepo)
+# interlens
 
-Interlens is a cognitive augmentation toolkit that provides access to 288 FLUX analytical lenses through a graph-powered API, a web explorer, and an MCP server + CLI.
+288 cognitive lenses for structured thinking — a graph-powered toolkit for analyzing problems from multiple perspectives.
 
-## Repo layout
+## What This Does
 
-- `packages/mcp` — **MCP server + CLI** (npm package: `interlens-mcp`)
-- `apps/api` — **Backend API** (Flask + NetworkX)
-- `apps/web` — **Web frontend** (React)
+A "lens" is a named thinking pattern extracted from the [FLUX podcast](https://read.fluxcollective.org/) — things like "second-order effects," "pace layers," "Chesterton's fence," or "explore/exploit tradeoff." Each lens has a description, framing questions, and connections to related lenses, forming a graph of 288 nodes across epistemology, systems thinking, decision-making, creativity, and more.
 
-## Quick start (local dev)
+interlens makes this graph queryable. Search for lenses by keyword or concept, traverse relationships between them, find thinking paths between distant ideas, detect gaps in your reasoning, or get a random provocation when you're stuck. The MCP server and CLI put all of this inside Claude Code; the web explorer lets you browse visually.
 
-### Install JS deps (pnpm)
+## Who This Is For
+
+Anyone using Claude Code for strategic thinking, architecture decisions, or problem analysis. The lenses are most useful during brainstorming, PRD writing, and design review — moments where structured thinking patterns prevent blind spots.
+
+## Quick Start
+
+### MCP Server + CLI (Claude Code)
 
 ```bash
 pnpm -r install
+pnpm dev:mcp
 ```
 
-### Run the web app
+### Web Explorer
 
 ```bash
 pnpm dev:web
 ```
 
-The web app can be pointed at a local API via `.env.local` in `apps/web`.
-
-### Run the MCP server locally
+### API Server
 
 ```bash
-pnpm dev:mcp
+cd apps/api
+pip install -r requirements.txt
+python lens_search_api.py
 ```
 
-## Deployment notes
+## Repo Layout
 
-- Web is typically deployed to Vercel from `apps/web`.
-- API is typically deployed to Railway from `apps/api`.
-- MCP package is published from `packages/mcp`.
+```
+packages/mcp/    MCP server + CLI (npm: interlens-mcp)
+apps/api/        Flask API (search, graph traversal)
+apps/web/        React frontend (interlens.com)
+```
 
-(See package/app READMEs for details.)
+## Deployment
+
+- **Web:** Vercel from `apps/web`
+- **API:** Railway from `apps/api`
+- **MCP:** Published from `packages/mcp`
+
+## License
+
+MIT
