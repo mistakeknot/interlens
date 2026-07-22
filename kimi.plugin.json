@@ -1,0 +1,29 @@
+{
+  "name": "interlens",
+  "version": "2.2.5",
+  "description": "288 FLUX cognitive lenses for structured thinking — MCP server with lens search, thinking mode workflows, belief statement generation, quality evaluation, and solution synthesis.",
+  "license": "MIT",
+  "keywords": [
+    "flux",
+    "lenses",
+    "cognitive-augmentation",
+    "mcp",
+    "thinking-modes",
+    "systems-thinking",
+    "creative-problem-solving",
+    "dialectic-thinking"
+  ],
+  "author": "mistakeknot",
+  "interface": {
+    "displayName": "interlens",
+    "shortDescription": "288 FLUX cognitive lenses for structured thinking — MCP server with lens search, thinking mode workflows, belief stat..."
+  },
+  "mcpServers": {
+    "interlens": {
+      "command": "bash",
+      "args": [
+        "${KIMI_PLUGIN_ROOT}/packages/mcp/launch-mcp.sh"
+      ]
+    }
+  }
+}
