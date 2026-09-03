@@ -1,0 +1,130 @@
+version: 1
+mode: dependency-driven
+tier: deep
+max_parallel: 3
+timeout_per_task: 900
+
+# Landing rule (plan Task 1, Step 1): tasks marked sweep_gate wait until
+# `git log --oneline main..sweep/2026-09-02 | wc -l` prints 0 and the branch is rebased.
+
+stages:
+  - name: "A — Baseline"
+    tasks:
+      - id: task-1
+        title: "Baseline, node test scaffold, CI node step (CI edit behind sweep gate)"
+        files: [packages/mcp/test/smoke.test.mjs, packages/mcp/package.json, .github/workflows/ci.yml]
+        depends: []
+  - name: "B — Local engine (curated layer)"
+    tasks:
+      - id: task-2
+        title: "Move curated data to data/curated/"
+        files: [data/curated/lenses.json, data/curated/connections.json, data/curated/frames.json, data/README.md]
+        depends: [task-1]
+      - id: task-3
+        title: "lib/store.js + constants.js: load layers, lexical search, lookups"
+        files: [packages/mcp/lib/store.js, packages/mcp/lib/constants.js, packages/mcp/test/store.test.mjs]
+        depends: [task-2]
+      - id: task-4
+        title: "lib/graph.js: port graph.py and creative queries"
+        files: [packages/mcp/lib/graph.js, packages/mcp/test/graph.test.mjs]
+        depends: [task-3]
+      - id: task-5
+        title: "lib/embed.js: Ollama client, matrix loader, cosine top-k"
+        files: [packages/mcp/lib/embed.js, packages/mcp/test/embed.test.mjs]
+        depends: [task-2]
+      - id: task-6
+        title: "api-local.js facade; rewire index.js; delete api-client; smoke client"
+        files: [packages/mcp/lib/api-local.js, packages/mcp/index.js, packages/mcp/api-client.js, packages/mcp/scripts/smoke.mjs, packages/mcp/test/api-local.test.mjs]
+        depends: [task-3, task-4, task-5]
+      - id: task-7
+        title: "CLI on the local engine"
+        files: [packages/mcp/cli.js]
+        depends: [task-6]
+  - name: "C — Harvest pipeline and generated layer"
+    tasks:
+      - id: task-8
+        title: "harvest/scan.py + thresholds + package + fixtures"
+        files: [harvest/__init__.py, harvest/__main__.py, harvest/thresholds.py, harvest/scan.py, tests/harvest/conftest.py, tests/harvest/test_scan.py]
+        depends: [task-2]
+      - id: task-9
+        title: "harvest/merge.py: union into index.jsonl"
+        files: [harvest/merge.py, tests/harvest/test_merge.py]
+        depends: [task-8]
+      - id: task-10
+        title: "harvest/stats.py: hit-rates, usage"
+        files: [harvest/stats.py, tests/harvest/test_stats.py]
+        depends: [task-9]
+      - id: task-11
+        title: "harvest/embed.py: vectors for both layers"
+        files: [harvest/embed.py, tests/harvest/test_embed.py]
+        depends: [task-9]
+      - id: task-12
+        title: "harvest/edges.py: typed edges, clusters, calibration report"
+        files: [harvest/edges.py, harvest/report.py, tests/harvest/test_edges.py]
+        depends: [task-10, task-11]
+      - id: task-13
+        title: "Generated layer in the MCP: layer search, resolve_lens, record_reuse, registry_stats"
+        files: [packages/mcp/lib/store.js, packages/mcp/index.js, packages/mcp/test/generated.test.mjs]
+        depends: [task-6, task-12]
+      - id: task-14
+        title: "First real harvest on Clavain; commit generated layer + embeddings"
+        files: [data/harvest/clavain.jsonl, data/generated/index.jsonl, data/embeddings/meta.json]
+        depends: [task-13]
+        tier: fast
+      - id: task-15
+        title: "zklw harvest, merge, embed (canonical pass)"
+        files: [data/harvest/zklw.jsonl, data/generated/index.jsonl]
+        depends: [task-14]
+        tier: fast
+  - name: "D — interflux reuse seam"
+    tasks:
+      - id: task-16
+        title: "interflux scripts/lib_lens_registry.py"
+        files: [../../Sylveste/interverse/interflux/scripts/lib_lens_registry.py, ../../Sylveste/interverse/interflux/tests/test_lens_registry.py]
+        depends: [task-14]
+      - id: task-17
+        title: "generate-agents.py --registry; docs mention"
+        files: [../../Sylveste/interverse/interflux/scripts/generate-agents.py, ../../Sylveste/interverse/interflux/commands/flux-gen.md, ../../Sylveste/interverse/interflux/skills/flux-melange-engine/references/fusion.md]
+        depends: [task-16]
+      - id: task-18
+        title: "Prove a real reuse; record it"
+        files: [docs/research/2026-09-xx-reuse-proof.md, data/generated/reuse-log.jsonl]
+        depends: [task-17]
+        tier: fast
+  - name: "E — Rename (sweep gate)"
+    tasks:
+      - id: task-19
+        title: "In-repo rename to linsenkasten (sweep_gate)"
+        files: [.claude-plugin/plugin.json, kimi.plugin.json, packages/mcp/package.json, tests/structural/test_structure.py, README.md, CHANGELOG.md]
+        depends: [task-7, task-15]
+      - id: task-20
+        title: "GitHub rename, directories on both machines, marketplace, settings, Clavain refs, publish"
+        files: [../../interagency-marketplace/.claude-plugin/marketplace.json, ../../interagency-marketplace/README.md]
+        depends: [task-19]
+  - name: "F — Retire remnants; explorer on zklw"
+    tasks:
+      - id: task-21
+        title: "Delete Flask app and deploy configs"
+        files: [apps/api, apps/web/api, apps/web/vercel.json, packages/mcp/package.json]
+        depends: [task-19]
+      - id: task-22
+        title: "server.js + explorer build + zklw user unit"
+        files: [packages/mcp/server.js, apps/web/src/components/LensCard.jsx, apps/web/src/components/useLenses.js]
+        depends: [task-21, task-13]
+  - name: "G — Prune"
+    tasks:
+      - id: task-23
+        title: "harvest/prune.py; Clavain sweep with report"
+        files: [harvest/prune.py, tests/harvest/test_prune.py, data/prune-targets.txt]
+        depends: [task-20]
+      - id: task-24
+        title: "zklw prune sweep"
+        files: [data/reports]
+        depends: [task-23]
+        tier: fast
+  - name: "H — Docs, publish, close"
+    tasks:
+      - id: task-25
+        title: "Docs, roadmap, version, publish, goal 8222288d close"
+        files: [README.md, AGENTS.md, CLAUDE.md, docs/roadmap.json]
+        depends: [task-18, task-22, task-24]
