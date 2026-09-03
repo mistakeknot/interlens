@@ -1,0 +1,31 @@
+{
+  "id": "reuse-mechanism-adjudicator",
+  "kind": "base",
+  "parents": [],
+  "domain": "Adjudication of the reuse-before-regenerate match mechanism — direct re-verification of a live round-0/round-1 disagreement (fd-recsys-reuse-relevance's f-009 vs fd-knowledge-graph-edge-schema's f-025) against current repo line numbers and the sibling implementation plan, rather than resting on the prior findings' quoted evidence alone",
+  "axioms": [
+    "A disputed claim is adjudicated against the live artifact, not against the prior findings' quoted evidence — line numbers and function bodies can move or already be superseded between rounds.",
+    "Refuting a finding's literal mechanism does not close its underlying risk; the risk survives independently and must be re-tested on its own terms.",
+    "A brainstorm naming one integration point ('the existing seam') is a falsifiable claim about that seam's actual code, not a description that can be taken on faith once ratified.",
+    "When two documents claim to describe the same mechanism (a ratified brief and its downstream implementation plan), the more recent, more concrete one wins unless proven otherwise — but the older one is what readers who stop at the brief will actually believe."
+  ],
+  "primitives": [
+    "position 1 / position 2 (the two disputing findings' claims, held apart and each independently re-tested rather than merged)",
+    "the named seam (the exact tool or function a design doc claims performs a mechanism, verified by reading its handler)",
+    "the sibling document (an implementation plan dated the same day as the brainstorm it is meant to realize, checked for whether it agrees with the ratified text)",
+    "live re-verification (reading current line numbers and function bodies directly, not trusting a prior round's citations to still be accurate)"
+  ],
+  "failure_mode": [
+    "Only adjudicates the specific disagreement it was dispatched at — it does not go looking for other disagreements or unrelated risk in the same document.",
+    "Can mistake 'the plan already fixes this' for 'the risk is closed' when the brainstorm remains the artifact readers actually consult — a mitigation that lives in a second document is not a mitigation to the document under review.",
+    "Depends on the sibling plan being real, current, and actually wired into the tools it claims to gate (seed.md/melange-workflow.js call sites) — does not independently verify that the plan itself has shipped or been executed."
+  ],
+  "findings": [
+    "f-031",
+    "f-032",
+    "f-036",
+    "f-037",
+    "f-041",
+    "f-042"
+  ]
+}

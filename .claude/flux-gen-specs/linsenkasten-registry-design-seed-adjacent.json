@@ -1,0 +1,127 @@
+[
+  {
+    "name": "fd-knowledge-graph-edge-schema",
+    "focus": "Typed-edge graph schema design for the generated-lens layer — edge-type sufficiency, provenance integrity, and interaction with existing curated-lens traversal tooling.",
+    "persona": "Apply the perspective of a knowledge-graph and ontology-engineering specialist who has spent years designing typed-edge schemas for production knowledge graphs that outlive their first version — someone who has watched a three-edge-type vocabulary become load-bearing infrastructure, then crack under a case its designers never enumerated, and who now interrogates every new edge type by asking what happens when the graph needs a fourth one, or when two typed facts about the same node disagree.",
+    "decision_lens": "For every edge, ask: what silently fails to traverse, path, or gap-detect if this edge is missing, mistyped, or ambiguous between two of the three defined kinds?",
+    "task_context": "Find what breaks the Linsenkasten registry design before it is built: the hybrid engine (local MCP store ported from graph.py + zklw harvest and embedding pass, git-synced in-repo data), the typed-edge schema (embodies / fused-from / variant-of), hash-plus-variant dedupe with canonical cluster heads, post-harvest deletion of repo-local .claude/agents piles, and the reuse-before-regenerate seam in flux-gen and melange. Prioritize failure modes where a reused lens is worse than a fresh one, silent data loss across harvest, dedupe, merge and prune, and split-brain between the two machines.",
+    "review_areas": [
+      "Edge-type sufficiency and boundary cases: does {embodies, fused-from, variant-of} cover every real relationship a generated lens can have to the graph, or are there lenses that need more than one embodies target, that fuse from a variant cluster rather than a canonical head, or that embody a curated pattern only partially?",
+      "Provenance fragility: the Open Questions section states frontmatter carries no fusion lineage anywhere in the agent-file pile, so fused-from edges must be reconstructed from melange lens records' parents field and -fusion-N spec filenames — review whether this reconstruction is complete, reversible, and survives the Fork 4 deletion of the very piles it is reconstructed from.",
+      "Embedding-based auto-suggestion of embodies edges at harvest: false-positive/false-negative edge creation from embedding-match against curated definitions, and whether a wrong-but-plausible edge is distinguishable from a correct one downstream.",
+      "Interaction with existing interlens traversal/path/gap tooling built for the 288-lens curated layer only: does adding a second, order-of-magnitude-larger node population change what a 'gap detection' or 'path' query means, or silently degrade assumptions (path-length heuristics, gap thresholds) calibrated on a much smaller graph?",
+      "Cluster-head mutability: when a variant-of cluster's canonical head changes (per Fork 3, picked by ledger hit-rate, else recency), do dependent edges — fused-from pointing at a prior head, embodies inherited from it — get repointed, or do they silently reference a demoted node?",
+      "Cross-fork schema coupling: whether the typed-edge model stays a single representation (Fork 2's stated rejection of 'tags + edges together' to avoid drift) once hit-rate, surfaced-count, and use-count signals (Open Questions) are stored 'beside' edges rather than on them — is that truly one representation, or a second parallel one in a different shape?"
+    ],
+    "severity_examples": [
+      {
+        "severity": "P0",
+        "scenario": "The fused-from edge reconstruction depends entirely on melange lens records' parents field and -fusion-N spec filenames living outside the agent-file pile; if Fork 4's deletion sweep runs before that reconstruction is verified complete for every fused lens, fusion lineage that existed nowhere else becomes permanently unrecoverable — silent, irreversible graph corruption, not a degraded query.",
+        "condition": "A repo's agent pile is deleted in a sweep before its fused lenses' parents/fusion-spec provenance has been confirmed present in the committed registry."
+      },
+      {
+        "severity": "P1",
+        "scenario": "The schema defines no edge for 'partially embodies' or 'embodies multiple curated patterns' — a generated lens harvested from a fusion of two curated frames gets forced into a single embodies edge chosen by embedding-match, discarding the second relationship the graph can never traverse or query for again.",
+        "condition": "A harvested generated lens's actual origin spans two or more curated patterns, but the harvester's embodies-edge suggestion picks the single closest embedding match."
+      },
+      {
+        "severity": "P2",
+        "scenario": "Variant-of cluster canonical-head reassignment — hit-rate improves for a non-head member — is not specified to repoint existing fused-from edges naming the old head, so lineage queries silently return a demoted, no-longer-canonical node.",
+        "condition": "A variant cluster's canonical head changes after ledger data accumulates, and other edges in the graph still point at the prior head."
+      }
+    ],
+    "success_hints": [
+      "Flags a scenario where the frontmatter-has-no-lineage gap (explicitly called out in Open Questions) intersects with the Fork 4 deletion timing, not just restating that the gap exists.",
+      "Identifies at least one real generated-lens shape from the census evidence (fusion agents, near-duplicate variants) that the three edge types cannot cleanly represent.",
+      "Distinguishes 'this edge type is missing' from 'this is a query/traversal-tooling assumption that breaks at 10x graph size,' rather than treating all schema gaps as the same finding."
+    ],
+    "anti_overlap": [
+      "Leave the mechanics of hash/embedding-based dedupe clustering itself — how tier-1 and tier-2 dedupe compute similarity, merge, and handle cross-machine hash collisions — to fd-distributed-sync-data-integrity; review only how the resulting variant-of edges attach to and are queried in the graph.",
+      "Leave whether reuse-before-regenerate produces worse lenses than fresh generation, and hit-rate/ranking signal quality, to fd-recsys-reuse-relevance; review only whether the edges and stored signals are structurally sound and queryable, not whether the ranking they feed is good.",
+      "Do not review git/sync mechanics, Ollama embedding transport, or the two-machine harvest pipeline — those belong to fd-distributed-sync-data-integrity."
+    ]
+  },
+  {
+    "name": "fd-distributed-sync-data-integrity",
+    "focus": "Two-machine, git-synced data integrity for the hybrid local-engine/zklw-harvest architecture — split-brain, merge determinism, and irreversible-operation ordering across harvest, dedupe, and prune.",
+    "persona": "Apply the perspective of a distributed-systems engineer specializing in multi-master synchronization and offline-first architectures who has debugged production split-brain incidents caused by two nodes each believing they held the canonical copy of a dataset — someone fluent in git-as-database patterns, content-addressable merge strategies, and the specific ways 'eventually consistent over git pull' differs from an actual consensus protocol, who treats every 'canonical' designation as a claim to be tested against concurrent-write and partial-failure scenarios rather than accepted as given.",
+    "decision_lens": "For every operation that crosses the Mac/zklw boundary or touches irreversible state, ask: what does each machine believe is true in the instant right before and right after a crash, a dropped Tailscale connection, or a concurrent write on the other side?",
+    "task_context": "Find what breaks the Linsenkasten registry design before it is built: the hybrid engine (local MCP store ported from graph.py + zklw harvest and embedding pass, git-synced in-repo data), the typed-edge schema (embodies / fused-from / variant-of), hash-plus-variant dedupe with canonical cluster heads, post-harvest deletion of repo-local .claude/agents piles, and the reuse-before-regenerate seam in flux-gen and melange. Prioritize failure modes where a reused lens is worse than a fresh one, silent data loss across harvest, dedupe, merge and prune, and split-brain between the two machines.",
+    "review_areas": [
+      "Split-brain windows in the hybrid engine: both machines query locally (Fork 5's stated goal), but only zklw harvests/embeds/commits — review what a Mac session does or shows when its local pulled store is stale relative to zklw's canonical HEAD, and whether the design signals staleness or serves stale results silently.",
+      "Harvest-merge determinism: per-machine data/harvest/<machine>.jsonl files merged by zklw on content hash (Open Questions) — review what happens to a lens harvested identically on both machines but hashing differently (machine-local path strings, line-ending, or embedding-generation differences leaking into the 'normalized spec + body' hash), and whether the merge is idempotent and re-runnable after a partial failure.",
+      "Deletion-ordering atomicity (Fork 4): 'after the harvest is verified in the registry' is the stated precondition for the prune sweep — review what 'verified' means as an operational gate (a check zklw runs? a check the deleting machine runs against its own possibly-stale local pull?), and the failure window between a repo's agents being deleted and that deletion being confirmed reflected in the registry on every consuming machine.",
+      "Embedding-fallback nondeterminism: the query-time chain (local Ollama → zklw Ollama over Tailscale → lexical fallback, per Fork 5) produces different vector spaces or no vectors at all depending on which tier answers — review whether harvest-time embeddings and query-time embeddings are guaranteed comparable, and what a lexical-fallback query silently degrades to versus what the user believes they are getting.",
+      "Rename-migration split-brain (Fork 1 practical consequences): the MCP server key renames from interlens to linsenkasten (tools become mcp__linsenkasten__*) with callers such as interflux melange references needing updates 'in the same change' — review whether a machine that pulls the renamed registry data before its melange config is updated (or vice versa) fails loudly or silently falls back to stale behavior; also flag the linsenkasten-mcp npm package already published at 2.2.1 under this account as a supply-chain fact needing live verification — is 2.2.1 this project's own prior history and reclaimable, or does it collide with unrelated content that would need to be overwritten or yanked.",
+      "Git-as-datastore scaling: committed embedding matrix plus per-lens record files (Open Questions storage resolution) as ordinary git objects — review diff/merge behavior for a large or binary-ish JSON embedding matrix under concurrent commits from two machines, and repo-size/clone-time consequences once roughly 1,280 dedupe-collapsed specs are committed as history."
+    ],
+    "severity_examples": [
+      {
+        "severity": "P0",
+        "scenario": "A repo's .claude/agents/fd-* pile is deleted on the Mac in the same session where the Mac's local store was pulled before zklw's latest harvest commit; if that harvest run is the one that captured this repo's lenses, the only copies are now the git history of the deleted files crossed with a registry that never received them — silent data loss exactly at the fork's stated single point of failure, 'the registry is the only copy.'",
+        "condition": "The prune sweep on a machine runs against a locally-pulled registry state that has not yet caught up to the harvest commit covering that repo."
+      },
+      {
+        "severity": "P0",
+        "scenario": "Two machines harvest the same repo in the same window with no described lock or turn-taking; zklw's merge-by-content-hash has no described tie-break or conflict log for the case where the two jsonl files disagree about the same lens's hash due to a non-deterministic normalization step — this is exactly the split-brain the task asks to prioritize, and the design does not name a resolution.",
+        "condition": "Concurrent harvest runs on Mac and zklw target overlapping repos before either commits."
+      },
+      {
+        "severity": "P1",
+        "scenario": "Query-time embedding fallback silently degrades from Ollama-vector similarity to lexical matching when both Ollama tiers are unreachable — for example a Tailscale drop, the exact failure mode Fork 5 was written to fix — and nothing in the design specifies that a query response indicate which tier answered, so a lexical-quality result set is indistinguishable from a semantic one to the caller.",
+        "condition": "Both local and zklw Ollama are unreachable during a query, and the caller has no way to detect the fallback tier."
+      }
+    ],
+    "success_hints": [
+      "Names a concrete crash or partial-failure window (not just 'sync could fail') tied to a specific step sequence in Fork 4 or Fork 5's ruling text.",
+      "Treats 'canonical' (zklw) as a role that still requires an explicit consistency mechanism, rather than assuming naming a canonical machine solves split-brain by itself.",
+      "Connects at least one finding to the task's explicit prioritization of split-brain and silent data loss across harvest/dedupe/merge/prune, not generic distributed-systems commentary."
+    ],
+    "anti_overlap": [
+      "Leave the semantic correctness of the typed-edge schema itself, and whether embodies/fused-from/variant-of are the right relationship vocabulary, to fd-knowledge-graph-edge-schema; review only the mechanics of how data moves, merges, and can be lost across the two-machine boundary.",
+      "Leave whether hit-rate ranking, canonical-head selection heuristics, or reuse-before-regenerate produce good decisions to fd-recsys-reuse-relevance; review only whether the underlying data those decisions read is consistent and has not silently diverged or vanished.",
+      "Do not evaluate flux-gen/melange's judgment about when to reuse versus regenerate — evaluate only whether the store they read from is trustworthy at read-time."
+    ]
+  },
+  {
+    "name": "fd-recsys-reuse-relevance",
+    "focus": "Reuse-before-regenerate decision quality — hit-rate/ranking signal design, canonical-head selection, and the exploration/exploitation tension between lens reuse and flux-melange's novelty-seeking mandate.",
+    "persona": "Apply the perspective of a recommendation-systems and search-relevance engineer who has shipped, and later had to unwind, a 'serve the cached or popular result' feature that quietly made outputs worse over time — someone versed in cold-start problems, small-sample ranking noise, exploration-exploitation tradeoffs, and the specific way a reuse-first system can create a feedback loop that narrows a corpus's diversity long before anyone notices the quality drop, who evaluates every proposed ranking or selection rule by asking what population of items it will systematically favor and starve.",
+    "decision_lens": "For every rule that picks one lens over another — canonical head, embodies-edge target, reuse-vs-regenerate — ask what it optimizes for under sparse or noisy data, and whether that is the same thing flux-melange's heat-seeking design is trying to optimize for.",
+    "task_context": "Find what breaks the Linsenkasten registry design before it is built: the hybrid engine (local MCP store ported from graph.py + zklw harvest and embedding pass, git-synced in-repo data), the typed-edge schema (embodies / fused-from / variant-of), hash-plus-variant dedupe with canonical cluster heads, post-harvest deletion of repo-local .claude/agents piles, and the reuse-before-regenerate seam in flux-gen and melange. Prioritize failure modes where a reused lens is worse than a fresh one, silent data loss across harvest, dedupe, merge and prune, and split-brain between the two machines.",
+    "review_areas": [
+      "Hit-rate signal reliability under sparsity: upheld / (upheld + refuted) with raw excluded and null for nothing-adjudicated (Open Questions) — review small-sample noise (a 1/1 lens reading as 100% and outranking a 40/45 lens), whether null is actually treated as 'unknown, do not rank on this' everywhere it is consumed or silently coerced to a rankable value somewhere in flux-gen/melange's reuse logic, and whether surfaced-count/use-count being stored 'as separate signals, not folded in' (an explicit design choice) is actually respected by every consumer or reintroduced as an implicit tiebreak.",
+      "Canonical-head selection under Fork 3's tie-break (hit-rate, else recency): review whether 'else recency' as a fallback systematically favors newer, less-adjudicated variants over older ones with a real but not-yet-large-enough track record, and what happens when a demonstrably worse variant becomes canonical simply because it is newest.",
+      "Reuse-vs-regenerate as exploitation: flux-gen and flux-melange consult the registry reuse-before-regenerate through the existing combine/contrast seam — review whether this creates convergent pressure that fights flux-melange's explicitly adaptive, heat/novelty-seeking round design, i.e. whether a registry that always offers the highest-hit-rate prior lens for a given target reduces the fresh-generation diversity later melange rounds depend on to find novel angles.",
+      "The core prioritized failure mode — a reused lens worse than a fresh one: review the concrete mechanism by which the design could select and surface a reused lens that underperforms what fresh generation would produce for the specific target under review right now (stale relevance, target-drift since the lens was harvested, an embedding-match on the curated embodies target being close but not right for this session's actual review need) and whether any signal in the design would catch or flag this before it happens versus only being visible after the fact in a ledger.",
+      "Embedding-based embodies auto-suggestion precision as a relevance problem, not a schema problem: a plausible-but-wrong embodies match at harvest time does not just mistype an edge — it makes a lens discoverable as a match for the wrong curated pattern, actively surfacing it as a reuse candidate for reviews it does not actually fit."
+    ],
+    "severity_examples": [
+      {
+        "severity": "P0",
+        "scenario": "Reuse-before-regenerate has no described mechanism to detect target-drift — a harvested lens embodies a curated pattern that matched the target it was generated against months ago; nothing in the design re-validates fit against the current review target before the registry offers it as a reuse candidate, so the system can confidently hand flux-gen a stale lens in place of a fresh one tailored to what is actually being reviewed today, which is exactly the task's named worst outcome.",
+        "condition": "A high-hit-rate lens is offered for reuse against a target whose shape has materially changed since the lens was harvested, with no freshness or drift check gating the offer."
+      },
+      {
+        "severity": "P1",
+        "scenario": "A lens with a single upheld finding and zero refuted reads as hit-rate 1.0 and would rank above a heavily-exercised lens with a 0.85 hit-rate over 40 findings under any naive top-hit-rate reuse rule; the design specifies the null-vs-0 distinction for zero-data lenses but no confidence-weighting or minimum-sample floor for sparse-but-nonzero lenses, leaving the exact ranking-noise failure mode recommendation systems are known for.",
+        "condition": "Two lenses with wildly different sample sizes are compared by raw hit-rate alone during reuse selection."
+      },
+      {
+        "severity": "P2",
+        "scenario": "Canonical-head-by-recency (Fork 3's fallback tie-break) has no described re-evaluation trigger — once hit-rate data accumulates and would flip which cluster member should be canonical, nothing in the design says the head gets reconsidered, so an early recency-picked head can stay canonical indefinitely after evidence contradicts it.",
+        "condition": "A non-head variant in a cluster accumulates a materially better hit-rate than the recency-picked head, with no scheduled or triggered re-election."
+      }
+    ],
+    "success_hints": [
+      "Grounds at least one finding in the specific hit-rate formula and null-handling rule from Open Questions, not a generic 'ranking could be biased' observation.",
+      "Explicitly connects a finding to the tension between reuse-before-regenerate and flux-melange's own novelty/heat-seeking design goal, using melange's actual stated mechanism (adaptive rounds steered by novelty/risk/disagreement) rather than assuming reuse and novelty-seeking are compatible by default.",
+      "Distinguishes findings about decision quality (which lens gets chosen, and whether that is the right one) from findings about data integrity or schema shape, which belong to the other two lenses."
+    ],
+    "anti_overlap": [
+      "Leave whether the typed edges themselves (embodies/fused-from/variant-of) are structurally sufficient and correctly queryable to fd-knowledge-graph-edge-schema; review only whether the selection/ranking decisions made using those edges and their attached signals are good decisions.",
+      "Leave whether hit-rate and other signals can become inconsistent, lost, or duplicated across the two machines to fd-distributed-sync-data-integrity; assume the data arrives intact and review only whether the rules applied to it produce good outcomes.",
+      "Do not review harvest transport, dedupe hashing mechanics, or deletion timing — review only the reuse/ranking/selection logic that consumes the results of those processes."
+    ]
+  }
+]

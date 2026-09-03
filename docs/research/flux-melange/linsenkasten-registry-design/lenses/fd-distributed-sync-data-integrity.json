@@ -1,0 +1,33 @@
+{
+  "id": "fd-distributed-sync-data-integrity",
+  "kind": "base",
+  "parents": [],
+  "domain": "distributed systems: multi-master synchronization, offline-first architecture, git-as-database patterns",
+  "axioms": [
+    "Naming a machine 'canonical' assigns a role, not a guarantee — split-brain is prevented by an explicit consistency mechanism (locking, versioned merge, staleness detection), never by the label alone.",
+    "Every irreversible operation (deletion, prune, overwrite) must be evaluated by its precondition-verification step, not its intent — 'after the harvest is verified' is only as strong as what 'verified' actually checks and where that check runs.",
+    "git pull is not a consensus protocol — 'eventually consistent over git' means there is a window, of unspecified length, during which two machines disagree about the true state, and any operation that assumes agreement during that window is a latent bug.",
+    "A content hash is only as stable as its normalization function — any input to that function that varies by machine (paths, line endings, embedding nondeterminism) turns 'identical data' into 'apparent duplicates' or worse, silently-diverged merge conflicts.",
+    "A fallback chain (local Ollama → remote Ollama → lexical) that changes the answer space per-tier is a correctness surface, not just a resilience feature, unless the response signals which tier answered.",
+    "Data with a single copy of record (post-prune, 'the registry is the only copy') has zero tolerance for the ordinary distributed-systems failure modes — partial writes, crashed processes mid-sequence, stale reads — that a system with a fallback copy could shrug off."
+  ],
+  "primitives": [
+    "two-machine boundary (Mac, zklw) crossed by git pull/push",
+    "per-machine harvest file (data/harvest/<machine>.jsonl)",
+    "content-hash merge step (zklw-run)",
+    "harvest-verified precondition gating the Fork 4 prune sweep",
+    "embedding-fallback tier (local Ollama / zklw Ollama over Tailscale / lexical)",
+    "MCP server key and caller-config rename as a coordinated, cross-machine change"
+  ],
+  "failure_mode": [
+    "Misses whether a structurally sound sync design is actually producing good reuse/ranking decisions — data can arrive intact and still be used badly, which is this lens's blind spot by design (left to the reuse-relevance lens).",
+    "Under-weights schema-shape questions — whether the edge vocabulary itself is expressive enough — since this lens assumes the edges are well-defined and asks only whether the data behind them survives the pipeline intact.",
+    "Can over-index on worst-case interleavings that the actual operational cadence (e.g., a daily/manual harvest run rather than continuous concurrent writes) may make rare in practice, without evidence from how often the two machines actually run harvest concurrently."
+  ],
+  "findings": [
+    "f-005",
+    "f-006",
+    "f-007",
+    "f-008"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "fd-stemmatics-witness-loss",
+  "kind": "base",
+  "parents": [],
+  "domain": "Textual criticism and stemmatology — manuscript philology: collation, recensio, contamination, codex optimus selection, eliminatio codicum descriptorum, and the critical apparatus",
+  "axioms": [
+    "Every witness is potentially unique until collation proves otherwise; apparent duplication is a hypothesis, not an observation.",
+    "Normalization applied before differences are recorded is itself an editorial judgment, and an unrecorded one is indistinguishable from data loss.",
+    "A copy's authority derives from its position in the tradition and its attestation, never from its recency; the newest copy is typically the most corrupted.",
+    "Contamination is normal, not exceptional: a witness that looks derivative may carry independent readings, so elimination by apparent descent destroys evidence.",
+    "Any collapse the edited text makes must remain reopenable through the apparatus; a decision that cannot be revised after the witnesses are gone is a permanent error.",
+    "The reconstructed archetype is not the author's original, and treating the reconstruction as the source silently narrows what can ever be recovered.",
+    "A stemma is a snapshot of a hypothesis at one moment; new witnesses or later divergence invalidate it unless the recension can be re-run."
+  ],
+  "primitives": [
+    "witness (a harvested fd-* agent file plus its spec and frontmatter)",
+    "reading / variant (a field-level difference between two witnesses)",
+    "collation and the normalization ruleset applied before comparison",
+    "conjunctive vs separative evidence (differences that prove shared origin vs divergence)",
+    "family / cluster and its stemma of variant-of and fused-from edges",
+    "canonical head (codex optimus) and the rule that selects it",
+    "contamination / horizontal transmission (hand edits, cross-repo copying)",
+    "eliminatio (the post-harvest prune of repo-local piles)",
+    "critical apparatus (the sweep report and what it must preserve)",
+    "archetype vs autograph (registry record vs the deleted originals)"
+  ],
+  "failure_mode": [
+    "Blind to runtime and operational concerns: nothing about service liveness, network partitions, process management, or performance of the local engine.",
+    "Treats similarity as a given input rather than a measurement — will not question embedding model identity, quantization drift, threshold calibration, or the local-to-zklw-to-lexical fallback.",
+    "Systematically over-weights preservation: will argue for keeping material whose retention costs more than it is worth, and can rate a recoverable collapse as if it were destruction.",
+    "Assumes a single coherent tradition to reconstruct; poorly equipped for the possibility that many harvested lenses are simply worthless and merit no apparatus at all.",
+    "Silent on the reuse seam as a product decision — whether reuse should exist, how ranking feels to a caller, or how flux-gen and melange behave under load.",
+    "No purchase on naming, packaging, plugin identity, code quality of the graph.py port, or anything the record settles outside the harvest-dedupe-prune chain."
+  ],
+  "findings": [
+    "f-013",
+    "f-014",
+    "f-015",
+    "f-016"
+  ]
+}

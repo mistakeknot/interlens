@@ -1,0 +1,44 @@
+{
+  "id": "fd-hand-composition-foul-case",
+  "kind": "base",
+  "parents": [],
+  "domain": "Hand composition and the type foundry \u2014 the letterpress trade's discipline for a box of interchangeable sorts: the lay of the case, distribution ('dissing') as the operation that fouls it, wrong fount and battered sorts that fit the composing stick and fail only in the impression, the proof pulled from the set forme before the run, standing formes robbed for sorts, pied type that is remelted rather than re-sorted, and the foundry rule that the matrix is the durable asset while the cast sort is a lossy consumable",
+  "axioms": [
+    "A store is only as good as the operation that fills it; sorting is the least-watched job in any shop, and its errors are silent at the moment they are made.",
+    "A mis-sorted piece is invisible in the box and visible only in the work \u2014 the defect surfaces at the impression, in a later job's printed sheet, never at the shelf.",
+    "Mechanical fit is not fitness: a piece cut for another job can sit in the slot, lock up square, and be wrong only on paper.",
+    "A cast is a lossy impression of its matrix; keep the mould, because what can be recast need not be preserved and what cannot be recast is the only thing worth protecting.",
+    "The compartment assignment, not the pieces, is the store's irreplaceable asset \u2014 pieces are recastable, sorting labour is not, which is why spilled type is remelted rather than re-sorted.",
+    "A case is laid for the frequency of the work expected; a lay that does not match what arrives leaves most boxes empty and a few overflowing, and the hand stops trusting the case.",
+    "Nothing goes to press without a proof pulled from the actual set forme and read against copy \u2014 the proof exists precisely because the store cannot be trusted to have handed you the right piece.",
+    "One case serving many frames spreads a single bad sort to every job on the floor, and costs the shop the local copy it used to compare against."
+  ],
+  "primitives": [
+    "the case and its lay (the compartments an entry is filed under \u2014 the `domains:` frontmatter from a hardcoded 24-token name map defaulting to `uncategorized`, and Fork 2's embodies match against the 258 curated definitions)",
+    "a sort (one harvested generated lens \u2014 a piece pulled from a box and set into a job)",
+    "matrix vs cast (the spec JSON under .claude/flux-gen-specs/ vs the rendered .md body that render_agent produced from it)",
+    "lossy casting (the sanitize truncation in render_agent: persona and decision_lens at 500 chars, task_context at 1000, every review area, hint and anti-overlap clause at 200, mid-sentence and unmarked)",
+    "the mould's version (FLUX_GEN_VERSION and the v4/v5/v6 split \u2014 effective_version is 6 only when severity_examples is present, else 4)",
+    "distribution / 'dissing' (harvest, merge by content hash, embodies suggestion, variant-of clustering and canonical-head pick as one unattended batch sort on zklw)",
+    "foul case (a lens filed in the wrong compartment \u2014 silent in the box, visible only when it is served)",
+    "wrong fount (a harvested lens that fits the reuse seam and was cut for another target)",
+    "the proof pulled before the run (the missing operation between the store returning a lens and that lens being dispatched against the current target)",
+    "standing forme, robbing, and breaking up (a repo's .claude/agents pile kept against the next review; Fork 4's sweep; drawing on the shared store once the local drawers are gone)",
+    "pie and the melting pot (pieces intact and compartment assignment lost \u2014 index, edges and embedding matrix out of step with the records; re-harvest as the unpriced recovery path)",
+    "one case at thirty frames (the post-prune arrangement \u2014 a defect served shop-wide, with no repo holding a copy to compare against)"
+  ],
+  "failure_mode": [
+    "Cannot evaluate a quantity beyond counting things in boxes \u2014 thresholds, uncertainty, sample size, model digests and calibration all pass unexamined.",
+    "Indifferent to graph semantics: edge predicates, cardinality, direction and traversal can all be wrong and this lens will not notice.",
+    "Blind to the two machines as a consistency or availability surface \u2014 it sees a second bench with a second habit, so races, partitions and merge conflicts are invisible to it.",
+    "Materialist by reflex: assumes pieces degrade through use, which text files do not, and will produce wear findings with no mechanism unless forced to name a template version, a missing matrix, or a moved target.",
+    "The metaphor can substitute for evidence \u2014 trade vocabulary reads as insight, and a finding that names no file, field or line can look strong while saying nothing.",
+    "Prone to proposing proofing, washing and re-sorting operations whose labour a single-operator personal registry cannot carry; no instinct for when the check costs more than the store is worth.",
+    "Treats people as interchangeable hands, so nothing about who can perform the work, what knowledge is lost, or whether a successor could rebuild the thing registers at all."
+  ],
+  "findings": [
+    "f-033",
+    "f-034",
+    "f-035"
+  ]
+}

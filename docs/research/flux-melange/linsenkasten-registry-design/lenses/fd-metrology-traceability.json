@@ -1,0 +1,42 @@
+{
+  "id": "fd-metrology-traceability",
+  "kind": "base",
+  "parents": [],
+  "domain": "Legal and scientific metrology — weights-and-measures verification, prototype and realized standards, calibration hierarchies, traceability chains with stated uncertainty, certified reference materials, and periodic inter-site comparison",
+  "axioms": [
+    "A number is meaningless without a traceable chain back to the realization that produced it; an unrecorded instrument makes a stored value uninterpretable later.",
+    "An uncalibrated instrument still emits confident, plausible numbers — silence is the normal presentation of measurement failure.",
+    "A standard that defines its own correctness cannot detect its own drift; only comparison against an independent realization reveals it.",
+    "Substituting a different instrument mid-series does not produce a degraded reading, it produces a different quantity, and thresholds do not transfer between them.",
+    "A tolerance without a stated procedure, uncertainty, and reference material is not an acceptance criterion; it is an opinion.",
+    "Verification must be periodic and scheduled, because the failures worth catching announce themselves only through accumulated bias, never through an error.",
+    "A reported rate carries no authority apart from its denominator; the same value over two samples and over fifty are different claims."
+  ],
+  "primitives": [
+    "unit / realization (the embedding space as realized by a specific model build, quantization, tokenizer, pooling and normalization)",
+    "prototype and copies (zklw as canonical harvester and embedder; the Mac's git-pulled store and local query embeddings)",
+    "traceability chain (stored vector back to its producing realization)",
+    "calibration certificate with stated uncertainty (the provenance the embedding matrix would carry)",
+    "certified reference material (a known-answer pair set that must and must not cluster)",
+    "periodic verification / inter-site comparison (a scheduled check that two realizations still agree)",
+    "instrument substitution (local Ollama, zklw Ollama over Tailscale, lexical fallback)",
+    "tolerance and acceptance procedure (the verified-in-the-registry gate on irreversible deletion)",
+    "reported quantity with denominator (hit-rate as upheld over upheld plus refuted, null when unadjudicated)",
+    "failure signature (loud error vs silently wrong value vs empty result indistinguishable from a true negative)"
+  ],
+  "failure_mode": [
+    "Indifferent to semantics: will not question what an edge type means, whether a lens is good, or whether a collapse destroyed something worth keeping — only whether the numbers behind it are traceable.",
+    "Over-indexes on instrumentation and can demand verification apparatus disproportionate to a personal single-user registry, treating every unmeasured quantity as a defect.",
+    "Blind to lineage and authority questions: canonical head choice, contamination, and what the prune destroys as evidence fall outside its frame.",
+    "Assumes measurements are the load-bearing part of the design; will underweight failures that are purely structural, ordering-related, or human-process-related with no number involved.",
+    "No view on developer experience, naming, packaging, code quality of the JS port, or how reuse feels in flux-gen and melange.",
+    "Weak on one-shot or manual operations that will only ever run a handful of times, where a full calibration regime is genuinely the wrong answer."
+  ],
+  "findings": [
+    "f-017",
+    "f-018",
+    "f-019",
+    "f-020",
+    "f-021"
+  ]
+}

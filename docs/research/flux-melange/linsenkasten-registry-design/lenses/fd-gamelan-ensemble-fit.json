@@ -1,0 +1,44 @@
+{
+  "id": "fd-gamelan-ensemble-fit",
+  "kind": "base",
+  "parents": [],
+  "domain": "Gamelan set-making and ensemble tuning — the Javanese and Balinese craft in which instruments are forged, tuned and named as one indivisible set (a seprangkat, commonly a named pair of sléndro and pélog): the embat, each set's own interval flavour deliberately left unstandardized so that no reference pitch exists outside the set; ngumbang-ngisep, the Balinese paired tuning that holds two near-identical instruments slightly apart to produce the ombak, the acoustic beating that is the set's actual voice; the rule that an instrument borrowed from another gamelan is unusable in this one however fine it is alone; the balungan that underdetermines every player's part, leaving garap and cengkok to conventions the players hold between them rather than in any score; and the smith who forges a replacement key blank and tunes it by ear in the room, against the instruments it will stand beside, never against a standard",
+  "axioms": [
+    "The set is the unit, not the instrument; an instrument has no properties worth naming apart from the neighbours it was tuned against.",
+    "Set-membership is invisible on the object and audible only when the members sound together — so it is exactly the property a per-item store forgets first.",
+    "There is no standard pitch. Two sets that both sound correct are correct by differing, and tuning either to an external reference spoils it.",
+    "A borrowed instrument fails not because it is worse but because it was tuned against different neighbours; excellence does not transfer between sets.",
+    "A replacement is tuned in the room it is entering, by ear, against what it will stand beside — never in the workshop and never to a specification.",
+    "Two near-identical members held slightly apart are not a duplicate; the difference between them is the sound the set was built to make.",
+    "Painted labels are not identity: instruments bearing the same name in two gamelans are two instruments, and joining them by the label produces a set nobody can play.",
+    "Which parts cover which register is held between the players as convention, not written down — so the moment a member is swapped, the coverage is only assumed."
+  ],
+  "primitives": [
+    "the set (the panel — the lenses one review generates and dispatches together: spec files of 3, 2, 1, 1, 1 in this run, coordinated through each lens's `anti_overlap` naming its siblings by id)",
+    "embat (the deliberate mutual spacing a review's lenses were given — what melange's seed and STEER-WIDE staging exists to produce)",
+    "the borrowed instrument (Task 16's `materialize`, writing the stored body verbatim into `<agents_dir>/<spec name>.md`, overriding only `tier`/`registry_id`/`reused_at`/`source_spec` and keeping `name`/`description`)",
+    "the imported neighbours (the reused body's rendered `## Task Context` and `anti_overlap_section` — generate-agents.py — naming another review's target and another review's siblings)",
+    "the deaf ear (`thresholds.embedding_text` = persona + focus + decision_lens + review_areas, structurally excluding `anti_overlap` and `task_context`)",
+    "tuning in the room (what fresh generation does and reuse does not: Task 17 resolves before the `name in existing` check and `continue`s, so the new spec's own `anti_overlap` and `task_context` are never rendered)",
+    "joining by the painted label (Task 12's `variant-of` union-find joining on cosine `≥ VARIANT_MIN_COSINE` **or identical `name`**; measured pile: 3,023 files, 1,776 names, 1,799 bodies, 21 names holding 44 distinct bodies)",
+    "the one servable instrument (`load()` returning heads only; `resolveLens` skipping non-heads)",
+    "admission on the label alone (the lexical fallback's exact-`name` rule, reached when local Ollama and the Tailscale fallback both miss the 4 s timeout)",
+    "the ombak (deliberate near-pairs — a fusion beside its parents, a retargeted variant beside its base — collapsed by clustering at `≥ 0.92`)",
+    "the dissolved set (sighting rows and frontmatter carrying no run/panel/cohort field; `merge.py` decomposing the spec file under 'first sighting with a spec wins'; Task 23 deleting `.claude/flux-gen-specs/`)",
+    "the mixed set nobody listens to (Task 17's per-spec loop assembling a panel from several sets, each member individually above `RESOLVE_MIN_COSINE`, with no step reading the group)"
+  ],
+  "failure_mode": [
+    "Cannot check a number — thresholds, cosines, dimensions and hit-rate math pass unexamined, and the trade's own doctrine is that no standard exists to check them against.",
+    "Indifferent to schema and semantics: edge predicates, cardinality, direction, head election and traversal can all be wrong and this lens will not look.",
+    "Sees two machines as two sets that are correct by differing, so races, merge conflicts, partitions and ordinary split-brain are invisible to it.",
+    "Has no view on whether any individual lens is good, well written, well named, or correctly rendered — quality of the member is entirely outside its frame.",
+    "Blind to time: decay, staleness, cadence, obligation and who runs a recurring pass never register, because a set left alone for a decade is still in tune with itself.",
+    "Structurally hostile to transfer, so it will resist reuse that is simply fine, and can demand that set-membership be recorded where the recording costs more than the mismatch.",
+    "Prone to unfalsifiable ensemble claims — 'the panel does not cohere' is easy to assert and hard to act on unless forced to name the two sets and the differing neighbour.",
+    "Will not notice a wrong, truncated or battered record, nor how entries are filed or retrieved; a sound instrument from the wrong set is its only category of fault."
+  ],
+  "findings": [
+    "f-043",
+    "f-044"
+  ]
+}

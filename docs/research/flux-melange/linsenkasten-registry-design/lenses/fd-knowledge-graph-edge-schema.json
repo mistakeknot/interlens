@@ -1,0 +1,39 @@
+{
+  "id": "fd-knowledge-graph-edge-schema",
+  "kind": "base",
+  "parents": [],
+  "domain": "knowledge-graph modeling and ontology engineering",
+  "axioms": [
+    "A relationship that matters for retrieval or reasoning must be a typed, first-class edge \u2014 anything left implicit (in a filename convention, a frontmatter field that doesn't exist, or a co-located file) is invisible to traversal, path, and gap tooling built to walk edges.",
+    "A schema is validated by its boundary cases, not its common cases \u2014 the question that finds bugs is 'what real relationship does this vocabulary have no edge type for,' not 'does this edge type work for the typical example.'",
+    "Provenance that can only be reconstructed from a second, independently-lifecycled source (here: melange lens records + fusion-spec filenames, versus the agent-file pile itself) is provenance with a synchronization dependency, and that dependency must survive every operation \u2014 including deletion \u2014 performed on either source.",
+    "A 'canonical' node in a cluster is a pointer, not a fact \u2014 every edge that names it must be understood as conditional on that pointer being current, and the schema must say what happens when the pointer moves.",
+    "Two representations of the same fact drift apart under maintenance pressure even when the design explicitly rejects duplication in principle \u2014 the real question is whether every consumer actually reads the single representation, not whether the design intends one.",
+    "Query/traversal tooling calibrated on one graph size (path-length heuristics, gap thresholds) carries implicit assumptions that a 5-20x population increase can silently invalidate without any code path erroring."
+  ],
+  "primitives": [
+    "typed edge (embodies / fused-from / variant-of)",
+    "node (curated lens, generated lens, canonical cluster head)",
+    "provenance record (source review, target, fusion lineage, ledger-derived hit-rate)",
+    "edge-suggestion pass (embedding match against curated definitions at harvest)",
+    "traversal/path/gap query over the combined two-layer graph",
+    "cluster head pointer and its reassignment event"
+  ],
+  "failure_mode": [
+    "Treats a three-edge-type vocabulary as complete because it covers the cases described in the design record, without independently generating the harder real cases (multi-parent embodiment, partial fusion, cross-cluster fusion) the census evidence implies exist.",
+    "Misses failures that are pure data-integrity/timing problems rather than schema-shape problems \u2014 e.g., whether the harvest-merge-prune sequence can lose data across two machines \u2014 since that is a distributed-systems concern outside this lens's native domain.",
+    "Under-weights whether a ranking or reuse decision built on top of a structurally sound schema is actually a good decision \u2014 schema correctness and decision quality are different questions this lens is tuned to conflate if not disciplined."
+  ],
+  "findings": [
+    "f-001",
+    "f-002",
+    "f-003",
+    "f-004",
+    "f-022",
+    "f-023",
+    "f-024",
+    "f-025",
+    "f-026",
+    "f-027"
+  ]
+}

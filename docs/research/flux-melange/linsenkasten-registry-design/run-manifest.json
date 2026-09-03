@@ -1,0 +1,198 @@
+{
+  "runtime": "claude",
+  "rounds": 5,
+  "halt_reason": "CEILING",
+  "gain_history": [
+    {
+      "round": 0,
+      "yield": 13,
+      "novel_cluster_rate": 0.86
+    },
+    {
+      "round": 1,
+      "yield": 6,
+      "novel_cluster_rate": 0.78
+    },
+    {
+      "round": 2,
+      "yield": 4,
+      "novel_cluster_rate": 0.8
+    },
+    {
+      "round": 3,
+      "yield": 4,
+      "novel_cluster_rate": 0.8
+    },
+    {
+      "round": 4,
+      "yield": 2,
+      "novel_cluster_rate": 0.75
+    }
+  ],
+  "spice_trail": [
+    {
+      "round": 0,
+      "event": "assay",
+      "findings": 21,
+      "agents_dispatched": 2
+    },
+    {
+      "round": 1,
+      "event": "probe",
+      "directives": [
+        {
+          "type": "DEEPEN",
+          "rationale": "risk 6, unconfirmed - confirm or refute",
+          "lens": "fd-knowledge-graph-edge-schema"
+        },
+        {
+          "type": "DEEPEN",
+          "rationale": "risk 6, unconfirmed - confirm or refute",
+          "lens": "fd-knowledge-graph-edge-schema"
+        },
+        {
+          "type": "STEER-WIDE",
+          "rationale": "novel_cluster_rate 0.86 >= 0.6 - widening still pays",
+          "lens": "fd-living-heritage-transmission"
+        }
+      ],
+      "findings": 9,
+      "failed": 0
+    },
+    {
+      "round": 1,
+      "event": "assay",
+      "findings": 9,
+      "agents_dispatched": 3
+    },
+    {
+      "round": 2,
+      "event": "probe",
+      "directives": [
+        {
+          "type": "PROBE-DISAGREEMENT",
+          "rationale": "open contradiction - adjudicate",
+          "lens": null
+        },
+        {
+          "type": "STEER-WIDE",
+          "rationale": "novel_cluster_rate 0.78 >= 0.6 - widening still pays",
+          "lens": "fd-hand-composition-foul-case"
+        }
+      ],
+      "findings": 5,
+      "failed": 0
+    },
+    {
+      "round": 2,
+      "event": "assay",
+      "findings": 5,
+      "agents_dispatched": 2
+    },
+    {
+      "round": 3,
+      "event": "probe",
+      "directives": [
+        {
+          "type": "PROBE-DISAGREEMENT",
+          "rationale": "open contradiction - adjudicate",
+          "lens": null
+        },
+        {
+          "type": "STEER-WIDE",
+          "rationale": "novel_cluster_rate 0.80 >= 0.6 - widening still pays",
+          "lens": "fd-polder-drainage-obligation"
+        }
+      ],
+      "findings": 5,
+      "failed": 0
+    },
+    {
+      "round": 3,
+      "event": "assay",
+      "findings": 5,
+      "agents_dispatched": 2
+    },
+    {
+      "round": 4,
+      "event": "probe",
+      "directives": [
+        {
+          "type": "PROBE-DISAGREEMENT",
+          "rationale": "open contradiction - adjudicate",
+          "lens": null
+        },
+        {
+          "type": "STEER-WIDE",
+          "rationale": "novel_cluster_rate 0.80 >= 0.6 - widening still pays",
+          "lens": "fd-gamelan-ensemble-fit"
+        }
+      ],
+      "findings": 4,
+      "failed": 0
+    },
+    {
+      "round": 4,
+      "event": "assay",
+      "findings": 4,
+      "agents_dispatched": 2
+    }
+  ],
+  "slots_spent": 19,
+  "directive_history": [
+    {
+      "round": 1,
+      "type": "DEEPEN",
+      "rationale": "risk 6, unconfirmed - confirm or refute",
+      "lens": "fd-knowledge-graph-edge-schema"
+    },
+    {
+      "round": 1,
+      "type": "DEEPEN",
+      "rationale": "risk 6, unconfirmed - confirm or refute",
+      "lens": "fd-knowledge-graph-edge-schema"
+    },
+    {
+      "round": 1,
+      "type": "STEER-WIDE",
+      "rationale": "novel_cluster_rate 0.86 >= 0.6 - widening still pays",
+      "lens": "fd-living-heritage-transmission"
+    },
+    {
+      "round": 2,
+      "type": "PROBE-DISAGREEMENT",
+      "rationale": "open contradiction - adjudicate",
+      "lens": null
+    },
+    {
+      "round": 2,
+      "type": "STEER-WIDE",
+      "rationale": "novel_cluster_rate 0.78 >= 0.6 - widening still pays",
+      "lens": "fd-hand-composition-foul-case"
+    },
+    {
+      "round": 3,
+      "type": "PROBE-DISAGREEMENT",
+      "rationale": "open contradiction - adjudicate",
+      "lens": null
+    },
+    {
+      "round": 3,
+      "type": "STEER-WIDE",
+      "rationale": "novel_cluster_rate 0.80 >= 0.6 - widening still pays",
+      "lens": "fd-polder-drainage-obligation"
+    },
+    {
+      "round": 4,
+      "type": "PROBE-DISAGREEMENT",
+      "rationale": "open contradiction - adjudicate",
+      "lens": null
+    },
+    {
+      "round": 4,
+      "type": "STEER-WIDE",
+      "rationale": "novel_cluster_rate 0.80 >= 0.6 - widening still pays",
+      "lens": "fd-gamelan-ensemble-fit"
+    }
+  ]
+}

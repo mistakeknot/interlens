@@ -1,0 +1,44 @@
+{
+  "id": "fd-polder-drainage-obligation",
+  "kind": "base",
+  "parents": [],
+  "domain": "Land drainage and polder maintenance — the hydraulic craft of holding ground below the water it displaced: the crossover at which gravity outfall is exceeded and pumping becomes permanent, peat oxidation and the subsidence that lowers the very ground the drainage gained, the dike ring whose strength is its lowest point, piping and under-seepage as failures invisible from the crest, the boezem as the buffer between rainfall and pumping capacity, the perpetual maintenance obligation (the waterschap's verplichting) that no single parcel may default on because one failure wets every neighbour, and the sibling traditions of the Sri Lankan tank cascade and the Taihu wei-tian polder",
+  "axioms": [
+    "Reclamation is a one-time gain that creates a permanent obligation; the case made for the works counts the gain and never the pumping.",
+    "The dangerous moment is the crossover — when the last gravity outfall is closed and the ground stays dry only while something keeps running.",
+    "A drained polder does not fail by flooding; it sinks, silts and seeps while every gauge on the crest reads normal.",
+    "The ground the drainage gained keeps subsiding, so the case for the works weakens every year while the works cost the same.",
+    "A ring is only as good as its lowest point, and the parcels deliberately left outside it are where the water comes back in.",
+    "A graceful fallback is how a stopped pump goes unnoticed: the system keeps working and the asset it was protecting quietly stops paying.",
+    "An obligation with no named trigger, no owner and no alarm is not maintenance; it is an assumption about a future person's attention.",
+    "Before the outfall is closed the works run a season under real weather; one trial on a fair day proves nothing about the winter."
+  ],
+  "primitives": [
+    "reclamation (Fork 4 and Stage G — converting ~30 repos' local `.claude/agents` piles into one registry, for the context-tax gain the brainstorm names)",
+    "gravity outfall vs the pump (the local pile a review can read with nothing running, vs `harvest scan → merge → stats → embed → edges` plus `resolve` through Ollama at query time)",
+    "the crossover (Task 23/24's `--apply`, after which no repo holds a lens locally)",
+    "the season's soak (Task 18 — one reuse on a spec chosen because 'a hit is near-certain', verify expecting `reused 1`)",
+    "perpetual obligation (the five recurring passes for which the plan states no cadence, trigger, owner or alarm; 're-harvest first' exists only as a prune refusal string)",
+    "the gauge that reads normal (`--registry=auto` rendering fresh and reporting `reused: []` whether resolve said no, `find_registry_root()` returned None, or Ollama timed out)",
+    "the pump's outflow returning to the land (Task 16's `materialize` writing registry bodies into `.claude/agents/`, unfiltered by Task 8's `scan.py`)",
+    "under-seepage (the parcels outside the ring — `.worktrees/`, `.claude/worktrees/`, `-sessions`, `-f2`, `-spike-*`, the `kept: not in registry` list, the unmerged Sylveste-root PR)",
+    "subsidence (stored bodies rendered by a moving template — FLUX_GEN_VERSION 4 → 6 — against curated definitions and review targets that also move)",
+    "the boezem (the absent buffer — no provisional or quarantined state between harvest and commit, and no destination for what the sweep keeps)",
+    "the maintenance ledger (`reuse-log.jsonl` — the only record that the works paid off, with a fallback path inside the directory Task 23 deletes, read by no step)",
+    "the reverse gear (the undocumented procedure that would re-materialize one repo's pile from the registry)"
+  ],
+  "failure_mode": [
+    "Indifferent to schema and semantics: edge predicates, cardinality, cluster-head rules and traversal can all be wrong and this lens will not look.",
+    "Cannot check a number — thresholds, cosines, hit-rate math, dimensions and model digests pass unexamined, since its only quantities are cost, frequency and who pays.",
+    "Sees the two machines as two parcels under one obligation, not as replicas, so races, merge conflicts, partitions and ordinary split-brain are invisible to it.",
+    "Structurally pessimistic about irreversibility: will resist one-way steps that are simply correct, and can demand soaks, buffers and reverse gears whose ceremony exceeds a personal registry's worth.",
+    "Prone to the unfalsifiable slow decline — 'it will rot' is easy to assert and hard to act on; findings drift into prophecy unless forced to name the task, the trigger and the absent signal.",
+    "No view on whether any individual lens is good, nor on developer experience, naming, or the quality of the JS port; content quality is entirely outside its frame.",
+    "Blind to how entries are filed and retrieved and to authored-versus-rendered fidelity — it will not notice a wrong or truncated record, only that nobody is pumping."
+  ],
+  "findings": [
+    "f-038",
+    "f-039",
+    "f-040"
+  ]
+}

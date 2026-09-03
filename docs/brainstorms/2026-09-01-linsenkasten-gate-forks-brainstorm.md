@@ -151,6 +151,30 @@ the plan, each reversible there:
   melange lens records (`lenses/*.json`, `parents`) and `-fusion-N`
   spec files, not from agent files.
 
+## Melange fold (2026-09-03)
+
+Review: `docs/research/flux-melange/linsenkasten-registry-design/2026-09-02-synthesis.md` — 44 findings, 29 upheld, 3 refuted, five rounds, ceiling halt, zero fusions fired. The plan (`docs/plans/2026-09-02-linsenkasten-registry.md`) carries every upheld finding as a task amendment; this section records what changes in the *design record itself*.
+
+**Superseded sentences (each now reads as the plan specifies):**
+- Fork 3, "content-hash on normalized spec + body" → the hash is over the **normalized body only** (`normalize_body`, recipe `body-v1` recorded per record). Spec files are shared verbatim across the lenses they generate, so a spec half carries no discriminating power; the spec is stored beside the record instead (f-013, f-030, f-034).
+- Fork 4, "Git history + the registry are the archive" → **the pushed registry is the archive.** Untracked piles have no git history, and a pruned repo whose registry commit was never pushed is the split-brain the review found three ways. Prune runs only against a registry checkout equal to `origin/main` and records that SHA (f-005, f-016, f-022).
+- *What We're Building*, "reuse-before-regenerate through the existing combine/contrast seam" → the mechanism is a **standalone resolve step in `generate-agents.py`** (spec embedded through the same recipe as the registry, cosine ≥ 0.86 against canonical heads, lexical fallback) plus a `resolve_lens` MCP tool; `combine_lenses` does name lookup and no embedding, and two review rounds were spent on that mismatch (f-032, f-034, f-037).
+
+**Decisions added (implementation calls, ruled by the review evidence, reversible in the plan):**
+- Reuse sightings never count as duplication evidence: a materialized registry lens carries `tier: registry` and the harvester excludes it from `sightings`/`repos`/`machines` (f-038, the run's top finding: otherwise the registry's own circulation would justify collapsing and deleting).
+- A reused lens is **re-rendered from the stored spec**, never copied: the clean spec survives in the registry while nine of nine bodies generated in this very run carry literal `[truncated — N chars omitted]` markers; corrupt bodies are harvested for provenance, never served, never heads (f-028, f-033).
+- `severity_examples` joins the sanitized fields (f-043).
+- `embodies` is multi-valued (top-3 above threshold), `fused-from`/`embodies` edges target content-addressed record ids, `variant-of` edges are regenerated wholesale each sweep so heads can change (f-002, f-004, f-012).
+- Hit-rate keeps null discipline and gains `adjudicated` plus a Laplace-smoothed rank score; every cluster records `head_selected_by` (f-010, f-014, f-021).
+- Lineage is tri-state (`base` / `fusion` / `unknown`); cohort membership (the sibling names from the same spec file) is recorded and declared on reuse (f-015, f-029).
+- The embedding matrix records model digest, pooling and thresholds, and every query result names the tier that answered — local, zklw fallback, or lexical — and whether the model matched (f-007, f-017, f-018).
+- Reuse is applied only to seed-adjacent lens design; distant, fused and STEER-WIDE lenses always regenerate (f-011).
+- zklw runs the harvest on a daily user timer; prune stays manual and human-gated (f-039).
+
+**Accepted, not fixed:** DEEPEN / PROBE-DISAGREEMENT never touch the generator, so reuse cannot reach them (f-042). Reuse matching is lens-to-lens, not lens-to-target (f-027).
+
+**Uncovered by this run, covered by the plan's own review:** Fork 1 rename cascade, the graph port's behavioral equivalence, the zklw explorer's exposure, and zklw's live state.
+
 ## Facts checked 2026-09-02
 
 - Census (depth ≤ 4 under `~/projects`, excluding node_modules,

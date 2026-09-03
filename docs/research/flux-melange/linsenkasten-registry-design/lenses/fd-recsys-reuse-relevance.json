@@ -1,0 +1,34 @@
+{
+  "id": "fd-recsys-reuse-relevance",
+  "kind": "base",
+  "parents": [],
+  "domain": "recommendation systems and search-relevance engineering: ranking under sparsity, exploration/exploitation, cold-start",
+  "axioms": [
+    "Any ratio-based quality signal computed over a small sample is noise dressed as confidence — a ranking rule that treats 1/1 the same as 40/45 will systematically promote under-evidenced items over well-evidenced ones unless it explicitly accounts for sample size.",
+    "A 'reuse the best prior result' policy is an exploitation strategy, and exploitation strategies narrow the population they draw from over time unless something in the system deliberately keeps sampling fresh alternatives — the narrowing is the default outcome, not an edge case.",
+    "Relevance decays with target drift — a signal computed against the state of the world at harvest time does not stay valid as the thing being matched against changes, and a system with no freshness check silently keeps trusting a stale match.",
+    "A tie-break rule (canonical head 'by recency' when hit-rate is absent) is itself a ranking policy with a bias, not a neutral default — it favors whatever is newest regardless of whether newest is best, and that bias compounds every time it fires.",
+    "'Worse than fresh' is a comparison the system can only catch if it has a mechanism to notice, before or during selection, that a candidate the registry is offering underperforms what generation-on-demand would have produced — absent that mechanism, the failure is invisible until a ledger records it after the fact, if ever.",
+    "A design choice to keep two signals separate (e.g., hit-rate not folded into surfaced-count) only holds if every consumer actually respects the separation — the axiom to test against is enforcement, not intent.",
+    "An automated system that curates its own future training/reuse pool is a feedback loop by construction, and feedback loops toward homogeneity are the default failure mode of any system with a 'prefer the proven option' rule, absent an explicit countervailing novelty-seeking force."
+  ],
+  "primitives": [
+    "hit-rate signal: upheld / (upheld + refuted), raw excluded, null when unadjudicated",
+    "surfaced-count and use-count as signals kept separate from hit-rate",
+    "canonical cluster head and its tie-break rule (hit-rate, else recency)",
+    "reuse-before-regenerate decision point in the flux-gen/melange combine/contrast seam",
+    "embodies-edge match confidence at harvest time",
+    "flux-melange's adaptive, heat/novelty/risk/disagreement-seeking round design as the countervailing force this lens checks reuse against"
+  ],
+  "failure_mode": [
+    "Assumes the underlying hit-rate and provenance data it is ranking over is itself trustworthy and consistently synced — it does not natively catch cases where the numbers are wrong or missing because of a sync/merge bug (left to the distributed-sync lens).",
+    "Can mistake a structurally well-typed edge for a semantically correct one — a schema question (is embodies the right kind of edge at all) reads, from this lens, only as an input-quality question (is the embodies match a good match), missing deeper vocabulary gaps (left to the knowledge-graph-edge-schema lens).",
+    "Tends to reason about steady-state ranking dynamics and under-weights one-time bootstrapping/cold-start conditions specific to this registry's launch (near-zero ledger data across almost the entire corpus at harvest time), which may dominate actual near-term behavior more than the long-run feedback-loop story."
+  ],
+  "findings": [
+    "f-009",
+    "f-010",
+    "f-011",
+    "f-012"
+  ]
+}
