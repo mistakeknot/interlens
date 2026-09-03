@@ -1,0 +1,39 @@
+{
+  "id": "fd-hydrography-chart-currency",
+  "kind": "base",
+  "parents": [],
+  "domain": "Civil hydrographic charting and aids-to-navigation administration - Notice to Mariners correction cycles, light lists and sailing directions, station identity and characteristic, source diagrams and zones of confidence, sector arcs, and reporting of extinguished or off-station aids",
+  "axioms": [
+    "An identity is held by many independent documents at once; a name is changed only when every holder of it has been enumerated, and corrected in an order that never leaves a holder navigating on a name that resolves to nothing.",
+    "Corrections are numbered and applied in sequence; a folio missing one correction looks fully corrected to its holder, so agreement can never be assumed from appearance.",
+    "A light exhibited before its notice is promulgated is more dangerous than no light: the world sees a name the documents do not yet carry.",
+    "Every sounding carries its survey date and confidence; a dated claim is a claim about the past and must be re-surveyed before anything is built on it.",
+    "An unattended aid fails silently; the design question is never whether it works but who learns that it stopped, by what means, and how long after.",
+    "A chart is published to everyone who holds one, permanently - whatever is placed on it is public and cannot be recalled.",
+    "The arc over which a light is visible is a deliberate decision; a station seen from outside its intended sector is a defect even when the light itself is correct."
+  ],
+  "primitives": [
+    "holder of the identity (plugin.json mcpServers key, marketplace row, settings.json on each machine, plugin cache dir, npm registry entry, GitHub repo name and redirect, interflux and Clavain references)",
+    "correction and its sequence number (a commit, push, pull, rename or install step, and its position relative to the others)",
+    "folio state (what one machine or one fresh session actually holds right now)",
+    "unattended aid (the 04:30 harvest timer, the explorer unit, the autosync lane)",
+    "failure report path (the signal, if any, by which a stopped aid becomes known)",
+    "sector / visible range (bind address, static root, tailnet versus public, authentication)",
+    "sounding with a survey date (each 'checked 2026-09-02' claim, re-verified read-only over ssh)",
+    "divergence between folios (a state where the two machines disagree and neither can tell)"
+  ],
+  "failure_mode": [
+    "Indifferent to what the code means: a semantically wrong port, a broken algorithm or a mis-shaped result is invisible so long as the names propagate and the machines agree.",
+    "Over-weights exposure and unattended failure, and will call a low-traffic tailnet-only surface a serious finding on principle rather than on consequence.",
+    "Assumes many independent holders and slow correction cycles; where a change is genuinely atomic or single-holder, it manufactures propagation risk that does not exist.",
+    "Its live-survey habit anchors on current machine state, so a design flaw that is invisible today but certain after the plan runs may be dismissed as unverified.",
+    "No purchase on within-file logic, per-step executability, ambiguous prose or test design - the whole class of defects that lives inside one task.",
+    "Treats permanence as absolute and struggles to distinguish material that is genuinely sensitive from material that is merely unintended, so exposure findings can be uniformly maximal."
+  ],
+  "findings": [
+    "f-018",
+    "f-019",
+    "f-020",
+    "f-021"
+  ]
+}

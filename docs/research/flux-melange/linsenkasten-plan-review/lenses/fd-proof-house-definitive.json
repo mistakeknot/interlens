@@ -1,0 +1,41 @@
+{
+  "id": "fd-proof-house-definitive",
+  "kind": "base",
+  "parents": [],
+  "domain": "Statutory firearms proof under a gunmakers' proof house — acceptance by deliberate overload rather than inspection: a proof charge far above any service load, the unfit burst on the bench on purpose, provisional proof in the rough and definitive proof on the finished arm in the condition it is sold, every arm proved rather than a lot certified by one, the house independent of the maker who may not strike his own marks, the view that precedes proof and never replaces it, and above all that proof attaches to the arm as proved — any material alteration afterwards voids the mark and the arm must be re-proved before it may be sold",
+  "axioms": [
+    "Acceptance is by overload, not by exercise: a charge no heavier than service proves only that the arm survives what it will meet, and a trial that has never burst anything has not shown its charge was a proof charge.",
+    "Proof attaches to the article in the condition proved. Any material alteration afterwards — a rename, a move, a dependency removed, a republish — voids every earlier mark, and the mark it still carries is a true statement about a thing that no longer exists.",
+    "Provisional proof in the rough never substitutes for definitive proof on the finished arm, because the finishing is itself capable of ruining what passed in the rough.",
+    "The arm must be proved in the condition it is sold in — the same entry point, the same loading path, the same environment a stranger receives — not in a convenient equivalent on the maker's own bench.",
+    "The maker may not strike his own marks: a test written from the same prose as the code it accepts is the maker's certificate, and the house exists because that certificate is not evidence.",
+    "Every arm is proved; a lot is never certified by proving one of them, and the one fired is never the one the maker hands you.",
+    "A guard whose whole purpose is to refuse is unproved until it has been made to refuse — an untested refusal path is indistinguishable from a passing one at the moment it matters."
+  ],
+  "primitives": [
+    "the acceptance check as fired (each task's `<verify>` `run:`/`expect:` pair, the Must-Haves' Truths, Gate B, the exec manifest's per-task acceptance) and the tasks that carry none — Task 24 outright",
+    "the load a check applies (service vs proof charge: empty `index.jsonl`, `targets=0`, a spec that must miss `RESOLVE_MIN_COSINE = 0.86`, both Ollama URLs down, a corrupt-only cluster, an unpushed HEAD)",
+    "alterations after a passing check (Task 19's `sed` over `package.json` `name`/`bin`, `plugin.json` `mcpServers`, `INTERLENS_*`→`LINSENKASTEN_*`; Task 20's directory `mv`, `git worktree repair`, settings key swap, marketplace row, `interpub:release` 3.0.0; Task 21's `express`/`cors` removal; Task 22's explorer edits)",
+    "the arm as sold (a fresh Claude session loading the plugin from `~/.claude/plugins/cache/interagency-marketplace/linsenkasten/<version>/`, `mcp__linsenkasten__*` tools, `constants.js:REPO_ROOT`-resolved `DATA_ROOT`) versus the arm as fired (a `run:` line in the `feat/linsenkasten` worktree)",
+    "sample and lot (Task 18's one hand-picked spec, Task 14's one `resolve_lens`, Task 6's two smoke calls over 17 exports plus two resource handlers, Task 22's one route of twelve, Task 23's three-file fixture against a machine-wide sweep)",
+    "refusal paths built and never fired (Task 23 preconditions (1)–(5), `embed`'s `meta.model_digest` refusal, `audit` exit 1, the `kept: not in registry` branch, repos skipped by (5))",
+    "the maker's own certificate (Tasks 3, 4, 5, 9, 10, 11, 12, 16, 17, 23 accepted solely by the test file the same task wrote; `harvest audit` written in Task 12 and used as Task 23's precondition (3))",
+    "marks struck (`tier: registry` + `registry_id` frontmatter, the CHANGELOG 3.0.0 entry, `packages/mcp/README.md`'s `npm install -g` line, the marketplace description, `data/reports/*.md`, Task 25's ic goal-close citations)",
+    "the view (Task 14 Step 4's human read of `data/reports/<date>-edges.md` with its bounded single ±0.02 `VARIANT_MIN_COSINE` remedy; the human review of `data/prune-targets.txt` before `--apply`)",
+    "vacuous expectations (`contains \"records\"`, `\"scanned=\"`, `\"targets=\"`, `\"generated_lenses\"`, `\"registry_id\"`; and `contains \"0\"`/`\"1\"` satisfied by 10, 11, 21, 1234)"
+  ],
+  "failure_mode": [
+    "Says nothing about whether the code is right: a wrong algorithm, a wrong result shape, a mis-scored ranking or a bad threshold registers only as an unfired charge, never as a defect, so it will happily accept a correct plan as unproved and a broken one as adequately proved if the trial is harsh enough.",
+    "Blind to everything with no acceptance surface — prose quality, architecture, data modelling, cost, taste — and to defects in steps that carry a `<verify>` line it judges sufficient.",
+    "Over-weights ceremony: prone to demanding a re-proof after every alteration however cosmetic, which at 25 tasks becomes a re-run tax nobody pays, and to calling any single-sample check inadequate without weighing what the lot actually costs to fire.",
+    "No concept of two actors or of time: concurrency, ordering, partitions, drift and staleness are invisible; the bench holds one arm, and 'the other machine' registers only as a condition it was not fired in.",
+    "Cannot tell an untested refusal from an unreachable one, so it will demand a test for a guard that is provably dead code, and cannot judge whether the destruction a guard prevents was worth preventing.",
+    "Assumes a stranger will receive the artifact and be harmed by it; where the only consumer is the author on the same machine, its central worry — proved in the wrong condition — evaporates and it keeps arguing anyway.",
+    "Prone to unfalsifiable 'this is never tested' claims: without naming the concrete load, the observable that would differ, and the task where the charge belongs, the finding is a demand for more testing dressed in gunsmith vocabulary."
+  ],
+  "findings": [
+    "f-033",
+    "f-034",
+    "f-035"
+  ]
+}

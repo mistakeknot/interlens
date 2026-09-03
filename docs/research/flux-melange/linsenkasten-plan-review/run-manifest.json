@@ -1,0 +1,121 @@
+{
+  "runtime": "claude",
+  "rounds": 3,
+  "halt_reason": "BUDGET",
+  "gain_history": [
+    {
+      "round": 0,
+      "yield": 14,
+      "novel_cluster_rate": 0.81
+    },
+    {
+      "round": 1,
+      "yield": 5,
+      "novel_cluster_rate": 0.67
+    },
+    {
+      "round": 2,
+      "yield": 4,
+      "novel_cluster_rate": 0.8
+    }
+  ],
+  "spice_trail": [
+    {
+      "round": 0,
+      "event": "assay",
+      "findings": 21,
+      "agents_dispatched": 2
+    },
+    {
+      "round": 1,
+      "event": "probe",
+      "directives": [
+        {
+          "type": "DEEPEN",
+          "rationale": "risk 6, unconfirmed — confirm or refute",
+          "lens": "fd-algorithmic-port-parity"
+        },
+        {
+          "type": "DEEPEN",
+          "rationale": "risk 6, unconfirmed — confirm or refute",
+          "lens": "fd-release-engineering-cascade"
+        },
+        {
+          "type": "STEER-WIDE",
+          "rationale": "novel_cluster_rate 0.81 >= 0.6 — widening still pays",
+          "lens": "fd-salvage-excavation-record"
+        }
+      ],
+      "findings": 9,
+      "failed": 0
+    },
+    {
+      "round": 1,
+      "event": "assay",
+      "findings": 9,
+      "agents_dispatched": 3
+    },
+    {
+      "round": 2,
+      "event": "probe",
+      "directives": [
+        {
+          "type": "PROBE-DISAGREEMENT",
+          "rationale": "open contradiction — adjudicate",
+          "lens": null
+        },
+        {
+          "type": "STEER-WIDE",
+          "rationale": "novel_cluster_rate 0.67 >= 0.6 — widening still pays",
+          "lens": "fd-proof-house-definitive"
+        }
+      ],
+      "findings": 5,
+      "failed": 0
+    },
+    {
+      "round": 2,
+      "event": "assay",
+      "findings": 5,
+      "agents_dispatched": 2
+    }
+  ],
+  "slots_spent": 14,
+  "directive_history": [
+    {
+      "round": 1,
+      "type": "DEEPEN",
+      "lens": "fd-algorithmic-port-parity",
+      "rationale": "risk 6, unconfirmed — confirm or refute",
+      "outcome": "f-022, f-023, f-024 — confirmed-with-correction the npm auth claim and opened the round-2 disagreement"
+    },
+    {
+      "round": 1,
+      "type": "DEEPEN",
+      "lens": "fd-release-engineering-cascade",
+      "rationale": "risk 6, unconfirmed — confirm or refute",
+      "outcome": "f-025, f-026, f-027 — nailed the ts-ip gap to the filesystem and reframed the --host defect as a spec-location defect"
+    },
+    {
+      "round": 1,
+      "type": "STEER-WIDE",
+      "lens": "fd-salvage-excavation-record",
+      "rationale": "novel_cluster_rate 0.81 >= 0.6 — widening still pays",
+      "outcome": "f-028, f-029, f-030 — produced the run's highest-heat finding; best directive of the run"
+    },
+    {
+      "round": 2,
+      "type": "PROBE-DISAGREEMENT",
+      "lens": "npm-publish-adjudication",
+      "rationale": "open contradiction — adjudicate",
+      "outcome": "f-031 (self-demoted to convergence), f-032 (the run's only emergent finding)"
+    },
+    {
+      "round": 2,
+      "type": "STEER-WIDE",
+      "lens": "fd-proof-house-definitive",
+      "rationale": "novel_cluster_rate 0.67 >= 0.6 — widening still pays",
+      "outcome": "f-033, f-034, f-035 — opened Fork 5 (sonnet-executability), barely touched in rounds 0-1"
+    }
+  ]
+}

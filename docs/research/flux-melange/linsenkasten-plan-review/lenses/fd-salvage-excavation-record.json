@@ -1,0 +1,42 @@
+{
+  "id": "fd-salvage-excavation-record",
+  "kind": "base",
+  "parents": [],
+  "domain": "Rescue and developer-funded field archaeology under single-context recording — observation as destruction: contexts troweled away to reach the one beneath, the pro-forma context sheet and Harris matrix filled before the deposit is gone, finds bagged with the context number that is their entire value, the spoil heap where relationships are lost forever, the developer's programme and the watching brief, preservation in situ, and a site archive that must be accepted by a store agreed in advance because the trench cannot be re-opened",
+  "axioms": [
+    "Observation is destruction: the deposit is removed in order to be seen, so nothing can be checked twice, and whatever was not written down before the trowel did not merely go unrecorded — it never existed.",
+    "The record must be independent of its object. A record computed from the thing it outlives is a shadow, not an archive, and it disappears the moment its object does.",
+    "The context number is the whole of the value: a find with its number is evidence and the same find without it is a curio, and the two are indistinguishable by inspection.",
+    "The sheet is filled at the edge of the trench, before the context comes out; a record written after the removal records what the recorder remembers, not what was there.",
+    "The archive is deposited before the machines arrive, into a store that has already agreed to take it — an archive in a box nobody accepted is a dig that never happened.",
+    "Anything reaching the spoil heap is unstratified forever: sieving recovers objects, never their relationships.",
+    "Preservation in situ beats excavation — whatever need not come out to complete the road stays in the ground.",
+    "The programme belongs to the developer, not the excavator: the removal happens on someone else's schedule, so the only levers are the order of work and what is on paper first."
+  ],
+  "primitives": [
+    "the site (the generated-lens piles: `.claude/agents/fd-*.md` across both machines' repos — 3,023 files on the Mac by the first melange's count — plus `.claude/flux-gen-specs/`, `.claude/agents/.index.yaml`, and the `docs/research/flux-melange/*/` run dirs `harvest/scan.py` reads)",
+    "the machines arriving (Tasks 23/24: `python3 -m harvest prune --machine <m> --apply`, `git rm -q` when tracked and plain `rm` when not, commit and push per repo)",
+    "the context sheet (one `data/generated/index.jsonl` record per `body_hash`, the body at `data/generated/lenses/<id>.md` holding post-frontmatter text only, and the spec at `data/generated/specs/<id>.json`)",
+    "the Harris matrix (`data/generated/edges.jsonl` — `embodies`, `variant-of`, `fused-from` — plus `cluster.head`, `cohort` and `lineage`, all regenerated wholesale each run by Task 12)",
+    "the re-derivation (`scan.py` rewriting `data/harvest/<machine>.jsonl` from the live filesystem and `merge.py` rewriting `index.jsonl` from every harvest file, driven unattended by Task 22's `linsenkasten-harvest.timer` at 04:30 over ground Tasks 23/24 have just emptied)",
+    "the spoil heap (untracked agent files removed with `rm`, `.claude/agents/.index.yaml`, the `kept: not in registry` list, and corrupt bodies flagged by Task 8's `TRUNCATION_MARKER` whose originals are deleted anyway)",
+    "the deposit agreement (prune preconditions (1)-(5), the pushed registry SHA in every prune commit message and report header, and the Sylveste-root case whose 396 deletions go onto branch `chore/prune-fd-agents` behind a PR while other repos push immediately)",
+    "the reference stratum dug away (`apps/api/src/lens/graph.py:18-335` and `apps/api/lens_search_api.py`, named 'Reference (read, do not modify)' by Task 4, and `packages/mcp/api-client.js` by Task 6 — deleted by Tasks 21 and 6, with `task-21` depending only on `task-19` in the exec manifest)",
+    "the treatment record (`data/reports/<date>-prune-<machine>.md`, one artifact written at the end of a loop that has already deleted and pushed)",
+    "preservation in situ (what `scan.py` and `prune` refuse: `EXCLUDE_DIR_NAMES`, `/.claude/worktrees/`, `MAX_DEPTH = 6`, `*-sessions`, `*-f2`, `*-spike-*`, dirty repos, and repos failing precondition (5))"
+  ],
+  "failure_mode": [
+    "Blind to anything that is not removed: a wrong algorithm, a wrong result shape, a bad threshold or a mis-scored ranking passes untouched so long as nothing is deleted.",
+    "Over-weights destruction — treats a `git rm` of a tracked file in a pushed repo as loss even when git history is a complete and findable route back, and can demand archival ceremony costing more than the material is worth.",
+    "No concept of two actors: concurrency, races, partitions and which machine wins are outside the frame, because there is one ground and it is either recorded or gone.",
+    "Cannot judge quality, wording or per-step executability; an ambiguous, unsatisfiable or badly drafted step registers only if it also removes something.",
+    "Assumes the removal is authorized and imminent, so it will not argue that a deletion should not happen at all — including the cases where 'do not delete this' is the correct finding.",
+    "Anchors on the record's completeness rather than its use, so it can demand fields nobody will ever read and will not notice a perfectly preserved archive that is semantically wrong.",
+    "Prone to unfalsifiable loss claims: 'the provenance is gone' is easy to assert and, without naming the removed thing, its intended survivor and that survivor's source, is only a metaphor."
+  ],
+  "findings": [
+    "f-028",
+    "f-029",
+    "f-030"
+  ]
+}

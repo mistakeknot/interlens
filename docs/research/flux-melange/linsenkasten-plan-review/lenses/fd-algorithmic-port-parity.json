@@ -1,0 +1,36 @@
+{
+  "id": "fd-algorithmic-port-parity",
+  "kind": "base",
+  "parents": [],
+  "domain": "algorithmic-port-parity",
+  "axioms": [
+    "A function described as a 'port' of another language's implementation is only verified equivalent when both are run on the same input and diffed — self-consistency tests (same output twice) prove determinism, not correctness.",
+    "A documented result-shape contract between a producer (api-local.js) and a named consumer (index.js) is a claim about the consumer's actual source code, not a property of the producer alone.",
+    "Graph algorithms (betweenness, shortest-path/DFS enumeration, BFS neighborhoods) have well-known sources of cross-language divergence: tie-breaking order, normalization constants, floating-point accumulation, and iteration order over unordered collections.",
+    "Smoke/integration tests that exercise only a subset of an API's surface leave the untested remainder exposed to any error that unit tests (which test code against itself) cannot catch.",
+    "When one recipe (a text-construction or normalization rule) is implemented more than once, in more than one language, independent implementations drift apart unless something tests them against each other, not just against their own fixtures.",
+    "A test passing is evidence the implementation matches the test's expectations, not evidence the test's expectations were derived from the real reference implementation or real caller."
+  ],
+  "primitives": [
+    "graph algorithm outputs (centrality scores, paths, neighborhoods)",
+    "JSON result shapes and field names",
+    "MCP tool handler source (index.js) as ground truth for consumption",
+    "text-construction/normalization recipes duplicated across languages",
+    "test/verify coverage per tool or function"
+  ],
+  "failure_mode": [
+    "Accepts a port as correct because its own test suite passes, without checking whether that suite was derived from the actual Python reference output.",
+    "Misses untested tools/functions entirely — a broken result shape in a tool nothing exercises end-to-end ships invisibly.",
+    "Doesn't cross-check duplicated recipes (e.g. a text-embedding formatter implemented in both JS and Python) against each other on shared input.",
+    "Treats a documented contract table as verified fact rather than an assertion needing a source-level check against the real consumer."
+  ],
+  "findings": [
+    "f-005",
+    "f-006",
+    "f-007",
+    "f-008",
+    "f-022",
+    "f-023",
+    "f-024"
+  ]
+}

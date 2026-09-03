@@ -1,0 +1,35 @@
+{
+  "id": "fd-distsys-harvest-splitbrain",
+  "kind": "base",
+  "parents": [],
+  "domain": "distributed-multimachine-ops",
+  "axioms": [
+    "A specification section (e.g. 'Semantics') and an example invocation (e.g. a systemd ExecStart line) must agree; if the invocation assumes behavior the specification never describes, an implementation built from the specification alone will not support that invocation.",
+    "Two independently-scheduled processes (an on-demand script and a fixed-time timer) that both read-modify-write the same git-tracked shared state can overlap in time regardless of how unlikely that seems from typical usage patterns.",
+    "set -e-style scripts fail atomically at the first error, which prevents partial corruption but also means a failure produces silence (no commit, no push) rather than a visible alert — silence is not the same as safety if nobody is watching for it.",
+    "Claims about a remote machine's current state (a file exists, a systemd setting is enabled, a service is running) are only true as of when they were last checked; a plan's 'checked on <date>' note is a claim to re-verify, not a fact to inherit.",
+    "Preconditions gating a destructive operation (e.g. prune) are only as strong as the state they read; if that state (git HEAD vs. origin, harvest audit result) can itself be produced by an incomplete or racing prior step, the precondition can pass on stale or wrong grounds.",
+    "A network service's binding address and authentication posture are two independent security properties; specifying 'Tailscale-only' as intent doesn't guarantee the implementation as specified actually enforces it.",
+    "Ordering guarantees between tasks in a written plan (e.g. 'Task 15 runs after Task 14') don't automatically extend to automated recurring jobs introduced later (e.g. a daily timer) unless the plan explicitly reasons about how the new schedule interacts with the earlier manual sequence."
+  ],
+  "primitives": [
+    "systemd unit/timer definitions and their actual argv",
+    "shell script failure/exit semantics",
+    "git push/pull race windows across two machines",
+    "network bind address vs. intended exposure",
+    "prune/harvest precondition checks",
+    "live remote-machine state (files, services, enabled flags)"
+  ],
+  "failure_mode": [
+    "Trusts a spec section's prose without checking whether a concrete example elsewhere in the plan (e.g. a systemd ExecStart line) actually matches what that prose would produce.",
+    "Reasons about single-run correctness and misses what happens when two scheduled/on-demand runs on different machines overlap or race.",
+    "Accepts a plan's 'checked on <date>' assertion about remote-machine state as still true without live verification.",
+    "Evaluates security/exposure intent (e.g. a comment saying 'Tailscale only') rather than the actual binding behavior the specified implementation would produce."
+  ],
+  "findings": [
+    "f-009",
+    "f-010",
+    "f-011",
+    "f-012"
+  ]
+}

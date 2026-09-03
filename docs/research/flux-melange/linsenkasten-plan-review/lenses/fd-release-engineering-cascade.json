@@ -1,0 +1,39 @@
+{
+  "id": "fd-release-engineering-cascade",
+  "kind": "base",
+  "parents": [],
+  "domain": "release-engineering-identity-cascade",
+  "axioms": [
+    "An identity change (name/URL/key) is only complete when every system that stores a copy of the old identity has been updated or reliably redirects — a plan is not proof of completion until each store is enumerated.",
+    "External namespaces (npm registry, GitHub) are owned by parties outside this repo and can silently reject or redirect a rename regardless of what the plan intends.",
+    "A grep-and-replace sweep is only as complete as its scope; anything outside the swept repos (other repos, other machines' local config) is a blind spot by default.",
+    "Settings/permission keys that reference a tool or plugin by name are load-bearing identity references just like code imports, even though they live in config rather than source.",
+    "A directory move and a git remote URL update are two separate operations; either can succeed while the other silently fails or lags.",
+    "Ordering matters: renaming the canonical repo before all consumers have moved leaves a window where some machine or config points at a dead identity.",
+    "A version bump landing in the same commit as an identity rename compounds two independent risks (wrong content published, or published under a colliding name) into one atomic, hard-to-bisect event."
+  ],
+  "primitives": [
+    "package/repo/plugin identity strings",
+    "npm registry ownership state",
+    "GitHub repo URL and redirect behavior",
+    "settings/permission keys naming a tool",
+    "directory paths per machine",
+    "git remote configuration and worktree linkage",
+    "semver version numbers"
+  ],
+  "failure_mode": [
+    "Treats a rename as complete once the plan's named files are edited, without checking external registries (npm/GitHub) for collision or actual redirect behavior.",
+    "Misses config in repos/files not named in the plan's rename-sweep scope (e.g. an unlisted settings.local.json permission entry).",
+    "Doesn't notice when a directory-move step and a git-remote-update step could land out of order or partially.",
+    "Overlooks in-flight branches/worktrees that haven't yet merged to the branch a later rename step assumes is canonical."
+  ],
+  "findings": [
+    "f-001",
+    "f-002",
+    "f-003",
+    "f-004",
+    "f-025",
+    "f-026",
+    "f-027"
+  ]
+}

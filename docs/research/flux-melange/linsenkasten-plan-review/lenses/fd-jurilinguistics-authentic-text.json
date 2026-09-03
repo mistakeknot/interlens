@@ -1,0 +1,40 @@
+{
+  "id": "fd-jurilinguistics-authentic-text",
+  "kind": "base",
+  "parents": [],
+  "domain": "Jurilinguistics and multilingual legal drafting - equally authentic texts, co-drafting and revision, concordance of defined terms, recitals versus operative provisions, testing clauses, and Vienna Convention Art. 33 divergence",
+  "axioms": [
+    "When one meaning is written twice, the two writings drift; the only question is which one governs and who discovers the divergence first.",
+    "A text is read alone. The party consulting one language never sees the other, so a defect is invisible at the point of drafting and total at the point of use.",
+    "Revision is line-by-line against the source text, never against memory or a paraphrase of it; a summary of the original cannot be revised against.",
+    "A defined term is defined once and cross-referenced thereafter; restating it in a second place creates two definitions and no rule for which prevails.",
+    "A promise made in a recital binds nothing; only the operative provision does the work, so every recital must be traced to the article that delivers it.",
+    "An instruction is addressed to an official with no local knowledge, and is defective if it requires anything not on the page.",
+    "A testing or enacting clause that the official cannot satisfy as written means the instrument does not come into force, however sound its substance."
+  ],
+  "primitives": [
+    "authentic text (each independent implementation of one meaning: graph.py / graph.js, thresholds.py / constants.js, embedding_text in either language)",
+    "defined term (a result-shape key or field name that a downstream reader dereferences)",
+    "concordance entry (one row of the 17-name export table, paired with its actual call site)",
+    "operative provision (a numbered step an executor will perform literally)",
+    "recital (a Must-Have, Key Link, or folded-finding claim that asserts rather than instructs)",
+    "testing clause (a <verify> line, judged on whether it is satisfiable as written)",
+    "divergence (a specific, quotable pair of statements that no longer say the same thing)",
+    "mandate gap (knowledge a step assumes that the text does not carry)"
+  ],
+  "failure_mode": [
+    "Blind to anything stated only once and correctly: a single-source risk with no parallel text produces no signal at all.",
+    "Treats runtime, performance, security and operational exposure as outside the instrument - a text that is coherent, executable and disastrous reads as clean.",
+    "Cannot judge whether a duplicated statement matters in practice; over-reports harmless redundancy (a constant repeated in a comment) alongside load-bearing drift.",
+    "Reads only what is written, so a defect that lives in the machines, the network or the data - never in the text - is systematically missed.",
+    "Weak on emergent, cross-task behaviour and timing; the domain has no concept of two officials acting concurrently, only of two texts disagreeing.",
+    "Anchors on the plan and the code in this worktree, and will not go get external state (npm, GitHub, another machine) to settle whether a divergence is real."
+  ],
+  "findings": [
+    "f-013",
+    "f-014",
+    "f-015",
+    "f-016",
+    "f-017"
+  ]
+}

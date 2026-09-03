@@ -17,8 +17,8 @@ stages:
   - name: "B — Local engine (curated layer)"
     tasks:
       - id: task-2
-        title: "Move curated data to data/curated/"
-        files: [data/curated/lenses.json, data/curated/connections.json, data/curated/frames.json, data/README.md]
+        title: "Move curated data to data/curated/ (+ re-point lattice/interweave connectors)"
+        files: [data/curated/lenses.json, data/curated/connections.json, data/curated/frames.json, data/README.md, ../../Sylveste/interverse/lattice/src/lattice/connectors/interlens.py]
         depends: [task-1]
       - id: task-3
         title: "lib/store.js + constants.js: load layers, lexical search, lookups"
@@ -99,7 +99,7 @@ stages:
         depends: [task-7, task-15]
       - id: task-20
         title: "GitHub rename, directories on both machines, marketplace, settings, Clavain refs, publish"
-        files: [../../interagency-marketplace/.claude-plugin/marketplace.json, ../../interagency-marketplace/README.md]
+        files: [../../interagency-marketplace/.claude-plugin/marketplace.json, ../../interagency-marketplace/README.md, ../../Sylveste/interverse/interflux/skills/flux-melange-engine/references/fusion.md, ../../Sylveste/interverse/lattice/src/lattice/connectors/interlens.py]
         depends: [task-19]
   - name: "F — Retire remnants; explorer on zklw"
     tasks:
@@ -125,6 +125,6 @@ stages:
   - name: "H — Docs, publish, close"
     tasks:
       - id: task-25
-        title: "Docs, roadmap, version, publish, goal 8222288d close"
+        title: "Docs, roadmap, version, publish, goal 8222288d close (also waits for the Sylveste prune PR to be MERGED — Task 24 verify)"
         files: [README.md, AGENTS.md, CLAUDE.md, docs/roadmap.json]
         depends: [task-18, task-22, task-24]

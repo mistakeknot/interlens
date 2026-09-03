@@ -1,0 +1,28 @@
+{
+  "id": "npm-publish-adjudication",
+  "kind": "fusion",
+  "parents": [
+    "fd-release-engineering-cascade",
+    "fd-hydrography-chart-currency",
+    "fd-algorithmic-port-parity"
+  ],
+  "domain": "PROBE-DISAGREEMENT adjudication of the round-0/round-1 contradiction over the linsenkasten-mcp npm package: whether this session's npm auth is confirmed absent (c-npm-publish-preexisting, fd-release-engineering-cascade + fd-hydrography-chart-currency) versus present-but-non-functional with the real defect being that Task 20 step 6's interpub:release never invokes npm publish at all (c-npm-publish-step-missing, fd-algorithmic-port-parity) — resolved by reading intercore's internal/publish Go package end-to-end rather than re-litigating from the plan text alone",
+  "axioms": [
+    "A disagreement between two prior findings is adjudicated by reading the actual code path both claims rest on, not by re-weighing the prose of either finding.",
+    "Refuting one sub-claim of a finding ('auth confirmed absent') does not refute the finding's diagnosis if the diagnosis pointed at the right mechanism for the wrong reason.",
+    "Once a defect is confirmed structurally absent from a pipeline (no npm invocation anywhere in internal/publish), everything downstream that assumed the pipeline's success is equally unverified — including the plan's own verify coverage."
+  ],
+  "primitives": [
+    "the two contradictory round-0/1 claims (c-npm-publish-preexisting's 'auth confirmed absent' vs c-npm-publish-step-missing's correction) and the ground truth each rests on (~/.npmrc contents, npm whoami, intercore/internal/publish/*.go)",
+    "the publish pipeline's actual call graph (interpub:release -> ic publish -> internal/publish engine.go/discovery.go, its only shell-outs being git/bash/ps, and the sole per-plugin arbitrary-command hook scripts/post-bump.sh, absent in this repo)",
+    "the plan's own verify surface for Task 20 (gh repo view, two grep counts) versus what it would need to query (registry.npmjs.org) to ever detect npm drift"
+  ],
+  "failure_mode": [
+    "Exists only to adjudicate one flagged disagreement; has no independent sweep of the plan and will not surface defects outside the npm-publish location it was spawned to resolve.",
+    "Its confirmation of an existing finding can look like new evidence-gathering when it is actually reconfirming a round-1 conclusion already recorded verbatim — risk of double-counting novelty if not checked against the ledger."
+  ],
+  "findings": [
+    "f-031",
+    "f-032"
+  ]
+}

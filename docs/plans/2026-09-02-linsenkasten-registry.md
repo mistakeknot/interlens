@@ -105,7 +105,7 @@ Append to `.github/workflows/ci.yml` under `steps:`:
       - run: node --test packages/mcp/test/
       - run: python3 -m pytest tests -q
 ```
-(the second pytest run is intentional: it re-runs after node so a node-side failure cannot hide a python one — remove the earlier duplicate line so pytest runs once, after node).
+(remove the earlier pytest line so pytest runs once, after node). **CI must actually go green (melange-2 f-034):** the structural tests import `interverse/_shared` from `parents[3]` of the test file, which on a GitHub checkout is empty. `_shared` is the repo `mistakeknot/interverse-shared` (visibility: PRIVATE — a CI clone would need a token, so do not add one). Add to `tests/structural/conftest.py`, before the `_shared` import: `import pytest; pytest.importorskip("_shared", reason="interverse-shared not checked out beside this repo")` — the harvest and node tests carry CI. After the first landing, `gh run list -R mistakeknot/interlens -L 1 --json conclusion -q '.[0].conclusion'` must print `success`; a red run blocks the next stage.
 
 **Step 5: Commit**
 ```bash
@@ -114,11 +114,19 @@ git commit --no-verify -F /tmp/msg -- packages/mcp/test/smoke.test.mjs packages/
 ```
 (commit message file: `test: node test scaffold for the local engine`)
 
+**Commit idiom for every later task (the plan writes only the message text and the pathspec from here on):**
+```bash
+printf '%s\n' "<message text>" > /tmp/msg && git commit --no-verify -F /tmp/msg -- <paths>
+```
+**Landing rule (every stage):** when a stage's tasks verify, fast-forward main from the worktree with `git push origin feat/linsenkasten:main` (interlens `main` has `enforce_admins` on but no required reviews or status checks, checked 2026-09-03, so a fast-forward push lands), then on zklw `git -C ~/projects/Sylveste/interverse/interlens pull --ff-only origin main`. zklw has no `feat/linsenkasten` checkout and never needs one; **Task 15 must not start until Task 14's data commit is visible in `git log -1 origin/main` from zklw.**
+
 <verify>
 - run: `PYTHONPATH=$HOME/projects/Sylveste/interverse python3 -m pytest tests -q`
   expect: exit 0
 - run: `test -f packages/mcp/test/smoke.test.mjs && echo ok`
   expect: contains "ok"
+- run: `gh run list -R mistakeknot/interlens -L 1 --json conclusion -q '.[0].conclusion'` (after the first landing)
+  expect: contains "success"
 </verify>
 
 ---
@@ -149,15 +157,19 @@ Single git-synced store read by `packages/mcp` on every machine. Nothing here is
 - `prune-targets.txt` — the explicit list of repos prune may touch. Reviewed by a human before `--apply`.
 ```
 
-**Step 3:** Run: `node --test packages/mcp/test/`  Expected: PASS (Task 1's test now finds the file).
+**Step 3 (external consumer of the moved file — melange-2 f-002):** two sibling repos hardcode the old path: `~/projects/Sylveste/interverse/lattice/src/lattice/connectors/interlens.py:27` (`DEFAULT_LENSES_REL = Path("interverse/interlens/apps/api/all_lenses_for_analysis.json")`) and its copy `~/projects/Sylveste/core/interweave/src/lattice/connectors/interlens.py`. Change both to `Path("interverse/interlens/data/curated/lenses.json")` in the same session as the move (Task 20 changes the directory segment again), run `python3 -m pytest tests/test_connector_interlens.py -q` in each repo, and commit: lattice is its own repo (direct push), interweave lives under the Sylveste monorepo (`main` protected: branch + PR). Class and `SUBSYSTEM` identifiers stay `interlens` for now — a lattice-side key with stored observations behind it; renaming it is a lattice decision, listed under follow-ups in Task 25.
 
-**Step 4: Commit** (`git add -A data apps/api` then `git commit --no-verify -F /tmp/msg -- data apps/api`; message `data: move curated lens corpus to data/curated`)
+**Step 4:** Run: `node --test packages/mcp/test/`  Expected: PASS (Task 1's test now finds the file).
+
+**Step 5: Commit** (`git add -A data apps/api` then the commit idiom with pathspec `data apps/api`; message `data: move curated lens corpus to data/curated`)
 
 <verify>
 - run: `node --test packages/mcp/test/`
   expect: exit 0
 - run: `python3 -c "import json;print(len(json.load(open('data/curated/lenses.json'))), len(json.load(open('data/curated/connections.json'))['connections']), len(json.load(open('data/curated/frames.json'))['frames']))"`
   expect: contains "258 280 28"
+- run: `cd ~/projects/Sylveste/interverse/lattice && python3 -m pytest tests/test_connector_interlens.py -q`
+  expect: exit 0
 </verify>
 
 ### Task 3: `lib/store.js` — load both layers, lexical search, lookups
@@ -339,18 +351,22 @@ Note: `searchLenses` returns both `lenses` and `results` because `index.js` read
 - Test: `packages/mcp/test/graph.test.mjs`
 - Reference (read, do not modify): `apps/api/src/lens/graph.py:18-335`, `apps/api/lens_search_api.py:134-200` (`calculate_frame_coverage`), `:1298-1353` (journey), `:1355-1409` (bridges), `:1411-1459` (contrasts), `:1461-1521` (central), `:1523-1573` (neighborhood), `:1575-1632` (random), `:1634-1715` (gaps), `:1813-1954` (triads), `:1956-2074` (progressions)
 
-**Edge construction (exactly as `graph.py:48-142`):** undirected weighted graph over curated lens ids. Edges in this order, never overwriting an existing edge: (1) `connections.json` rows with `weight`, `type`, `insight`; (2) every pair inside one frame's `lens_ids`, weight `0.3`, type `frame`; (3) every pair across adjacent episodes (`ep`, `ep+1`), weight `0.1`, type `temporal`; (4) every pair sharing a `related_concepts` entry (lower-cased) that between 2 and 5 lenses share, weight `0.4`, type `concept`. Then (5) generated-layer typed edges from `edges.jsonl` (`embodies` generated→curated with `score` as weight; `fused-from` and `variant-of` generated↔generated, weight `score` or `0.5` when absent).
+**Directedness — a deliberate, documented divergence (melange-2 f-005/f-014):** `graph.py` builds a `networkx.DiGraph` and its own methods disagree about direction (`find_contrasts` reads successors and predecessors, `get_lens_neighborhood` reads successors only, `find_path` follows edge direction, so half of all journeys were impossible). The port is **undirected**: every edge is stored in both adjacency maps. The old service is dead, so no output comparison is possible; the test below asserts the intended divergence instead (a neighborhood is reachable from either endpoint of a `contrast` edge).
+
+**Edge construction (edge set exactly as `graph.py:48-142`, stored undirected):** weighted graph over curated lens ids. Edges in this order, never overwriting an existing edge: (1) `connections.json` rows with `weight`, `type`, `insight`; (2) every pair inside one frame's `lens_ids`, weight `0.3`, type `frame`; (3) every pair across adjacent episodes (`ep`, `ep+1`), weight `0.1`, type `temporal`; (4) every pair sharing a `related_concepts` entry (lower-cased) that between 2 and 5 lenses share, weight `0.4`, type `concept`. Then (5) generated-layer typed edges from `edges.jsonl` (`embodies` generated→curated with `score` as weight; `fused-from` and `variant-of` generated↔generated, weight `score` or `0.5` when absent).
 
 **Functions and exact semantics:**
 - `buildGraph(store)` → `{ adj: Map<id, Map<id, {weight,type,insight?}>> , ids: string[] }`.
-- `findPaths(g, srcId, dstId, maxLen = 4, limit = 5)`: all simple paths of length ≤ `maxLen` by DFS in ascending neighbor-id order; rank by sum of edge weights descending, tie by shorter length; return `limit`.
-- `findBridges(g, ids)`: candidate nodes not in `ids` adjacent to **every** id in `ids`; sort by summed weight to the group descending; return top 10.
+- `findPaths(g, srcId, dstId, maxLen = 4, limit = 3)`: all simple paths of length ≤ `maxLen` by DFS; rank by sum of edge weights descending, tie by shorter length, then by the joined id string (deterministic tie-break is a JS-side choice; `graph.py:143-170` sorts by weight only and caps at 3 — melange-2 f-008); return `limit`.
+- `findBridges(g, ids)`: candidate nodes not in `ids` adjacent to **at least two** ids in `ids` (the undirected reading of `graph.py:172-198`'s "middle node of a length-3 path between any pair" — melange-2 f-007); score = summed edge weight between the candidate and every group member it touches; return top **5** descending, tie by id.
 - `findContrasts(g, id)`: neighbors joined by an edge of `type === 'contrast'`, sorted by weight descending.
-- `neighborhood(g, id, radius = 2)`: BFS; returns `{ 1: [...ids], 2: [...ids] }` for each hop distance ≤ radius, each list in ascending id order.
-- `centralLenses(g, measure = 'betweenness', limit = 10, { layer = 'curated' } = {})`: computed over the **curated subgraph by default** (`layer: 'all'` opts into the full two-layer graph; melange f-003); `degree` = neighbor count; `closeness` = (n-1)/Σ BFS distances (0 for isolated); `betweenness` = Brandes' algorithm on the unweighted graph, normalized by `(n-1)(n-2)/2`. Return `[{id, centrality_score}]` sorted descending, tie by id. Unknown measure → treat as `betweenness`.
+- `neighborhood(g, id, radius = 2)`: BFS out to `radius`; returns `{ <edge_type>: [...ids] }` grouped by the type of the edge that first discovered each node (exactly `graph.py:219-241`; the MCP handler iterates `Object.entries(results.neighborhood)` as `[edge_type, lenses]`), each list in discovery order.
+- `centralLenses(g, measure = 'betweenness', limit = 10, { layer = 'curated' } = {})`: computed over the **curated subgraph by default** (`layer: 'all'` opts into the full two-layer graph; melange f-003). Measures — all four that the live tool schema and `graph.py:304-335` between them name (melange-2 f-006): `betweenness` = Brandes on the unweighted graph, normalized by `(n-1)(n-2)/2`; `pagerank` = power iteration, damping 0.85, 100 iterations, uniform start, undirected (each edge counts both ways); `eigenvector` = power iteration on the adjacency matrix, 100 iterations, L2-normalized each step; `degree` = neighbor count / (n-1). Unknown measure → `degree` (as Python does). Return `[{id, name, centrality_score}]` sorted descending, tie by id. Task 6 adds `degree` to the `get_central_lenses` schema enum (`index.js:216-231`) as a documented addition and drops nothing.
 - `frameCoverage(store, exploredNames)`: `explored` = frame names that contain ≥1 explored lens; `underexplored` = frames where exactly 1 explored lens sits; `unexplored` = the rest; `total_frames` = 28. Explored names resolve through `getLens` (unknown names are ignored and returned in `unknown`).
 - `triads(g, store, id, limit = 3)`: thesis = lens; for each contrast neighbor (antithesis) find a synthesis node adjacent to both with the highest summed weight; emit `{thesis, antithesis, synthesis, contrast_insight}`; `limit` triads.
 - `progression(g, store, startId, targetId, maxSteps = 5)`: best path from `findPaths(..., maxSteps, 1)`; each step `{step, lens, insight}` where `insight` is the edge `insight` from the previous step or `''`.
+
+**Step 0: capture the Python reference before it is deleted (melange-2 f-030).** Create `scripts/capture-graph-reference.py` (runs `apps/api/src/lens/graph.py`'s `LensGraph` against `data/curated/` with `DATA_DIR` pointed there and dumps JSON) and run it once with `uv run --with networkx python3 scripts/capture-graph-reference.py` (uv is on both machines; networkx resolves in seconds) to write `tests/fixtures/graph-py/{central_betweenness,central_pagerank,central_eigenvector,paths_eye_founder,contrasts_eye,neighborhood_eye_r2,bridges_eye_founder}.json`. `graph.test.mjs` asserts the documented relations against these: contrasts equal as sets (both directions were read in Python too); the JS neighborhood is a superset of the Python one; the JS betweenness top-10 shares at least 6 ids with the Python top-10 (the directed→undirected change moves ranks, and 248 of the 280 curated connections are one-directional, so exact equality is not the target). Commit the fixtures; Task 21 notes `git log -1 -- apps/api/src/lens/graph.py` as the pointer to the deleted reference.
 
 **Step 1: failing test**
 ```js
@@ -371,13 +387,15 @@ test('paths, contrasts, neighborhood, bridges', async () => {
   const s = await loadStore(); const g = buildGraph(s);
   assert.ok(findPaths(g, EYE, FOUNDER).length >= 1);
   assert.ok(findContrasts(g, EYE).map(c => c.id).includes(FOUNDER));
-  const n = neighborhood(g, EYE, 1); assert.ok(n[1].includes(FOUNDER));
+  const n = neighborhood(g, EYE, 1); assert.ok((n.contrast || []).includes(FOUNDER));
+  assert.ok((neighborhood(g, FOUNDER, 1).contrast || []).includes(EYE)); // undirected by design
   assert.ok(Array.isArray(findBridges(g, [EYE, FOUNDER])));
 });
 test('centrality and coverage are deterministic', async () => {
   const s = await loadStore(); const g = buildGraph(s);
   const a = centralLenses(g, 'betweenness', 3), b = centralLenses(g, 'betweenness', 3);
   assert.deepEqual(a, b); assert.equal(a.length, 3);
+  for (const m of ['pagerank', 'eigenvector', 'degree']) assert.equal(centralLenses(g, m, 3).length, 3);
   const cov = frameCoverage(s, ['Eye of Sauron']);
   assert.equal(cov.total_frames, 28); assert.ok(cov.explored.length >= 1);
   assert.ok(triads(g, s, EYE, 2).length >= 1);
@@ -434,7 +452,7 @@ Run: `node --test packages/mcp/test/graph.test.mjs` → FAIL (module missing).
 - Create: `packages/mcp/scripts/smoke.mjs`
 - Test: `packages/mcp/test/api-local.test.mjs`
 
-**`api-local.js` must export exactly these 17 names with these result shapes (what `index.js` reads):**
+**`api-local.js` must export these 18 names with these result shapes (what `index.js` reads). Two MCP *resource* handlers also call the client — `lens://episodes` (`index.js:451-473`, `api.fetchFromAPI('/lenses?limit=500')`) and `lens://graph` (`index.js:475-490`, `api.fetchFromAPI('/connections')`) — and both must be rewritten in this task to `api.getAllLenses()` grouped by episode and `api.getGraph()`, with the `getCachedData`/`setCachedData` calls removed (melange-2 f-013: otherwise both resources throw for every reader the moment `api-client.js` is deleted).**
 
 | export | returns |
 |---|---|
@@ -445,10 +463,11 @@ Run: `node --test packages/mcp/test/graph.test.mjs` → FAIL (module missing).
 | `getLensesByEpisode(ep)` | `{success, episode, count, lenses}` |
 | `getRelatedLenses(name, limit)` | `{success, lens, count, connections}` or `null` |
 | `findLensJourney(src, dst)` | `{success, source_lens, target_lens, paths: [{lenses: [lensObj...], total_weight}], error?}` |
-| `findBridgeLenses(names)` | `{success, count, bridges: [lensObj + {connection_strength}], insight}` |
+| `findBridgeLenses(names)` | `{success, count, bridges: [lensObj + {connection_strength}] (top 5), insight}` |
 | `findContrastingLenses(name)` | `{success, source_lens, count, contrasts: [lensObj + {weight, insight}]}` |
 | `getCentralLenses(measure, limit)` | `{success, measure, central_lenses: [lensObj + {centrality_score}], insight}` |
-| `getLensNeighborhood(name, radius)` | `{success, source_lens, radius, neighborhood: {"1": [lensObj], "2": [lensObj]}}` |
+| `getLensNeighborhood(name, radius)` | `{success, source_lens, radius, neighborhood: {<edge_type>: [lensObj]}}` |
+| `getGraph()` | `{success, connections: [...curated connections], edges: [...generated typed edges]}` — used by the `lens://graph` resource |
 | `getRandomProvocation(context)` | `{success, provocation: lensObj, related: [lensObj], gap_analysis?: coverage, suggestion}`; with `context`, pick uniformly from lenses in an unexplored frame (seeded by `Date.now()`); without, uniformly from curated |
 | `detectThinkingGaps(context)` | `{success, coverage: {explored_frames, unexplored_frames, underexplored_frames, total_frames, coverage_percentage}, suggestions: [{frame, sample_lenses: [{id,name,definition,episode}]}], insight}` — `sample_lenses` = up to 3 per unexplored frame, top 5 frames |
 | `getDialecticTriads(name, limit)` | `{success, thesis: lensObj, triads: [{antithesis, synthesis, contrast_insight, synthesis_insight}]}` |
@@ -458,9 +477,9 @@ Run: `node --test packages/mcp/test/graph.test.mjs` → FAIL (module missing).
 
 Every `error` path returns `{success: false, error: '<message>'}` (never throws) because the handlers print `results.error`.
 
-**Step 1:** write `test/api-local.test.mjs` asserting each export exists and that `findLensJourney('Eye of Sauron','Founder Mode').paths.length >= 1`, `findContrastingLenses('Eye of Sauron').contrasts.some(c => c.name === 'Founder Mode')`, `detectThinkingGaps(['Eye of Sauron']).coverage.total_frames === 28`, `getCentralLenses('degree', 3).central_lenses.length === 3`, and `fetchFromAPI('/x')` rejects.
+**Step 1:** write `test/api-local.test.mjs` asserting each of the 18 exports exists and that `findLensJourney('Eye of Sauron','Founder Mode').paths.length >= 1`, `findContrastingLenses('Eye of Sauron').contrasts.some(c => c.name === 'Founder Mode')`, `detectThinkingGaps(['Eye of Sauron']).coverage.total_frames === 28`, `getCentralLenses('degree', 3).central_lenses.length === 3`, and `fetchFromAPI('/x')` rejects.
 **Step 2:** implement `api-local.js` over `store.js` + `graph.js`. **Step 3:** switch the import in `index.js`, delete `api-client.js`, drop `node-fetch`. Run `node --test packages/mcp/test/` → PASS.
-**Step 4: smoke client** — `packages/mcp/scripts/smoke.mjs`: uses `@modelcontextprotocol/sdk/client/index.js` + `StdioClientTransport` to spawn `node index.js`, `initialize`, then `callTool(process.argv[2], JSON.parse(process.argv[3] || '{}'))` and print the text content. Run: `node packages/mcp/scripts/smoke.mjs search_lenses '{"query":"feedback"}'` → contains `Situation-Behavior-Impact`.
+**Step 4: smoke client** — `packages/mcp/scripts/smoke.mjs`: uses `@modelcontextprotocol/sdk/client/index.js` + `StdioClientTransport` to spawn `node index.js`, `initialize`, then `callTool(process.argv[2], JSON.parse(process.argv[3] || '{}'))` and print the text content; with `--resource <uri>` as the first argument it calls `readResource` instead and prints the first content's text. Also add `'degree'` to the `measure` enum of `get_central_lenses` in `index.js` (Task 4). Run: `node packages/mcp/scripts/smoke.mjs search_lenses '{"query":"feedback"}'` → contains `Situation-Behavior-Impact`.
 **Step 5: Commit** — `feat(mcp): serve every tool from the local store; retire the API client`
 
 <verify>
@@ -470,8 +489,12 @@ Every `error` path returns `{success: false, error: '<message>'}` (never throws)
   expect: contains "Situation-Behavior-Impact"
 - run: `node packages/mcp/scripts/smoke.mjs find_lens_journey '{"source":"Eye of Sauron","target":"Founder Mode"}'`
   expect: contains "Conceptual Journey"
-- run: `grep -c "api-client" packages/mcp/index.js`
+- run: `grep -c "api-client" packages/mcp/index.js || true`
   expect: contains "0"
+- run: `node packages/mcp/scripts/smoke.mjs --resource lens://graph`
+  expect: contains "source_id"
+- run: `node packages/mcp/scripts/smoke.mjs get_central_lenses '{"measure":"pagerank","limit":3}'`
+  expect: contains "Episode"
 </verify>
 
 ### Task 7: CLI on the local engine
@@ -546,10 +569,10 @@ Output: `data/harvest/<machine>.jsonl` — rows of three kinds, `kind: "sighting
 
 ### Task 9: `harvest/merge.py` — union of machines into `index.jsonl`
 
-**Semantics:** read every `data/harvest/*.jsonl`; group sightings by `body_hash`; one index record per hash:
+**Semantics — the index is accretive (melange-2 f-028, the run's top finding: a merge that rebuilds from the current filesystem erases every record the moment prune removes the file, and the safety argument for prune is that record):** read the **existing** `data/generated/index.jsonl` first; then read every `data/harvest/*.jsonl`; group current sightings by `body_hash`. A record, once accessioned, is **never removed** by merge: `accessioned_at` is set once and never changes; `sightings` counts *current* files, `sightings_seen` the cumulative maximum, `last_sighted` the newest current sighting, and `on_disk: false` marks a record with zero current sightings (expected after prune; also how a lens that lived only in a deleted worktree is remembered). One index record per hash:
 ```json
 {"id":"gen:fd-x@1a2b3c4d","name":"fd-x","body_hash":"…","body_path":"generated/lenses/gen:fd-x@1a2b3c4d.md",
- "sightings":3,"reuse_sightings":0,"machines":["clavain","zklw"],"repos":["shadow-work","elf-revel"],"hash_recipe":"body-v1","corrupt":false,
+ "accessioned_at":"2026-09-04T…","last_sighted":"2026-09-04T…","on_disk":true,"sightings":3,"sightings_seen":5,"reuse_sightings":0,"machines":["clavain","zklw"],"repos":["shadow-work","elf-revel"],"hash_recipe":"body-v1","corrupt":false,
  "first_seen":"2026-07-08T21:05:13+00:00","last_seen":"2026-08-30T…",
  "generated_by":"flux-gen-prompt","flux_gen_version":6,"tier":"used","use_count":4,"last_used":"2026-08-12",
  "domains":["migration"],"source_spec":"…json","spec_path":"generated/specs/gen:fd-x@1a2b3c4d.json",
@@ -561,7 +584,7 @@ Output: `data/harvest/<machine>.jsonl` — rows of three kinds, `kind: "sighting
 ```
 `generated_at` for `first_seen`/`last_seen` from frontmatter, falling back to file mtime; `tier`/`use_count`/`last_used` = max across **non-reuse** sightings; `reuse_sightings` counted separately and excluded from `sightings`/`machines`/`repos`; `corrupt` = the body's flag (identical hash ⇒ identical body ⇒ same flag); `lineage.kind` = the melange record's kind when one exists, else `"unknown"`; `cohort` from the first sighting with a spec; `domains` = sorted union minus `uncategorized`; `stats`, `cluster`, `embodies` are filled by Tasks 10 and 12 (merge writes their zero shapes). Specs: copy the spec object to `data/generated/specs/<id>.json` (first sighting with a spec wins; identical specs by definition). Write `data/generated/index.jsonl` sorted by id and `data/reports/<date>-merge.md` listing every hash with >1 sighting (the tier-1 collapses) as `id | sightings | machines | repos`.
 
-**Test** (`tests/harvest/test_merge.py`): two fixture harvest files with an overlapping hash → 1 record with `machines == ["clavain","zklw"]`, `sightings == 2`; ordering stable across two runs (byte-identical output).
+**Test** (`tests/harvest/test_merge.py`): two fixture harvest files with an overlapping hash → 1 record with `machines == ["clavain","zklw"]`, `sightings == 2`; ordering stable across two runs (byte-identical output); **a prior index containing a record whose hash has no current sighting is retained with `on_disk == False`, `sightings == 0`, its `accessioned_at` unchanged, and its body file untouched**; a re-appearing hash flips `on_disk` back to `True` without a new `accessioned_at`.
 
 <verify>
 - run: `python3 -m pytest tests/harvest/test_merge.py -q`
@@ -597,7 +620,7 @@ Output: `data/harvest/<machine>.jsonl` — rows of three kinds, `kind: "sighting
 - `variant-of`: union-find over generated pairs with cosine `≥ VARIANT_MIN_COSINE` **or** identical `name`; each component with ≥ 2 members becomes cluster `clu:<sha256 of sorted member ids>[:12]`; head = the non-corrupt member with the highest `stats.smoothed_hit_rate` among members having `adjudicated >= 2` (`head_selected_by: "hit_rate"`); else highest `use_count + drive_uses` (`"usage"`); else latest `last_seen` (`"recency"`); ties by id; if every member is corrupt the head is chosen by the same rule and the cluster is listed under `corrupt_clusters` in the report. **`edges.jsonl` is regenerated wholesale on every run** (never appended), so head reassignment after new adjudications is automatic (melange f-004/f-012); `embodies` and `fused-from` edges target content-addressed record ids, never heads, so a demoted head dangles nothing. Edge `{source: member, target: head, type: "variant-of", score: cosine(member, head)}` for every non-head member. Singleton records get `cluster: {id: null, head: true}`.
 - `fused-from`: from lineage rows with `kind == "fusion"` and from sightings whose `spec_path` matches `-fusion-\d+\.json`: edge `{source: fused_id, target: parent_id, type: "fused-from"}` for each parent resolved by name through the cluster head; unresolved parents are listed in the report under `unresolved_parents`.
 - Report `data/reports/<date>-edges.md`: counts per type, cluster size histogram, **the 10 closest pairs below `VARIANT_MIN_COSINE`** (not merged) and **the 10 farthest pairs inside clusters** (merged) with names and scores, a nearest-neighbor cosine histogram (bins of 0.02 from 0.70 to 1.00), counts of clusters by `head_selected_by`, the count of records with `hit_rate == null` (expected: nearly all — 118 ledgers against thousands of lenses), all `weak` embodies, all `corrupt` records, and `unresolved_parents`. This is the calibration table a human reads before Task 23.
-- `python3 -m harvest audit`: index records ⇔ body files ⇔ embedding rows (same ids, same counts), every edge endpoint exists, every cluster has exactly one head, `meta.hash_recipe == HASH_RECIPE`; exit 1 on any mismatch. Run after every pull on the Mac and at the end of every zklw run (melange f-020: the canonical producer needs an independent check of its own output).
+- `python3 -m harvest audit`: every index record has a body file and an embedding row; any body file or embedding row **without** an index record is an error (an orphan means a record was lost); `on_disk: false` records are expected, never errors; every edge endpoint exists; every cluster has exactly one head; `meta.hash_recipe == HASH_RECIPE`; exit 1 on any mismatch. Run after every pull on the Mac and at the end of every zklw run (melange f-020: the canonical producer needs an independent check of its own output).
 
 **Test:** 4 generated + 3 curated unit-vector fixture → expected clusters, head choice by hit-rate, weak embodies flag, fused-from resolution through the head.
 
@@ -612,7 +635,7 @@ Output: `data/harvest/<machine>.jsonl` — rows of three kinds, `kind: "sighting
 - Modify: `packages/mcp/lib/store.js` (add `resolveLens`), `packages/mcp/index.js` (3 new tools; `search_lenses` gains optional `layer` arg, default `all`; results print `[generated]`/`[curated]` before each name; `get_lens` prints `cluster`, `hit_rate`, `embodies`, `sightings` for generated lenses)
 - Test: `packages/mcp/test/generated.test.mjs` using a fixture `data` dir via `LINSENKASTEN_DATA_ROOT`
 
-**`resolveLens({text?, spec?, k = 3})`:** text = `spec ? embeddingText(spec) : text` (JS port of `thresholds.embedding_text`, kept byte-identical); `embedTexts([text])` → if `null`, lexical fallback: exact `name` match or Jaccard over `tokens(spec.focus)` vs record `summary` tokens ≥ 0.6 → `{matched: bool, method: "lexical"}`; else `cosineTopK` over `generated` heads only (non-heads and **corrupt records are skipped**) → `matches: [{id, name, score, hit_rate, smoothed_hit_rate, adjudicated, embodies, cluster, cohort_siblings}]`, `matched = matches[0].score >= RESOLVE_MIN_COSINE`, `method: "embedding"`, plus `embed_tier` and `model_match` from Task 5.
+**`resolveLens({text?, spec?, k = 3})`:** text = `spec ? embeddingText(spec) : text` (JS port of `thresholds.embedding_text`; byte-identity is **tested**, not asserted in prose — melange-2 f-015: `tests/fixtures/embedding_text/<case>.{spec.json|body.md|expected.txt}` with at least a spec case, a body-only case with several `### N.` headings, and a corrupt-marker body; `tests/harvest/test_embedding_text.py` and `packages/mcp/test/embedding-text.test.mjs` both read every case and compare to `expected.txt` byte for byte); `embedTexts([text])` → if `null`, lexical fallback: exact `name` match or Jaccard over `tokens(spec.focus)` vs record `summary` tokens ≥ 0.6 → `{matched: bool, method: "lexical"}`; else `cosineTopK` over `generated` heads only (non-heads and **corrupt records are skipped**) → `matches: [{id, name, score, hit_rate, smoothed_hit_rate, adjudicated, embodies, cluster, cohort_siblings}]`, `matched = matches[0].score >= RESOLVE_MIN_COSINE`, `method: "embedding"`, plus `embed_tier` and `model_match` from Task 5.
 
 **`record_reuse({registry_id, consumer, target, project})`** → `store.recordReuse` → `{success: true}`. **`registry_stats`** → `getStats()` plus edge counts by type, cluster count, clusters by `head_selected_by`, corrupt count, the process's `embedCounters`, and reuse counts per lens from `reuse-log.jsonl` (melange f-026: the serving trail is the reuse log; make it queryable).
 
@@ -630,7 +653,7 @@ Output: `data/harvest/<machine>.jsonl` — rows of three kinds, `kind: "sighting
 **Step 3:** `python3 -m harvest embed --check` (local Ollama; ~1,700 generated + 258 curated texts; expect < 10 min).
 **Step 4:** `python3 -m harvest edges` and **read `data/reports/<date>-edges.md`**: the calibration tables are part of the deliverable; if the ten closest non-merged pairs are obviously the same lens, or the ten farthest merged pairs are obviously different lenses, adjust `VARIANT_MIN_COSINE` by ±0.02 once, re-run edges, and record the before/after in the report header. Do not iterate further without a human.
 **Step 5:** `node packages/mcp/scripts/smoke.mjs search_lenses '{"query":"identity platform migration","layer":"generated"}'` → contains `fd-authplatform-migration`.
-**Step 6: Commit** in two commits: `data: clavain harvest 2026-09-xx (N sightings, M unique)` (data/harvest, data/generated, data/reports) and `data: embeddings (nomic-embed-text, 768-d)` (data/embeddings). Push.
+**Step 6: Commit** in two commits: `data: clavain harvest 2026-09-xx (N sightings, M unique)` (data/harvest, data/generated, data/reports) and `data: embeddings (nomic-embed-text, 768-d)` (data/embeddings). **Land:** `git push origin feat/linsenkasten && git push origin feat/linsenkasten:main` (the landing rule from Task 1); confirm with `git fetch origin && git log --oneline -1 origin/main` showing the embeddings commit (melange-2 f-010/f-018).
 
 <verify>
 - run: `python3 -c "import json;n=sum(1 for _ in open('data/generated/index.jsonl'));print('records',n)"`
@@ -643,13 +666,12 @@ Output: `data/harvest/<machine>.jsonl` — rows of three kinds, `kind: "sighting
 
 ### Task 15: zklw harvest, merge on zklw, embed on zklw (the canonical pass)
 
-Run on zklw (hand off the SSH step if the Bash gate bites; commands are the same):
+Precondition: from zklw, `git -C ~/projects/Sylveste/interverse/interlens fetch origin && git log --oneline -1 origin/main` shows Task 14's embeddings commit (melange-2 f-018: zklw's main was at the brainstorm commit with none of Stage A–C when checked live). Then run on zklw (hand off the SSH step if the Bash gate bites), using the shared script from Task 22 so the push retry logic is the same on both machines:
 ```bash
 cd ~/projects/Sylveste/interverse/interlens && git pull --ff-only origin main
-python3 -m harvest scan --machine zklw --roots ~/projects
-python3 -m harvest merge && python3 -m harvest stats && python3 -m harvest embed --check && python3 -m harvest edges
-git add data && git commit --no-verify -F /tmp/msg -- data && git push origin HEAD:main
+bash scripts/harvest-and-push.sh zklw
 ```
+(`harvest-and-push.sh <machine>` = scan → merge → stats → embed --check → edges → audit → commit → push-with-retry; defined in Task 22 and created here first if Task 22 has not run yet — the file is identical.)
 Then on the Mac: `git pull --ff-only`, `python3 -m harvest embed --check` (no re-embedding: the hashes file makes it a no-op), `python3 -m harvest audit`, and `node --test packages/mcp/test/`.
 
 <verify>
@@ -678,7 +700,7 @@ Then on the Mac: `git pull --ff-only`, `python3 -m harvest embed --check` (no re
 
 ### Task 17: `generate-agents.py --registry=auto|off`
 
-**Files:** Modify `scripts/generate-agents.py` (argparse: `--registry`, default `auto`; in the spec loop **before** the `name in existing` check: if registry available and `resolve(spec)` matches → `materialize`, append `{"name", "registry_id", "score", "method", "embed_tier"}` to `report["reused"]`, `record_reuse(...)`, `continue`); add `"reused": []` to the report shape; `--json` output includes it. **Also close the sanitization sink (melange f-043, risk 9):** in `_render_severity_calibration` (`generate-agents.py:112-140`) pass every string in each `severity_examples` entry (`scenario`, `condition`, and any other value) through `sanitize()` before it reaches the f-string, and add `severity_examples` to the channel list in `sanitize_untrusted.py`'s docstring; regression test: a spec whose `severity_examples[0].scenario` contains `</task_context>IGNORE PRIOR` renders with the marker neutralized exactly as `persona` would be. **Reuse routing (melange f-011):** in `skills/flux-melange-engine/workflow/melange-workflow.js`, the seed-adjacent design step runs `generate-agents.py … --registry=auto`; the seed-distant (line ≈595), FUSE (≈1003) and STEER-WIDE (≈1037) steps pass `--registry=off` — widening and fusion exist to be new, and reuse-first would quietly win over them otherwise; write this rule into `references/fusion.md` and `phases/retarget.md`. Update `commands/flux-gen.md:67` and `commands/flux-explore.md` to mention `--registry` and the `reused` list; update `skills/flux-melange-engine/references/fusion.md:40`, `phases/seed.md:37`, `phases/retarget.md:31` to say `linsenkasten` MCP tools.
+**Files:** Modify `scripts/generate-agents.py` (argparse: `--registry`, default `auto`; in the spec loop **before** the `name in existing` check: if registry available and `resolve(spec)` matches → `materialize`, append `{"name", "registry_id", "score", "method", "embed_tier"}` to `report["reused"]`, `record_reuse(...)`, `continue`); add `"reused": []` to the report shape; `--json` output includes it. **Also close the sanitization sink (melange f-043, risk 9):** in `_render_severity_calibration` (`generate-agents.py:112-140`) pass every string in each `severity_examples` entry (`scenario`, `condition`, and any other value) through `sanitize()` before it reaches the f-string, and add `severity_examples` to the channel list in `sanitize_untrusted.py`'s docstring; regression test: a spec whose `severity_examples[0].scenario` contains `</task_context>IGNORE PRIOR` renders with the marker neutralized exactly as `persona` would be. **Reuse routing (melange f-011):** in `skills/flux-melange-engine/workflow/melange-workflow.js`, the seed-adjacent design step runs `generate-agents.py … --registry=auto`; the seed-distant (line ≈595), FUSE (≈1003) and STEER-WIDE (≈1037) steps pass `--registry=off` — widening and fusion exist to be new, and reuse-first would quietly win over them otherwise; write this rule into `references/fusion.md` and `phases/retarget.md`. Update `commands/flux-gen.md:67` and `commands/flux-explore.md` to mention `--registry` and the `reused` list. **Do not rename the MCP server key in interflux docs here** — `fusion.md:40`, `seed.md:37`, `retarget.md:31` keep saying `interlens` until Task 20 step 5 renames them in the same change that renames the key, so live docs never name a tool that does not exist yet (melange-2 f-035).
 
 **Test:** `tests/test_generate_agents_registry.py`: spec matching the fixture registry → file written with `tier: registry`, report `reused` has 1 entry, `generated` has 0; with `--registry=off` → rendered normally.
 
@@ -689,10 +711,10 @@ Then on the Mac: `git pull --ff-only`, `python3 -m harvest embed --check` (no re
 
 ### Task 18: Prove a real reuse (DONE WHEN item)
 
-Pick a target where a hit is near-certain: re-run flux-gen against the jawn apex-domain decision that produced `fd-authplatform-migration` (spec at `~/.claude/flux-gen-specs/jawn-apex-domain-decision-seed-adjacent.json`): `python3 ~/projects/Sylveste/interverse/interflux/scripts/generate-agents.py /tmp/lk-reuse-proof --from-specs ~/.claude/flux-gen-specs/jawn-apex-domain-decision-seed-adjacent.json --mode=skip-existing --registry=auto --json` after `mkdir -p /tmp/lk-reuse-proof/.claude/agents`. Then run one real `/flux-drive` or `/flux-melange` on any current design doc and check its report for `reused`. Record both in `docs/research/2026-09-xx-reuse-proof.md` with the reuse-log lines.
+Pick a target where a hit is near-certain: re-run flux-gen against the jawn apex-domain decision that produced `fd-authplatform-migration` (spec at `~/.claude/flux-gen-specs/jawn-apex-domain-decision-seed-adjacent.json`). **Set the registry root explicitly** (melange-2 f-033: `find_registry_root()` cannot see the worktree, and the main checkout carries no `data/generated/` until the sweep lands): `export LINSENKASTEN_ROOT=$HOME/projects/.worktrees/interlens-linsenkasten` (or the renamed canonical path once Task 20 has run) before both commands below, and pass the same variable into the flux-drive/melange session's environment. `python3 ~/projects/Sylveste/interverse/interflux/scripts/generate-agents.py /tmp/lk-reuse-proof --from-specs ~/.claude/flux-gen-specs/jawn-apex-domain-decision-seed-adjacent.json --mode=skip-existing --registry=auto --json` after `mkdir -p /tmp/lk-reuse-proof/.claude/agents`. Then run one real `/flux-drive` or `/flux-melange` on any current design doc and check its report for `reused`. Record both in `docs/research/2026-09-xx-reuse-proof.md` with the reuse-log lines.
 
 <verify>
-- run: `python3 ~/projects/Sylveste/interverse/interflux/scripts/generate-agents.py /tmp/lk-reuse-proof --from-specs ~/.claude/flux-gen-specs/jawn-apex-domain-decision-seed-adjacent.json --mode=skip-existing --registry=auto --json | python3 -c "import sys,json;r=json.load(sys.stdin);print('reused',len(r['reused']))"`
+- run: `LINSENKASTEN_ROOT=$HOME/projects/.worktrees/interlens-linsenkasten python3 ~/projects/Sylveste/interverse/interflux/scripts/generate-agents.py /tmp/lk-reuse-proof --from-specs ~/.claude/flux-gen-specs/jawn-apex-domain-decision-seed-adjacent.json --mode=skip-existing --registry=auto --json | python3 -c "import sys,json;r=json.load(sys.stdin);print('reused',len(r['reused']))"`
   expect: contains "reused 1"
 - run: `tail -1 data/generated/reuse-log.jsonl`
   expect: contains "registry_id"
@@ -704,23 +726,23 @@ Pick a target where a hit is near-certain: re-run flux-gen against the jawn apex
 
 ### Task 19: In-repo rename
 
-Reverse of `docs/research/rename-linsenkasten-in-plugin.md` (Feb 2026) which lists every file; apply its mapping table backwards (`interlens`→`linsenkasten`, `Interlens`→`Linsenkasten`, `InterlensMCP`→`LinsenkastenMCP`, `interlens-mcp`→`linsenkasten-mcp`, `INTERLENS_*`→`LINSENKASTEN_*`) with `git ls-files -z | xargs -0 grep -lI -i interlens | xargs sed -i '' …` **excluding** `CHANGELOG.md` history entries, `docs/brainstorms/**`, `docs/plans/**`, `docs/research/**` (allowlist). Specifics: `.claude-plugin/plugin.json` `name` + `mcpServers` key; `kimi.plugin.json`; `packages/mcp/package.json` `name` = `linsenkasten-mcp`, `bin` = `{"linsenkasten": "./cli.js", "linsenkasten-mcp": "./index.js"}`, `version` = `3.0.0`; root `package.json`; `tests/structural/test_structure.py:18` → `"linsenkasten"`; README/CLAUDE/AGENTS/PHILOSOPHY; a CHANGELOG `3.0.0` entry naming the rename, the local engine and the registry. Remove the dead deploy files here too if Task 21 has not run yet.
+Reverse of `docs/research/rename-linsenkasten-in-plugin.md` (Feb 2026) which lists every file; apply its mapping table backwards (`interlens`→`linsenkasten`, `Interlens`→`Linsenkasten`, `InterlensMCP`→`LinsenkastenMCP`, `interlens-mcp`→`linsenkasten-mcp`, `INTERLENS_*`→`LINSENKASTEN_*`) with `git ls-files -z | xargs -0 grep -lI -i interlens | xargs sed -i '' …` **excluding** `CHANGELOG.md` history entries, `docs/brainstorms/**`, `docs/plans/**`, `docs/research/**` (allowlist). Specifics: `.claude-plugin/plugin.json` `name` + `mcpServers` key; `kimi.plugin.json`; `packages/mcp/package.json` `name` = `linsenkasten-mcp`, `bin` = `{"linsenkasten": "./cli.js", "linsenkasten-mcp": "./index.js"}`, `version` = `3.0.0`; root `package.json`; `tests/structural/test_structure.py:18` → `"linsenkasten"`; README/CLAUDE/AGENTS/PHILOSOPHY; `docs/vision.md`, `docs/roadmap.json`, and `git mv docs/interlens-vision.md docs/linsenkasten-vision.md` (melange-2 f-001: these three are inside the sweep and inside the verify); a CHANGELOG `3.0.0` entry naming the rename, the local engine and the registry. `packages/mcp/README.md`'s `npm install -g …` instruction is replaced by the marketplace install (`/plugin install linsenkasten`) plus one line: "the npm package `linsenkasten-mcp` is frozen at 2.2.1 until republished" — the rename sweep must not leave an install path that serves a 2025 snapshot (melange-2 f-024/f-032). Remove the dead deploy files here too if Task 21 has not run yet.
 
 <verify>
 - run: `PYTHONPATH=$HOME/projects/Sylveste/interverse python3 -m pytest tests -q && node --test packages/mcp/test/`
   expect: exit 0
-- run: `git ls-files | grep -v -E '^(CHANGELOG.md|docs/)' | xargs grep -lI -i interlens | wc -l | tr -d ' '`
+- run: `git ls-files | grep -v -E '^(CHANGELOG.md|docs/(brainstorms|plans|research)/)' | xargs grep -lI -i interlens | wc -l | tr -d ' '`
   expect: contains "0"
 </verify>
 
 ### Task 20: Repo, directories, marketplace, settings, cross-repo references
 
 1. `gh repo rename linsenkasten -R mistakeknot/interlens --yes` (redirect flips; the old URL keeps working).
-2. Both machines: `mv ~/projects/Sylveste/interverse/interlens ~/projects/Sylveste/interverse/linsenkasten && git -C ~/projects/Sylveste/interverse/linsenkasten remote set-url origin git@github.com:mistakeknot/linsenkasten.git`; the `.git-autosync` marker moves with the directory; re-point the Mac worktree (`git worktree repair`).
+2. Both machines: `mv ~/projects/Sylveste/interverse/interlens ~/projects/Sylveste/interverse/linsenkasten && git -C ~/projects/Sylveste/interverse/linsenkasten remote set-url origin git@github.com:mistakeknot/linsenkasten.git`; the `.git-autosync` marker moves with the directory; re-point the Mac worktree (`git -C ~/projects/Sylveste/interverse/linsenkasten worktree repair`). Then the two connector files from Task 2 Step 3 get their directory segment updated to `interverse/linsenkasten/data/curated/lenses.json`, tests re-run in both repos (melange-2 f-002).
 3. `~/projects/interagency-marketplace/.claude-plugin/marketplace.json`: the row `name: linsenkasten`, `url: https://github.com/mistakeknot/linsenkasten.git`, `version: 3.0.0`, description: "Lens box: 288 FLUX cognitive lenses plus the registry of every generated fd-* review lens — searchable, ranked, reused by flux-gen and melange. Local MCP over an in-repo graph." README section `### interlens` → `### linsenkasten` with `/plugin install linsenkasten`.
-4. `~/.claude/settings.json` on both machines: delete `"interlens@interagency-marketplace": false`, add `"linsenkasten@interagency-marketplace": true`.
-5. Clavain (`~/projects/Sylveste/os/Clavain`), the 8 real files: `agent-rig.json`, `commands/setup.md`, `docs/clavain-vision.md`, `docs/PRD.md`, `docs/roadmap.json`, `scripts/install-codex-interverse.sh`, and the two `docs/research/*.md` (leave research history untouched; edit the other six). interflux docs from Task 17. `interlock`, `lattice`, `core/interweave` mentions: grep, and edit only live config/scripts (not docs/research).
-6. Publish: `interpub:release` for linsenkasten 3.0.0 and interflux (patch bump).
+4. `~/.claude/settings.json` on both machines: delete `"interlens@interagency-marketplace": false`, add `"linsenkasten@interagency-marketplace": true`; then `rm -rf ~/.claude/plugins/cache/interagency-marketplace/interlens` on both machines (the cache is keyed by plugin name and the old directory would otherwise sit orphaned — melange-2 f-004) and confirm a fresh session populates `~/.claude/plugins/cache/interagency-marketplace/linsenkasten/3.0.0/`.
+5. Clavain (`~/projects/Sylveste/os/Clavain`), the 8 real files: `agent-rig.json`, `commands/setup.md`, `docs/clavain-vision.md`, `docs/PRD.md`, `docs/roadmap.json`, `scripts/install-codex-interverse.sh`, and the two `docs/research/*.md` (leave research history untouched; edit the other six). interflux docs naming the MCP server (`skills/flux-melange-engine/references/fusion.md:40`, `phases/seed.md:37`, `phases/retarget.md:31`, plus the routing rule text from Task 17) → `linsenkasten` in this step. `interlock`, `lattice`, `core/interweave` mentions: grep, and edit only live config/scripts (not docs/research); the two connector files were already handled in step 2.
+6. Publish: `interpub:release` for linsenkasten 3.0.0 and interflux (patch bump) — this is the marketplace (git-sourced) publish and needs no npm. **npm is separate and optional:** `linsenkasten-mcp` on npm is this project's own pre-rename identity (versions 1.0.0–2.2.1, maintainer `gensysven`, mk's account; checked live 2026-09-03) and this Mac has no npm session (`npm whoami` → 401). Publishing 3.0.0 there requires an interactive `npm login` as that account — hand it off; never publish under any other name, and never let the release script assume npm auth (melange-2 f-003/f-019). Skipping npm leaves the plugin fully installable through the marketplace.
 
 <verify>
 - run: `gh repo view mistakeknot/linsenkasten --json name -q .name`
@@ -729,6 +751,8 @@ Reverse of `docs/research/rename-linsenkasten-in-plugin.md` (Feb 2026) which lis
   expect: contains "1"
 - run: `grep -c 'linsenkasten@interagency-marketplace": true' ~/.claude/settings.json`
   expect: contains "1"
+- run: `npm view linsenkasten-mcp version` (reports the npm layer; `2.2.1` means not republished — allowed, but it must be stated in the release notes)
+  expect: exit 0
 </verify>
 
 ---
@@ -737,7 +761,7 @@ Reverse of `docs/research/rename-linsenkasten-in-plugin.md` (Feb 2026) which lis
 
 ### Task 21: Delete the Flask app and deploy configs
 
-Delete: `apps/api/` entirely (data already moved; `scripts/generate_contrasts*.py` stay in git history), `apps/web/api/` (Vercel functions incl. `mcp-sse.js`), `apps/web/vercel.json`, `apps/web/netlify.toml`, `apps/web/railway.toml`, `apps/web/Dockerfile`, `apps/web/setup.sh`, `packages/mcp/examples/*` referring to remote URLs (rewrite to stdio config), `express` + `cors` from `packages/mcp/package.json`, `"dev": "vercel dev"` script. Update `pnpm-workspace.yaml` if it lists `apps/api`.
+Delete: `apps/api/` entirely (data already moved; the graph reference lives on as `tests/fixtures/graph-py/` from Task 4 Step 0 and in git history at `git log -1 -- apps/api/src/lens/graph.py`; `scripts/generate_contrasts*.py` stay in git history; the lattice/interweave connectors were re-pointed in Task 2, so nothing outside this repo reads `apps/api` any more), `apps/web/api/` (Vercel functions incl. `mcp-sse.js`), `apps/web/vercel.json`, `apps/web/netlify.toml`, `apps/web/railway.toml`, `apps/web/Dockerfile`, `apps/web/setup.sh`, `packages/mcp/examples/*` referring to remote URLs (rewrite to stdio config), `express` + `cors` from `packages/mcp/package.json`, `"dev": "vercel dev"` script. Update `pnpm-workspace.yaml` if it lists `apps/api`.
 
 <verify>
 - run: `test ! -d apps/api && test ! -d apps/web/api && echo gone`
@@ -748,7 +772,7 @@ Delete: `apps/api/` entirely (data already moved; `scripts/generate_contrasts*.p
 
 ### Task 22: `packages/mcp/server.js` + explorer build + zklw user unit
 
-**Server** (`node:http`, no deps): `--host` (default `127.0.0.1`), `--port` (default `7411`), `--static <dir>` (default `apps/web/build`). Routes over `store.js`/`graph.js`, JSON shapes matching what `apps/web/src/components/useLenses.js` reads (`data.lenses`, `data.results`, `data.statistics`, `data.timeline`, `data.concepts`, `data.frames`, `data.contrasts`) and `LensGraphEnhanced.jsx` (`/lenses/graph` → `{nodes:[{id,name,episode,type,layer}], edges:[{source,target,weight,type}]}`; `/lenses/graph/enhanced` same plus generated nodes and typed edges): `/api/v1/lenses` (query `type`, `episode`, `layer`), `/api/v1/lenses/search?q=`, `/api/v1/lenses/stats` → `{statistics: getStats()}`, `/api/v1/lenses/episodes/:n`, `/api/v1/lenses/concepts` (related_concepts counted), `/api/v1/lenses/timeline` (per-episode counts), `/api/v1/lenses/:id`, `/api/v1/creative/contrasts?lens=`, `/api/v1/frames`. 404 JSON otherwise. Static files served with correct MIME for `.html .js .css .json .png .svg .woff2`.
+**Server** (`node:http`, no deps): `--host <address>` (default `127.0.0.1`), **`--host-file <path>`** (read the first line of the file, trimmed, and use it as the bind address; exits 2 with a message if the file is missing or empty — melange-2 f-009/f-021: passing a path as `--host` made Node attempt DNS resolution of the path and crash, reproduced live on zklw), `--port` (default `7411`), `--static <dir>` (default `apps/web/build`). Unit test: `--host-file` on a temp file containing `127.0.0.1` binds; on a missing file exits 2. Routes over `store.js`/`graph.js`, JSON shapes matching what `apps/web/src/components/useLenses.js` reads (`data.lenses`, `data.results`, `data.statistics`, `data.timeline`, `data.concepts`, `data.frames`, `data.contrasts`) and `LensGraphEnhanced.jsx` (`/lenses/graph` → `{nodes:[{id,name,episode,type,layer}], edges:[{source,target,weight,type}]}`; `/lenses/graph/enhanced` same plus generated nodes and typed edges): `/api/v1/lenses` (query `type`, `episode`, `layer`), `/api/v1/lenses/search?q=`, `/api/v1/lenses/stats` → `{statistics: getStats()}`, `/api/v1/lenses/episodes/:n`, `/api/v1/lenses/concepts` (related_concepts counted), `/api/v1/lenses/timeline` (per-episode counts), `/api/v1/lenses/:id`, `/api/v1/creative/contrasts?lens=`, `/api/v1/frames`. 404 JSON otherwise. Static files served with correct MIME for `.html .js .css .json .png .svg .woff2`.
 **Explorer:** `LensCard.jsx` renders `{lens.layer === 'generated' && <span className="layer-badge">generated</span>}`; `apps/web/src/components/useLenses.js` default `API_BASE_URL` → `'/api/v1'`. Build: `pnpm -C apps/web install && pnpm -C apps/web build`.
 **zklw unit** `~/.config/systemd/user/linsenkasten-explorer.service`:
 ```ini
@@ -756,13 +780,32 @@ Delete: `apps/api/` entirely (data already moved; `scripts/generate_contrasts*.p
 Description=Linsenkasten explorer (local store, Tailscale only)
 [Service]
 WorkingDirectory=%h/projects/Sylveste/interverse/linsenkasten
-ExecStart=/usr/bin/env node packages/mcp/server.js --host %h/.local/share/linsenkasten/ts-ip --port 7411
+ExecStart=/usr/bin/env node packages/mcp/server.js --host-file %h/.local/share/linsenkasten/ts-ip --port 7411
 Restart=on-failure
 [Install]
 WantedBy=default.target
 ```
-(`--host` accepts a path: the server reads the file to get zklw's Tailscale IP, written once by `tailscale ip -4 > ~/.local/share/linsenkasten/ts-ip`; `systemctl --user daemon-reload && systemctl --user enable --now linsenkasten-explorer`; `loginctl show-user mk -p Linger` says `yes` on zklw, checked 2026-09-02). The explorer binds the Tailscale address only and has no auth: it is read-only and reachable solely inside the tailnet; the unit must never be given `0.0.0.0`.
-**Recurring harvest (melange f-039: without it the context-tax fix decays while the deletion stays permanent):** add `scripts/zklw-harvest.sh` (`set -euo pipefail`; `git pull --ff-only origin main`; `python3 -m harvest scan --machine zklw --roots ~/projects && python3 -m harvest merge && python3 -m harvest stats && python3 -m harvest embed --check && python3 -m harvest edges && python3 -m harvest audit`; if `git status --porcelain data` is non-empty: `git add data && git commit --no-verify -F <generated msg> -- data && git push origin HEAD:main`) and a user timer `linsenkasten-harvest.timer` (`OnCalendar=*-*-* 04:30:00`, `Persistent=true`) driving `linsenkasten-harvest.service` (`Type=oneshot`, same `WorkingDirectory`). The Mac harvests on demand (`python3 -m harvest scan --machine clavain` before any prune). Note: `scripts/` then holds 4 `.sh` files — update `tests/structural/test_structure.py:test_scripts_count` to 4 in the same commit.
+(**Explicit step, on zklw, before enabling the unit** — the file does not exist yet, checked live 2026-09-03 (melange-2 f-011): `mkdir -p ~/.local/share/linsenkasten && tailscale ip -4 > ~/.local/share/linsenkasten/ts-ip && cat ~/.local/share/linsenkasten/ts-ip`, expected `100.78.63.67`; `systemctl --user daemon-reload && systemctl --user enable --now linsenkasten-explorer`; `loginctl show-user mk -p Linger` says `yes` on zklw, checked 2026-09-02). The explorer binds the Tailscale address only and has no auth: it is read-only and reachable solely inside the tailnet; the unit must never be given `0.0.0.0`.
+**Recurring harvest (melange f-039: without it the context-tax fix decays while the deletion stays permanent):** add **`scripts/harvest-and-push.sh <machine>`** (shared by zklw's timer and the Mac's on-demand runs — melange-2 f-012):
+```bash
+#!/usr/bin/env bash
+# harvest-and-push.sh <machine> — one atomic registry sweep: any failure discards the partial harvest.
+set -euo pipefail
+MACHINE="${1:?machine name required}"; ROOTS="${LINSENKASTEN_ROOTS:-$HOME/projects}"
+STATE="$HOME/.local/share/linsenkasten"; mkdir -p "$STATE"
+cd "$(dirname "$0")/.."
+trap 'rc=$?; if [ $rc -ne 0 ]; then git checkout -q -- data && git clean -fdq data; echo "$(date -u +%FT%TZ) rc=$rc step=${STEP:-?}" >> "$STATE/harvest-failed.log"; fi' EXIT
+STEP=pull;  git pull -q --ff-only origin main
+for STEP in "scan --machine $MACHINE --roots $ROOTS" merge stats "embed --check" edges audit; do python3 -m harvest $STEP; done
+STEP=commit
+if [ -n "$(git status --porcelain data)" ]; then
+  printf '%s\n' "data: $MACHINE harvest $(date -u +%F)" > /tmp/lk-harvest-msg
+  git add data && git commit -q --no-verify -F /tmp/lk-harvest-msg -- data
+  STEP=push
+  for i in 1 2 3; do git push -q origin HEAD:main && break; git pull -q --rebase --autostash origin main || true; [ $i -eq 3 ] && { echo "$(date -u +%FT%TZ) push failed after 3 attempts" >> "$STATE/push-failed.log"; exit 1; }; done
+fi
+```
+(melange-2 f-020: the `trap` discards a half-written `data/` on any failure so the next run's `pull --ff-only` never wedges on a dirty tree; failures land in `~/.local/share/linsenkasten/*.log`, and the systemd unit carries `OnFailure=linsenkasten-harvest-failed.service`, a oneshot that appends the journal tail to the same log.) User timer `linsenkasten-harvest.timer` (`OnCalendar=*-*-* 04:30:00`, `Persistent=true`) driving `linsenkasten-harvest.service` (`Type=oneshot`, `WorkingDirectory=%h/projects/Sylveste/interverse/linsenkasten`, `ExecStart=/usr/bin/env bash scripts/harvest-and-push.sh zklw`). The Mac runs `bash scripts/harvest-and-push.sh clavain` on demand (always before any prune). Note: `scripts/` then holds 3 `.sh` files — update `tests/structural/test_structure.py:test_scripts_count` to 3 in the same commit.
 
 <verify>
 - run: `node packages/mcp/server.js --port 7412 & sleep 1; curl -s localhost:7412/api/v1/lenses/search?q=feedback | head -c 200; kill %1`
@@ -777,7 +820,7 @@ WantedBy=default.target
 
 ### Task 23: `harvest/prune.py` and the Mac sweep
 
-**Semantics:** `python3 -m harvest prune --machine clavain [--apply]`. Reads `data/generated/index.jsonl` + `data/harvest/clavain.jsonl`. Candidate repos = lines of `data/prune-targets.txt` (created by `--plan`: every repo with a pile that (a) is a git repo, (b) is not under `.worktrees/`, `.claude/worktrees/`, or a directory whose name ends in `-sessions`, `-f2`, `-spike-*`, (c) has a clean `git status --porcelain` for paths outside `.claude/`). **A human reviews and commits `prune-targets.txt` before `--apply`.** **Preconditions, all machine-checked, any failure refuses the whole run with the reason printed (melange convergence cluster c-fork4-prune-precondition-git-lag, blast 3, three lenses):** (1) the registry checkout is clean (`git status --porcelain data` empty); (2) `git fetch origin main` succeeded and `git rev-parse HEAD` equals `git rev-parse origin/main` — the registry state the prune cites is **pushed**, so no machine can be pruning against an index the other has never seen; (3) `python3 -m harvest audit` exits 0; (4) the newest `fd-*.md` mtime in every target is older than `data/harvest/<machine>.jsonl`'s timestamp ("re-harvest first"); (5) every `*-fusion-*.json` under a target has every spec name resolved to an index record **and** a `fused-from` edge for each parent (melange f-001/f-023) — a repo failing (5) is skipped and listed, not pruned. The registry commit SHA from (2) is written into every prune commit message and the report header. For each target: for every `.claude/agents/fd-*.md`, compute `body_hash`; if the hash is **not** in the index → keep and list under `kept: not in registry`; else delete (`git rm -q` if tracked, `rm` otherwise); delete files under `.claude/flux-gen-specs/` **per spec file** (a spec file is deletable when every `name` inside it resolves to an index record; any other file in that directory, including a legacy `reuse-log.jsonl`, is kept and listed); delete `.claude/agents/.index.yaml` only if no non-fd agents remain in it. Commit per repo on **its current branch, checked in the same command** (`git -C <repo> symbolic-ref --short HEAD`), message `chore: prune generated review lenses (harvested into linsenkasten <index commit>)`, `--no-verify`. Sylveste root (`~/projects/Sylveste/.claude/agents`, 396 files): main is protected → commit on a branch `chore/prune-fd-agents` and open a PR; list it in the report as "PR opened". Push each prune commit before moving to the next repo (a deletion that exists only locally is the split-brain the review warned about). Report `data/reports/<date>-prune-clavain.md`: registry commit SHA, per repo `path | registry id | action | commit`, the kept list, the refused repos with reasons.
+**Semantics:** `python3 -m harvest prune --machine clavain [--apply]`. Reads `data/generated/index.jsonl` + `data/harvest/clavain.jsonl`. Candidate repos = lines of `data/prune-targets.txt` (created by `--plan`: every repo with a pile that (a) is a git repo, (b) is not under `.worktrees/`, `.claude/worktrees/`, or a directory whose name ends in `-sessions`, `-f2`, `-spike-*`, (c) has a clean `git status --porcelain` for paths outside `.claude/`). **A human reviews and commits `prune-targets.txt` before `--apply`.** **Preconditions, all machine-checked, any failure refuses the whole run with the reason printed (melange convergence cluster c-fork4-prune-precondition-git-lag, blast 3, three lenses):** (1) the registry checkout is clean (`git status --porcelain data` empty); (2) `git fetch origin main` succeeded and `git rev-parse HEAD` equals `git rev-parse origin/main` — the registry state the prune cites is **pushed**, so no machine can be pruning against an index the other has never seen; (3) `python3 -m harvest audit` exits 0; (4) the newest `fd-*.md` mtime in every target is older than `data/harvest/<machine>.jsonl`'s timestamp ("re-harvest first"); (5) every `*-fusion-*.json` under a target has every spec name resolved to an index record **and** a `fused-from` edge for each parent (melange f-001/f-023) — a repo failing (5) is skipped and listed, not pruned. The registry commit SHA from (2) is written into every prune commit message and the report header. For each target: for every `.claude/agents/fd-*.md`, compute `body_hash`; if the hash is **not** in the index → keep and list under `kept: not in registry`; else delete (`git rm -q` if tracked, `rm` otherwise); delete files under `.claude/flux-gen-specs/` **per spec file** (a spec file is deletable when every `name` inside it resolves to an index record; any other file in that directory, including a legacy `reuse-log.jsonl`, is kept and listed); delete `.claude/agents/.index.yaml` only if no non-fd agents remain in it. Commit per repo on **its current branch, checked in the same command** (`git -C <repo> symbolic-ref --short HEAD`), message `chore: prune generated review lenses (harvested into linsenkasten <index commit>)`, `--no-verify`. Sylveste root (`~/projects/Sylveste/.claude/agents`, 396 files): main is protected and the shared checkout is on someone else's branch (`estate-checks-falsifiable` when checked live 2026-09-03) — **never switch it**; run `git -C ~/projects/Sylveste worktree add ~/projects/.worktrees/sylveste-prune-fd-agents -b chore/prune-fd-agents origin/main`, prune inside that worktree, push, open the PR with `gh pr create --body-file`, remove the worktree, and list the PR in the report as "PR opened" (melange-2 f-029). Task 25 waits for `gh pr view <n> --json state -q .state` to print `MERGED`, not merely for the PR to exist. Push each prune commit before moving to the next repo (a deletion that exists only locally is the split-brain the review warned about). Report `data/reports/<date>-prune-clavain.md`: registry commit SHA, per repo `path | registry id | action | commit`, the kept list, the refused repos with reasons.
 
 **Test:** fixture repo with 3 agents (2 in registry, 1 not) → `--apply` deletes 2, keeps 1, commits once; a dirty repo is refused; a stale harvest is refused.
 
@@ -790,7 +833,14 @@ WantedBy=default.target
 
 ### Task 24: zklw prune sweep
 
-Same as Task 23 on zklw after `git pull --ff-only` and a fresh `scan --machine zklw` if any target changed; commit `data/reports/<date>-prune-zklw.md`; push.
+Same as Task 23 on zklw after `git pull --ff-only` and a fresh `bash scripts/harvest-and-push.sh zklw` if any target changed (the accretive merge from Task 9 keeps every pruned lens's record, so a rescan after prune is safe — it flips `on_disk` to false and nothing else); commit `data/reports/<date>-prune-zklw.md`; push.
+
+<verify>
+- run: `python3 -c "import json;print(sum(1 for l in open('data/generated/index.jsonl') if not json.loads(l)['on_disk']))"`
+  expect: exit 0
+- run: `gh pr view --repo mistakeknot/Sylveste chore/prune-fd-agents --json state -q .state`
+  expect: contains "MERGED"
+</verify>
 
 ---
 
@@ -802,6 +852,7 @@ Same as Task 23 on zklw after `git pull --ff-only` and a fresh `scan --machine z
 - `AGENTS.md` / `CLAUDE.md`: validation commands = `PYTHONPATH=… python3 -m pytest tests -q`, `node --test packages/mcp/test/`, `node packages/mcp/scripts/smoke.mjs …`; the "zklw harvests, Mac pulls" rule; never hand-edit `data/generated/*`.
 - `docs/roadmap.json`: mark ILES-N3 (provenance + confidence) done, add the registry line.
 - Publish 3.0.0 (Task 20 step 6 if not done). Fold the brainstorm's *Facts checked* into the CHANGELOG entry.
+- Follow-ups to file (not in this goal): lattice/interweave connector class and `SUBSYSTEM` still say `interlens` (melange-2 f-002); npm 3.0.0 publish if mk logs in (f-003).
 - Close goal 8222288d from `~/projects/Sylveste` per the ic protocol (begin → verified / reflected / compounded / successor_proposed with the same fence → finish), citing: both machines harvested (index `machines`), hit-rates attached (`stats.hit_rate` non-null count), the reuse proof doc, sweep reports, the fresh-session MCP check, the explorer URL.
 
 <verify>
@@ -843,7 +894,42 @@ Synthesis: `docs/research/flux-melange/linsenkasten-registry-design/2026-09-02-s
 
 **Refuted:** f-006, f-009 (mechanism), f-044.
 
-**Coverage caveats carried forward:** Fork 1 (rename) drew zero findings; the graph port and the explorer drew one each; nothing was verified against zklw's live state; the FUSE directive never fired. A second, targeted review of this plan covers those regions before execution.
+**Second review (plan, run wf_618f7cf2-b2f, risk-hunt, folded 2026-09-03):** first attempt starved on the session limit (10 of 15 agents died, no synthesis); resumed from the journal after reset. Findings and where they landed:
+
+| Finding | Where it landed |
+|---|---|
+| f-005 / f-014 `graph.py` is a `DiGraph`; port said "exactly as graph.py" but undirected | Task 4: undirected as a documented divergence with a test asserting it |
+| f-006 live schema accepts `pagerank`/`eigenvector`; port implemented neither | Task 4 four measures; Task 6 adds `degree` to the enum; smoke verify |
+| f-007 / f-008 bridges and paths semantics drifted from Python | Task 4: at-least-two adjacency, top 5; paths top 3, deterministic tie-break stated as a JS choice |
+| f-013 two MCP resources call `fetchFromAPI` directly | Task 6: rewrite `lens://episodes` and `lens://graph`, `getGraph` export, resource smoke verify |
+| f-002 lattice + interweave hardcode the lens-file path (tests in both) | Task 2 Step 3 (path move) and Task 20 step 2 (dir rename); follow-up for the `SUBSYSTEM` name |
+| f-010 / f-018 no step lands `feat/linsenkasten` on main; zklw's main is pre-plan | Task 1 landing rule; Task 14 Step 6 lands; Task 15 precondition |
+| f-012 / f-020 bare pushes, dirty-tree wedge on abort | Task 22 `harvest-and-push.sh` shared by both machines: trap-discard, retry, failure logs, `OnFailure` |
+| f-009 / f-021 `--host <path>` crashes Node (reproduced on zklw) | Task 22 `--host-file` flag + unit test |
+| f-011 Tailscale-IP file does not exist | Task 22 explicit creation step |
+| f-003 / f-019 npm package is mk's own dormant identity; no npm auth here | Task 20 step 6: marketplace publish only; npm optional behind an interactive login hand-off |
+| f-004 orphaned plugin cache after the rename | Task 20 step 4 cache removal + fresh-session check |
+| f-001 Task 19 verify excluded all of `docs/` | Task 19 verify regex narrowed; `docs/vision.md`, `docs/roadmap.json`, vision file rename in scope |
+| f-015 `embedding_text` byte-identity asserted in prose only | Task 13 shared fixture test in Python and Node |
+| f-016 `grep -c` exits 1 on zero matches | Task 6 verify `|| true` |
+| f-017 commit steps lacked the message-writing idiom | Task 1 idiom stated once; every later commit step references it |
+
+Rounds 1–2 of the same run (after the session-limit resume):
+
+| Finding | Where it landed |
+|---|---|
+| f-028 merge rebuilds the index from the filesystem; prune then erases the record (P0, top heat) | Task 9 accretive index (`accessioned_at`, `on_disk`, `sightings_seen`), Task 12 audit semantics, Task 24 |
+| f-030 Python reference deleted with no captured output | Task 4 Step 0 fixtures via `uv run --with networkx`; Task 21 pointer |
+| f-014 248 of 280 connections are one-directional | Task 4 divergence test uses set/superset/overlap relations, not equality |
+| f-029 Sylveste prune strands the shared checkout; PR never required to merge | Task 23 worktree; Task 24 verify `MERGED` |
+| f-033 reuse proof cannot find the registry from the worktree | Task 18 `LINSENKASTEN_ROOT` |
+| f-034 CI would be red on GitHub (`_shared` import) | Task 1 `importorskip` + `gh run list` verify |
+| f-035 interflux docs would name the new key before it exists | Task 17 keeps `interlens`; Task 20 step 5 renames |
+| f-024 / f-031 / f-032 README npm path serves a 2025 snapshot; release never touches npm | Task 19 README; Task 20 step 6 + verify report line |
+| f-026 / f-027 host-file behavior lived in a parenthetical; "narrated as done" | Task 22 `--host-file` in the server contract; explicit step |
+| f-022 / f-023 npm token present but non-functional; repo was linsenkasten before | Task 20 step 6 hand-off |
+
+FUSE again never fired (second run in a row; papercut logged). Halt was BUDGET with gain still rising (0.67 → 0.80), so a third pass targets the regions no lens reached: Tasks 3, 5, 10, 11, the eleven `api-local.js` shapes not yet checked against `index.js`, and the Mac-side prune sweep.
 
 ---
 
