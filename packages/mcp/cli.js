@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import * as api from './lib/api-local.js';
+import { DATA_ROOT } from './lib/constants.js';
 
 // Simple color helpers (avoiding chalk dependency for now)
 const colors = {
@@ -373,14 +374,15 @@ async function cmdTriads(lens, options = {}) {
     const results = await api.getDialecticTriads(lens, limit);
 
     if (results.success && results.triads && results.triads.length > 0) {
-      console.log(`${bold('Source:')} ${bold(results.source_lens.name)} ${dim(`(Ep. ${results.source_lens.episode})`)}`);
-      console.log(`${results.source_lens.definition}\n`);
-      console.log(`${bold(magenta(`Thesis/Antithesis/Synthesis Triads (${results.count}):`))}\n`);
+      const thesis = results.thesis;   // api-local puts the thesis on the envelope, not on each triad
+      console.log(`${bold('Source:')} ${bold(thesis.name)} ${dim(`(Ep. ${thesis.episode})`)}`);
+      console.log(`${thesis.definition}\n`);
+      console.log(`${bold(magenta(`Thesis/Antithesis/Synthesis Triads (${results.triads.length}):`))}\n`);
 
       results.triads.forEach((triad, idx) => {
         console.log(`${bold(yellow(`Triad ${idx + 1}:`))}`);
-        console.log(`   ${green('THESIS:')} ${bold(triad.thesis.name)} ${dim(`(Ep. ${triad.thesis.episode})`)}`);
-        console.log(`   ${triad.thesis.definition.slice(0, 150)}...\n`);
+        console.log(`   ${green('THESIS:')} ${bold(thesis.name)} ${dim(`(Ep. ${thesis.episode})`)}`);
+        console.log(`   ${(thesis.definition || '').slice(0, 150)}...\n`);
         console.log(`   ${red('ANTITHESIS:')} ${bold(triad.antithesis.name)} ${dim(`(Ep. ${triad.antithesis.episode})`)}`);
         console.log(`   ${triad.antithesis.definition.slice(0, 150)}...\n`);
         console.log(`   ${blue('SYNTHESIS:')} ${bold(triad.synthesis.name)} ${dim(`(Ep. ${triad.synthesis.episode})`)}`);
@@ -404,7 +406,7 @@ async function cmdProgressions(start, target, options = {}) {
     const results = await api.getLensProgressions(start, target, maxSteps);
 
     if (results.success && results.progression && results.progression.length > 0) {
-      console.log(`${results.summary}\n`);
+      if (results.overall_insight) console.log(`${results.overall_insight}\n`);
       console.log(`${bold(cyan('PROGRESSION:'))}\n`);
 
       results.progression.forEach((step, idx) => {
@@ -444,7 +446,7 @@ async function cmdExport(format, options = {}) {
   }
 
   try {
-    const filePath = path.join(__dirname, '..', '..', 'data', 'curated', 'lenses.json');
+    const filePath = path.join(DATA_ROOT, 'curated', 'lenses.json');   // constants.js is the one place that knows where data/ lives
     const content = await fs.readFile(filePath, 'utf-8');
 
     if (options.output) {

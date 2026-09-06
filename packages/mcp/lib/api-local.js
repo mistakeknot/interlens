@@ -241,7 +241,7 @@ export async function getRandomProvocation(context = null) {
       }
     }
 
-    const provocation = choose(candidates, seed);
+    const provocation = choose(candidates, Math.imul(seed | 0, 2654435761) >>> 0);   // second draw decorrelated from the frame draw
     if (!provocation) return failure('No curated lenses are available');
     const related = [...(graph.adj.get(provocation.id)?.keys() || [])]
       .map(id => lensFromStore(store, id))

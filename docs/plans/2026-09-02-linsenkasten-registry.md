@@ -848,7 +848,7 @@ Reverse of `docs/research/rename-linsenkasten-in-plugin.md` (Feb 2026) which lis
 
 ### Task 21: Delete the Flask app and deploy configs
 
-Delete: `apps/api/` entirely (data already moved; the graph reference lives on as `tests/fixtures/graph-py/` from Task 4 Step 0 and in git history at `git log -1 -- apps/api/src/lens/graph.py`; `scripts/generate_contrasts*.py` stay in git history; the lattice/interweave connectors were re-pointed in Task 2, so nothing outside this repo reads `apps/api` any more), `apps/web/api/` (Vercel functions incl. `mcp-sse.js`), `apps/web/vercel.json`, `apps/web/netlify.toml`, `apps/web/railway.toml`, `apps/web/Dockerfile`, `apps/web/setup.sh`, `packages/mcp/examples/*` referring to remote URLs (rewrite to stdio config), `express` + `cors` from `packages/mcp/package.json`, `"dev": "vercel dev"` script. Update `pnpm-workspace.yaml` if it lists `apps/api`.
+Delete: `apps/api/` entirely (data already moved; the graph reference lives on as `tests/fixtures/graph-py/` from Task 4 Step 0 and in git history at `git log -1 -- apps/api/src/lens/graph.py`; `scripts/generate_contrasts*.py` stay in git history; the lattice/interweave connectors were re-pointed in Task 2, so nothing outside this repo reads `apps/api` any more), `apps/web/api/` (Vercel functions incl. `mcp-sse.js`), `apps/web/vercel.json`, `apps/web/netlify.toml`, `apps/web/railway.toml`, `apps/web/Dockerfile`, `apps/web/setup.sh`, `packages/mcp/examples/*` referring to remote URLs (rewrite to stdio config), `express` + `cors` from `packages/mcp/package.json`, `"dev": "vercel dev"` script. Update `pnpm-workspace.yaml` if it lists `apps/api`. **Then `pnpm install --lockfile-only` and commit `pnpm-lock.yaml`** — it still carries `node-fetch` for `packages/mcp` since Task 6 dropped the dependency, and a frozen-lockfile install fails on that (run c2cfbfd5 task-6 advisory).
 
 <verify>
 - run: `test ! -d apps/api && test ! -d apps/web/api && echo gone`
@@ -951,7 +951,7 @@ Same as Task 23 on zklw after `git pull --ff-only` and a fresh `bash scripts/har
 - `AGENTS.md` / `CLAUDE.md`: validation commands = `PYTHONPATH=… python3 -m pytest tests -q`, `node --test "packages/mcp/test/**/*.test.mjs"`, `node packages/mcp/scripts/smoke.mjs …`; the "zklw harvests, Mac pulls" rule; never hand-edit `data/generated/*`.
 - `docs/roadmap.json`: mark ILES-N3 (provenance + confidence) done, add the registry line.
 - Publish 3.0.0 (Task 20 step 6 if not done). Fold the brainstorm's *Facts checked* into the CHANGELOG entry.
-- Follow-ups to file (not in this goal): lattice/interweave connector class and `SUBSYSTEM` still say `interlens` (melange-2 f-002); npm 3.0.0 publish if mk logs in (f-003).
+- Follow-ups to file (not in this goal): lattice/interweave connector class and `SUBSYSTEM` still say `interlens` (melange-2 f-002); npm 3.0.0 publish if mk logs in (f-003) — **and before any npm publish** `packages/mcp/package.json:files` still lists `schemas/` (unreferenced since Task 7) while `data/` sits above the package root, so a tarball would ship no corpus (run c2cfbfd5 task-7 advisory).
 - Close goal 8222288d from `~/projects/Sylveste` per the ic protocol (begin → verified / reflected / compounded / successor_proposed with the same fence → finish), citing: both machines harvested (index `machines`), hit-rates attached (`stats.hit_rate` non-null count), the reuse proof doc, sweep reports, the fresh-session MCP check, the explorer URL.
 
 <verify>
