@@ -24,11 +24,13 @@ export const embedCounters = {
 const loggedFailures = new Set();
 const modelDigestCache = new Map();
 let countedLexicalResults = new WeakSet();
+let countedMismatchEmbeddings = new WeakSet();
 
 export function __resetEmbeddingStateForTests() {
   loggedFailures.clear();
   modelDigestCache.clear();
   countedLexicalResults = new WeakSet();
+  countedMismatchEmbeddings = new WeakSet();
   for (const counter of Object.keys(embedCounters)) embedCounters[counter] = 0;
 }
 
@@ -110,12 +112,7 @@ export async function embedTexts(
         body: JSON.stringify({ model: EMBED_MODEL, input: texts }),
       }, timeoutMs);
       const vectors = toVectors(payload, texts.length);
-      let modelDigest = null;
-      try {
-        modelDigest = await getModelDigest(url, timeoutMs);
-      } catch {
-        // Digest metadata must not invalidate embeddings that were already produced.
-      }
+      const modelDigest = await getModelDigest(url, timeoutMs);
       const tier = index === 0 ? 'local' : 'fallback';
       embedCounters[tier] += 1;
       return { vectors, tier, model_digest: modelDigest };
@@ -131,7 +128,11 @@ export function toolEmbeddingMetadata(embedding, meta) {
   if (embedding == null) return { embed_tier: 'lexical' };
 
   const modelMatch = embedding.model_digest === meta?.model_digest;
-  if (!modelMatch) embedCounters.mismatch += 1;
+  const digestsKnown = embedding.model_digest != null && meta?.model_digest != null;
+  if (digestsKnown && !modelMatch && !countedMismatchEmbeddings.has(embedding)) {
+    countedMismatchEmbeddings.add(embedding);
+    embedCounters.mismatch += 1;
+  }
   return { embed_tier: embedding.tier, model_match: modelMatch };
 }
 

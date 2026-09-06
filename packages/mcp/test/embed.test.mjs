@@ -252,6 +252,37 @@ test('toolEmbeddingMetadata reports model matches and counts mismatches', () => 
   assert.equal(embedCounters.mismatch, mismatchBefore + 1);
 });
 
+test('toolEmbeddingMetadata does not count unknown digests as mismatches', () => {
+  const mismatchBefore = embedCounters.mismatch;
+
+  assert.deepEqual(
+    toolEmbeddingMetadata(
+      { tier: 'local', model_digest: null },
+      { model_digest: 'sha256:expected' },
+    ),
+    { embed_tier: 'local', model_match: false },
+  );
+  assert.deepEqual(
+    toolEmbeddingMetadata(
+      { tier: 'fallback', model_digest: 'sha256:actual' },
+      undefined,
+    ),
+    { embed_tier: 'fallback', model_match: false },
+  );
+  assert.equal(embedCounters.mismatch, mismatchBefore);
+});
+
+test('toolEmbeddingMetadata counts each mismatched embedding once', () => {
+  const mismatchBefore = embedCounters.mismatch;
+  const embedding = { tier: 'local', model_digest: 'sha256:actual' };
+  const meta = { model_digest: 'sha256:expected' };
+
+  toolEmbeddingMetadata(embedding, meta);
+  toolEmbeddingMetadata(embedding, meta);
+
+  assert.equal(embedCounters.mismatch, mismatchBefore + 1);
+});
+
 test('loadMatrix reads float32 rows and cosineTopK ranks deterministically', async () => {
   const embeddingsDir = path.join(dataRoot, 'embeddings');
   await mkdir(embeddingsDir, { recursive: true });
