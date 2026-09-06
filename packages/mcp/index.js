@@ -9,7 +9,7 @@ import {
   McpError,
   ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import * as api from './api-client.js';
+import * as api from './lib/api-local.js';
 
 // Phase 0 Modules: Enhanced thinking capabilities
 import { matchThinkingMode, getWorkflowForMode } from './lib/thinking-modes.js';
@@ -220,8 +220,8 @@ class InterlensMCP {
             properties: {
               measure: {
                 type: 'string',
-                enum: ['betweenness', 'pagerank', 'eigenvector'],
-                description: 'Centrality measure (betweenness=bridges, pagerank=importance, eigenvector=influence)',
+                enum: ['betweenness', 'pagerank', 'eigenvector', 'degree'],
+                description: 'Centrality measure (betweenness=bridges, pagerank=importance, eigenvector=influence, degree=connectivity)',
                 default: 'betweenness',
               },
               limit: {
@@ -449,18 +449,13 @@ class InterlensMCP {
           }
 
           case 'lens://episodes': {
-            let episodes = await api.getCachedData('episodes');
-            if (!episodes) {
-              const lenses = await api.fetchFromAPI('/lenses?limit=500');
-              // Group by episode
-              episodes = {};
-              lenses.lenses.forEach(lens => {
-                const ep = lens.episode || 'Unknown';
-                if (!episodes[ep]) episodes[ep] = [];
-                episodes[ep].push(lens);
-              });
-              await api.setCachedData('episodes', episodes);
-            }
+            const lenses = await api.getAllLenses();
+            const episodes = {};
+            lenses.lenses.forEach(lens => {
+              const ep = lens.episode || 'Unknown';
+              if (!episodes[ep]) episodes[ep] = [];
+              episodes[ep].push(lens);
+            });
             return {
               contents: [
                 {
@@ -473,11 +468,7 @@ class InterlensMCP {
           }
 
           case 'lens://graph': {
-            let graph = await api.getCachedData('graph');
-            if (!graph) {
-              graph = await api.fetchFromAPI('/connections');
-              await api.setCachedData('graph', graph);
-            }
+            const graph = await api.getGraph();
             return {
               contents: [
                 {
