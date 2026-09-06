@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import * as api from './api-client.js';
+import * as api from './lib/api-local.js';
 
 // Simple color helpers (avoiding chalk dependency for now)
 const colors = {
@@ -438,32 +438,24 @@ async function cmdExport(format, options = {}) {
   if (!format || !validFormats.includes(format)) {
     printError(`Invalid format. Use: interlens export --format <openai|openapi>`);
     console.log(`\n${bold('Available formats:')}`);
-    console.log(`  ${green('openai')}   - OpenAI function calling schema (JSON)`);
-    console.log(`  ${green('openapi')}  - OpenAPI 3.0 specification (YAML)`);
+    console.log(`  ${green('openai')}   - Compatibility alias for the JSON corpus`);
+    console.log(`  ${green('openapi')}  - Compatibility alias for the JSON corpus`);
     process.exit(1);
   }
 
   try {
-    const schemaDir = path.join(__dirname, 'schemas');
-    let filePath, content;
-
-    if (format === 'openai') {
-      filePath = path.join(schemaDir, 'openai-functions.json');
-      content = await fs.readFile(filePath, 'utf-8');
-    } else if (format === 'openapi') {
-      filePath = path.join(schemaDir, 'openapi.yaml');
-      content = await fs.readFile(filePath, 'utf-8');
-    }
+    const filePath = path.join(__dirname, '..', '..', 'data', 'curated', 'lenses.json');
+    const content = await fs.readFile(filePath, 'utf-8');
 
     if (options.output) {
       await fs.writeFile(options.output, content);
-      console.log(`${green('✓')} Exported ${format} schema to ${options.output}`);
+      console.log(`${green('✓')} Exported curated lens corpus to ${options.output}`);
     } else {
       // Output to stdout
       console.log(content);
     }
   } catch (error) {
-    printError(`Failed to export schema: ${error.message}`);
+    printError(`Failed to export curated lens corpus: ${error.message}`);
     process.exit(1);
   }
 }
@@ -518,16 +510,13 @@ ${bold('COMMANDS:')}
     ${dim('--max-steps <n>          Maximum steps (default: 5)')}
     ${dim('Example: interlens progressions "Systems Thinking" "Innovation"')}
 
-  ${green('export')}                      Export schemas for other platforms
-    ${dim('--format <type>          Schema format: openai, openapi')}
+  ${green('export')}                      Export the curated lens corpus as JSON
+    ${dim('--format <type>          Compatibility selector: openai or openapi')}
     ${dim('--output <file>          Write to file (default: stdout)')}
     ${dim('Example: interlens export --format openai')}
-    ${dim('Example: interlens export --format openapi --output api.yaml')}
+    ${dim('Example: interlens export --format openapi --output lenses.json')}
 
   ${green('help')}                        Show this help message
-
-${bold('ENVIRONMENT:')}
-  INTERLENS_API_URL       Override API endpoint (default: hosted API)
 
 ${bold('EXAMPLES:')}
   interlens search innovation
