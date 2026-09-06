@@ -169,22 +169,24 @@ def update_stats(
         else:
             name_only_by_name[str(row.get("lens", ""))].append(row)
 
-    sightings_by_identity: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    sightings_by_hash: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for row in harvest_rows:
         if row.get("kind") != "sighting":
             continue
-        identity = _identity(row)
-        if identity is not None:
-            sightings_by_identity[identity].append(row)
+        body_hash = row.get("body_hash")
+        if body_hash not in (None, ""):
+            sightings_by_hash[str(body_hash)].append(row)
 
     for record in records:
         lens_id = str(record.get("id", ""))
         name = str(record.get("name", ""))
-        identity = _identity(record)
+        body_hash = record.get("body_hash")
         record["stats"] = _record_stats(
             attributed_by_id.get(lens_id, []),
             name_only_by_name.get(name, []),
-            sightings_by_identity.get(identity, []) if identity is not None else [],
+            sightings_by_hash.get(str(body_hash), [])
+            if body_hash not in (None, "")
+            else [],
         )
 
     _atomic_write(index_path, _jsonl_text(records))

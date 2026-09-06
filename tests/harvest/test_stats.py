@@ -158,6 +158,23 @@ def test_stats_are_scoped_by_name_and_body_hash(tmp_path: Path) -> None:
     assert second_variant["drive_uses"] == 2
 
 
+def test_drive_uses_follow_body_hash_when_a_lens_is_renamed(tmp_path: Path) -> None:
+    data_root = tmp_path / "data"
+    body_hash = "e" * 64
+    _write_jsonl(
+        data_root / "generated/index.jsonl",
+        [_record("fd-old", body_hash)],
+    )
+    _write_jsonl(
+        data_root / "harvest/clavain.jsonl",
+        [_sighting("fd-new", body_hash, 7, "clavain")],
+    )
+
+    [record] = update_stats(data_root=data_root)
+
+    assert record["stats"]["drive_uses"] == 7
+
+
 def test_stats_write_global_unique_attributions_and_name_only_evidence(
     tmp_path: Path,
 ) -> None:
