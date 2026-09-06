@@ -82,8 +82,8 @@ test('store accessors do not expose mutable cached frame or lens data', async ()
   assert.throws(() => frame.lens_ids.push('test-mutated-lens-id'), TypeError);
 
   const lens = await getLens('Founder Mode');
-  assert.ok(Object.isFrozen(lens));
-  assert.ok(Object.isFrozen(lens.examples));
+  assert.equal(Object.isFrozen(lens), false);   // shallow copy: callers may decorate it (Tasks 6/13)
+  assert.ok(Object.isFrozen(lens.examples));     // nested cached arrays stay frozen
   assert.throws(() => lens.examples.push('test-mutated-example'), TypeError);
 
   const second = await getFrames();
