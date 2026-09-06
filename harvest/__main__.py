@@ -5,7 +5,7 @@ import importlib
 from collections.abc import Sequence
 
 
-COMMANDS = ("scan", "merge", "stats", "embed", "edges", "report", "prune")
+COMMANDS = ("scan", "merge", "stats", "embed", "edges", "report", "prune", "audit")
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -15,8 +15,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         subparsers.add_parser(command, add_help=False)
     args, remainder = parser.parse_known_args(argv)
 
-    module = importlib.import_module(f"harvest.{args.command}")
-    handler = getattr(module, "main")
+    module_name = "report" if args.command == "audit" else args.command
+    module = importlib.import_module(f"harvest.{module_name}")
+    handler = getattr(module, "audit_main" if args.command == "audit" else "main")
     return int(handler(remainder) or 0)
 
 
