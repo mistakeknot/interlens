@@ -3,10 +3,14 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 # Add interverse/ to path so _shared package is importable
 _interverse = Path(__file__).resolve().parents[3]
 if str(_interverse) not in sys.path:
     sys.path.insert(0, str(_interverse))
+
+pytest.importorskip("_shared", reason="interverse-shared not checked out beside this repo")
 
 from _shared.tests.structural.conftest_base import create_structural_fixtures
 
