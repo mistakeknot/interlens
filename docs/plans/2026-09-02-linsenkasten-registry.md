@@ -9,6 +9,8 @@ distills: docs/brainstorms/2026-09-01-linsenkasten-gate-forks-brainstorm.md
 
 > **For Claude:** REQUIRED SUB-SKILL: Use clavain:executing-plans to implement this plan task-by-task. Written for a sonnet-grade executor: every step names its file, its code, and a machine-checkable expectation. No step says "use your judgment".
 
+> **Executor rules (orchestrated runs, added 2026-09-06 after runs 9ff672eb/444d40a5):** (1) work only inside this worktree — never edit, commit or push any other repository; (2) never `git push` — the controller lands every stage with the landing rule in Task 1; (3) commit with the idiom in Task 1 (`--no-verify -F /tmp/msg -- <paths>`), pathspec only; (4) never touch the sweep-gated files listed in Task 1 Step 1 while `git log --oneline main..sweep/2026-09-02 | wc -l` is nonzero; (5) steps marked **controller-owned** are done by the controller — skip them, and a reviewer must not count them against the task; (6) `node --test` takes a quoted glob (`"packages/mcp/test/**/*.test.mjs"`), never a directory; (7) do not edit this plan — report a defect in the plan as `VERDICT: NEEDS_ATTENTION` and let the controller fold it. **Controller-owned steps:** Task 1 Step 4 (CI, sweep-gated); Task 2 Step 3 (done); Task 4 Step 0 (done); Task 14 (real harvest + landing); Task 15; Task 18; Task 20; Task 22's zklw unit, timer and `ts-ip` steps; Task 23's `--plan`/`--apply` sweeps and the Sylveste PR; Task 24; Task 25's publish and goal close.
+
 **Goal (ic 8222288d):** every generated `fd-*` review lens across both machines becomes a queryable, ranked, reusable graph inside this plugin; flux-gen and melange check it before generating; the repo piles go away.
 
 **Ruled design (all five forks, see the brainstorm):** rename to `linsenkasten` · typed edges only (`embodies`, `fused-from`, `variant-of`) · hash + variant-cluster dedupe with one canonical head per cluster · delete repo piles post-harvest with a sweep report · **hybrid engine**: the MCP queries an in-repo store locally on both machines, zklw runs the harvest and embedding passes and commits the data.
@@ -65,7 +67,7 @@ distills: docs/brainstorms/2026-09-01-linsenkasten-gate-forks-brainstorm.md
 **Files:**
 - Create: `packages/mcp/test/smoke.test.mjs`
 - Modify: `.github/workflows/ci.yml` (add node step after the pytest step)
-- Modify: `packages/mcp/package.json` (add `"test": "node --test \"test/**/*.test.mjs\""` — a quoted glob, not a directory: checked 2026-09-06 on Node v22.22.3, `node --test test/` discovers the file from a shell but hit `MODULE_NOT_FOUND` inside the executor's sandbox (commit be278e5), and the glob works in both and never executes non-test helpers placed under `test/`; bump `"version"` later in Task 19)
+- Modify: `packages/mcp/package.json` (add `"test": "node --test \"test/**/*.test.mjs\""` — a quoted glob, not a directory: on Node v22.22.3 a directory argument is run as if it were a test file and dies with `MODULE_NOT_FOUND` (checked 2026-09-06 from a shell and in the executor sandbox, commit be278e5 — an earlier note here claiming the directory form worked misread that failure), and the glob never executes non-test helpers placed under `test/`; bump `"version"` later in Task 19)
 
 **Step 1: Confirm branch and landing order**
 Run from the worktree: `git status -sb && git log --oneline -3 && git log --oneline main..sweep/2026-09-02 | wc -l`
@@ -97,7 +99,7 @@ test('curated lens corpus is present and well-formed', async () => {
 Run: `node --test "packages/mcp/test/**/*.test.mjs"`
 Expected: FAIL with `ENOENT … data/curated/lenses.json` (the file does not exist yet — Task 2 creates it); `# tests 1` must appear, proving discovery reached the file.
 
-**Step 4: CI step (only after the landing rule in Step 1 clears)**
+**Step 4: CI step (controller-owned; only after the landing rule in Step 1 clears)**
 Append to `.github/workflows/ci.yml` under `steps:`:
 ```yaml
       - uses: actions/setup-node@v4
@@ -158,7 +160,7 @@ Single git-synced store read by `packages/mcp` on every machine. Nothing here is
 - `prune-targets.txt` — the explicit list of repos prune may touch. Reviewed by a human before `--apply`.
 ```
 
-**Step 3 (external consumer of the moved file — melange-2 f-002):** two sibling checkouts hardcode the old path: `~/projects/Sylveste/interverse/lattice/src/lattice/connectors/interlens.py:27` (`DEFAULT_LENSES_REL = Path("interverse/interlens/apps/api/all_lenses_for_analysis.json")`) and its copy `~/projects/Sylveste/core/interweave/src/lattice/connectors/interlens.py`. Both checkouts use `https://github.com/mistakeknot/interweave.git`; `lattice` is the canonical checkout and `core/interweave` is a legacy checkout of the same standalone repository. Change both working copies to `Path("interverse/interlens/data/curated/lenses.json")` in the same session as the move (Task 20 changes the directory segment again), run `PYTHONPATH=src python3 -m pytest tests/test_connector_interlens.py -q` in each checkout, then commit and push the change once from lattice. Confirm `origin/main` contains the connector change and sync the legacy checkout; do not open a redundant PR for the same repository. Class and `SUBSYSTEM` identifiers stay `interlens` for now — a lattice-side key with stored observations behind it; renaming it is a lattice decision, listed under follow-ups in Task 25.
+**Step 3 (controller-owned — DONE 2026-09-06: the connector points at `data/curated/lenses.json` on `mistakeknot/interweave` main `d394afe`, both checkouts synced to it; external consumer of the moved file — melange-2 f-002):** two sibling checkouts hardcode the old path: `~/projects/Sylveste/interverse/lattice/src/lattice/connectors/interlens.py:27` (`DEFAULT_LENSES_REL = Path("interverse/interlens/apps/api/all_lenses_for_analysis.json")`) and its copy `~/projects/Sylveste/core/interweave/src/lattice/connectors/interlens.py`. Both checkouts use `https://github.com/mistakeknot/interweave.git`; `lattice` is the canonical checkout and `core/interweave` is a legacy checkout of the same standalone repository. Change both working copies to `Path("interverse/interlens/data/curated/lenses.json")` in the same session as the move (Task 20 changes the directory segment again), run `PYTHONPATH=src python3 -m pytest tests/test_connector_interlens.py -q` in each checkout, then commit and push the change once from lattice. Confirm `origin/main` contains the connector change and sync the legacy checkout; do not open a redundant PR for the same repository. Class and `SUBSYSTEM` identifiers stay `interlens` for now — a lattice-side key with stored observations behind it; renaming it is a lattice decision, listed under follow-ups in Task 25.
 
 **Step 4:** Run: `node --test "packages/mcp/test/**/*.test.mjs"`  Expected: PASS (Task 1's test now finds the file).
 
@@ -230,7 +232,7 @@ test('episode, frames, related, stats', async () => {
   assert.equal(st.total_lenses, 258);
 });
 ```
-Run: `node --test packages/mcp/test/store.test.mjs`  Expected: FAIL (module missing).
+Run: `node --test "packages/mcp/test/**/*.test.mjs"store.test.mjs`  Expected: FAIL (module missing).
 
 **Step 3: implementation** — `packages/mcp/lib/store.js`:
 ```js
@@ -338,12 +340,12 @@ export async function recordReuse(entry) {
 ```
 Note: `searchLenses` returns both `lenses` and `results` because `index.js` reads `results.lenses` in `search_lenses` and `results.results[0]` in `getLens` today (Task 6 keeps both readers working).
 
-**Step 4:** Run: `node --test packages/mcp/test/store.test.mjs`  Expected: PASS (4 tests).
+**Step 4:** Run: `node --test "packages/mcp/test/**/*.test.mjs"store.test.mjs`  Expected: PASS (4 tests).
 
 **Step 5: Commit** — `feat(store): local store over data/ with lexical search`
 
 <verify>
-- run: `node --test packages/mcp/test/store.test.mjs`
+- run: `node --test "packages/mcp/test/**/*.test.mjs"store.test.mjs`
   expect: exit 0
 </verify>
 
@@ -412,7 +414,7 @@ test('betweenness on a synthetic 2,000-node graph stays under 3 s', () => {
   assert.ok(Date.now() - t0 < 3000);
 });
 ```
-Run: `node --test packages/mcp/test/graph.test.mjs` → FAIL (module missing).
+Run: `node --test "packages/mcp/test/**/*.test.mjs"graph.test.mjs` → FAIL (module missing).
 
 **Step 2:** implement `packages/mcp/lib/graph.js` per the semantics above (pure functions; no I/O; Brandes betweenness written out, not imported).
 
@@ -421,7 +423,7 @@ Run: `node --test packages/mcp/test/graph.test.mjs` → FAIL (module missing).
 **Step 4: Commit** — `feat(graph): port lens graph and creative queries to JS`
 
 <verify>
-- run: `node --test packages/mcp/test/graph.test.mjs`
+- run: `node --test "packages/mcp/test/**/*.test.mjs"graph.test.mjs`
   expect: exit 0
 </verify>
 
@@ -442,7 +444,7 @@ Run: `node --test packages/mcp/test/graph.test.mjs` → FAIL (module missing).
 **Step 2:** implement; **Step 3:** test PASS; **Step 4: Commit** — `feat(embed): ollama embedding client with fallback and cosine top-k`
 
 <verify>
-- run: `node --test packages/mcp/test/embed.test.mjs`
+- run: `node --test "packages/mcp/test/**/*.test.mjs"embed.test.mjs`
   expect: exit 0
 </verify>
 
@@ -482,12 +484,12 @@ Run: `node --test packages/mcp/test/graph.test.mjs` → FAIL (module missing).
 Every `error` path returns `{success: false, error: '<message>'}` (never throws) because the handlers print `results.error`.
 
 **Step 1:** write `test/api-local.test.mjs` asserting each of the 19 exports exists and that: `findLensJourney('Eye of Sauron','Founder Mode').paths.length >= 1` **and `Array.isArray(paths[0]) && paths[0].length >= 2 && typeof paths[0][0].name === 'string'`** (the handler's own dereferences at `index.js:770-781`, walked in the test so a smoke line that prints before the loop cannot hide a throw — melange-3 f-015); `findContrastingLenses('Eye of Sauron').contrasts.some(c => c.name === 'Founder Mode')`; for `const g = detectThinkingGaps(['Eye of Sauron'])`: `g.coverage.total_frames === 28`, `!Array.isArray(g.coverage.explored_frames) && Object.keys(g.coverage.explored_frames).length >= 1`, `Array.isArray(g.coverage.unexplored_frames)`, `typeof g.coverage.coverage_percentage === 'number'`; for `const p = getRandomProvocation(['Eye of Sauron'])`: `typeof p.gap_analysis.coverage.explored === 'number' && p.gap_analysis.coverage.total === 28 && typeof p.gap_analysis.was_gap_biased === 'boolean'` (melange-3 f-028); `typeof getDialecticTriads('Eye of Sauron', 2).triads[0].synthesis_insight === 'string'`; `typeof getLensProgressions('Eye of Sauron', 'Founder Mode', 5).overall_insight === 'string'`; `getCentralLenses('degree', 3).central_lenses.length === 3`; and `fetchFromAPI('/x')` rejects.
-**Step 2:** implement `api-local.js` over `store.js` + `graph.js`. **Step 3:** switch the import in `index.js`, delete `api-client.js`, drop `node-fetch`. Run `node --test packages/mcp/test/` → PASS.
+**Step 2:** implement `api-local.js` over `store.js` + `graph.js`. **Step 3:** switch the import in `index.js`, delete `api-client.js`, drop `node-fetch`. Run `node --test "packages/mcp/test/**/*.test.mjs"` → PASS.
 **Step 4: smoke client** — `packages/mcp/scripts/smoke.mjs`: uses `@modelcontextprotocol/sdk/client/index.js` + `StdioClientTransport` to spawn `node index.js`, `initialize`, then `callTool(process.argv[2], JSON.parse(process.argv[3] || '{}'))` and print the text content; with `--resource <uri>` as the first argument it calls `readResource` instead and prints the first content's text. Also add `'degree'` to the `measure` enum of `get_central_lenses` in `index.js:223` **and to its `description` string** — `'Centrality measure (betweenness=bridges, pagerank=importance, eigenvector=influence, degree=connectivity)'` — so a fresh session reading the tool schema can discover it (melange-3 f-012; Task 4 implements the measure). Run: `node packages/mcp/scripts/smoke.mjs search_lenses '{"query":"feedback"}'` → contains `Situation-Behavior-Impact`.
 **Step 5: Commit** — `feat(mcp): serve every tool from the local store; retire the API client`
 
 <verify>
-- run: `node --test packages/mcp/test/`
+- run: `node --test "packages/mcp/test/**/*.test.mjs"`
   expect: exit 0
 - run: `node packages/mcp/scripts/smoke.mjs search_lenses '{"query":"feedback"}'`
   expect: contains "Situation-Behavior-Impact"
@@ -654,7 +656,7 @@ Output: `data/harvest/<machine>.jsonl` — rows of three kinds, `kind: "sighting
 **`record_reuse({registry_id, consumer, target, project})`** → `store.recordReuse` → `{success: true}`. **`registry_stats`** → `getStats()` plus edge counts by type, cluster count, clusters by `head_selected_by`, corrupt count, the process's `embedCounters`, and reuse counts per lens from `reuse-log.jsonl` (melange f-026: the serving trail is the reuse log; make it queryable).
 
 <verify>
-- run: `node --test packages/mcp/test/`
+- run: `node --test "packages/mcp/test/**/*.test.mjs"`
   expect: exit 0
 - run: `node packages/mcp/scripts/smoke.mjs registry_stats '{}'`
   expect: contains "generated_lenses"
@@ -686,7 +688,7 @@ cd ~/projects/Sylveste/interverse/interlens && git pull --ff-only origin main
 bash scripts/harvest-and-push.sh zklw
 ```
 (`harvest-and-push.sh <machine>` = scan → merge → stats → embed --check → edges → audit → commit → push-with-retry; defined in Task 22 and created here first if Task 22 has not run yet — the file is identical.)
-Then on the Mac: `git pull --ff-only`, `python3 -m harvest embed --check` (no re-embedding: the hashes file makes it a no-op), `python3 -m harvest audit`, and `node --test packages/mcp/test/`.
+Then on the Mac: `git pull --ff-only`, `python3 -m harvest embed --check` (no re-embedding: the hashes file makes it a no-op), `python3 -m harvest audit`, and `node --test "packages/mcp/test/**/*.test.mjs"`.
 
 <verify>
 - run: `python3 -c "import json;ms=set();[ms.update(json.loads(l)['machines']) for l in open('data/generated/index.jsonl')];print(sorted(ms))"`
@@ -743,7 +745,7 @@ Pick a target where a hit is near-certain: re-run flux-gen against the jawn apex
 Reverse of `docs/research/rename-linsenkasten-in-plugin.md` (Feb 2026) which lists every file; apply its mapping table backwards (`interlens`→`linsenkasten`, `Interlens`→`Linsenkasten`, `InterlensMCP`→`LinsenkastenMCP`, `interlens-mcp`→`linsenkasten-mcp`, `INTERLENS_*`→`LINSENKASTEN_*`) with `git ls-files -z | xargs -0 grep -lI -i interlens | xargs sed -i '' …` **excluding** `CHANGELOG.md` history entries, `docs/brainstorms/**`, `docs/plans/**`, `docs/research/**` (allowlist). Specifics: `.claude-plugin/plugin.json` `name` + `mcpServers` key; `kimi.plugin.json`; `packages/mcp/package.json` `name` = `linsenkasten-mcp`, `bin` = `{"linsenkasten": "./cli.js", "linsenkasten-mcp": "./index.js"}`, `version` = `3.0.0`; root `package.json`; `tests/structural/test_structure.py:18` → `"linsenkasten"`; README/CLAUDE/AGENTS/PHILOSOPHY; `docs/vision.md`, `docs/roadmap.json`, and `git mv docs/interlens-vision.md docs/linsenkasten-vision.md` (melange-2 f-001: these three are inside the sweep and inside the verify); a CHANGELOG `3.0.0` entry naming the rename, the local engine and the registry. `packages/mcp/README.md`'s `npm install -g …` instruction is replaced by the marketplace install (`/plugin install linsenkasten`) plus one line: "the npm package `linsenkasten-mcp` is frozen at 2.2.1 until republished" — the rename sweep must not leave an install path that serves a 2025 snapshot (melange-2 f-024/f-032). Remove the dead deploy files here too if Task 21 has not run yet.
 
 <verify>
-- run: `PYTHONPATH=$HOME/projects/Sylveste/interverse python3 -m pytest tests -q && node --test packages/mcp/test/`
+- run: `PYTHONPATH=$HOME/projects/Sylveste/interverse python3 -m pytest tests -q && node --test "packages/mcp/test/**/*.test.mjs"`
   expect: exit 0
 - run: `git ls-files | grep -v -E '^(CHANGELOG.md|docs/(brainstorms|plans|research)/)' | xargs grep -lI -i interlens | wc -l | tr -d ' '`
   expect: contains "0"
@@ -780,7 +782,7 @@ Delete: `apps/api/` entirely (data already moved; the graph reference lives on a
 <verify>
 - run: `test ! -d apps/api && test ! -d apps/web/api && echo gone`
   expect: contains "gone"
-- run: `node --test packages/mcp/test/`
+- run: `node --test "packages/mcp/test/**/*.test.mjs"`
   expect: exit 0
 </verify>
 
@@ -875,7 +877,7 @@ Same as Task 23 on zklw after `git pull --ff-only` and a fresh `bash scripts/har
 ### Task 25: Docs, roadmap, version, publish, goal close
 
 - `README.md` (post-sweep): what the registry is, the data layout (link `data/README.md`), the six `harvest` commands, env vars (`LINSENKASTEN_DATA_ROOT`, `LINSENKASTEN_OLLAMA_URL`, `LINSENKASTEN_OLLAMA_FALLBACK_URL`), the explorer URL on zklw, the reuse contract for flux-gen.
-- `AGENTS.md` / `CLAUDE.md`: validation commands = `PYTHONPATH=… python3 -m pytest tests -q`, `node --test packages/mcp/test/`, `node packages/mcp/scripts/smoke.mjs …`; the "zklw harvests, Mac pulls" rule; never hand-edit `data/generated/*`.
+- `AGENTS.md` / `CLAUDE.md`: validation commands = `PYTHONPATH=… python3 -m pytest tests -q`, `node --test "packages/mcp/test/**/*.test.mjs"`, `node packages/mcp/scripts/smoke.mjs …`; the "zklw harvests, Mac pulls" rule; never hand-edit `data/generated/*`.
 - `docs/roadmap.json`: mark ILES-N3 (provenance + confidence) done, add the registry line.
 - Publish 3.0.0 (Task 20 step 6 if not done). Fold the brainstorm's *Facts checked* into the CHANGELOG entry.
 - Follow-ups to file (not in this goal): lattice/interweave connector class and `SUBSYSTEM` still say `interlens` (melange-2 f-002); npm 3.0.0 publish if mk logs in (f-003).
