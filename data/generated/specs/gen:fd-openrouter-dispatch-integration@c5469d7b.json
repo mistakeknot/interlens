@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "Focus on integration plumbing, not cost routing decisions (fd-heterogeneous-fleet-cost-routing) or prompt portability (fd-prompt-portability-across-families)",
+  "decision_lens": "Does the integration preserve interflux's progressive enhancement contract — OpenRouter as optional acceleration, never a gate?",
+  "focus": "Architectural correctness of wiring OpenRouter as a Bash-tool HTTP backend into interflux's pipeline",
+  "name": "fd-openrouter-dispatch-integration",
+  "persona": "An integration architect who has built multi-provider AI gateways and knows exactly where HTTP dispatch backends break when grafted onto Agent-tool pipelines",
+  "review_areas": [
+    "HTTP dispatch backend architecture: curl/httpie calls via Bash tool vs dedicated MCP server for OpenRouter",
+    "Token accounting across backends: how billing tokens from OpenRouter map to interflux's budget.yaml cost model",
+    "Context window management per model family: DeepSeek V3 (128K) vs Qwen 2.5 (128K) vs Claude (200K) prompt construction",
+    "Progressive enhancement gate: what happens when OpenRouter is unavailable — silent fallback to Claude-only or hard failure?",
+    "Response format normalization: converting OpenRouter JSON responses to match interflux's findings index contract"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When HTTP response is 200 but body contains an error object instead of completion",
+      "scenario": "OpenRouter dispatch fails silently and produces no findings, but orchestrator counts the agent as complete",
+      "severity": "P0"
+    },
+    {
+      "condition": "When budget.yaml cost_basis doesn't distinguish provider",
+      "scenario": "Token accounting double-counts: OpenRouter tokens recorded as Claude billing tokens in cost report",
+      "severity": "P1"
+    },
+    {
+      "condition": "When slicing thresholds are calibrated for Claude's context limit only",
+      "scenario": "Context overflow on DeepSeek when prompt exceeds 128K but interflux assumes 200K Claude window",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Look for explicit provider abstraction layer, response normalization contract, and graceful degradation when OpenRouter is unreachable",
+  "task_context": "Interflux currently dispatches all agents via Claude Code's Agent tool. Adding OpenRouter requires a parallel dispatch path through Bash or MCP."
+}

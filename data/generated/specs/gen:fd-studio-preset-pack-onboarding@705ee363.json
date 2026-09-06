@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "Does NOT cover installer mechanics or dependency checking (fd-instrument-kit-packaging)",
+    "Does NOT cover version or compatibility declaration (fd-typeface-retail-release)",
+    "Does NOT cover scope boundary documentation (fd-field-guide-scope-discipline)"
+  ],
+  "decision_lens": "A preset pack that requires 30 minutes of reading before producing a single correct image has failed the working photographer. The first correct result should arrive within 5 minutes of install completion — or the onboarding has not done its job.",
+  "distance_rationale": "A preset pack ships a calibrated aesthetic into a practitioner's existing tool (Lightroom) and must deliver the promised result on the first application — the onboarding problem (what do I do first, how do I know it's working, what do I do when it looks wrong) is structurally identical to shipping a personality distribution into a working Hermes install.",
+  "expected_isomorphisms": "Preset calibration guide maps to INSTALL.md 'What to expect' section; 'check your camera profile before applying' maps to 'verify your Hermes version before running install.sh'; the first-image test (apply preset, assess result, adjust if needed) maps to the first Auraken session smoke test; register drift documentation maps to the calibration note that explains why the preset looks different under tungsten vs. daylight.",
+  "focus": "Reviews the practitioner onboarding experience — first-run clarity, register/personality calibration instructions, and whether the distribution gives the practitioner enough working context to get value on the first session rather than requiring them to reverse-engineer intent from the artifact",
+  "name": "fd-studio-preset-pack-onboarding",
+  "persona": "Apply the perspective of a professional portrait photographer releasing a commercial Lightroom preset pack for working photographers. They measure whether the included calibration guide tells the practitioner what the presets were designed for (lighting conditions, skin tones, camera profiles), whether the install sequence matches how photographers actually work (import presets before opening images, not the reverse), whether the 'first look' experience delivers the promised aesthetic immediately, and whether the practitioner can recover if the first application looks wrong.",
+  "review_areas": [
+    "First-session reachability: after install.sh completes, how many steps does it take for a Hermes practitioner to invoke /auraken and observe Auraken's distinctive behavior — is this documented as a numbered sequence in INSTALL.md?",
+    "Personality calibration context: the SKILL.md contains Auraken's behavioral contract — does INSTALL.md point the practitioner to the key sections that explain what to expect, or does it assume they will read the full SKILL.md before first use?",
+    "voice-rubric.md accessibility: the bundle includes a voice-rubric.md for register_check — is its purpose explained to the practitioner (what is register_check, when should they use it) or is it a file that ships without context?",
+    "Recovery path: if the practitioner's first Auraken session produces unexpected behavior (e.g., a model without good register fidelity), does INSTALL.md tell them what to do — which models were validated, how to report issues, what the 'observed register drift' means in practice?",
+    "CHANGELOG as onboarding artifact: v0.1 CHANGELOG will describe 'what changed from the recon spike' — is this useful to a net-new practitioner who never saw the recon spike, or does it assume prior context that external installers do not have?",
+    "Next-steps print statement: install.sh prints next steps — does this output tell the practitioner exactly what to type in their next Hermes session, or does it describe the installed components abstractly?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "First-run experience fails at the last step; practitioner reads SKILL.md to discover invocation syntax rather than learning it from the installer",
+      "scenario": "install.sh's 'next steps' print only names the installed components without telling the practitioner how to invoke Auraken — a practitioner who has never seen Auraken before does not know whether to type '/auraken', 'auraken', or something else in their Hermes session",
+      "severity": "P1"
+    },
+    {
+      "condition": "External practitioner assumes voice-rubric.md is an internal development artifact and ignores it, missing the register verification capability entirely",
+      "scenario": "voice-rubric.md ships in the bundle but INSTALL.md does not explain what register_check is or when to use it — the practitioner discovers a file they cannot interpret, creating cognitive load rather than value",
+      "severity": "P2"
+    },
+    {
+      "condition": "Support burden from practitioners reporting expected behavior as defects",
+      "scenario": "MANIFEST.yaml notes 'observed register drift' for GPT models but INSTALL.md does not explain what register drift means experientially — a practitioner using gpt-5.5 cannot tell whether degraded behavior is expected or a bug to report",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Professional photography preset pack design and commercial distribution",
+  "success_hints": [
+    "The 'next steps' terminal output from install.sh should include the exact invocation the practitioner types to start their first Auraken session — copy-pasteable, not descriptive",
+    "INSTALL.md should have a 'What to expect' section that describes Auraken's distinctive behavior in one paragraph, so the practitioner knows whether the first session is working correctly",
+    "voice-rubric.md deserves a two-sentence explanation at the top of the file — 'This file defines the register criteria used by register_check. If Auraken's responses feel off, run /register_check against these criteria to diagnose model drift.'"
+  ],
+  "task_context": "Document for external review: a v0.1 distribution targeting individual practitioners who are new to Auraken but experienced with Hermes. Surface evaluator-facing qualities around first-run clarity, behavioral expectation-setting, and recovery path documentation."
+}

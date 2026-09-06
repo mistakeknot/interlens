@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Does NOT cover content-addressed caching (fd-build-system-caching)",
+    "Does NOT cover ranking pipelines (fd-search-engine-ranking)"
+  ],
+  "decision_lens": "When the user changes one thing (a file, a bead, a memory entry), what is the minimal set of computations that must re-run, and does Sylveste re-run more than that?",
+  "distance_rationale": "Compilers face the same problem (rebuilding state from sources on each invocation) but have discipline around dependency tracking and minimal recompute that agent platforms have not adopted",
+  "expected_isomorphisms": "Dirty-bit propagation maps to bead-status-change → status-view recompute; salsa memoization maps to agent-finding caching; watch mode maps to session-warm orchestration",
+  "focus": "Reviews Sylveste's repeated re-orientation cost (each turn re-reading state, each agent re-fetching context) through the lens of incremental compilation — dirty-bit propagation, dependency graphs",
+  "name": "fd-compiler-incremental-build",
+  "persona": "Apply the perspective of an incremental compiler engineer (TypeScript watch mode, Rust salsa, Roslyn) — they care about dependency graphs over computed values, dirty-bit propagation only along edges that actually changed, and the cost of over-invalidation",
+  "review_areas": [
+    "Per-turn re-orientation cost: hooks read git status, bd list, recent commits — what fraction of turns actually have new state vs unchanged state?",
+    "Dirty-bit propagation: when MEMORY.md changes, which downstream artifacts must regenerate (CLAUDE.md mentions, /interpath:propagate roadmaps)? Is the dependency tracked or assumed?",
+    "Over-invalidation: when one bead status changes, does /clavain:status regenerate the entire status view or just the affected lane?",
+    "Memo / salsa pattern: are agent-finding outputs cached by (target_hash, agent_hash) and reused, or recomputed on every /flux-drive?",
+    "Watch-mode equivalent: does Sylveste have a 'session-warm' mode where re-running a workflow skips unchanged steps automatically?",
+    "Stale-output gate: when a generated artifact (roadmap, vision doc) is read, is its freshness checked against its inputs, or trusted blindly?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "20 ticks per hour × full re-orientation cost = unnecessary token spend in idle loops",
+      "scenario": "Each /loop tick burns full re-orientation cost (git status, bd list, recent commits) even when nothing has changed since the last tick",
+      "severity": "P1"
+    },
+    {
+      "condition": "Per-invocation cost grows with project size instead of with delta size",
+      "scenario": "/clavain:status regenerates all sections on every invocation even though only one bead status changed since the last call",
+      "severity": "P2"
+    },
+    {
+      "condition": "Drift detection requires manual /interpath:propagate runs",
+      "scenario": "Generated artifacts (roadmaps, vision docs) lack a content-hash header that would let downstream readers detect staleness",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Incremental compilation (TypeScript watch, Rust salsa, IntelliJ PSI)",
+  "source_domain_full": "Incremental compilation",
+  "success_hints": [
+    "Draw the dependency graph for one artifact (e.g., MEMORY.md → CLAUDE.md mentions)",
+    "Identify minimal recompute sets for common deltas",
+    "Recommend salsa/memoization candidates",
+    "Quantify over-invalidation cost in tokens/turn"
+  ],
+  "task_context": "Each turn in Sylveste re-loads the same context. Each /loop tick re-orients. Each /sprint phase re-reads project state. This is the cost of building a clean state every time. Apply the incremental-compilation playbook: build a dependency graph of what depends on what, and only recompute downstream when an upstream actually changed."
+}

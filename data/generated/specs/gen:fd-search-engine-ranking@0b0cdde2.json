@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Does NOT cover compiler-style cache invalidation (fd-compiler-incremental-build)",
+    "Does NOT cover IDE quick-action UX (fd-ide-quick-actions)"
+  ],
+  "decision_lens": "Is this routing/triage decision structured as a two-stage pipeline (cheap candidate gen → expensive rerank) or does it pay full cost on every call?",
+  "distance_rationale": "Search engines and LLM agent platforms both serve a stream of routing/ranking queries with cost-quality tradeoffs, but search has 30 years of mature retrieval-rerank discipline that LLM tooling has not absorbed",
+  "expected_isomorphisms": "Two-stage retrieval-rerank maps to candidate-gen-then-LLM-judge; click-model ground truth maps to acted-on-finding signal; learning-to-rank features map to title-match, frecency, recent-co-occurrence already present in cass/interstat",
+  "focus": "Reviews Sylveste's agent triage and skill routing through the lens of search engine ranking — learning-to-rank, click models, two-stage retrieval+rerank pipelines",
+  "name": "fd-search-engine-ranking",
+  "persona": "Apply the perspective of a search engine ranking engineer — they care about candidate generation vs reranking stages, lightweight features that gate expensive features, click-through-rate as ground truth, and the cost-quality tradeoff between BM25, embeddings, and LLM rerankers",
+  "review_areas": [
+    "Two-stage retrieval-rerank: which Sylveste decisions skip the cheap candidate-gen step and go straight to LLM judgment?",
+    "Click-model analog: cass tracks which agents/skills produced acted-on findings — does any system use this signal as ground truth for retraining?",
+    "Feature engineering for routing: title-match, frecency, recent-co-occurrence, domain-match — Sylveste likely has this signal but doesn't combine it",
+    "Position bias / order-of-listing: when skill descriptions are listed alphabetically, does the LLM bias toward early entries?",
+    "Stale ranker problem: agent registry tier scores in interflux must be re-computed; is there a freshness gate on tier?",
+    "Negative-example mining: when a triaged agent produces no findings, is that a labeled negative for retraining?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Every triage burns 5-10kt where a 200-token retrieval step plus a 1-2kt rerank would cover the same recall",
+      "scenario": "Agent triage in flux-engine evaluates ALL project agents (15-30) with the LLM rather than narrowing to a top-k via cheap features first",
+      "severity": "P1"
+    },
+    {
+      "condition": "Per-turn skill-listing tax is 5kt+, all paid even when the user types a request that matches one skill obviously",
+      "scenario": "Skill routing has no candidate-gen step — the LLM sees the full ~100-skill listing as context",
+      "severity": "P2"
+    },
+    {
+      "condition": "Tier rankings drift from actual usefulness; new agents start cold with no usage signal",
+      "scenario": "Acted-on-finding signal from cass is not fed back into agent tier scoring",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Web search engine ranking pipelines (Google, Bing, Vespa, Elasticsearch learning-to-rank)",
+  "source_domain_full": "Web search engine ranking",
+  "success_hints": [
+    "Map Sylveste decisions to retrieval/rerank stages explicitly",
+    "Cite specific query/feature signals that already exist in cass or interstat",
+    "Recommend top-k thresholds with cost estimates",
+    "Reference learning-to-rank literature (LambdaMART, BERT cross-encoder rerank) for the rerank stage"
+  ],
+  "task_context": "Sylveste's flux-engine LLM-triages agents per review. Skill routing decides which skill fires on user input. Both currently pay full LLM-judgment cost. Apply the search-engine playbook: cheap retrieval (BM25 or embedding cosine) generates a candidate set, an expensive reranker (LLM) only sees the top-k. Identify routing decisions that should adopt this structure."
+}

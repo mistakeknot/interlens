@@ -1,0 +1,49 @@
+{
+  "anti_overlap": [
+    "Does not evaluate whether individual additions constitute genuine finishing work — see fd-ebauche-identity-qualification",
+    "Does not evaluate authority flow and channel naming rules — see fd-distributary-naming-authority",
+    "Does not evaluate the formal conformance language mechanics — see fd-protocol-conformance"
+  ],
+  "decision_lens": "Who examines the work before the Athenflux name is applied? The guild charter model requires an external verifier, not self-certification. Does the spec identify who can examine and confirm qualification, or does it leave the name-right to the implementor's own judgment?",
+  "distance_rationale": "Guild charter law is the most direct historical precedent for the qualification problem the spec faces: how to protect a craft name from being claimed by unqualified practitioners, while providing a graduated ladder from apprentice to master. The examination mechanism (external verifier, observable work product) addresses the spec's current gap around self-certification. The journeyman tier addresses the binary gap between 'Hermes using interflux' and full Athenflux qualification.",
+  "expected_isomorphisms": [
+    "Guild charter (protected craft name) = Athenflux name-right with qualification conditions → guild mark = Athenflux label on compliant output",
+    "Master examination (external verifier, observable work product) = promotion criteria that name an examiner and specify examination artifacts",
+    "Apprentice → journeyman → master progression = 'Hermes using interflux' → in-progress adapter → fully qualified Athenflux",
+    "Guild charter with no examination mechanism = qualification rule where all conditions are self-certified — the document's central gap"
+  ],
+  "focus": "Qualification thresholds and guild-charter name-right mechanics — whether the spec's conditions for using the 'Athenflux' name function as a real guild charter (with enforced craft standards and advancement criteria) rather than an honorary title",
+  "name": "fd-guild-charter-qualification",
+  "persona": "Apply the perspective of a mediaeval guild charter historian specializing in craft qualification structures — they care about whether advancement criteria are verifiable by masters, whether the name of the craft is protected by demonstrated competence rather than self-declaration, and whether the charter creates a clear distinction between master, journeyman, and apprentice work. They flag charters that allow self-advancement, that have no examination mechanism, or that conflate the right to practice the craft with the right to bear the guild's mark.",
+  "review_areas": [
+    "The qualification rule's four conditions are each examinable by a third party — not self-declared by the implementor; the spec should indicate who examines whether a 'documented Hermes-side workflow' exists and what counts as adequate documentation",
+    "The promotion ladder (Draft → Reviewed → Candidate canonical → Canonical) maps to an apprentice-journeyman-master progression — verify that each advancement requires demonstrated work product, not just elapsed time or self-assessment",
+    "The 'minimal v0 success criteria' section functions as the guild examination — verify it specifies what the examiner looks at, not just what the candidate must have produced",
+    "The fallback ('Hermes using interflux' rather than 'Athenflux') maps to the journeyman's right to practice without the master's mark — the spec should make this an honest and usable intermediate state, not a binary pass/fail that discourages early implementation",
+    "The open design question about 'promotion threshold' (what minimum implementation depth is required before using the Athenflux name operationally) is the guild's entry examination — its current openness means the name can be claimed without any verifiable standard"
+  ],
+  "severity_examples": [
+    {
+      "condition": "A guild charter with no examination mechanism is a guild in name only; the name-right becomes a label anyone can print, which is precisely what the non-goals section prohibits",
+      "scenario": "The promotion threshold open design question is left unanswered — meaning the Athenflux name can be applied by any implementor who self-certifies they have met the four qualification conditions, with no external examination mechanism",
+      "severity": "P0"
+    },
+    {
+      "condition": "Journeyman advancement that the candidate self-certifies is not advancement; the criterion needs an examiner role and an observable artifact of the examination",
+      "scenario": "The 'Move to Reviewed' promotion criteria require that 'at least one Hermes-native workflow has been exercised end-to-end' but do not specify who exercises it, what counts as end-to-end, or who certifies the exercise was genuine",
+      "severity": "P1"
+    },
+    {
+      "condition": "Without an intermediate state, implementors face pressure to either over-claim the Athenflux name or under-represent their work; a journeyman tier reduces the binary pressure and makes honest intermediate use visible",
+      "scenario": "The spec does not define an intermediate 'journeyman' state between 'Hermes using interflux' (no adapter work) and full Athenflux qualification — implementors building toward qualification have no named status for their in-progress work",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Mediaeval guild charter law and craft qualification structures (master, journeyman, apprentice; guild mark protection; examination mechanisms; name-right enforcement)",
+  "success_hints": [
+    "Each qualification condition names an examiner role or examination artifact — self-certification is explicitly excluded",
+    "The promotion ladder has observable entry criteria for each level, not narrative descriptions of what 'typically' characterizes each stage",
+    "An intermediate 'journeyman' state is defined or the spec explicitly explains why a binary pass/fail is sufficient for this adapter pattern"
+  ],
+  "task_context": "Review the Athenflux adapter spec to evaluate whether the qualification and promotion structure functions as a verifiable craft standard with external examination, or as an honor system that leaves name-right to self-certification."
+}

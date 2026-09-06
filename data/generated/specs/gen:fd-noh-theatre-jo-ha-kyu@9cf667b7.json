@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "fd-bell-foundry-tuning",
+    "fd-celestial-navigation-fix",
+    "fd-renaissance-disputatio"
+  ],
+  "decision_lens": "Prioritize whether the four-teammate role grammar (lead + 3 debaters) carries true asymmetric function the way shite/waki/tsure do, or collapses into peers-with-name-tags. Round-budget critiques treat the 2-round cap like jo-ha-kyu pacing — does the brainstorm actually allocate distinct work per round or are both rounds 'middle'?",
+  "distance_rationale": "A 14th-century Japanese performance form with codified role asymmetry and three-part temporal structure shares no surface vocabulary with software agent orchestration.",
+  "expected_isomorphisms": "The shite/waki/tsure role grammar transfers as an asymmetric-prompt-per-role mechanism rather than identical-prompt-per-cluster. Jo-ha-kyu transfers as a per-round work-allocation contract distinct from a generic 'N rounds' budget.",
+  "focus": "Bounded multi-role discourse paced by jo-ha-kyu structural rhythm and shite/waki/tsure role asymmetry",
+  "name": "fd-noh-theatre-jo-ha-kyu",
+  "persona": "Apply the perspective of a Noh theatre dramaturg analysing a play's three-part jo-ha-kyu acceleration and the asymmetric role grammar (shite as protagonist, waki as witness-questioner, tsure as supporting cluster, jiutai chorus as memory) that turns three or four performers into a coherent meaning-event within strict temporal bounds.",
+  "review_areas": [
+    "Whether the lead is genuinely waki-shaped (witness + questioner that draws out the shite's revelation) or just a writer wearing a moderator hat",
+    "Whether 2 rounds map onto a real jo-ha-kyu arc (introduction-of-stance, intensification-of-tension, resolution) or compress two functions into one",
+    "Whether the 3 domain debaters have functional differentiation analogous to shite/tsure or are interchangeable spec-cluster holders",
+    "Whether there is a chorus equivalent — accumulated spec JSONs as jiutai memory — that the lead actually consults during synthesis vs writes from scratch",
+    "Whether the prompt asymmetry across the four roles is encoded in the spawn step or whether all four get near-identical debater prompts",
+    "Whether silence/pause has a role — i.e. does any teammate have license to defer-to-peer rather than always speak"
+  ],
+  "severity_examples": [
+    {
+      "condition": "All four teammate prompts share the same verbs/framing and only differ in domain-cluster string injection",
+      "scenario": "Lead and three debaters spawn from the same prompt template with only source_domain swapped, producing four shite and no waki",
+      "severity": "P1"
+    },
+    {
+      "condition": "The brainstorm uses 'state then respond' framing without enforcing that round 1 produces commitments and round 2 produces convergence",
+      "scenario": "Round 1 and Round 2 are described in interchangeable language, with no structural distinction between exposition and resolution phases",
+      "severity": "P2"
+    },
+    {
+      "condition": "Every round implicitly requires every debater to emit a turn",
+      "scenario": "No mechanism for a teammate to pass without speaking, so token cost grows even when a debater has nothing new",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Noh theatre dramaturgy",
+  "success_hints": [
+    "Name role asymmetry concretely",
+    "Map round 1 to ha (intensify) and round 2 to kyu (converge)",
+    "Treat spec JSONs as jiutai chorus memory",
+    "Sanction silence as a valid turn"
+  ],
+  "task_context": "Reviewing a brainstorm about replacing single-Sonnet synthesis with a 4-teammate debate (lead + 3 domain debaters) over 2 rounds in a Claude Code plugin. Looking for whether role grammar and round pacing carry real structure or are decorative."
+}

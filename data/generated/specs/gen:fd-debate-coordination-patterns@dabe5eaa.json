@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "fd-agent-teams-primitive covers primitive API contracts including mailbox topology",
+    "fd-interflux-synthesis-pipeline covers data flow and spec field consumption",
+    "fd-teams-cost-economics covers token accounting per round"
+  ],
+  "decision_lens": "The core hypothesis is that direct inter-agent debate breaks anchoring bias from single-pass synthesis. Evaluate whether the proposed round structure and mailbox topology actually deliver that — or whether anchoring migrates from the synthesizer to the first debater to post in Round 1.",
+  "focus": "Evaluate the 2-round capped mesh debate design for anchoring bias, coordination overhead, and whether the round structure actually breaks the single-agent summary-of-summaries failure mode",
+  "name": "fd-debate-coordination-patterns",
+  "persona": "Apply the perspective of a multi-agent systems researcher who studies group deliberation dynamics — including the conditions under which structured debate surfaces minority positions vs reinforces the dominant framing — and who has analyzed failure modes in both star-topology (all agents report to orchestrator) and mesh-topology (agents message each other) coordination at small team sizes.",
+  "review_areas": [
+    "Round 1 anchoring: each debater states their 'strongest isomorphism candidates' and challenges one peer's — if debater A posts first and debater B reads A's message before forming their own, B's challenge is anchored on A's framing; the mesh topology doesn't eliminate anchoring, it moves it",
+    "Challenge assignment: 'challenges one peer's' is underspecified — is each debater pre-assigned a specific peer to challenge, or do they self-select? Self-selection risks two debaters challenging the same peer and none challenging the third",
+    "Round 2 convergence assumption: debaters 'respond to challenges, propose new combinations' and the lead 'asks for synthesis-ready material' — what if Round 2 produces more divergence than Round 1? The 2-round cap forces the lead to synthesize from unresolved conflict",
+    "Cluster-to-debater framing: assigning each debater one cluster of spec JSONs means each debater advocates for their cluster's perspective — this is an adversarial framing, not a collaborative one; does the debater prompt make this explicit, or does the debater default to defending their cluster's candidates uncritically?",
+    "Star vs mesh topology: the brainstorm implies mesh (debaters message each other directly), but Claude Code's mailbox may implement a star pattern (all messages go through lead); verify which topology the primitive actually supports and whether the design accounts for this",
+    "Synthesis quality measurement: the brainstorm proposes diffing subagent vs teams synthesis docs and having a reviewer agent score them — is this measurement plan specified concretely enough to be reproducible, or is it deferred entirely to plan time?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Core mesh hypothesis is false; the design is star-with-extra-steps and anchoring on the lead's relay summaries replaces anchoring on the synthesis subagent's reading order",
+      "scenario": "Mailbox implements star topology; debaters cannot message each other directly; 'direct inter-agent debate' is simulated via the lead relaying messages",
+      "severity": "P1"
+    },
+    {
+      "condition": "Challenge assignment is unspecified; self-selection produces unbalanced debate coverage",
+      "scenario": "Two debaters challenge the same peer in Round 1; third peer is unchallenged; Round 2 has no incentive to surface the third cluster's cross-domain patterns",
+      "severity": "P2"
+    },
+    {
+      "condition": "No minimum-convergence check before synthesis; cap enforced regardless of debate state",
+      "scenario": "Round 2 produces divergent positions; lead is forced to synthesize under the 2-round cap; resulting synthesis acknowledges conflict without resolving it, providing no improvement over subagent path",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Round 1 anchoring risk is acknowledged and debater prompts are written to require independent position-forming before reading peer messages",
+    "Challenge assignment is pre-specified (round-robin or random draw), not left to debater self-selection",
+    "Lead synthesis prompt explicitly handles the unresolved-conflict case — summarizes the disagreement, not a false consensus",
+    "Topology (mesh vs star) is confirmed against the primitive and design adjusted if only star is available"
+  ],
+  "task_context": "The brainstorm proposes a 4-teammate synthesis team: one lead (Sonnet, writes synthesis) + 3 domain debaters (Sonnet, each holding one cluster of ~4-5 spec JSONs). Two structured rounds, TaskCompleted-enforced cap, lead writes synthesis from whatever has converged."
+}

@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "Focus on operational reliability and observability, not routing policy (fd-heterogeneous-fleet-cost-routing) or prompt format (fd-prompt-portability-across-families)",
+  "decision_lens": "When OpenRouter returns a 500 or times out at 45s into a 60s agent run, does the system degrade gracefully or corrupt the review?",
+  "focus": "Failure handling, timeout management, and cost audit trail for the OpenRouter HTTP backend",
+  "name": "fd-api-resilience-and-observability",
+  "persona": "An SRE who has operated multi-provider API gateways at scale and knows that the provider you trust least will fail during your most important review",
+  "review_areas": [
+    "Timeout management: OpenRouter has different latency profiles than Claude's Agent tool — how do agent timeouts adapt?",
+    "Retry policy: which failures are retryable (rate limit, timeout) vs terminal (auth failure, model unavailable)?",
+    "Partial failure propagation: if 2/6 agents fail on OpenRouter, does synthesis produce a valid partial result or abort?",
+    "Cost audit trail: per-agent cost tracking across providers for sprint budget enforcement and interstat recording",
+    "Rate limiting and concurrency: OpenRouter has per-key rate limits — how does parallel dispatch of 6+ agents avoid 429s?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When parallel dispatch exceeds per-key concurrent request limit without backoff",
+      "scenario": "OpenRouter rate limit (429) causes all parallel agents to fail simultaneously, producing zero findings",
+      "severity": "P0"
+    },
+    {
+      "condition": "When timeout config doesn't account for OpenRouter's higher latency variance",
+      "scenario": "Timeout mismatch: OpenRouter agent takes 90s but flux-watch.sh times out at 60s, marking it failed when it would have succeeded",
+      "severity": "P1"
+    },
+    {
+      "condition": "When token-count.py only parses Claude JSONL format, not OpenRouter response JSON",
+      "scenario": "Cost data from OpenRouter not recorded in interstat, making budget estimates progressively wrong",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Look for provider-aware timeout config, retry with exponential backoff, concurrent request limiting, and unified cost recording across providers",
+  "task_context": "Interflux currently has no external API calls — all agents run inside Claude Code's sandbox. OpenRouter adds a new failure domain."
+}

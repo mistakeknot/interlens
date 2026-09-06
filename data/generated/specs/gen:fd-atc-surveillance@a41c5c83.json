@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "Nuclear maintenance rule monitoring (covers equipment functional failure rate for safety-critical systems, not positional surveillance and separation assurance)",
+    "Financial audit continuous controls monitoring (covers financial control exception rates, not real-time positional tracking and corridor maintenance)",
+    "Pharmaceutical post-market surveillance (covers product-safety signal accumulation over time, not real-time positional surveillance and clearance handoffs)"
+  ],
+  "decision_lens": "Prioritize findings where Break-as-gate would authorize Epoch entry but provide no surveillance mechanism to verify that the subsystem continues to maintain the corridor of honest self-observation it demonstrated to get the clearance. In ATC, a clearance without surveillance is a pre-radar control paradigm — acceptable when traffic density is low and consequences of deviation are recoverable, but unacceptable in high-density or high-consequence airspace. Map the subsystem criticality to airspace class to determine which paradigm applies.",
+  "distance_rationale": "Air traffic control is a professional discipline that has operationalized the gate-vs-continuous tradeoff in a safety-critical, real-time environment with a well-developed regulatory framework (ICAO Annex 11, FAA 7110.65), providing isomorphisms at the same complexity level as autonomous-agent trust architecture.",
+  "expected_isomorphisms": "An IFR clearance maps to Break-as-gate: authorization to enter a protected corridor based on a point-in-time determination. Continuous secondary surveillance radar maps to Break-as-continuous-mode: the aircraft's position is verified on every radar sweep, and deviation from cleared altitude/track is an immediate alert regardless of how clean the original clearance was. The TCAS resolution advisory — an automated continuous-mode intervention that overrides the clearance when surveillance detects a conflict — maps to the Tier-2 demotion signal in option (b): the continuous rate produces actionable authority independently of the gate result.",
+  "focus": "Clearance gate versus continuous surveillance loop for maintaining authorized corridor integrity",
+  "name": "fd-atc-surveillance",
+  "persona": "Apply the perspective of an air traffic controller who works both clearance-based procedures (IFR clearances, approach authorizations) and secondary surveillance radar (SSR Mode C/S, TCAS coordination). They care about the structural difference between a clearance — a one-time gate that authorizes entry into a protected corridor — and surveillance — the continuous loop that verifies the cleared aircraft is actually maintaining its authorized corridor. They measure separation assurance by the surveillance update rate, not by the quality of the original clearance. They flag any design that relies on clearance alone without a surveillance loop to verify corridor maintenance.",
+  "review_areas": [
+    "Assess whether the Break gate functions as an IFR clearance (authorizes entry to Epoch corridor) but lacks a surveillance loop equivalent to verify the subsystem maintains honest self-observation post-entry",
+    "Check whether there is an equivalent to radar handoff — when a subsystem transitions from Break to Epoch, does responsibility for monitoring its self-observation health transfer to a defined surveillance authority, or does it lapse",
+    "Evaluate whether the Break spec distinguishes between high-density airspace (M3+ critical subsystems) and low-density airspace (M1-M2 non-critical) — ATC applies different surveillance requirements by airspace class",
+    "Verify that the ≥N gate includes an equivalent to the position-report requirement: Break receipts must be temporally distributed enough that the controller has situational awareness across the Compound window, not just at the gate",
+    "Examine whether the spec has an equivalent to a TCAS RA override path — a mechanism for continuous surveillance to trigger demotion even when the Break gate was formally passed",
+    "Consider whether the Epoch phase needs a defined handoff protocol — in ATC, sector handoffs require re-establishment of surveillance contact, not inheritance of the previous sector's positional certainty"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When §7.1 specifies Break as a one-time gate without specifying what monitoring continues in Epoch to verify ongoing self-observation health",
+      "scenario": "A subsystem passes the ≥N Break gate and enters Epoch with no defined mechanism for detecting deviation from the self-observation behavior that earned the clearance — the clearance has no surveillance loop, which is a pre-radar control paradigm unsuitable for high-criticality subsystems",
+      "severity": "P0"
+    },
+    {
+      "condition": "When the Break gate lacks a minimum distribution requirement across the Compound window",
+      "scenario": "Break receipts are not required to be temporally distributed across the Compound window — a subsystem can file a burst of position reports at gate time without demonstrating sustained navigational accuracy throughout the flight",
+      "severity": "P1"
+    },
+    {
+      "condition": "When §7.11 (Epoch trigger rubric) does not specify whether Break evidence carries over or must be re-demonstrated under new conditions",
+      "scenario": "The Epoch phase inherits the Break gate result without a re-establishment handoff — after an Epoch trigger (model API change, architecture migration), the subsystem's Break clearance carries over without a new surveillance baseline being established under the changed conditions",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Air traffic control — IFR clearance procedures and secondary surveillance radar (SSR Mode C/S, TCAS, MLAT)",
+  "success_hints": [
+    "Identifies whether Break functions as a clearance-only authorization or as the start of a surveillance relationship, and surfaces what the Epoch-entry handoff protocol looks like",
+    "Flags whether the spec distinguishes high-criticality (Class A/B airspace equivalent, continuous surveillance mandatory) from low-criticality (Class G airspace equivalent, pilot self-announce acceptable) subsystems in its Break requirements"
+  ],
+  "task_context": "Reviewing §7.1 of the Sylveste vision v6 outline, which introduces a Break phase between Compound and Epoch in the subsystem trust lifecycle. The upstream judgment call is whether Break should be a discrete gate (≥N receipts before transition) or a continuous-mode requirement (sustained contradiction-surfacing rate as Tier-2 evidence about self-observation health). The reviewer brings air traffic control practice — specifically the IFR clearance gate versus continuous secondary surveillance radar distinction — as a parallel professional discipline."
+}

@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "Do not critique stage demarcation (chanoyu reviewer's territory)",
+    "Do not address Proposal-as-designed-artifact information density (cartoon reviewer's territory)",
+    "Do not address universal/local typography (liturgical editor's territory)",
+    "Focus on authority modeling between advisor and player, and on closed-vocabulary discipline across two games"
+  ],
+  "decision_lens": "Is the advisor (Curator/Steward) → player (Patron/TBD) relationship modeled with the same crispness as the pilot-master exchange — the pilot has the local knowledge (proposes), the master retains override authority (annotates with absolutely-not, risk-it), and the bridge log captures it all for debrief? Does the shared annotation vocabulary survive across the two games the way SMCP survives across nationalities?",
+  "distance_rationale": "Professional practice with centuries of refinement specifically around the local-expert-proposes / authority-holder-decides dyad and a closed cross-cultural vocabulary — exact structural match to the Curator/Patron + annotation-verb concerns with no game-design proximity.",
+  "expected_isomorphisms": "Pilot-master exchange maps onto Curator-Patron Proposal/Annotate flow; SMCP closed phrase set maps onto the seven-verb annotation vocabulary's cross-game discipline; voyage debrief into pilot-station knowledge maps onto Debrief's next_proposal_hints flowing into next Prepare.",
+  "focus": "Maritime pilot-master bridge protocol — local expert proposes the route, captain annotates, executes, debriefs, with shared IMO standard-phrase vocabulary across nationalities",
+  "name": "fd-pilot-bridge-protocol-reviewer",
+  "persona": "Apply the perspective of a marine pilot and a ship's master who have worked the pilot-master exchange together — they care about the master-pilot information exchange (MPX) form, the closed set of IMO Standard Marine Communication Phrases that survive across language barriers, the pilot's local-knowledge proposal and the master's annotations and override authority, and the voyage debrief that updates port-pilot procedures, and they flag any place where authority transitions are ambiguous or where shared vocabulary slips into local jargon.",
+  "review_areas": [
+    "Whether the player's annotation authority (especially 'absolutely not' / 'avoid') is modeled with the crispness of the master's override over the pilot's recommendation — the chain-of-command-on-the-bridge test",
+    "Whether the seven annotation verbs form a closed, learnable, cross-game vocabulary the way SMCP is a closed cross-nationality vocabulary, and whether any verb is ambiguous when stripped of context",
+    "Whether the Debrief stage genuinely feeds back into port/pilot procedure updates (next_proposal_hints) the way a voyage debrief feeds back into the pilot station's local-knowledge base",
+    "Whether the Proposal artifact captures pilot-style local-knowledge encoding (this current at this hour, this elf's recent reputation event) or is generic enough to lose the situational specificity",
+    "How the Curator vs Steward voice difference parallels different pilot-station cultures (a Singapore pilot speaks differently than a Suez pilot but both use SMCP) — shared vocabulary, local affect",
+    "Whether the spec handles the equivalent of pilot-master disagreement protocol — what happens when 'absolutely not' meets the advisor's strong recommendation? The bridge has a documented escalation; does the spec?"
+  ],
+  "severity_examples": [
+    {
+      "example": "If 'absolutely not' is documented as 'veto on this specific proposal' but the spec does not specify whether the advisor must respect it or whether subsequent Proposals can re-propose the same item, authority is ambiguous — the equivalent of pilot ignoring master's override; this can cause loss of player agency",
+      "severity": "P0"
+    },
+    {
+      "example": "The seven verbs are listed without disambiguation rules — 'avoid' (hard rule: never propose) vs 'absolutely not' (veto on this specific proposal) is the kind of distinction SMCP makes explicit and the spec must too",
+      "severity": "P1"
+    },
+    {
+      "example": "Debrief does not specify whether next_proposal_hints are advisor-private memory or visible to the player — the bridge log is shared; is the advisor's notebook?",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Maritime pilot-master bridge protocols and IMO Standard Marine Communication Phrases",
+  "success_hints": [
+    "Use specific maritime vocabulary: master-pilot exchange (MPX), Standard Marine Communication Phrases (SMCP), pilot card, passage plan, bridge team management, conn (who has the conn)",
+    "Treat 'absolutely not' / 'avoid' / 'protect' as authority transfers and verify each has a defined effect on the advisor's next-Proposal behavior",
+    "Compare the Proposal artifact to a passage plan — pre-event written intent with local-knowledge encoding, annotated by the master before execution",
+    "Flag any annotation verb that lacks the disambiguation rigor SMCP applies to its phrases (e.g. 'I will pass you on my port side' has zero ambiguity; does 'spotlight' have the same?)",
+    "Identify whether the spec models the equivalent of a confidential debrief vs a shared one — pilot's confidential report to the station vs the public voyage log"
+  ],
+  "task_context": "Review docs/brainstorms/2026-05-28-revel-curator-ub-harmonization-brainstorm.md (Revel-i27). The advisor-player relationship and the closed cross-game annotation vocabulary are the key concerns. Use the maritime pilot-master bridge protocol as the lens."
+}

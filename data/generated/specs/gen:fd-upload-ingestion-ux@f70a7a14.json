@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-chunk-progress-state covers in-progress UI during multi-chunk processing",
+    "fd-result-assembly-display covers post-processing display",
+    "fd-editorial-continuity covers cross-chunk LLM context"
+  ],
+  "decision_lens": "Prioritizes designs that feel native to the existing paste-first workflow without demoting it, and that fail gracefully when upload fails mid-stream or the file is malformed.",
+  "focus": "File upload interface design and ingestion pipeline UX alongside the existing paste workflow",
+  "name": "fd-upload-ingestion-ux",
+  "persona": "A UX engineer specializing in file-handling interfaces and progressive enhancement patterns. They evaluate upload flows against real-world constraints like browser file API limits, MIME type handling, and graceful degradation when workers are slow.",
+  "review_areas": [
+    "Whether the file upload affordance is co-equal with paste or positioned as secondary, and what that communicates to users with large manuscripts",
+    "How the UI handles .docx, .txt, .md format differences and communicates unsupported formats before upload begins",
+    "Whether word-count estimation is shown before submission so users understand what processing tier they are entering",
+    "What happens when upload stalls or the browser tab is closed mid-upload — is state recoverable?",
+    "Whether the TiptapEditor needs to be replaced or bypassed for file-sourced content",
+    "How file-sourced content is stored on the Vercel-side before being sent to the pipeline worker, given read-only filesystem"
+  ],
+  "success_hints": [
+    "Upload and paste feel like two entry points to the same workflow, not competing features",
+    "Users know their word count and estimated processing time before they commit",
+    "A failed or partial upload never silently discards content"
+  ],
+  "task_context": "Texturaize processes editorial text through a pipeline worker on slse. Current UI uses TiptapEditor for paste input. Task extends this for 50K-250K word manuscripts."
+}

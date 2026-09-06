@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Focuses exclusively on data ownership layering and interface reassignment — not on alloy interface composition (Muisca) or emergent performance quality (Noh).",
+  "decision_lens": "Gult/rist separation principle: every system must distinguish between reassignable administrative interfaces (gult — who collects, routes, and presents) and inalienable data possession (rist — the underlying identity, preferences, and accumulated knowledge that belong to the user regardless of which transport or agent holds the current grant).",
+  "distance_rationale": "No software engineer migrating a Python chatbot to Go would consult medieval Ethiopian land tenure jurisprudence for architectural guidance on data ownership separation.",
+  "expected_isomorphisms": "The gult/rist distinction maps precisely to the transport-interface vs. user-data separation: gult (administrative grant, freely reassignable) corresponds to which transport routes messages for a user, while rist (hereditary, inalienable) corresponds to the user's accumulated preference entities, profile history, and identity. The Solomonic practice of reassigning gult without touching rist is structurally identical to the requirement that adding or replacing transports must not require data migration.",
+  "focus": "Evaluate the Auraken-to-Skaffen migration's data ownership and interface reassignment strategy through the gult/rist dual-tenure system of Solomonic Ethiopia, where administrative authority over people and tribute could be freely reassigned without disturbing underlying hereditary land claims.",
+  "name": "fd-ethiopian-gult-tenure-layering",
+  "persona": "An ethnohistorian of medieval Ethiopian land administration specializing in the gult/rist tenure distinction as documented in royal land charters (gwelt) and the Fetha Nagast legal code, with deep expertise in how the Solomonic dynasty separated usufructuary grants from hereditary possession across three centuries of administrative reshuffling.",
+  "review_areas": [
+    "Does the Transport interface migration (Signal/Telegram to Intercom) cleanly separate the gult layer (message routing, typing indicators, media handling) from the rist layer (user_identities, preference_entities, working_profiles) so that reassigning the transport never disturbs the underlying data?",
+    "Is the user_identities table designed as a rist registry — where identity is hereditary to the user, not owned by the transport — so that adding a third transport (WhatsApp, Discord) is a gult grant, not a data migration?",
+    "Does the bi-temporal SPO triple design preserve rist semantics — preference entities are immutable and only expired, never deleted or overwritten, so the historical record survives any administrative restructuring?",
+    "Is there a risk of gult entanglement where Intercom's Postgres schema embeds transport-specific assumptions into the identity/preference tables, making future transport reassignment require data surgery?",
+    "Does the persona TOML config (Skaffen integration) properly separate the gult layer (OODARC template variables, context provider hooks) from the rist layer (base personality, anti-patterns) so the personality survives a future agent framework migration?",
+    "During the concurrent operation period, is there a dual-gult protocol — can two transports hold simultaneous administrative grants over the same user's rist without creating conflicting writes to preference_entities or style_fingerprints?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The migration script from Auraken's SQLAlchemy schema to Intercom's pgx schema loses bi-temporal timestamps or collapses immutable preference entities — the rist is damaged during gult reassignment",
+      "scenario": "Transport migration destroys user preference history",
+      "severity": "P0"
+    },
+    {
+      "condition": "user_identities uses transport-specific IDs as primary keys rather than a transport-agnostic user identity with transport mappings — adding a new transport requires schema changes to the rist layer",
+      "scenario": "Identity table couples transport to user",
+      "severity": "P1"
+    },
+    {
+      "condition": "The TOML persona file references Skaffen-specific types or hooks so deeply that migrating to a future agent framework would require rewriting the personality definition",
+      "scenario": "Persona config embeds framework-specific assumptions",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Ethiopian Solomonic gult/rist dual land-tenure system (13th-19th century CE) — the Fetha Nagast legal framework and gwelt royal charter tradition governing how administrative authority (gult) over tribute and people was granted, revoked, and reassigned by the crown without disturbing the underlying hereditary land possession (rist) held by descent groups through ambilineal kinship",
+  "success_hints": "The architecture should have a clear rist registry (user identity + preference history + profile) that is transport-agnostic and agent-framework-agnostic, with gult-style grants that map transports and agent personas to this registry without modifying it. Adding a new transport or migrating to a new agent framework should require zero changes to the rist tables.",
+  "task_context": "This brainstorm covers migrating Auraken (Python AI assistant) into Skaffen (Go agent ecosystem). The migration decomposes into Go packages (lens, fingerprint, extraction, profilegen), Skaffen persona integration, Intercom transport (Signal/Telegram abstraction), and analysis mode. Key data: 291-lens library with graph, SPO preference triples with bi-temporal semantics, style fingerprints, and multi-transport user identity mapping. The 4-phase sequence builds pure libraries first, then integrates into Skaffen, then migrates transports, then decommissions Python."
+}

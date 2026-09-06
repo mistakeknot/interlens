@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Does NOT cover append-only log cursor semantics or crash recovery (fd-append-log-cursor-correctness)",
+    "Does NOT cover rolling-window algorithm statistical soundness (fd-rolling-window-algorithm-soundness)",
+    "Does NOT cover Go subcommand plumbing or flag design (fd-go-subcommand-plumbing)"
+  ],
+  "decision_lens": "A migration that silently corrupts calibration data on re-run, or leaves the system in an indeterminate dual-state where v1 and v2 are both present but neither is canonical, is a P0 — the rollout window is undefined so the system must be safe across any interleaving of old and new code.",
+  "focus": "Audits the one-shot v1→v2 migration path for correctness, idempotency, and backward-compat so that the existing enforce-gate read path never breaks during rollout",
+  "name": "fd-schema-migration-backward-compat",
+  "persona": "Apply the perspective of a schema migration safety engineer — they care about zero-downtime schema transitions, measure idempotency by asking 'what happens if the migration runs twice', and flag any code path that reads a file without checking which schema version is present.",
+  "review_areas": [
+    "Idempotency of the migration: if SessionEnd fires twice before any new drain cycle, does the second migration attempt detect the v2 file already present and skip safely — or does it overwrite accumulated v2 calibration with a fresh re-bucketing of v1 data?",
+    "v1 archive integrity: the plan archives v1 to gate-tier-calibration.v1.json.bak before writing v2 — if the process crashes between writing v2 and archiving v1, the next run finds both v1 and v2 and must not re-migrate; does the code check for v2 presence first, not v1 absence?",
+    "Loss of per-theme distinction on migration: all v1 entries are bucketed under themes.default.* with values preserved — verify that the key structure 'check|p→p' is carried verbatim, not re-parsed or re-derived, so nothing is silently dropped for keys whose format is unexpected",
+    "Schema version gate in the calibrate subcommand: when cmdCalibrateGateTiers reads a file, does it check schema_version before applying rolling-window logic — so that a pre-migration v1 file passed as input produces a clear error rather than silently misinterpreting the flat key structure as a themes map?",
+    "Backward compat for enforce-gate: the plan states enforce-gate still reads v1 if v2 is missing — confirm that the read path distinguishes 'v2 missing' (fallback OK) from 'v2 corrupt' (should error), and that a partial-write of v2 (e.g., truncated JSON) does not silently fall back to v1 with stale thresholds",
+    "cursor_ts initialization on migration: the v2 file written during migration carries cursor_ts derived from existing v1 data — if v1 has no timestamp metadata, what is cursor_ts set to, and does a cursor_ts of 0 or epoch cause the drain loop to re-process the entire gate-outcomes.jsonl backlog on the next SessionEnd?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "All calibration data accumulated after the first migration cycle is destroyed on every subsequent SessionEnd where v1.bak does not exist",
+      "scenario": "Migration checks 'if v1 exists, migrate' rather than 'if v2 absent, migrate' — on second SessionEnd after migration, v1.bak is gone but v1 canonical is absent, so the condition is false and the loop silently skips; but if v1.bak rename failed on first run, v1 still exists and migration re-runs, overwriting any calibration accumulated since the first migration cycle",
+      "severity": "P0"
+    },
+    {
+      "condition": "First post-migration calibration cycle has inflated sample counts and skewed FPR/FNR values; promotion rules may fire incorrectly (FNR > 0.30, n >= 10) on the doubled data",
+      "scenario": "cursor_ts is initialized to 0 on migration because v1 has no timestamp field — the drain loop processes all records in gate-outcomes.jsonl from epoch, including records that were already incorporated into v1 calibration, doubling their weight in the first v2 rolling-window computation",
+      "severity": "P1"
+    },
+    {
+      "condition": "System operates on stale v1 thresholds with no alert; the automatic calibration loop appears to be running (SessionEnd hook fires) but has no effect",
+      "scenario": "enforce-gate reads v2 with a partially-written JSON body (crash mid-write) and json.Unmarshal returns an error — the fallback path silently returns to v1 thresholds without logging the v2 parse failure, so operators have no signal that v2 is broken and calibration is silently regressed",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "Migration guard checks for v2 file existence first, not v1 absence",
+    "Integration test runs migration twice on the same v1 fixture and asserts the second run is a no-op",
+    "v2 parse errors in enforce-gate are logged at WARNING and never silently fall back to v1"
+  ],
+  "task_context": "The brainstorm specifies a one-shot v1→v2 migration triggered on the first SessionEnd drain: read v1, bucket all entries under themes.default.*, write v2, archive v1 to .v1.json.bak. enforce-gate still reads v1 as fallback if v2 is missing. The migration must be idempotent and safe under crashes. Existing code in gate_calibration.go:cmdCalibrateGateTiers is extended to read v2 + drain the jsonl + write v2."
+}

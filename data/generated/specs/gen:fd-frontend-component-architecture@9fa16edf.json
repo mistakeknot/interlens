@@ -1,0 +1,32 @@
+{
+  "anti_overlap": "fd-ux-information-hierarchy handles user-facing design; this agent focuses on technical component structure",
+  "decision_lens": "Prioritizes findings where the proposed component changes could cause unnecessary client-side JavaScript, data-fetching redundancy, or poor separation of concerns.",
+  "focus": "React/Next.js component design, server-client boundary, and reuse patterns for the new homepage",
+  "name": "fd-frontend-component-architecture",
+  "persona": "A senior frontend architect experienced with Next.js App Router who focuses on the server-client boundary and component composition patterns.",
+  "review_areas": [
+    "Evaluate whether the Best For tiles can be a pure server component or if they need client interactivity, and the implications for bundle size",
+    "Check if extracting scoring logic from the wizard into a shared utility creates coupling issues between the homepage and /recommend page",
+    "Assess whether removing HomeScatterPlot and home-scatter-presets.ts leaves orphaned imports or affects other pages",
+    "Review the data-fetching pattern: both homepage and /recommend fetch the same data — should this be a shared cached function?",
+    "Evaluate whether the wizard step 1 on homepage needs 'use client' or can be implemented as server-rendered links to /recommend?useCase=X"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Hero requires 'use client' when server-rendered links would suffice",
+      "scenario": "Making the hero use-case selector a client component adds the entire wizard + scoring logic to the homepage JS bundle",
+      "severity": "P1"
+    },
+    {
+      "condition": "Shared utility refactor introduces incompatibility",
+      "scenario": "Extracting scoreModel into a shared utility changes its API contract, breaking the existing /recommend page",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Homepage hero is a server component (no 'use client')",
+    "Best For tiles are server-rendered with ISR, zero client JS",
+    "Scoring logic shared without coupling pages"
+  ],
+  "task_context": "AgMoDB homepage redesign brainstorm: moving from a data-showcase homepage (scatter plot + recently-updated cards) to a task-oriented homepage with a single-step recommend wizard hero (use case selector) and pre-computed 'Best For' category tiles showing top 3 models per category. The brainstorm covers UX restructuring, component architecture, server-side scoring reuse, and navigation changes."
+}

@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "Leaves Go API design to fd-go-metrics-implementation, leaves threshold calibration to fd-statistical-process-control",
+  "decision_lens": "SQLite operational patterns: covering indexes, WAL contention under concurrent readers, schema migration idempotency",
+  "focus": "Reviews signal storage schema design, query patterns for rolling windows, and migration safety",
+  "name": "fd-sqlite-rolling-window",
+  "persona": "Database engineer who specializes in SQLite for embedded metrics systems with WAL-mode contention patterns",
+  "review_areas": [
+    "Whether new tables (inform_signals or similar) follow existing signals.db conventions",
+    "Whether rolling window queries use covering indexes for efficient tail scans",
+    "Whether schema migration from v1 to v2 is idempotent and handles partial migration",
+    "Whether unbounded table growth is addressed (retention policy, cleanup in check cycle)",
+    "Whether WAL checkpoint behavior is acceptable under concurrent ockham check + SessionStart hook"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No index on timestamp column for window tail",
+      "scenario": "Rolling window query scans entire table",
+      "severity": "P1"
+    },
+    {
+      "condition": "No retention policy — 10k+ rows for a 10-bead window",
+      "scenario": "Table grows unbounded over months",
+      "severity": "P2"
+    },
+    {
+      "condition": "Running ockham check twice during migration creates duplicate columns or errors",
+      "scenario": "Schema migration not idempotent",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Schema extends signals.db cleanly, queries are index-covered, migration follows ensureSchema/migrateSchema pattern from db.go",
+  "task_context": "signals.db already has signal_state, authority_snapshot, ratchet_state. Schema version 1. F5 adds rolling window storage."
+}

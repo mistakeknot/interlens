@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-distribution-installer-safety covers install.sh orchestration and profile registration — not server package internals",
+    "fd-versioning-compatibility covers the MANIFEST.yaml model matrix and Hermes compat range claims",
+    "fd-skill-bundle-conformance covers SKILL.md format and agentskills.io conformance"
+  ],
+  "decision_lens": "Prioritizes the gap between the development-tree server.py and what v0.1's release tarball needs to contain. Flags anything that works on the developer's machine because AURAKEN_SRC is set but breaks for a fresh installer. De-prioritizes internal server logic covered by fd-skill-bundle-conformance.",
+  "focus": "auraken-lens MCP server packaging — Python venv discipline, dependency pinning, transport configuration, binary coupling",
+  "name": "fd-mcp-server-packaging",
+  "persona": "Apply the perspective of a Python packaging maintainer who has shipped MCP servers as release artifacts — they care about reproducible builds across Python versions, measure correctness by whether a fresh `pip install` on a clean machine produces a working server, and flag any implicit assumption about the developer's environment leaking into the distribution.",
+  "review_areas": [
+    "Dependency pinning discipline: pyproject.toml declares `mcp>=1.0.0` with no upper bound — assess whether this is safe for a v0.1 release artifact or whether the mcp SDK's breaking-change history requires a tighter pin or hash-locked lockfile",
+    "auraken.lenses import path: server.py resolves AURAKEN_SRC as `_HERE.parents[3] / 'src'` — this is a monorepo-relative path that breaks when the file is copied into dist/v0.1; verify the dist copy strategy handles this or replaces it with a proper package install",
+    "lens-binary coupling: server.py imports `from auraken.lenses import select_lenses` from the legacy Python daemon; document whether this import is vendored into the dist bundle or requires the user to have the full Sylveste monorepo on their PATH",
+    "Missing dist-time dependencies: the http transport mode imports uvicorn, starlette, and httpx at runtime — these are not in pyproject.toml dependencies; assess whether they should be extras or required",
+    "venv strategy in the distribution: the brainstorm mentions 'installs into Hermes's MCP-server venv or system' — clarify which approach v0.1 takes and whether pyproject.toml's build-system section matches that strategy",
+    "Backup file contamination: the development tree contains `.bak-pre-http-*` and `.bak-pre-auth-*` files alongside server.py — confirm the dist bundle curation step excludes these before packaging"
+  ],
+  "severity_examples": [
+    {
+      "condition": "dist/v0.1/mcp-servers/auraken-lens/server.py uses `_HERE.parents[3] / 'src'` which resolves correctly inside the monorepo but resolves to a non-existent path after tarball extraction — `from auraken.lenses import select_lenses` fails with ImportError on every user install",
+      "scenario": "AURAKEN_SRC path resolution breaks for all users",
+      "severity": "P0"
+    },
+    {
+      "condition": "`mcp>=1.0.0` allows mcp 2.x if released — if the MCP SDK makes a breaking API change to `Server`, `NotificationOptions`, or `stdio_server`, all v0.1 installs break silently when pip upgrades the package",
+      "scenario": "mcp SDK breaking change breaks the installed server",
+      "severity": "P1"
+    },
+    {
+      "condition": "The tarball curation step copies the full mcp-servers/auraken-lens/ directory including `.bak-*` files and `__pycache__/`, increasing tarball size and exposing implementation history to external users",
+      "scenario": "Backup files shipped in the release tarball",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Trace the `auraken.lenses` import path from a hypothetical fresh-machine install — identify every environment variable or filesystem assumption it makes",
+    "Verify pyproject.toml lists all runtime imports, including those used only in http transport mode",
+    "Confirm the dist bundle excludes .venv/, __pycache__/, and .bak-* files from the development tree"
+  ],
+  "task_context": "The brainstorm document describes a dist/v0.1/ bundle that is a curated copy of the development tree. This review assesses the MCP server's packaging correctness for external distribution — specifically whether server.py works when extracted from a tarball by a user with no access to the Sylveste monorepo."
+}

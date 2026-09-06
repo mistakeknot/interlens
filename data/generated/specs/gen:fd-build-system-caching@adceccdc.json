@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Does NOT cover ranking/triage pipelines (fd-search-engine-ranking)",
+    "Does NOT cover incremental compilation specifically (fd-compiler-incremental-build)"
+  ],
+  "decision_lens": "Are the inputs to this LLM action content-addressable so we can cache the output, and if not, what mutates that prevents caching?",
+  "distance_rationale": "Build systems and LLM agent orchestration both face cache-vs-recompute tradeoffs, but build systems have decades of discipline around hermeticity and content addressing that LLM tooling treats as new",
+  "expected_isomorphisms": "Hermetic actions map to subagent dispatches with stable inputs; remote cache maps to Anthropic prompt cache; action-graph dependency tracking maps to flux-review fan-out structure",
+  "focus": "Reviews Sylveste's preamble, subagent dispatch, and tool result handling through the lens of hermetic build caching — content-addressed artifacts, action graphs, remote cache",
+  "name": "fd-build-system-caching",
+  "persona": "Apply the perspective of a Bazel/Buck build engineer — they care about hermetic actions (same input → same output), content-addressed inputs and outputs, remote cache hit rates, action graph structure, and the cost of cache misses on incremental builds",
+  "review_areas": [
+    "Hermeticity of subagent prompts: does flux-review dispatch insert timestamps or session IDs into agent prompts that defeat caching across reruns?",
+    "Content-addressed tool results: when an agent reads a file, is that read result keyed by file content hash so the next agent in the same session can reuse it?",
+    "Action graph: model the parallel /flux-review dispatch as a build graph — which steps could be cached, which inputs need to be hash-stable?",
+    "Cache-miss cost on iteration: when a user re-runs /flux-drive after a small fix, does the entire pipeline re-execute or do unchanged agents skip?",
+    "Remote cache analog: could a cross-session agent-finding cache (keyed by target hash + agent hash) eliminate redundant re-runs?",
+    "Action-graph staleness: when an agent definition changes, do all downstream artifacts invalidate correctly?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "User pays full cost for incremental change; build-system caching would skip 14 of 16 agents",
+      "scenario": "Re-running /flux-drive on the same target re-executes all 16 agents from scratch even though 14 agents and the target are unchanged",
+      "severity": "P1"
+    },
+    {
+      "condition": "Two days of /flux-drive on the same target produce zero cache hits",
+      "scenario": "Subagent prompts include the current date or session ID, defeating cross-session prompt cache hits even when inputs are otherwise identical",
+      "severity": "P2"
+    },
+    {
+      "condition": "16 agents each run `git status` and `bd list`, multiplying redundant tool calls",
+      "scenario": "Tool results (git status, file reads) are re-fetched by each subagent in a parallel fan-out instead of being shared via a content-addressed scratch space",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Bazel/Buck/Pants build system caching",
+  "source_domain_full": "Hermetic build system caching (Bazel, Buck, Pants)",
+  "success_hints": [
+    "Sketch the action graph for one workflow (e.g., flux-review fan-out)",
+    "Identify hash-unstable inputs that could be normalized",
+    "Propose a content-addressed scratch directory for cross-agent tool result sharing",
+    "Estimate cache hit rate improvements"
+  ],
+  "task_context": "Anthropic's prompt cache is essentially a remote cache for system prompts. Apply the build-system mental model: identify which Sylveste agent invocations have stable content-addressable inputs vs which mutate inputs unnecessarily. Find subagent dispatches that look similar but vary in trivial ways, defeating cache. Find tool results (file reads, git status) that could be content-addressed and reused across turns instead of re-fetched."
+}

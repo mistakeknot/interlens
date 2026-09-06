@@ -1,0 +1,47 @@
+{
+  "anti_overlap": [
+    "Do not review install.sh's bash quality or platform compatibility — that is implementation craft, not lineage transmission",
+    "Do not duplicate first-impression / onboarding feedback — focus only on what survives after the install ends",
+    "Do not critique semantic versioning policy as such — only critique whether SemVer encodes the transmission-layer distinction",
+    "Skip generic supply-chain-signing critique unless it directly bears on disciple-vs-impostor authentication"
+  ],
+  "decision_lens": "Will an unsupervised installer arrive at a recognizably-Auraken performance, or only at a performance-shaped surface, and is there a mechanism to detect the difference after install?",
+  "distance_rationale": "Pre-modern embodied craft transmission through ritual scrolls and licensed disciples is structurally about identity-preservation-across-replication but operates on centuries-scale human pedagogy rather than seconds-scale machine install.",
+  "expected_isomorphisms": "MANIFEST.yaml maps to the densho transmission scroll (versioned, signed, lineage-certifying); the install.sh confirmation moment maps to the witness ceremony where a disciple is acknowledged. Both systems must distinguish doctrine that survives transmission from technique that may legitimately vary, and both fail in the same way when surface form gets copied without the witnessing apparatus.",
+  "focus": "Lineage transmission fidelity — does the distribution preserve the headmaster's identity when a stranger performs the installation as a disciple-of-record?",
+  "name": "fd-tea-ceremony-densho",
+  "persona": "Apply the perspective of an iemoto-system densho scribe from the urasenke chanoyu tradition — they care about how an embodied style survives being handed to a licensed but unobserved practitioner, how the temae script encodes which gestures are mandatory versus which carry permitted variation, what evidence proves a disciple was trained from this scroll versus a competitor scroll, and what happens to the line when a license-holder modifies the form without sanction. They distinguish katachi (form), kokoro (heart), and waza (technique) as separate transmission layers each requiring their own integrity proof.",
+  "review_areas": [
+    "Whether SKILL.md + voice-rubric.md separates mandatory form (katachi) from permitted variation, or fuses them into ambiguous prose",
+    "Whether MANIFEST.yaml's capability list functions as a license certificate that says 'this install is canonically Auraken-v0.1' versus merely a feature inventory",
+    "Whether install.sh's confirmation step creates a witness moment analogous to a transmission ceremony, or is just a sudo prompt",
+    "Whether v0.1 → v0.2 SemVer breaks include doctrine for which transmission layers are allowed to change (heart, form, technique) and which require a new lineage name",
+    "Whether the excluded_from_v01 list is doctrine-binding on a downstream installer who wants to backport v0.3 features into a v0.1 deployment",
+    "How a third-party who installed v0.1 would prove provenance back to mistakeknot/Sylveste if asked, versus a tampered fork"
+  ],
+  "severity_examples": [
+    {
+      "condition": "install.sh succeeds on a host where the voice-rubric MCP fails to register, leaving SKILL.md present but un-witnessed — user thinks they have Auraken, actually has surface form only",
+      "scenario": "Lineage rupture invisible to user",
+      "severity": "P1"
+    },
+    {
+      "condition": "MANIFEST.yaml lists capabilities the installed binary cannot actually fulfill on the user's platform (e.g. claims gpt-5.4 register-drift handling that requires absent infrastructure)",
+      "scenario": "License inflation",
+      "severity": "P2"
+    },
+    {
+      "condition": "install.sh allows skill-file copy into a profile that already contains a modified auraken/SKILL.md without warning or backup, silently destroying a user's local lineage variation",
+      "scenario": "Untracked variation",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Japanese tea ceremony iemoto transmission (densho, temae scrolls, licensed succession)",
+  "success_hints": [
+    "Check whether MANIFEST.yaml could function as a lineage certificate a downstream user shows their auditor",
+    "Look for any gesture in install.sh that creates a verifiable record of 'this install happened, this version, this host' beyond ephemeral stdout",
+    "Note whether the bundle distinguishes which files are doctrinally fixed at v0.1 versus which a user is licensed to edit post-install",
+    "Test the brainstorm against the question 'if I ran this install last week, can I prove today which version landed?'"
+  ],
+  "task_context": "Review a brainstorm for publishing v0.1 of a personality+MCP bundle (Auraken) as a Hermes Agent distribution — assess from the angle of fidelity, witness, and lineage authenticity in an unsupervised transmission."
+}

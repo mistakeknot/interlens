@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "Do not assess the technical validity of the microrouter architecture choices — that is fd-architecture's domain",
+    "Do not evaluate test coverage or code quality — fd-quality covers those",
+    "Do not assess privacy or security correctness of individual findings — fd-safety covers those"
+  ],
+  "decision_lens": "Separation failures are not near-misses — they are either avoided or they are incidents. Evaluate the roadmap for cases where two concurrent workstreams write to the same artifact, consume the same model resource, or share a mutable state without an explicit coordination protocol. Flag any hold pattern (blocked item) that lacks a stated resume condition, because an aircraft in a hold without a clearance time is a resource consumed indefinitely.",
+  "distance_rationale": "ATC manages concurrent flows of independent agents through shared airspace with strict separation rules — structurally identical to multi-workstream roadmap management where parallel tracks share mutable artifacts, but in an aviation safety context rather than software.",
+  "expected_isomorphisms": "Aircraft separation assurance maps to workstream artifact separation; hold patterns without clearance times map to blocked beads without stated resume conditions; sector overload maps to interspect health dependency shared across two simultaneously activating workstreams.",
+  "focus": "Concurrent agent flow separation, collision detection between parallel workstreams, and safe-hold protocol for blocked sequences",
+  "name": "fd-atc-separation",
+  "persona": "Apply the perspective of an air traffic controller managing a sector with simultaneous arrivals, departures, and overflights — where the primary safety obligation is separation assurance: no two aircraft occupy the same resource at the same time, and every deviation from cleared routing is explicitly acknowledged and re-sequenced.",
+  "review_areas": [
+    "Identify all concurrently active workstreams (e.g. s3z6.19.8 design revision running alongside sylveste-n6zw close-out and 9lp.16 parity work) and check whether they write to the same config files, routing.yaml entries, or AgentSpec definitions without a merge protocol",
+    "Check whether the four P0 Track B6 findings (jm4, emv, a5u, 906) have assigned 'ownership separation' — if two findings produce body edits to the same design doc section (.19.5/.19.8), flag the edit coordination mechanism",
+    "Verify that the microrouter design fork (Architecture α vs. β) has a stated decision authority and a freeze point — a fork with no merge clearance is two aircraft on converging headings",
+    "Assess whether the research-mode parity gap (9lp.16 promoted to P1) creates resource contention with the microrouter chain — both require interspect health, and simultaneous activation without sequencing is a sector overload",
+    "Check that the Dolt/JSONL drift (live Dolt missing 14 beads) represents a single out-of-sync state, not a bifurcated source of truth where two workstreams might make conflicting mutations — flag if both paths are writable",
+    "Verify that the companion plugin dependency chain (interspect → microrouter dataset 19.2, interknow migration partial) has a stated coordination owner; unowned cross-plugin dependencies are uncontrolled airspace"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When the handoff notes say both findings 'feed body edits to .19.5/.19.8' without specifying which finding's edits land first",
+      "scenario": "Two P0 findings (e.g. emv circular calibration + jm4 safety floor bypass) both produce edits to the same design doc section with no stated edit sequencing — concurrent writes risk producing an inconsistent merged document",
+      "severity": "P0"
+    },
+    {
+      "condition": "When the roadmap describes the fork as requiring 'resolution' but assigns no decision owner and no decision-point bead",
+      "scenario": "Architecture α/β fork has no stated decision authority or freeze deadline — the design revision workstream has no cleared heading",
+      "severity": "P1"
+    },
+    {
+      "condition": "When both beads are listed as P2 'planned' and both depend on interspect health channel readiness with no sequencing note",
+      "scenario": "interspect health dependency is shared between fyo3.7 (Interspect default activation) and s3z6.19.2 (microrouter dataset) without a stated activation ordering",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "air traffic control sequencing",
+  "success_hints": [
+    "For each concurrent workstream pair that shares a named artifact (design doc, config file, plugin state), state the coordination mechanism — or flag its absence as a P1 if the artifact is mutable",
+    "Distinguish between 'sequenced hold' (blocked by a defined prerequisite) and 'indefinite hold' (blocked by an unresolved design decision with no stated resolution process) — the latter is the higher severity",
+    "When flagging separation risks, name the specific artifact or resource at risk, not just the workstream names"
+  ],
+  "task_context": "The interflux v0.2.68 roadmap has multiple concurrent workstreams across the microrouter track, blueprint cleanup, and research-mode parity. Review for resource separation — shared artifacts, concurrent write risks, and cross-plugin dependency ownership — using the lens of separation assurance rather than technical correctness."
+}

@@ -1,0 +1,38 @@
+{
+  "anti_overlap": "fd-terminal-emulation-fidelity covers which attributes carry semantic signal — this agent focuses on how representations accumulate across a session, not which attributes to include in a single capture. fd-token-encoding-representation covers the per-capture encoding format — this agent covers the session-level strategy for managing multiple captures over time. fd-llm-vision-token-economics covers per-call cost modeling — this agent covers session-level context budget management and overflow scenarios.",
+  "decision_lens": "A representation that is 50% cheaper per call but causes context overflow 30% sooner in a session is not an improvement — the total session cost and success rate matter more than per-call efficiency. Every design choice is evaluated across the full session lifecycle: turns 1-5 (cheap, plenty of room), turns 10-15 (pressure building), and turns 20+ (at the wall).",
+  "focus": "Design the context management strategy for multi-turn TUI sessions: how terminal state representations interact with conversation history, tool result caching, and context window pressure across extended automation workflows",
+  "name": "fd-llm-context-management-tui",
+  "persona": "An LLM application architect who has built multi-turn agent systems with tight context budgets. Understands how tool results accumulate in conversation history, how context window overflow triggers summarization or truncation, and how the interaction between system prompt size, conversation history, and tool results creates compounding pressure over long sessions. Has practical experience with MCP tool result handling and knows that every get_screen/get_screenshot call adds to the conversation history permanently.",
+  "review_areas": [
+    "Model context window accumulation: if get_screen is called every turn in a 20-turn session and each result persists in conversation history, calculate the total token consumption for each representation mode — at what turn does each mode hit the context limit for 100k and 200k windows?",
+    "Evaluate MCP tool result eviction strategies: can tuivision mark older screen captures as evictable (low-priority for retention in conversation history), or does the MCP protocol require all tool results to persist? Assess whether the MCP server can influence how clients manage historical screen data",
+    "Analyze the tradeoff between full-screen captures and incremental/diff updates: sending a full screen every turn is simple but accumulates fast; sending diffs is compact but requires the LLM to maintain a mental model of the current screen state across turns — at what session length does each approach break down?",
+    "Design a screen state summarization strategy: after N turns, can older screen captures be replaced with a compact summary ('screen showed a git log with 15 commits, user was on commit 7') that preserves enough context for the LLM to understand subsequent actions without the full capture?",
+    "Assess how screen representation size interacts with the LLM's ability to reference specific screen elements in tool calls: if the screen representation is compact but the LLM can't reliably identify which menu item to select or which field to type in, the session fails regardless of token savings",
+    "Evaluate whether tuivision should offer a 'session-aware' mode that automatically adjusts representation fidelity based on remaining context budget: high-fidelity early in the session, progressively more compressed as context pressure increases"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Occurs in any non-trivial TUI automation workflow with frequent screen polling and a 100k context window, especially when the system prompt is already large.",
+      "scenario": "A 15-turn TUI automation session hits the context window limit at turn 12 because each get_screen result (even in text mode at ~300 tokens) persists in history, and the accumulated 3600+ tokens of screen captures plus conversation leaves no room for the LLM to reason about the remaining 3 steps.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Triggered when the LLM's effective working memory for stateful reconstruction is shorter than the diff chain length.",
+      "scenario": "The diff-based screen update mode sends compact deltas for turns 2-8, but by turn 9 the LLM has lost track of the cumulative screen state and sends a keystroke to a menu that no longer exists, requiring a full-screen refresh that negates the accumulated diff savings.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Occurs in any multi-turn session without explicit context management — the default MCP behavior is to retain all tool results.",
+      "scenario": "Older screen captures are never evicted from conversation history even though they contain no information relevant to the current task step, consuming 40% of the context window with historical noise that the LLM must process but will never reference.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "A context budget model: tokens consumed vs turns elapsed for each representation mode, showing the turn at which each mode exhausts a 100k and 200k context window with typical system prompt and conversation overhead",
+    "A concrete adaptive fidelity strategy with decision thresholds: 'at 60% context utilization, switch from full to diff mode; at 80%, switch to summary-only mode' — with rationale for each threshold",
+    "An assessment of MCP protocol capabilities and limitations for context management: what can the tuivision server control, what requires client-side cooperation, and what is impossible within the current MCP specification"
+  ],
+  "task_context": "Tuivision is a TUI testing/automation MCP server that gives AI agents visual access to terminal applications. Current modes: get_screen text (~200-400 tokens, no style), get_screenshot png (~1600 vision tokens), get_screenshot svg (~2000-8000 tokens, contains text+style but verbose). The goal is a new representation that captures text + task-relevant visual semantics at significantly fewer tokens than PNG/SVG while preserving the semantic information that plain text loses. Ideas already proposed include local OCR on PNGs and optimized SVG stripping."
+}

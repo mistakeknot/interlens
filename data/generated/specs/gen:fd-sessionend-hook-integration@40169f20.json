@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Does NOT cover Go subcommand flag design or cobra wiring (fd-go-subcommand-plumbing)",
+    "Does NOT cover append-only log cursor and crash recovery (fd-append-log-cursor-correctness)",
+    "Does NOT cover schema migration idempotency (fd-schema-migration-backward-compat)"
+  ],
+  "decision_lens": "A SessionEnd hook that blocks for longer than Claude Code's hook timeout silently kills the calibration mid-drain and may leave v2 in a partially-written state — the hook must complete within the timeout or implement its own internal timeout that exits cleanly with a deferred retry signal.",
+  "focus": "Reviews the new SessionEnd hook against Claude Code's hook contract: failure isolation, timeout behavior, idempotency on rapid session ends, and the non-blocking requirement for gate calibration",
+  "name": "fd-sessionend-hook-integration",
+  "persona": "Apply the perspective of a Claude Code plugin engineer who has written and debugged SessionEnd hooks in production — they care that a hook failure never degrades the user's session-end experience, measure correctness by asking 'what happens if this hook takes 30 seconds or exits non-zero', and flag any hook that can block or corrupt the session lifecycle.",
+  "review_areas": [
+    "Non-fatal failure contract: the brainstorm states that failure to append outcomes in cmdEnforceGate is non-fatal ('log + continue'); the SessionEnd hook must apply the same policy — a non-zero exit from calibrate-gate-tiers should log a warning but must not propagate as a hook failure that blocks the session-end lifecycle",
+    "Hook timeout alignment: Claude Code's SessionEnd hooks run with a configurable timeout (default varies by version); clavain-cli calibrate-gate-tiers may take non-trivial time if the jsonl has a large backlog — does the hook script pass a --timeout flag or use a shell timeout wrapper, and what is the fallback state if it is killed mid-drain?",
+    "Idempotency on rapid session ends: if the user ends two sessions within seconds of each other (e.g., reconnect), two hook instances may run concurrently; both attempt to drain the same jsonl and write v2 — without a lock, the second writer may overwrite the first's cursor_ts advance, causing the re-drain scenario from fd-append-log-cursor-correctness",
+    "Hook placement in hooks.json: the brainstorm places the hook in os/Clavain/hooks/ — verify the hook uses the record format (not array format) required by Claude Code's hook loader, and that the command field points to clavain-cli with an absolute or $PATH-resolved path, not a relative path that breaks when the working directory is not os/Clavain/",
+    "Evidence that the hook fires on natural session end: SessionEnd hooks fire on explicit /exit but may not fire on SIGTERM kills or network disconnections — the brainstorm's exit criterion (10 consecutive sprints with zero manual invocation) requires that the hook fires reliably; does the design account for missed fires and handle the 'cursor not drained' state gracefully?",
+    "Interaction with /reflect manual override: both the SessionEnd hook and the /reflect skill invoke calibrate-gate-tiers — if /reflect is invoked during a session and then the session ends, two calibration runs execute in close succession; the second run should detect that cursor_ts is already at the head of the log and exit 0 quickly (no-op drain) rather than reprocessing"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Calibration never runs automatically; the 10-sprint no-touch streak is never achieved; the failure is invisible unless the operator explicitly checks hook execution logs",
+      "scenario": "The hook script is written as 'clavain-cli calibrate-gate-tiers --auto' with a relative path to clavain-cli that resolves correctly in interactive shells but not in Claude Code's hook execution environment (different PATH); the hook silently fails with 'command not found' on every session end, logging nothing visible to the operator",
+      "severity": "P0"
+    },
+    {
+      "condition": "Calibration double-counts records in the T2-T3 range; FNR may be inflated enough to trigger an incorrect tier promotion during a high-throughput sprint",
+      "scenario": "Two SessionEnd hooks run concurrently (rapid reconnect scenario) without file locking; both read cursor_ts = T1, both drain records from T1 to T2, both write v2 with cursor_ts = T2; the second write wins and overwrites the first's calibration output, but this is benign; however, if the first write sets cursor_ts = T3 (longer drain) and the second write sets cursor_ts = T2 (shorter drain due to race), the second write rolls back the cursor, causing records T2-T3 to be re-processed on the next SessionEnd",
+      "severity": "P1"
+    },
+    {
+      "condition": "Next session start finds a .tmp file alongside v2 from a previous incomplete write; the calibration reader must detect and handle this stale tmp file or it may read the incomplete v2",
+      "scenario": "The SessionEnd hook runs calibrate-gate-tiers without a shell timeout wrapper; a large backlog in gate-outcomes.jsonl (e.g., 10,000 records from a long sprint) causes the drain to take 45 seconds; Claude Code's hook runner kills the process after its timeout, leaving v2 in the tmp-rename intermediate state",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Hook exit code is never propagated as a blocking session-end failure — non-zero is logged, not raised",
+    "Hook command uses absolute path or command -v resolution, tested in a shell that does not inherit dev PATH",
+    "Concurrent hook invocation is safe via file locking or cursor-ts compare-and-swap before write"
+  ],
+  "task_context": "The new SessionEnd hook lives in os/Clavain/hooks/ and invokes 'clavain-cli calibrate-gate-tiers --auto'. It drains gate-outcomes.jsonl forward from cursor_ts in gate-tier-calibration-v2.json and writes updated v2. The /reflect skill retains manual-override access to the same subcommand. Claude Code hook contract: record format in hooks.json, non-blocking preferred, timeout varies by version."
+}

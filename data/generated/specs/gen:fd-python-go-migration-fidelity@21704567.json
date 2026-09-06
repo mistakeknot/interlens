@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does NOT cover transport (fd-transport-*), database schema (fd-schema-*), or prompt architecture (fd-prompt-*)",
+  "decision_lens": "Behavioral parity over syntactic similarity — the Go version must produce identical outputs for identical inputs, even if the implementation is structurally different",
+  "focus": "Validates that Python-to-Go redesign preserves semantic behavior while embracing Go idioms",
+  "name": "fd-python-go-migration-fidelity",
+  "persona": "Senior engineer who has migrated multiple Python ML systems to Go production services",
+  "review_areas": [
+    "Async SQLAlchemy patterns that need explicit concurrency design in Go (goroutines, channels vs async/await)",
+    "Python dict/JSON flexibility vs Go struct rigidity — schema drift risks during migration",
+    "EMA (exponential moving average) floating-point behavior differences between Python and Go math libraries",
+    "Error handling translation: Python exceptions vs Go error returns — silent failure risks",
+    "Haiku API call patterns: Python async generators vs Go channel-based streaming",
+    "Test strategy for behavioral parity validation between Python and Go implementations"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Style fingerprint divergence causes personality regression for existing users",
+      "scenario": "EMA calculations produce different fingerprint profiles in Go due to floating-point ordering differences",
+      "severity": "P0"
+    },
+    {
+      "condition": "Immutable audit trail broken — cannot reconstruct profile history",
+      "scenario": "Preference extraction SPO triples lose bi-temporal semantics during schema translation",
+      "severity": "P1"
+    },
+    {
+      "condition": "Subtle behavioral change in lens selection quality",
+      "scenario": "Go lens selector returns different top-3 lenses than Python for same input due to sort stability differences",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Property-based tests comparing Python and Go outputs on shared test fixtures; explicit handling of float precision; Go interfaces that mirror Python ABC contracts",
+  "task_context": "Migrating 34-module Python app (Auraken) to Go ecosystem packages. Key: lens library (291 lenses + 1779 edges), style fingerprinting (per-mode EMA), preference extraction (SPO triples), profile generation. Redesign as ecosystem packages, not 1:1 port."
+}

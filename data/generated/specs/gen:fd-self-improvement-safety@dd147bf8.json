@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-loop-mechanics covers structural mapping of the loop to OODARC",
+    "fd-flywheel-integration covers whether autoresearch data feeds back into Interspect",
+    "fd-implementation-path covers where in the stack the loop is implemented"
+  ],
+  "decision_lens": "Any finding where the autoresearch loop could modify kernel state, emit Interspect overrides, or trigger phase transitions outside its authority boundary is critical. Findings about rate limiting and loop termination conditions rank second.",
+  "focus": "Safety boundaries and blast radius of a Demarch-native autoresearch loop: what it can modify, how modifications are scoped, and whether the autonomous loop can escape its authority level",
+  "name": "fd-self-improvement-safety",
+  "persona": "A security-focused architect who applies Demarch's earned authority and structural safety principles to autonomous self-modifying loops. Evaluates whether the loop respects the kernel/OS/Interspect trust boundaries.",
+  "review_areas": [
+    "Verify that the 'git add -A on keep' behavior is scoped to the experiment working directory and cannot accidentally commit kernel state files, beads JSONL, or Interspect evidence DB",
+    "Assess whether the auto-resume mechanism can create infinite loops when paired with Demarch's SessionStart hook and auto-index behaviors — identify the circuit breaker",
+    "Check whether the 'no rate limiting on run_experiment' weakness has a Demarch-equivalent safeguard in sprint budget or token budget primitives",
+    "Evaluate the authority level of a Demarch autoresearch loop on the delegation ladder (Level 2-3 vs Level 4-5)",
+    "Identify whether the autoresearch branch isolation respects Demarch's trunk-based development model",
+    "Check that the 'user interrupt during experiment: finish current cycle first' behavior is consistent with Demarch's phase-gate cancellation model"
+  ],
+  "success_hints": [
+    "The loop's blast radius is demonstrably bounded: cannot modify kernel DB, emit Interspect overrides, or advance sprint phases without existing gate enforcement",
+    "A tight benchmark loop triggers sprint token budget alarm before consuming unbounded resources",
+    "The loop authority level is explicit and matches current operating level (L1-L2)"
+  ],
+  "task_context": "pi-autoresearch is an autonomous experiment loop for the pi agent platform, assessed as 'inspire-only' for Demarch. This review evaluates which design patterns are worth porting as a Demarch-native autoresearch capability and how they integrate with the OODARC framework, flywheel mechanics, and Interspect evidence pipeline."
+}

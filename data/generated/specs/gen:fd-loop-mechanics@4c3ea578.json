@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-flywheel-integration covers how autoresearch evidence feeds Interspect's routing and calibration flywheel",
+    "fd-self-improvement-safety covers safety constraints and blast radius for autonomous loops",
+    "fd-implementation-path covers concrete Clavain/Skaffen implementation choices"
+  ],
+  "decision_lens": "Prioritizes findings where the autoresearch loop either reinforces OODARC phase contracts or introduces patterns that conflict with Demarch's durable-over-ephemeral principle. Gaps in crash recovery or segment continuity are highest priority.",
+  "focus": "How well the pi-autoresearch loop pattern (init/run/log/decide/repeat) maps to Demarch's OODARC cycle structure and crash-recovery guarantees",
+  "name": "fd-loop-mechanics",
+  "persona": "A systems architect specializing in durable autonomous loops and failure recovery. Evaluates how experiment loop primitives compose with existing kernel infrastructure and where the mapping breaks down.",
+  "review_areas": [
+    "Check whether the init/run/log three-tool structure maps cleanly onto OODARC's Observe/Decide/Act/Reflect legs or requires a different decomposition",
+    "Evaluate the JSONL segment model (config headers + per-segment stats scoping) against Demarch's append-only event stream and run/phase/dispatch schema",
+    "Assess the 'fresh agent can continue from JSONL + autoresearch.md' crash-recovery guarantee against Demarch's ic situation snapshot and durable kernel state model",
+    "Identify whether the 'NEVER STOP' loop philosophy conflicts with Demarch's phase-gate model (which requires explicit gate evaluation before continuation)",
+    "Verify that the git-as-undo (auto-commit on keep, git checkout -- on discard) mechanism is compatible with Demarch's artifact provenance and bead/run attribution requirements",
+    "Check whether the auto-resume via sendUserMessage (context-limit detection) has a Demarch-native equivalent or requires a new Clavain hook"
+  ],
+  "success_hints": [
+    "The init/run/log decomposition can be mapped to OODARC legs with explicit Reflect contracts without requiring a new kernel primitive",
+    "JSONL segment model integrates with kernel event stream without creating a parallel state store that could diverge from ic state",
+    "Crash recovery guarantee is equivalent to or stronger than Demarch's existing session resume capability"
+  ],
+  "task_context": "pi-autoresearch is an autonomous experiment loop for the pi agent platform, assessed as 'inspire-only' for Demarch. This review evaluates which design patterns are worth porting as a Demarch-native autoresearch capability and how they integrate with the OODARC framework, flywheel mechanics, and Interspect evidence pipeline."
+}

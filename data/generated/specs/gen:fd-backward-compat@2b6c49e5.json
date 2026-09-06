@@ -1,0 +1,28 @@
+{
+  "anti_overlap": "Defers to fd-staged-dispatch-correctness on dispatch logic; defers to fd-budget-integration on cost tracking",
+  "decision_lens": "Existing dispatch behavior must be byte-for-byte identical when cross-model dispatch is not active",
+  "focus": "Ensure cross-model dispatch is a pure additive change that preserves existing behavior when disabled or unavailable",
+  "name": "fd-backward-compat",
+  "persona": "Platform reliability engineer focused on safe rollout and rollback",
+  "review_areas": [
+    "Feature flag — is there a clean way to disable cross-model dispatch (config toggle, env var)?",
+    "Fallback path — if routing_adjust_expansion_tier is unavailable (lib-routing.sh not sourced), does dispatch fall back to current behavior?",
+    "Composer interaction — Step 2.0.4 bypasses Step 2.0.5; does it also bypass cross-model dispatch?",
+    "flux-review vs flux-drive — the brainstorm says flux-review is out of scope, but are there shared code paths?",
+    "Log format — do existing log parsers break with the new cross-model dispatch log lines?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No feature gate or gate check in wrong location",
+      "scenario": "Cross-model dispatch runs even when config says disabled, changing agent models unexpectedly",
+      "severity": "P1"
+    },
+    {
+      "condition": "interstat expects consistent model per agent across all runs",
+      "scenario": "Existing interstat cost analysis breaks because agent model changed mid-pipeline",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Clean feature gate with zero behavioral change when off. Progressive enhancement pattern — enhances dispatch when available, invisible when not.",
+  "task_context": "interflux follows progressive enhancement. lib-routing.sh availability is already optional. The brainstorm should follow the same pattern."
+}

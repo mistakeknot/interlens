@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "fd-go-crash-recovery-atomicity covers multi-step write ordering and crash recovery protocols. This agent focuses on SQLite-specific concurrent access, transaction isolation, and WAL-mode pitfalls within individual commands.",
+  "decision_lens": "SQLite WAL mode allows concurrent readers and one writer, but Go's database/sql pool can open multiple connections that compete. A CLI tool that opens and closes the DB on every invocation is not the same risk profile as a long-running server. Understand which operations are atomic at the SQL level vs. which require explicit transactions.",
+  "focus": "SQLite WAL-mode concurrent access patterns and transaction safety for mixed read/write workloads",
+  "name": "fd-sqlite-concurrent-access",
+  "persona": "A database engineer specializing in SQLite embedded deployments in CLI tools. You have hit every SQLite WAL-mode pitfall: readers blocking writers, SQLITE_BUSY during schema changes, WAL file accumulation, and the subtle behavior of database/sql connection pooling with a single-file SQLite database.",
+  "review_areas": [
+    "Resume's ratchet_state atomic reset: D3 specifies a single transaction for UPDATE SET tier='supervised' WHERE tier='autonomous'. Verify this is the correct SQL — a WHERE clause filtering on 'autonomous' only resets autonomous domains, but supervised domains should not be touched. Also verify the transaction is explicitly started (db.conn.Begin()) not implicit.",
+    "SetSignalState upsert under concurrent ockham check runs: the existing INSERT ... ON CONFLICT upsert is not atomic with the surrounding read-modify-write in evaluator.go (loadPriorSignal → evaluate → persistSignal). Two concurrent check invocations could both read the same prior state and produce conflicting writes. Assess whether this is a real concurrency risk given typical invocation patterns.",
+    "signals.db recovery path deletes WAL and SHM files before reopening: verify this is correct for WAL mode. Deleting -wal while another process has the DB open can corrupt the database for that other process. Flag if ockham check and ockham health could run concurrently.",
+    "Health command (new in F7) reads signal_state, authority_snapshot, and ratchet_state in a single logical read. Without an explicit transaction, these reads are not snapshot-consistent — a concurrent check write could produce a health snapshot where signal states are from before the write but ratchet_state is from after.",
+    "busy_timeout(5000) in the connection string: 5 seconds is long for a CLI. Verify this is intentional and that it does not cause ockham health to appear hung when signals.db is locked by a long check run."
+  ],
+  "severity_examples": [
+    {
+      "condition": "A concurrent ockham check is mid-evaluation. Health returns signals showing 2 themes fired (BYPASS state) but ratchet_state shows all domains at 'supervised' (post-resume state from a different concurrent run). Meadowsyn displays contradictory data.",
+      "scenario": "Health command reads signal_state and ratchet_state without a transaction",
+      "severity": "P1"
+    },
+    {
+      "condition": "SQL is UPDATE ratchet_state SET tier='supervised' with no WHERE clause — resets shadow and supervised domains to supervised as well. Shadow domains that were never autonomous get promoted prematurely.",
+      "scenario": "Resume transaction targets wrong tier filter",
+      "severity": "P1"
+    },
+    {
+      "condition": "ockham health has the DB open in WAL mode. recover() deletes the -wal file mid-read. SQLite returns SQLITE_IOERR or produces corrupt read results for the health command.",
+      "scenario": "WAL file deletion in recover() races with concurrent ockham health read",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Check every multi-table read in the health command — if they are sequential QueryRow calls without a transaction wrapper, they are not snapshot-consistent.",
+    "The resume ratchet reset SQL must have WHERE tier='autonomous' — anything broader is a correctness bug.",
+    "WAL mode + single-file SQLite + multiple concurrent CLI invocations is the exact scenario where busy_timeout matters most. Verify the timeout value is reasonable for interactive use."
+  ],
+  "task_context": "signals.db uses modernc.org/sqlite with WAL mode and busy_timeout=5000ms. DB is opened fresh on each CLI invocation (NewDB). The health command is a new read-only command. Resume is a new write command. Both can run concurrently with ockham check."
+}

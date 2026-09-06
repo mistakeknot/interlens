@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "fd-color-quantization-palette covers the color mapping for non-inverse attributes — this agent covers inverse-specific semantics and the interaction between inverse and the color pipeline. fd-xterm-headless-renderer-architecture covers the xterm.js API for reading inverse from IBufferCell — this agent covers the semantic correctness of what to do with the inverse flag once read. fd-mcp-tool-api-breaking-change covers the API contract changes — this agent covers the rendering semantics.",
+  "decision_lens": "Preserving the inverse boolean is correct if and only if: (1) most TUI frameworks actually set SGR 7 when indicating selection (not swap colors manually), and (2) the LLM receiving [I] in the output reliably interprets it as selection/focus context. If major TUI frameworks simulate inverse by swapping fg/bg colors without setting the inverse bit, the [I] marker will miss real selections. If the LLM treats [I] as visual noise rather than semantic signal, the preservation adds token cost with no behavioral benefit.",
+  "focus": "Evaluate the correctness of preserving the inverse boolean rather than pre-resolving it at terminal-renderer.ts:220-223, and whether [I] as the selection/focus marker has sufficient semantic grounding across real TUI frameworks",
+  "name": "fd-inverse-video-selection-semantics",
+  "persona": "A TUI framework developer who has built ncurses, tui-rs/ratatui, bubbletea, and blessed applications and understands how each framework signals selection, focus, and highlighted state. Knows that 'inverse video' is the oldest and most portable selection mechanism in terminals — it predates true color by decades — and that modern frameworks layer higher-level semantics (selected, highlighted, cursor) on top of it. Has debugged the specific failure modes of applications that mix true inverse (SGR 7) with application-level color swapping that visually mimics inverse but does not set the attribute bit.",
+  "review_areas": [
+    "Survey how major TUI frameworks signal selection state: ncurses A_REVERSE vs wattr, tui-rs/ratatui Modifier::REVERSED vs custom block styles, bubbletea lipgloss Reverse(), blessed reverse option — determine what fraction set xterm SGR 7 vs simulate inverse by swapping fg/bg colors, since only SGR 7 appears as the inverse bit in xterm.js IBufferCell",
+    "Analyze the specific code at terminal-renderer.ts:220-223 that pre-resolves inverse: what is the current behavior (does it swap fg/bg and clear the inverse flag, or only swap?), what state does the output struct carry after pre-resolution, and does the brainstorm's fix correctly restore the inverse boolean without introducing a double-inverse bug when inverse cells are also color-quantized",
+    "Evaluate the semantic ambiguity of [I]: in a vim-style editor, inverse often marks the cursor line (navigation focus) rather than selection; in a file manager it marks the selected file; in a menu it marks the active option — determine whether [I] is specific enough to be useful or whether the LLM needs more context to distinguish these use cases",
+    "Assess the token cost of preserving inverse across a typical screen: a focused cursor line in vim spans 80 cells, each with the inverse attribute — without run-length encoding for inverse, this adds 80 [I] markers; with RLE, it adds one [I] run marker — verify whether the annotated format applies RLE to the inverse attribute consistently with color and bold attributes",
+    "Check whether the inverse preservation interacts correctly with color quantization: if a cell has inverse=true, fg=white, bg=blue, the annotated output should represent the original pre-swap colors with an inverse marker — not the visually resolved post-swap colors. Verify the ordering of quantization and inverse handling in the implementation plan does not inadvertently double-swap colors"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Occurs whenever a TUI application customizes selection color using explicit fg/bg rather than the default reverse attribute — the inverse preservation feature silently provides no benefit for these apps.",
+      "scenario": "tui-rs/ratatui's default list selection style uses Modifier::REVERSED which sets SGR 7 and is correctly captured as inverse=true in xterm.js — but ratatui's highlight_style override (used by most production apps for custom colors) sets explicit fg/bg colors and does NOT set SGR 7, meaning the selected item has inverse=false in the buffer. The [I] marker is never emitted for selected items in any ratatui app that uses custom highlight styles, which is the majority of real ratatui apps.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Occurs if the output format does not specify whether fg/bg values in an inverse cell represent pre-swap or post-swap colors, and LLM inference fills in the wrong convention.",
+      "scenario": "The fix to terminal-renderer.ts:220-223 removes the pre-resolution but the annotated format emits the original fg/bg with an inverse marker — an LLM that reads this may mentally swap the colors for display (correct) and then also read the inverse flag and swap again (incorrect double swap), interpreting the cell as having the original non-inverted colors.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Occurs when the attribute RLE implementation handles fg/bg colors but treats inverse as a separate boolean that is not included in the run-continuation check.",
+      "scenario": "vim's cursor line uses inverse video for the entire line (80 cells), generating 80 [I] markers without RLE or one [I] run marker with RLE — if the annotated format does not document whether inverse is run-length encoded consistently with other attributes, downstream consumers may emit the unoptimized 80-marker version and add 160 tokens per cursor line.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "A survey of at least 4 major TUI frameworks (ncurses, ratatui, bubbletea, blessed) showing whether default selection state sets SGR 7 inverse vs swaps fg/bg — with the fraction of real applications that would benefit from [I] preservation",
+    "The correct ordering of operations: quantize colors first, then apply inverse attribute, with the expected output for a cell where inverse=true, fg=0 (black), bg=7 (white) after quantization",
+    "A concrete recommendation: is inverse boolean preservation worth implementing for MVP given the framework coverage data, or should it be deferred to a follow-up child?"
+  ],
+  "task_context": "Tuivision's brainstorm proposes child .4 (preserve inverse boolean for selection/focus semantics). The current code at terminal-renderer.ts:220-223 swaps fg/bg when inverse=true, destroying the semantic signal. The fix would pass through the original colors and add an [I] marker, letting agents interpret 'inverse = selected/focused'. The brainstorm frames this as a semantic loss fix — agents currently cannot distinguish an inverse cell from a cell with swapped colors."
+}

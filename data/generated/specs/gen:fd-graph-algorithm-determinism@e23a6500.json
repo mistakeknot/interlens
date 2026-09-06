@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does NOT cover JSON loading or embed patterns (fd-embed-data-integrity), LLM selection logic (fd-llm-provider-interface), EMA scoring (fd-evolution-tracking-semantics), or package API surface (fd-go-package-boundary-design)",
+  "decision_lens": "Algorithmic parity is a correctness requirement, not a nice-to-have — any divergence in community assignment or centrality rank invalidates downstream fingerprinting and stack orchestration",
+  "focus": "Validates that custom Louvain community detection and betweenness centrality produce bit-for-bit identical results to networkx with seed=42 and resolution=1.0",
+  "name": "fd-graph-algorithm-determinism",
+  "persona": "Graph algorithm researcher who has implemented and validated production ports of networkx algorithms in statically-typed languages",
+  "review_areas": [
+    "Louvain modularity optimization: does the Go implementation use the same phase order (local, aggregation) as networkx's community_louvain with resolution=1.0, or will community assignments diverge on tie-breaking?",
+    "Random seed propagation in Louvain: networkx uses Python's random.seed(42) which affects node traversal order — Go's math/rand requires explicit seeding on a separate source, not the global rand",
+    "Brandes betweenness centrality: does the Go adjacency-list traversal match networkx's BFS order on graphs with identical edge weights, and is normalization (1/(n-1)(n-2)) applied correctly for undirected graphs?",
+    "Typed-edge graph construction: the 1,779 edges include complements/contrasts/sequences/refines — does the adjacency list correctly handle multi-typed edges between the same node pair without deduplication?",
+    "Bridge lens identification: the 15 bridge lenses are presumably defined by high betweenness centrality — is the threshold hardcoded from the Python run, or recomputed at load time, and can recomputation produce a different set?",
+    "Floating-point accumulation order: centrality scores accumulated in different loop orders can differ by epsilon — does the test suite enforce exact float64 equality or use a tolerance, and is that tolerance documented?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Community-based lens selection diverges silently — no test catches it because communities.json was generated from Python and the Go code reads it, not recomputes it",
+      "scenario": "Louvain assigns 9 communities instead of 7 due to different tie-breaking in the modularity gain comparison, invalidating the embedded lens_communities.json as a truth baseline",
+      "severity": "P0"
+    },
+    {
+      "condition": "A different set of lenses is promoted as bridges, changing which lenses are offered as transitions in stack orchestration",
+      "scenario": "Betweenness centrality on the 291-node graph produces a different rank order for bridge lenses because Go map iteration order is non-deterministic during BFS queue construction",
+      "severity": "P1"
+    },
+    {
+      "condition": "Stack orchestration receives wrong next-phase candidates, producing nonsensical lens progressions",
+      "scenario": "Typed-edge neighbor lookup for 'sequences' edges returns complement edges as well because edge type comparison uses string prefix matching that accidentally matches 'sequences' and 'sequence_of'",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Golden fixture test that compares Go community assignments and top-20 centrality scores against Python-generated reference JSON; explicit rand.New(rand.NewSource(42)) in Louvain initialization rather than global seed; normalization formula unit-tested independently of graph construction",
+  "task_context": "The lens package ports lens_graph.py which uses networkx for Louvain (seed=42, resolution=1.0) and betweenness centrality on a 291-node, 1,779-edge graph. Go implementation uses a custom adjacency list (map[string][]TypedEdge) with no gonum dependency. The embedded lens_communities.json holds precomputed community assignments — the Go code may read these rather than recompute, but the boundary between embedded data and runtime computation needs explicit documentation and test coverage."
+}

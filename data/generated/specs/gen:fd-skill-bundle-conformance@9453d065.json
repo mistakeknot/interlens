@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-distribution-installer-safety covers how SKILL.md is copied during install — not its content",
+    "fd-mcp-server-packaging covers the MCP server's Python packaging — not the skill definition format",
+    "fd-onboarding-ux covers what the user experiences after invoking /auraken — not the SKILL.md schema"
+  ],
+  "decision_lens": "Prioritizes gaps between what the current SKILL.md declares and what agentskills.io submission criteria require. Flags behavioral claims that are ambiguous or unverifiable. De-prioritizes voice style — that is in-scope for a separate voice rubric agent.",
+  "focus": "SKILL.md format compliance with Hermes conventions and agentskills.io open standard — frontmatter, behavioral contract, lens injection pattern",
+  "name": "fd-skill-bundle-conformance",
+  "persona": "Apply the perspective of a Hermes ecosystem contributor who reviews skill submissions for agentskills.io conformance — they care about whether the frontmatter fields match the expected schema, whether the behavior section makes verifiable claims the runtime can enforce, and whether the lens injection pattern is documented clearly enough for another developer to implement a compatible skill.",
+  "review_areas": [
+    "Frontmatter schema completeness: the current SKILL.md has `name`, `description` — assess whether agentskills.io requires additional fields (version, author, homepage, license, compatibility) that v0.1's MANIFEST.yaml covers but SKILL.md itself lacks",
+    "lens_select invocation contract: SKILL.md instructs calling `lens_select` 'at the start of each substantive turn' — verify this instruction is precise enough for a Hermes agent to implement deterministically, and flag ambiguity in 'substantive turn' definition",
+    "Behavioral negative constraints: SKILL.md uses 'never' assertions ('never name the lens', 'never offer a menu') — assess whether these are enforceable in the Hermes skill system or whether they require a separate register_check step to verify",
+    "OODARC loop documentation: the five-motion model (Observe/Orient/Decide/Act/Reflect) is documented in SKILL.md but invisible to the user — assess whether it belongs in SKILL.md or in a separate internal-facing doc that doesn't ship in the user-facing bundle",
+    "Mode transition handling: SKILL.md documents 'when Auraken mode ends' via task requests — verify this is compatible with Hermes's skill activation/deactivation lifecycle and doesn't leave orphaned MCP tool registrations",
+    "voice-rubric.md separation: the brainstorm proposes extracting voice criteria into a separate voice-rubric.md alongside SKILL.md — assess whether this split creates a coherence risk (SKILL.md references voice rules not present in the file a reviewer reads first)"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The agentskills.io standard requires a `version` field and `license` field in SKILL.md frontmatter; v0.1 ships without them; the submission is rejected and v0.2 milestone depends on v0.1 acceptance",
+      "scenario": "agentskills.io submission rejected due to missing required frontmatter",
+      "severity": "P1"
+    },
+    {
+      "condition": "'Start of each substantive turn' is interpreted differently by two Hermes versions — one calls lens_select before tool execution, another after; Auraken's behavior diverges visibly depending on the Hermes version installed",
+      "scenario": "lens_select call timing is ambiguous, causing inconsistent behavior across Hermes versions",
+      "severity": "P2"
+    },
+    {
+      "condition": "Users reading the installed SKILL.md file directly encounter internal loop terminology (Observe/Orient/Decide/Act/Reflect) that is not useful to them and contradicts Auraken's 'invisible scaffolding' design principle",
+      "scenario": "OODARC documentation in SKILL.md leaks implementation framing to end users",
+      "severity": "P3"
+    }
+  ],
+  "success_hints": [
+    "Confirm every behavioral assertion in SKILL.md (never, always, call at start of) is machine-checkable or paired with a register_check rule in voice-rubric.md",
+    "Verify the frontmatter fields against the agentskills.io standard or the closest available Hermes skill schema",
+    "Check whether splitting voice-rubric.md from SKILL.md causes any circular reference or documentation dead-zone"
+  ],
+  "task_context": "The brainstorm document describes a SKILL.md that will be copied into users' Hermes profiles and eventually submitted to agentskills.io. This review assesses whether the current SKILL.md at apps/Auraken/integrations/hermes/skills/auraken/SKILL.md is conformant and complete for that use."
+}

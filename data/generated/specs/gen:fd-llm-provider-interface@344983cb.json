@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does NOT cover graph queries used to generate candidate lenses (fd-graph-algorithm-determinism), embedded data loading (fd-embed-data-integrity), EMA evolution (fd-evolution-tracking-semantics), or stack transitions (fd-stack-orchestration-state-machine)",
+  "decision_lens": "LLM calls at selection time are latency-sensitive and in the hot path — failures must degrade gracefully without blocking the agent loop, and provider-specific quirks must be isolated behind the interface",
+  "focus": "Reviews the HaikuSelector's use of provider.Provider — prompt construction fidelity, JSON response parsing robustness, timeout handling, and GLM 5.1 provider parity",
+  "name": "fd-llm-provider-interface",
+  "persona": "LLM integration engineer who has built and hardened production prompt pipelines across multiple model providers with structured output requirements",
+  "review_areas": [
+    "Prompt construction parity: the brainstorm specifies '1-indexed lens index, scale tags' matching Python's format — is the exact prompt text captured as a golden fixture, or reconstructed from memory, and are edge cases like empty message history handled identically?",
+    "JSON array parsing from unstructured LLM output: the brainstorm mentions handling 'markdown fences, extra text' — does the parser use a regex fence stripper followed by json.Unmarshal, and what happens when the model returns a JSON object instead of an array?",
+    "15-second context timeout placement: is the timeout applied to the provider.Provider call specifically, or to the entire Select() method including prompt construction and response parsing? If the provider already has its own timeout, are they composed correctly with context.WithTimeout?",
+    "Graceful degradation semantics: 'empty list on error' means the caller receives no lens selection — does the caller in selector.go distinguish between 'no lenses matched' (valid empty selection) and 'provider failed' (degraded state), or are both collapsed to []Lens{}?",
+    "GLM 5.1 via z.ai provider: the brainstorm mentions this as an alternative — does provider.Provider abstract model routing such that switching providers requires only a config change, or does HaikuSelector have model-specific prompt formatting that would need a GLMSelector variant?",
+    "Index-to-lens mapping correctness: if the LLM returns 1-indexed integers referencing the lenses passed in the prompt, is the index validated against the actual slice length before lookup, preventing out-of-bounds panics on hallucinated indices?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Lens selection silently picks wrong lenses for every conversation turn",
+      "scenario": "The LLM returns index 0 (zero-indexed) instead of 1-indexed due to a prompt ambiguity, and the Go code interprets this as off-by-one, selecting the wrong lens or panicking on index -1 after adjustment",
+      "severity": "P0"
+    },
+    {
+      "condition": "Agent loop stalls for 45 seconds on provider timeout, blocking the user's conversation",
+      "scenario": "context.WithTimeout creates a child context for the provider call, but the provider's own transport ignores the context deadline and blocks for 45 seconds — the 15-second timeout in Select() is never enforced because the provider call is not context-aware",
+      "severity": "P1"
+    },
+    {
+      "condition": "GLM provider always returns empty lens selection, making it appear non-functional without an error",
+      "scenario": "GLM 5.1 returns responses with a different JSON wrapping convention than Haiku (e.g., {\"lenses\": [1,2,3]} vs [1,2,3]), and the shared parser fails silently returning an empty list rather than adapting to the provider's output format",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Golden prompt fixture test comparing Go-generated prompt against Python's prompt byte-for-byte for a fixed input; explicit error type distinguishing ProviderError from EmptySelection; index bounds check with descriptive panic or error before slice access; provider interface contract includes a documented output format expectation",
+  "task_context": "HaikuSelector wraps Skaffen's provider.Provider interface (defined in internal/provider/) to replace Python's subprocess call to 'claude -p --model haiku'. The selector constructs a prompt listing candidate lenses with 1-based indices and scale tags, calls the provider, parses the JSON array of selected indices, and maps them back to Lens structs. GLM 5.1 via z.ai is a planned alternative provider. The 15-second timeout and empty-list-on-error behavior are explicit requirements. Provider key configured via Z_AI_API_KEY env var."
+}

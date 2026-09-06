@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-composite-weighting covers how predictions are weighted via confidence floor in overall scoring",
+    "fd-model-matching covers entity resolution for attaching scores to models",
+    "fd-score-normalization covers how raw scores are normalized into percentile ranks"
+  ],
+  "decision_lens": "Cases where BenchPress predictions diverge significantly from later-observed actuals rank highest. Deduplication bugs where predictions override observed scores rank above calibration drift.",
+  "focus": "BenchPress ML prediction quality, calibration against actual scores, deduplication precedence when predicted and observed scores coexist",
+  "name": "fd-benchpress-prediction",
+  "persona": "An ML engineer specializing in matrix completion and imputation systems. Evaluates whether the SVD + logit regression blend produces reliable estimates and whether integration into the composite correctly treats predictions as lower-confidence fill-ins.",
+  "review_areas": [
+    "Audit the BenchPress scraper for how it handles the transition when an observed score becomes available for a previously predicted cell — verify observed scores always win and stale predictions are deleted",
+    "Review the predictedKeys field population — verify that after sync, models with new observed scores no longer list those benchmarks as predicted",
+    "Examine the BenchPress matrix input construction — check whether it uses only benchmarks with high observed-data density or includes sparse benchmarks where SVD has too little signal",
+    "Check the topK parameter in predictLogitBenchReg — verify this was chosen empirically and whether top-K correlated benchmarks produces overfit predictions for unusual capability profiles",
+    "Verify that the predicted vs observed-only delta is tracked over time — without historical comparison, it is impossible to know whether predictions are improving or drifting",
+    "Audit whether BenchPress predictions are excluded from percentile rank computation when observedOnly=true"
+  ],
+  "success_hints": [
+    "There should be a testable invariant: observed scores always override predictions, and stale prediction count should equal newly-observed cells that had prior predictions",
+    "Observed-only and predicted scores should converge for high-coverage models and diverge predictably for sparse models",
+    "Benchmark selection for BenchPress matrix input should exclude benchmarks with fewer than a documented minimum of observed rows"
+  ],
+  "task_context": "AgMoDB aggregates AI model benchmark data from 35+ external scrapers, Artificial Analysis, OpenRouter, and BenchPress ML predictions. The goal is to identify data quality improvements across reliability, normalization, model matching, composite scoring, deduplication, and prediction quality."
+}

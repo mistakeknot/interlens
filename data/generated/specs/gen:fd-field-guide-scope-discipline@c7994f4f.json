@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "Does NOT cover installer mechanics or component assembly (fd-instrument-kit-packaging)",
+    "Does NOT cover artifact self-containment or versioning semantics (fd-typeface-retail-release)",
+    "Does NOT cover practitioner onboarding flow after install (fd-studio-preset-pack-onboarding)"
+  ],
+  "decision_lens": "A field guide that covers '300 species' but silently omits the 20 most commonly confused ones has failed its reader at the moment of highest need. Explicit scope is a gift to the reader; implicit scope is a liability that compounds with every edition.",
+  "distance_rationale": "A field guide's scope boundary problem is structurally identical to a software release's out-of-scope discipline: both must declare what is covered with enough precision that the practitioner does not waste time searching for coverage that was never promised, and both must make the boundary durable across editions.",
+  "expected_isomorphisms": "excluded_from_v01 maps to the 'species not covered in this edition' appendix in a regional guide; the Hermes-only scope maps to the geographic boundary of a regional guide (Pacific Northwest wildflowers does not cover Rocky Mountain species even where ranges overlap); the additive-overlay contract maps to the field guide's relationship to the broader taxonomy literature it extends rather than replaces.",
+  "focus": "Reviews the scope boundary enforcement and non-goals documentation through the lens of a field naturalist publishing a regional species identification guide — what is explicitly in scope, what is declared out of scope, and whether the scope boundary is durable enough to prevent the guide from becoming a different book as it evolves",
+  "name": "fd-field-guide-scope-discipline",
+  "persona": "Apply the perspective of a field botanist publishing a regional wildflower identification guide for amateur naturalists. They measure whether the geographic scope is stated precisely enough to prevent reader confusion at the boundary, whether 'not covered' species are listed explicitly so readers do not waste time searching for them, whether the guide promises to cover only what it can reliably verify, and whether the preface communicates the author's methodology clearly enough that readers understand the epistemology behind the identifications.",
+  "review_areas": [
+    "Non-goals as first-class content: the brainstorm has a detailed 'Out of Scope (v0.1)' section — does this appear in the distribution artifact itself (MANIFEST.yaml excluded_from_v01, INSTALL.md) where installers will find it, or only in the brainstorm doc?",
+    "Scope boundary durability: the line between v0.1 and v0.2 (bundle vs. demo) — is it stated in terms that remain stable as implementation proceeds, or in terms that could be reinterpreted to include demo infrastructure in v0.1?",
+    "Hermes-only scope: v0.1 is explicitly Hermes-only — does MANIFEST.yaml state non-Hermes agent frameworks as explicitly out of scope, or does silence invite confusion?",
+    "Additive overlay contract: the brainstorm states 'We do NOT vendor Hermes' and 'We do NOT compete with hermes-agent.nousresearch.com' — is this stated as a first-class principle in the distribution artifact or only in internal design docs?",
+    "User scope: v0.1 assumes 'the user has Hermes already installed' — does install.sh verify this assumption explicitly and refuse to proceed if it fails, rather than producing a confusing error mid-run?",
+    "Version scope creep guard: the excluded_from_v01 list names specific beads (i0px, whyj, lfdy) — will these references be interpretable to a reader of the artifact who does not have access to the internal bead tracker?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "External user files a GitHub issue asking for thinker-profile-mcp, not realizing it is already planned for v0.3",
+      "scenario": "excluded_from_v01 in MANIFEST.yaml references internal bead IDs (sylveste-i0px) as the only identification for deferred features — an external practitioner reading the manifest cannot decode what is missing or when it will land",
+      "severity": "P1"
+    },
+    {
+      "condition": "First-time installer experience is degraded for the most common mistake (wrong prerequisite state)",
+      "scenario": "install.sh does not check for Hermes installation before proceeding — the 'additive overlay on a working Hermes install' assumption is undeclared and unverified, so a practitioner without Hermes gets a confusing mid-run failure instead of a clear pre-flight refusal",
+      "severity": "P2"
+    },
+    {
+      "condition": "Downstream forks create confusion about the distribution's relationship to the upstream Hermes project",
+      "scenario": "The 'We do NOT vendor Hermes' principle is stated in the brainstorm but absent from INSTALL.md — a practitioner who forks the distribution could believe vendoring Hermes is acceptable in derived distributions",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Field naturalist publishing — regional species identification guides for amateur practitioners",
+  "success_hints": [
+    "Every item in excluded_from_v01 should use human-readable descriptions, not bead IDs, and should name the target version where it lands",
+    "INSTALL.md's first section should be 'Prerequisites' with an explicit Hermes version check the practitioner can run before downloading the tarball",
+    "The additive-overlay contract ('we extend, not replace, Hermes') belongs in the distribution README as a framing principle, not only in internal design docs"
+  ],
+  "task_context": "Document for external review: a v0.1 distribution with explicit scope boundaries intended to anchor subsequent v0.2/v0.3 releases. Surface evaluator-facing qualities around scope clarity, non-goals accessibility, and boundary durability."
+}

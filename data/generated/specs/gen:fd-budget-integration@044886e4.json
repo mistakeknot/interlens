@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "Defers to fd-staged-dispatch-correctness on dispatch ordering; defers to fd-expansion-signal-quality on expansion scoring",
+  "decision_lens": "Budget accounting must remain accurate after tier adjustments — no silent cost drift",
+  "focus": "Validate that cross-model dispatch interacts correctly with existing budget enforcement and cost estimation",
+  "name": "fd-budget-integration",
+  "persona": "Cost optimization engineer who manages token budgets across multi-agent dispatch",
+  "review_areas": [
+    "Cost estimate update — when a Stage 2 agent is downgraded from sonnet to haiku, does the budget tracker reflect the lower token estimate?",
+    "Budget pressure computation — is remaining_budget / sum(stage2_estimates) calculated before or after tier adjustment?",
+    "Circular dependency: budget pressure influences tier → tier influences cost estimate → cost estimate influences budget pressure",
+    "Interaction with AgentDropout — if dropout saves tokens, does that increase remaining budget for tier decisions?",
+    "estimate-costs.sh integration — does it have per-model cost data, or only per-agent averages?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Budget not updated after tier adjustment",
+      "scenario": "Budget tracker shows Stage 2 at sonnet cost but agents actually run at haiku",
+      "severity": "P1"
+    },
+    {
+      "condition": "No fixed-point iteration or one-pass guarantee",
+      "scenario": "Circular dependency causes oscillation — agent downgraded, budget improves, agent upgraded, budget worsens",
+      "severity": "P1"
+    },
+    {
+      "condition": "Dropout and expansion scoring use independent budget snapshots",
+      "scenario": "AgentDropout savings not reflected in budget pressure calculation",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Single-pass pipeline: dropout → budget snapshot → expansion scoring → tier adjustment → cost update. No feedback loops.",
+  "task_context": "budget.yaml defines per-category token defaults. estimate-costs.sh queries interstat for historical per-agent costs. Budget enforcement is currently a binary gate (launch or defer)."
+}

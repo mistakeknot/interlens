@@ -1,0 +1,28 @@
+{
+  "anti_overlap": "Defers to fd-staged-dispatch-correctness on dispatch ordering; defers to fd-budget-integration on budget logic",
+  "decision_lens": "No code path can result in a safety-critical agent running below its declared min_model",
+  "focus": "Ensure safety floor clamping is never violated by any code path in the tier adjustment pipeline",
+  "name": "fd-safety-floor-invariant",
+  "persona": "Safety systems engineer who treats min_model floors as hard invariants",
+  "review_areas": [
+    "Order of operations: does _routing_apply_safety_floor run AFTER all adjustments (downgrade + budget pressure)?",
+    "Namespace stripping — does the floor lookup handle both 'fd-safety' and 'interflux:review:fd-safety'?",
+    "Budget pressure override — can 'high' pressure force an exempt agent below sonnet?",
+    "New _routing_downgrade function — does it respect model tier ordering (opus→sonnet→haiku, never opus→haiku)?",
+    "Agent-roles.yaml coverage — are all agents that need floors declared? What about project-specific agents?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Budget pressure applied after safety floor instead of before",
+      "scenario": "fd-correctness routed to haiku because budget_pressure='high' overrides safety floor",
+      "severity": "P0"
+    },
+    {
+      "condition": "Floor lookup only checks hardcoded agent list",
+      "scenario": "Project agent with min_model declared in agent-roles.yaml not recognized by expansion tier adjustment",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": "Safety floor is the LAST operation in the pipeline — nothing can override it. Exempt agents skip the entire adjustment.",
+  "task_context": "agent-roles.yaml declares min_model per role. lib-routing.sh has _routing_apply_safety_floor(). The brainstorm proposes routing_adjust_expansion_tier() as a new function."
+}

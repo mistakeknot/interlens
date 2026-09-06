@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-editorial-continuity covers LLM prompt and voice continuity",
+    "fd-chunk-progress-state covers job state and UI progress",
+    "fd-result-assembly-display covers display, not layer fix merging"
+  ],
+  "decision_lens": "Prioritizes correctness of fix aggregation and flag deduplication — double-applied fixes or 40x-surfaced flags are product defects.",
+  "focus": "How LayerStack and LayerApplicationResult flow through chunked processing — scoping, serialization, and aggregation",
+  "name": "fd-rule-layer-chunking-integration",
+  "persona": "A backend engineer specializing in data pipeline correctness. Traces how structured objects flow through the system and what breaks when multiplied across 40 chunks.",
+  "review_areas": [
+    "Whether LayerStack config is serialized once and broadcast identically to all chunks",
+    "How layerResults.fixes and flagged arrays are aggregated across chunks — deduplication needed?",
+    "How unknownLayers is handled at manuscript scale — surface once or 40 times?",
+    "Whether Vale detection-only mode duplicates issues at chunk boundaries",
+    "How LayerStackEditor communicates config to the chunking dispatcher",
+    "Whether per-chunk layerResults are stored individually or only aggregated"
+  ],
+  "success_hints": [
+    "Layer fix report shows deduplicated, document-scoped findings",
+    "Rule layer config for chunk 1 is provably identical to chunk 40",
+    "Chunk boundary splits don't cause duplicate flags"
+  ],
+  "task_context": "Texturaize processes editorial text through a pipeline worker on slse. Current UI uses TiptapEditor for paste input. Task extends this for 50K-250K word manuscripts."
+}

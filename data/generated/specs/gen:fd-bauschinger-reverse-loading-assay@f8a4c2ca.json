@@ -1,0 +1,49 @@
+{
+  "anti_overlap": [
+    "Do not invoke biological homeostasis, immune self/non-self, ecological succession, or any living-system metaphor",
+    "Do not use military readiness drills, war-gaming, or red-team framings",
+    "Do not invoke neural-network training dynamics, gradient-descent, or ML training-loop concepts",
+    "Do not use thermodynamic/entropy framings or any statistical-mechanics analogy",
+    "Do not use market dynamics, game theory, supply-chain, or economic-equilibrium concepts",
+    "Stay within the specific cyclic-plasticity / Bauschinger / kinematic-hardening mechanism — do not generalize to 'stress testing'"
+  ],
+  "decision_lens": "Does Sylveste's Break phase reveal the contradiction-modes that monotonic accumulation systematically hides, or does it only test what the Compound phase would have shown anyway?",
+  "distance_rationale": "No software engineer or trust-architect would reach for solid-state physics of dislocation kinematics when designing a self-audit protocol — the mechanism lives at the wrong physical scale and in the wrong epistemic register entirely.",
+  "expected_isomorphisms": "The Bauschinger mechanism transfers because monotonic-loading certification is structurally identical to a Break gate that counts receipts without varying contradiction-axis: both pass while accumulated directional damage remains untested. Continuous-mode Break is the cyclic-loading equivalent — it incidentally reverses the loading-direction enough times to surface kinematic hardening that gated tests systematically miss.",
+  "focus": "Latent fatigue is invisible under monotonic load and only surfaces under reverse-direction strain — gate-only inspection cannot see what continuous-mode inspection accidentally exposes.",
+  "name": "fd-bauschinger-reverse-loading-assay",
+  "persona": "Apply the perspective of a cyclic-plasticity metallurgist who specifies fatigue-qualification protocols for safety-critical forgings — they care about whether dislocation pile-ups from forward loading have produced kinematic hardening that reduces the reverse-yield envelope, they measure the Bauschinger parameter (ratio of reverse-yield to forward-yield after pre-strain) across many micro-cycles rather than at a single proof-load gate, and they flag any protocol that certifies a part on monotonic loading alone because monotonic tests systematically hide the very degradation mode that fatigue failures originate from.",
+  "review_areas": [
+    "Whether the proposed Break gate (≥N receipts) is the structural equivalent of a monotonic proof-load — passing while leaving kinematic hardening undetected",
+    "Whether continuous-mode Break would expose mode-specific contradictions (loading-direction-equivalent) that gated Break cannot, by varying the direction of self-interrogation across the Compound window",
+    "Whether the Break-rate metric, if used as Tier-2 self-observation evidence, has a defined reverse-loading equivalent — a perturbation that flips the sign of the assertion under test",
+    "Whether contradiction severity scoring by Interspect can distinguish forward-direction contradictions (cheap, abundant) from reverse-direction contradictions (rare, diagnostic) the way Bauschinger parameter distinguishes pre-strain damage",
+    "Whether either option specifies a protocol-equivalent of strain-amplitude scheduling — i.e., what magnitude and direction of self-perturbation the subsystem must apply during Break, not just how many receipts it must log",
+    "Whether the absence of Break receipts in continuous-mode is treated as evidence-of-blindness (dislocation density too low to register reversal) versus evidence-of-soundness (genuinely no hidden contradictions), and how the two are distinguished"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Spec does not require Break receipts to span multiple loading-directions (i.e., contradictions about different aspects of the promotion case).",
+      "scenario": "Sylveste adopts gated Break (≥N receipts), and a subsystem accumulates N trivial self-corrections that all point in the same direction — gate passes, Epoch granted, latent contradiction in the orthogonal direction is never tested.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Tier-2 self-observation health metric does not decompose Break-rate by contradiction-type or sign.",
+      "scenario": "Continuous-mode Break-rate is treated as a single scalar against a threshold, hiding the fact that high rate of forward-direction contradictions and zero reverse-direction contradictions is exactly the Bauschinger-positive signature of a subsystem on the verge of failing under reversal.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Continuous-mode Break-rate threshold is uniform across pillars regardless of self-interrogation surface area.",
+      "scenario": "Subsystems with low natural contradiction-emission rates (well-bounded, narrow-scope pillars) are penalized under continuous-mode for low Break-rate even though their substrate is genuinely unstressed — equivalent to fatigue-testing a part that was never going to be cycled.",
+      "severity": "P1"
+    }
+  ],
+  "source_domain": "Cyclic plasticity in metallurgical fatigue qualification — specifically the Bauschinger effect: the reduction in reverse-direction yield strength after forward-direction pre-strain caused by dislocation pile-ups, which is invisible to monotonic proof-loading and only surfaces under load-reversal cycling.",
+  "success_hints": [
+    "Frame the gate-vs-continuous tradeoff in terms of proof-load (single high-stress test) versus fatigue-cycling (many low-stress reversals) — a part can pass either alone and still fail under the other",
+    "Cite specifically that the Bauschinger effect is invisible to monotonic testing — this is the load-bearing mechanism transfer, not a generic fatigue analogy",
+    "If recommending hybrid, specify which axis of contradiction must be sampled discretely (gate-equivalent) and which must be sampled continuously (cyclic-equivalent), not just 'do both'",
+    "Push on whether ≥N receipts is N along one axis or N spanning a covering set of contradiction-axes — the latter is the structurally correct gate, the former is the proof-load-only failure mode"
+  ],
+  "task_context": "Reviewing the Break-phase structural choice in Sylveste vision §7.1: discrete gate (≥N Break receipts before Epoch transition, pass/fail at boundary) vs continuous-mode (sustained contradiction-surfacing rate during Compound, with the rate itself becoming Tier-2 evidence about self-observation health). Read /home/mk/projects/Sylveste/docs/sylveste-vision.md lines 432-482 and the v6 outline at /home/mk/projects/Sylveste/docs/research/2026-05-06-sylveste-vision-v6-outline.md."
+}

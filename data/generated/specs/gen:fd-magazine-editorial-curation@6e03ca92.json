@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Does not assess animation pacing or emotional arc (fd-film-trailer-editing), form friction and choice architecture (fd-restaurant-menu-engineering), or threshold credibility signals (fd-luxury-retail-threshold).",
+  "decision_lens": "Would a working professional in this field trust that the people behind this product understand their actual work?",
+  "distance_rationale": "A features editor applies the same 'does this author know this world?' credibility judgment to submitted pieces that a skeptical professional applies to a product page — but the editor's toolkit is content authority, voice consistency, and example specificity rather than conversion metrics.",
+  "expected_isomorphisms": "The editor's test of whether an author's examples reflect insider knowledge versus outsider description maps directly to whether the diff examples feel like genuine editorial work or constructed demos. The magazine practice of matching content register to reader sophistication maps to whether the page's vocabulary ('intent', 'rough', 'ready') resonates with the target persona's self-image.",
+  "focus": "Whether the page's content voice, example selection, and credibility signals communicate expert authority to the target reader",
+  "name": "fd-magazine-editorial-curation",
+  "persona": "A features editor at a B2B trade magazine with 12 years editing for professional audiences — marketers, consultants, and operators. Has a finely calibrated sense for when copy sounds like it was written by someone in the industry versus someone describing the industry from outside, and for whether example content signals genuine domain expertise.",
+  "review_areas": [
+    "The diff examples as editorial proof: the three diff examples (blog intro, LinkedIn post, marketing copy) are the page's primary claim to expertise — do they demonstrate the specific editorial moves that freelancers and content managers actually make, or do they demonstrate generic 'AI slop to good copy' transforms that any tool claims?",
+    "Industry-specificity of the 'after' states: the after-text in example 1 references law firms and onboarding; example 3 references support transcripts and documentation — do these industry contexts signal that the product understands B2B content work, or do they feel like randomly assigned verticals?",
+    "Voice of the page itself: the headline 'Paste in rough. Get back ready.' and tagline 'Writing with intent.' are terse and confident — is this voice consistent with how the target persona talks about their work, or does it read as startup-speak?",
+    "The label taxonomy: diff examples are labeled 'Blog intro', 'LinkedIn post', 'Marketing copy' — are these the categories a freelance content strategist uses to describe their work, or are they generic content types that don't reflect actual workflow language?",
+    "Credibility without social proof: the page has no testimonials, case studies, or logos — is the product demo itself strong enough to establish credibility with a skeptical professional, or does the absence of social proof create a trust gap for the primary persona?",
+    "The privacy signal's implicit claim: 'We never store your writing' implies the product has access to user writing — does this signal arrive before or after the visitor has formed a mental model of how the product works, and does it land correctly?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The before-text in all three examples is extreme AI-slop (maximally generic, all-delete transforms). Real editorial work involves mixed edits — some unchanged, some restructured, some added. All-delete transforms may signal 'this tool replaces bad AI output' rather than 'this tool elevates your own rough drafts', which creates positioning confusion for the freelancer persona who doesn't self-identify as using AI.",
+      "scenario": "Diff examples feel like constructed demos rather than real editorial work",
+      "severity": "P2"
+    },
+    {
+      "condition": "Freelancers typically categorize by deliverable and client type, not content format. 'Blog intro' and 'LinkedIn post' are format labels; working professionals may use project-type language ('client briefing', 'thought leadership draft', 'SEO article lede'). The generic format labels may signal outsider knowledge of the space.",
+      "scenario": "Label taxonomy doesn't match freelancer workflow language",
+      "severity": "P2"
+    },
+    {
+      "condition": "The nav tagline is hidden on mobile ('hidden sm:inline') and requires familiarity with editorial vocabulary ('intent' as purposeful vs. accidental writing) to parse correctly. A content manager without editorial background may read 'intent' as a legal or SEO term rather than a craft term.",
+      "scenario": "Tagline 'Writing with intent.' requires domain context to decode",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "B2B trade magazine editorial curation and features editing",
+  "success_hints": "A working freelance content strategist should read the diff examples and think 'that's exactly the edit I would have made.' The page voice should feel like it was written by someone who has done the work, not someone who has studied the market. The category language should match how the target persona describes their own deliverables.",
+  "task_context": "The three diff examples are the sole product demonstration — they carry the full burden of establishing credibility and domain expertise. All three examples use all-delete/all-insert transforms with no unchanged words. Labels are generic format names. The page has no testimonials, founder bio, or case studies."
+}

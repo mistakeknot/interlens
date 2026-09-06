@@ -1,0 +1,31 @@
+
+# fd-concurrency-reliability
+
+**Focus:** Thread safety, error handling, cache correctness, and failure modes under parallel execution
+
+**Persona:** A reliability engineer who has debugged production systems where ThreadPoolExecutor silently drops results.
+
+**Decision Lens:** Prioritizes silent data loss and corrupted cache files above loud failures — a partial cache that looks complete will silently contaminate all subsequent --eval-only runs.
+
+**Task Context:** cipher_evaluator_matrix.py runs a two-phase cross-model evaluation to find the pareto-optimal LLM judge for editorial quality scoring.
+
+## Review Areas
+
+- Inner functions _recon_one and _eval_one are defined inside loops and close over loop variables — verify Python late-binding closure semantics don't cause model_key capture bugs
+- Reconstruction cache is written only after all pairs complete — if interrupted, no partial cache; verify cache validity check wouldn't falsely accept a previous run's cache of different sample_size
+- future.result() re-raises exceptions — if a single LLM call raises, the entire model's reconstruction is abandoned with no partial save
+- The evaluation phase has no output caching — if it fails at evaluator 7/9, all work is lost
+- The completed counter in evaluate_matrix is incremented but not used for ETA reporting
+- LLM call failures return empty string but the pair is still counted — verify this doesn't silently reduce scored pairs without warning
+
+## Success Criteria
+
+- Reconstruction caches should be written incrementally or with temp-file-then-rename
+- Evaluation phase should checkpoint per (evaluator, reconstructor) pair
+- Failed cells should be logged with model key and pair ID for targeted retry
+
+## Anti-Overlap
+
+- fd-experiment-validity covers sampling design
+- fd-prompt-engineering covers prompt quality
+- fd-cost-efficiency covers budget

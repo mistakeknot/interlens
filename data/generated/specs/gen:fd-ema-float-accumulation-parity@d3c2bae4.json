@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does NOT cover regex correctness (fd-regex-compilation-unicode-fidelity), JSON field naming (fd-json-wire-compatibility-struct-tags), mutex design (fd-fingerprint-concurrency-model), or BuildMirroring output (fd-mirroring-instruction-determinism)",
+  "decision_lens": "The EMA formula alpha=0.3 (n>=5) else 1/(n+1) and the boolean-to-float mapping (true→1.0, false→0.0) must produce identical float64 sequences across both languages — any divergence corrupts the shared JSONB fingerprint and breaks the concurrent operation period",
+  "focus": "Validates that Go's EMA accumulation produces bit-compatible float64 output with Python's _ema() and _update_mode_profile() for the same sequence of observations",
+  "name": "fd-ema-float-accumulation-parity",
+  "persona": "Numerical computing engineer who has audited floating-point divergence between Python and Go implementations of EMA-based signal processing pipelines in production",
+  "review_areas": [
+    "Alpha switching boundary at n=5: Python uses 'alpha = 0.3 if n >= 5 else 1.0 / (n + 1)'. Go must use exactly n >= 5 (not n > 4 or n > 5), and the integer division 1.0/(n+1) must use float64 division not integer division — if n is an int and Go divides 1/n+1 before converting, the result is always 0 for n>0",
+    "EMA formula associativity: Python computes old*(1-alpha)+new*alpha; floating-point multiplication is not associative so Go must use the same operator order, not the factored form (old + alpha*(new-old)) which produces different rounding for extreme values",
+    "Boolean-to-float EMA: Python passes '1.0 if obs.get(obs_key) else 0.0' — Go must use a conditional that produces exactly 1.0 or 0.0 as float64 literals, not 1 or 0 as int that is then converted, since int-to-float64 conversion is exact for small integers but the source of subtle bugs if the pattern is generalized",
+    "Vocabulary counter increment: laughter/affirmation/intensifier/hedge counters use raw integer increment (not EMA). In Go, the counter map must be map[string]int matching Python's Counter behavior — if it is accidentally initialized as map[string]float64, the JSON encoding diverges from Python's integer values",
+    "Opener counter: Python stores openers as lowercase rstrip(',.!?') of words[0]. Go must replicate the exact strip character set (comma, period, exclamation, question) in the same order as strings.TrimRight, and the lowercase step must come after stripping to match Python's behavior on 'Hey!' → 'hey'",
+    "n=0 first update: when n=0, alpha=1.0/(0+1)=1.0, so the first observation sets avg_words = 0*(1-1.0) + word_count*1.0 = word_count exactly. Go must initialize avg_words to 0.0 (not any other default) and apply the same formula, producing word_count as the exact first value — a unit test on the first message is mandatory"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Fingerprints written by Go always have the initial observation as the permanent value for all EMA fields, but Python continues accumulating — profiles diverge after message 1 and the concurrent operation period produces split-brain fingerprints",
+      "scenario": "Go uses integer arithmetic in the alpha calculation: alpha := 1 / (n + 1) where n is int, producing 0 for all n > 0 — every EMA update after the first leaves the old value unchanged because alpha=0, making all profiles freeze after their first observation",
+      "severity": "P0"
+    },
+    {
+      "condition": "Python reads Go-written fingerprints and the laughter counter values are floats — the dominance calculation in build_mirroring_instructions still works but any code that checks type(v) == int fails",
+      "scenario": "Go initializes the vocabulary counter as map[string]float64 instead of map[string]int — JSON encoding produces {\"haha\": 3.0} instead of {\"haha\": 3}, which Python's json.loads reads as float 3.0 instead of int 3, causing max(laughter, key=laughter.get) to work correctly but breaking equality checks in golden tests",
+      "severity": "P0"
+    },
+    {
+      "condition": "Opener counters accumulate different keys in Go vs Python, causing mirroring instructions to reference different opener tokens",
+      "scenario": "The opener extraction in Go uses strings.TrimRight(word, \",.!?\") but Python uses rstrip(',.!?') which strips all trailing characters from the set repeatedly — for 'Hey...' Python produces 'hey', but Go's TrimRight on 'Hey...' with the set ',.!?' does not include '.' so 'Hey...' becomes 'Hey..' truncated only partially, diverging from Python",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": "Property-based test generating random obs sequences and comparing Go vs Python EMA outputs via subprocess; unit tests for boundary conditions n=0,1,4,5,6; explicit float64 literal for alpha constants; vocabulary counter type assertions in test setup; opener extraction tested against Python's strip behavior on 10 edge-case strings including trailing '...', '?!', ','",
+  "task_context": "style.py implements _ema(old, new, alpha) → float, _update_mode_profile() calling _ema() 9 times per message (avg_words, capitalization_ratio, emoji_density, 6 boolean rates), and raw counter increment for 5 vocabulary dimensions. Alpha switches at n>=5 to 0.3, else 1/(n+1). Concurrent Python/Go writes to core_profiles.style_fingerprint JSONB require numeric bit-compatibility. Golden test strategy: feed identical message sequences to both implementations, compare JSON output."
+}

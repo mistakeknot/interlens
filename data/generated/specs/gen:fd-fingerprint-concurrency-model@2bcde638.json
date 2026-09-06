@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does NOT cover regex patterns (fd-regex-compilation-unicode-fidelity), EMA arithmetic (fd-ema-float-accumulation-parity), JSON struct tags (fd-json-wire-compatibility-struct-tags), or mirroring text generation (fd-mirroring-instruction-determinism)",
+  "decision_lens": "A mutex on Fingerprint is correct only if every method that reads or writes EMA state holds the lock for the entire duration — partial locking on a struct with pointer-typed sub-maps creates data races that the race detector may not catch on every run",
+  "focus": "Reviews the sync.Mutex placement on Fingerprint, lock scope in Update/BuildMirroring, and the pure-function contract for ComputeObservables/ClassifyMode under concurrent message processing",
+  "name": "fd-fingerprint-concurrency-model",
+  "persona": "Go concurrency architect who has designed and audited mutex-based shared state for high-throughput conversation systems where goroutine leaks and deadlocks are production incidents",
+  "review_areas": [
+    "Lock scope in Update(): Update() must acquire the mutex before reading message_count, before calling _update_mode_profile logic, and before writing back — if it reads message_count unlocked to compute alpha and then locks to write, concurrent updates can compute the same alpha for two goroutines and overwrite each other's EMA result",
+    "Lock scope in BuildMirroring(): BuildMirroring() reads the modes map and global profile to generate text — it must hold the lock for the entire read, not just acquire it to copy the mode string and then release before accessing the profile fields, since another goroutine's Update() could modify the profile between the read steps",
+    "Map mutation under lock: the per-mode map (map[Mode]*ModeProfile) stores pointers — if BuildMirroring() acquires a *ModeProfile pointer under the lock and then releases the lock before reading the profile's fields, Update() can concurrently modify that profile's EMA values through the same pointer",
+    "Pure function contract for ComputeObservables/ClassifyMode: these are documented as pure with no lock needed — but if they reference any package-level mutable state (e.g., a map that is lazily populated), they are not goroutine-safe and the contract is broken. The mode signals map is read-only after package init, but this must be explicitly verified",
+    "UpdateCadence() lock scope: cadence is a separate field on Fingerprint with avg_burst_size and burst_count — does UpdateCadence() use the same mutex as Update(), and can concurrent calls to Update() and UpdateCadence() on the same Fingerprint race on the cadence field if they use different locks or no lock?",
+    "DetectCurrentMode() goroutine safety: DetectCurrentMode(messages, window) takes a []string slice from the caller — if the caller passes a slice that is concurrently appended to by another goroutine, Go's slice growth can produce a partial read. The function signature should document that the caller must not mutate the slice concurrently, or DetectCurrentMode should copy the slice under a lock"
+  ],
+  "severity_examples": [
+    {
+      "condition": "EMA accumulator silently drops messages under burst concurrency, producing fingerprints that undercount message_count relative to actual messages processed",
+      "scenario": "Update() reads n from the profile to compute alpha before acquiring the mutex, then acquires the lock to write the new EMA value — two concurrent goroutines both read n=4 (alpha=0.2), both compute new EMA with alpha=0.2, and the last write wins, dropping one observation entirely",
+      "severity": "P0"
+    },
+    {
+      "condition": "Process crashes with 'concurrent map read and map write' during burst message processing, taking down the entire Skaffen agent",
+      "scenario": "BuildMirroring() acquires the lock, reads profile := fp.modes[mode], releases the lock, then iterates over profile.laughter to find the top token — Update() concurrently modifies profile.laughter through the shared pointer, causing a concurrent map read/write that the Go runtime detects as a fatal error",
+      "severity": "P0"
+    },
+    {
+      "condition": "Cadence-correlated mirroring instructions (burst message pattern) are generated with stale burst_count relative to current message_count",
+      "scenario": "UpdateCadence() uses a separate cadence-specific mutex while Update() uses the Fingerprint-level mutex — a caller that calls Update() and UpdateCadence() from the same goroutine is fine, but a caller that relies on message_count and burst_count being consistent after both calls can observe message_count=5, burst_count=3 atomically from another goroutine's perspective",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": "go test -race passes on a test that spins 50 goroutines all calling Update() and BuildMirroring() on the same Fingerprint concurrently; lock scope documented with a comment on each exported method indicating which fields are protected; *ModeProfile fields read under lock with a value copy before lock release; cadence uses the same Fingerprint mutex not a separate lock",
+  "task_context": "The brainstorm specifies: 'Thread-safe via mutex on Fingerprint. Update() and BuildMirroring() acquire lock. ComputeObservables() and ClassifyMode() are pure functions — no lock needed.' The Fingerprint struct has sync.Mutex, message_count int, global *ModeProfile, modes map[Mode]*ModeProfile, cadence Cadence. Skaffen agents may process concurrent burst messages for the same user. The lens package (sibling) uses the same pattern — its evolution.go and selector.go are reference implementations for mutex discipline."
+}

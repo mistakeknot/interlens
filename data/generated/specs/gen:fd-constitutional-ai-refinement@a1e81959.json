@@ -1,0 +1,26 @@
+{
+  "anti_overlap": [
+    "fd-finetuning-feasibility covers SFT/LoRA from pairs without constitution-based training signals",
+    "fd-reward-modeling-rlhf covers preference-based reward models, not principle-grounded critique loops",
+    "fd-retrieval-augmented-editing covers example retrieval at inference time, not principle-based self-critique",
+    "fd-eval-benchmark-design covers eval rubric calibration, not constitution quality"
+  ],
+  "decision_lens": "Prioritizes findings where the constitution is underspecified, internally inconsistent, or failing to transfer across writing domains — a flawed constitution amplified by RLAIF produces worse outputs at scale.",
+  "focus": "Iterative constitution refinement, Inverse Constitutional AI, and RLAIF approaches using the 19-principle constitution as a training signal",
+  "name": "fd-constitutional-ai-refinement",
+  "persona": "An AI safety and alignment researcher who has studied Constitutional AI, RLAIF, and principle-grounded generation. Focuses on whether the existing 19-principle constitution is the right artifact to scale or whether its derivation process should be iterated.",
+  "review_areas": [
+    "Review Anthropic's 2024-2026 Constitutional AI and RLAIF literature for updates: critique-revision loops, CAI with preference data, and Constitutional AI at inference time vs training time",
+    "Assess the Inverse Constitutional AI derivation process (1,000 professional pairs → 19 principles): identify what's known about ICAI stability and principle coverage gaps",
+    "Evaluate principle granularity: 19 principles may be too coarse for fine-grained line editing — review 2025 literature on hierarchical or domain-specific constitutional structures",
+    "Assess CAI self-critique at inference time: using the constitution to generate a critique of each pass output before feeding it to the next pass, without any training",
+    "Review Directional Preference Optimization (DPO with principle vectors) and 2025 advances in principle-conditioned generation",
+    "Flag principle drift risk: if the constitution is used both to generate synthetic training data and to evaluate that data"
+  ],
+  "success_hints": [
+    "The 19-principle constitution should be audited for internal consistency and coverage before being used as a reward signal",
+    "Inference-time CAI (critique-before-next-pass) is the lowest-risk experiment and should be the first recommendation",
+    "Any RLAIF recommendation must specify how critiques are generated and how principle adherence is verified without circular evaluation"
+  ],
+  "task_context": "Texturaize runs a multi-pass LLM editorial pipeline (developmental → line-edit → copy-edit) with a 19-principle editorial constitution derived via Inverse Constitutional AI from 1,000 professional pairs. The question is which training or inference-time approach beyond prompt engineering best leverages 8,250 curated pairs."
+}

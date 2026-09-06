@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Does not cover SRE burn-rate or SLO compliance — defer to fd-sre-burn-rate-vs-gate",
+    "Does not cover ML canary or false-promotion rate calculations — defer to fd-ml-canary-break-rate",
+    "Does not cover formal runtime assurance or liveness properties — defer to fd-runtime-assurance-break-observability"
+  ],
+  "decision_lens": "In quality control, incoming inspection (gate) catches defects at the boundary but accepts all defects produced during the process; SPC (continuous) detects process shifts early and reduces defect accumulation. The Break gate is incoming inspection on self-observation quality at Compound-to-Epoch boundary; continuous-mode is an SPC control chart on Break receipt rate during Compound. The question is whether the cost of late detection (a blind subsystem reaching Epoch) justifies the complexity of in-process monitoring.",
+  "focus": "Applies statistical process control's in-process monitoring versus incoming inspection patterns to the Break phase, where the gate/continuous distinction maps to inspection-at-boundary versus SPC control charts applied throughout Compound",
+  "name": "fd-spc-break-process-control",
+  "persona": "Apply the perspective of a quality control engineer who has designed both incoming inspection gates and in-process SPC monitoring for manufacturing and software quality systems — they care about the difference between detecting a defect at the boundary versus detecting a process shift while it is occurring; they measure design quality by asking 'at what point in the process does a deviation become detectable and actionable', and flag when incoming inspection is used to substitute for process monitoring when the cost of late detection is high.",
+  "review_areas": [
+    "Whether the cost of a blind subsystem reaching Epoch — where it retains its maturity tier (§7.1) and re-demonstrates under new conditions with degraded self-observation — is high enough to justify continuous in-process monitoring over an inspection gate",
+    "Whether the gate variant is equivalent to 100% incoming inspection (every Compound window checked at boundary) versus a sampling approach, and whether 100% inspection is the appropriate quality control model for a trust architecture with high false-positive costs",
+    "Whether the jo-ha-kyū analogy (the break must interrupt the slow build) implies an in-process control requirement — the break's timing within the Compound window matters, not just its count — and whether this temporal requirement is detectable under a gate",
+    "Whether the control chart analog for continuous-mode (receipt rate over Compound window, with control limits) would provide actionable early warning of observation-process shifts that allows remediation before Epoch transition, rather than a retroactive gate failure",
+    "Whether the hysteresis band in §7.1 (demotion M3→M2 cannot re-promote on same evidence window) interacts with Break gate failure — if a subsystem fails the Break gate, does it demote, and if so, does the hysteresis band prevent re-promotion even after addressing the observation failure",
+    "Whether the spec defines what a Break gate failure means operationally — does the subsystem remain in Compound indefinitely, is its Compound window reset, or does it trigger a Demote phase — and whether this operational response is calibrated to the cost of the observation failure detected"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Subsystems that fail the Break gate enter an undefined state. The trust architecture has no specified recovery path, and different implementations may handle gate failure differently, creating inconsistency in how the Trust Lifecycle is applied across subsystems.",
+      "scenario": "Gate variant: a subsystem fails the Break gate (N-1 receipts at Epoch boundary). The spec does not define what happens next — whether the subsystem waits in Compound, extends its window, or demotes. The operational response to a gate failure is undefined.",
+      "severity": "P1"
+    },
+    {
+      "condition": "The gate creates a perverse incentive analogous to inspection gaming in quality control — the process optimizes for clearing the inspection rather than for the underlying quality property. The jo-ha-kyū spirit is preserved on paper but violated in operational practice.",
+      "scenario": "Gate variant: the ≥N gate incentivizes filing Break receipts to clear the gate rather than filing them when contradictions are genuinely discovered. Subsystems learn the N threshold and exhibit burst-filing behavior in the final sprint of Compound.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Continuous mode generates data but no actionable signal. Operators cannot determine from the rate trend alone whether intervention is needed. The in-process monitor provides less value than a well-calibrated gate because it lacks the decision boundaries that make SPC actionable.",
+      "scenario": "Continuous-mode variant: the receipt rate is tracked as Tier-2 evidence but no control limits are defined. Without upper and lower control limits, the rate chart cannot signal whether a drop in receipt rate is within normal process variation or represents a genuine observation-process shift.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Check whether the spec defines the operational response when a subsystem fails the Break gate",
+    "Look for whether the jo-ha-kyū temporal requirement — the break interrupts the build, not merely follows it — is enforced by the gate or requires continuous monitoring",
+    "Verify that continuous-mode defines control limits or rate-floor thresholds that make the signal actionable rather than merely observational"
+  ],
+  "task_context": "Reviewing §7.1 of the Sylveste vision v6 outline and trust lifecycle prose to evaluate the Break gate/continuous distinction through quality control's incoming-inspection versus in-process SPC patterns. Goal: identify whether the cost of late detection (blind subsystem reaching Epoch) justifies continuous monitoring, whether the gate creates filing-gaming incentives, and whether the spec defines a recovery path for gate failures."
+}

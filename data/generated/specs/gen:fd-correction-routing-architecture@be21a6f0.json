@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-correction-signal-extraction covers how corrections are parsed and typed",
+    "fd-constitution-revision-loop covers the internals of constitution revision",
+    "fd-feedback-latency-cadence covers when corrections take effect"
+  ],
+  "decision_lens": "Prioritizes correctness of the routing decision — sending a structural principle to the RAG store instead of the constitution means the model will make the same structural mistake on every future piece.",
+  "focus": "Decision logic for routing each correction type to the right learning mechanism",
+  "name": "fd-correction-routing-architecture",
+  "persona": "A systems architect who has designed multi-path training pipelines for production LLM products. Thinks in terms of signal decay, latency to effect, and the cost of mis-routing.",
+  "review_areas": [
+    "Design a correction taxonomy with explicit routing rules for each mechanism",
+    "Evaluate whether routing should be synchronous or asynchronous",
+    "Check whether a single correction can fan out to multiple mechanisms without double-counting",
+    "Assess the minimum batch size needed before routing to fine-tuning",
+    "Verify there is a fallback for corrections that cannot be confidently typed",
+    "Evaluate whether the routing architecture supports transition as the corpus grows"
+  ],
+  "success_hints": [
+    "Every correction has a deterministic routing destination with an audit trail",
+    "The routing logic is a small testable function separate from extraction and learning code",
+    "The architecture supports hybrid mode during A/B evaluation periods"
+  ],
+  "task_context": "Ryan is Texturaize's editorial partner who reviews track-changes diffs and corrects the model's edits. The goal is to determine the best mechanism for Ryan's corrections to flow back into the model."
+}

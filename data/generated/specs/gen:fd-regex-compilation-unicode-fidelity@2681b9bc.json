@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does NOT cover EMA arithmetic fidelity (fd-ema-float-accumulation-parity), JSON struct tag mapping (fd-json-wire-compatibility-struct-tags), mutex boundary design (fd-fingerprint-concurrency-model), or mirroring text generation (fd-mirroring-instruction-determinism)",
+  "decision_lens": "A regex that compiles without error but matches different text than its Python counterpart is a silent correctness bug — mode classification and vocabulary detection both depend on pattern fidelity, so divergence corrupts every downstream fingerprint",
+  "focus": "Validates that ~50 compiled Go regexes preserve Python re behavior: Unicode semantics, word-boundary handling, and emoji codepoint range accuracy",
+  "name": "fd-regex-compilation-unicode-fidelity",
+  "persona": "Regex engine internals engineer who has ported regex-heavy Python systems to Go and documented the re vs regexp/syntax divergences that cause silent behavioral drift",
+  "review_areas": [
+    "Word boundary \\b semantics: Python re treats apostrophes as non-word chars, so \\bdon't\\b matches 'don't'; Go regexp2 is not available and regexp uses RE2 which has the same \\b behavior for ASCII — but does \\baw+\\b correctly match 'awww' when preceded by a space vs a Unicode emoji?",
+    "Emoji codepoint ranges in Go: Python's _EMOJI_RE covers 9 Unicode blocks via \\U hex literals in a character class. Go's regexp package requires \\x{HHHH} syntax, not \\UHHHHHHHH — was each of the 9 range literals (e.g., \\U0001F600-\\U0001F64F) converted to the correct Go form \\x{1F600}-\\x{1F64F}?",
+    "re.IGNORECASE vs (?i) in Go: Python compiles each mode pattern with re.IGNORECASE as a flag; Go regexp uses inline (?i) flags or MustCompile with (?i) prefix — are all 50+ patterns consistently case-insensitive, and does (?i) interact correctly with Unicode letters in playful/intimate patterns that include non-ASCII chars?",
+    "Alternation in long patterns: _RAW_SIGNALS contains multi-alternation patterns like 'i'm (?:sad|anxious|scared|...)' with 8 alternatives — does Go's RE2 longest-match semantics for alternation produce different first-match behavior than Python PCRE for patterns with overlapping alternatives?",
+    "Anchored patterns in update signals: '^(?:hey|hi|hello|morning|good morning)\\b' uses ^ to anchor to message start — in Python re.search this matches only at position 0; in Go regexp.Regexp.FindString this also matches at position 0 via re.search equivalent (MatchString finds anywhere), so ^ must be confirmed to work as expected with FindString vs FindStringIndex",
+    "Package-level var block vs init(): Python precompiles at module load via list comprehension; Go should compile in a var block with regexp.MustCompile — if any pattern is invalid, MustCompile panics at startup rather than returning an error at call time, and this behavior difference from Python (which raises at import) needs to be explicitly tested with a build-time test that imports the package"
+  ],
+  "severity_examples": [
+    {
+      "condition": "emoji_density is always 0, corrupting the EMA accumulator for all modes that detect emoji — playful and intimate mode profiles are permanently wrong",
+      "scenario": "The emoji codepoint range \\U0001F600-\\U0001F64F is written as \\x{1F600-1F64F} (missing closing brace before hyphen) and Go silently treats the hyphen as a literal rather than a range separator, causing emoji_count to return 0 for all face emojis",
+      "severity": "P0"
+    },
+    {
+      "condition": "Package fails to initialize, crashing the Skaffen agent on startup with no graceful error",
+      "scenario": "The playful mode pattern r'[😂🤣😭💀]' is written as a Go string literal with the raw Unicode bytes rather than \\x{} escapes, and on some Go versions the regexp compiler rejects multi-byte UTF-8 in character classes, causing MustCompile to panic at startup",
+      "severity": "P1"
+    },
+    {
+      "condition": "Mode classification for update messages overfires on messages that contain greeting words anywhere, inflating update mode frequency in fingerprints",
+      "scenario": "The update mode opener pattern '^(?:hey|hi|hello|morning|good morning)\\b' is tested with MatchString() which does substring matching — the ^ anchor is ignored because MatchString does not anchor to start, so 'ok hey there' is classified as update mode when Python would not match it",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": "Table-driven test with 30+ strings comparing Go ClassifyMode output against Python-generated golden JSON for the same inputs; emoji regex tested with each of the 9 Unicode block samples; package-level var block compiles all regexes so startup panics surface in any test that imports the package; inline (?i) confirmed on every pattern via a regex inspection test that counts flags",
+  "task_context": "style.py compiles ~50 regexes at module level across 5 categories: _EMOJI_RE (9 Unicode blocks), _MODE_SIGNALS (6 modes x 8-16 patterns with weights), _LAUGHTER_PATTERNS (4), _AFFIRMATION_PATTERNS (10), _INTENSIFIER_PATTERNS (9), _HEDGE_PATTERNS (8), _CONTRACTION_RE (1). All mode patterns compiled with re.IGNORECASE. Go target is os/Skaffen/pkg/style/ with pure stdlib regexp (RE2). Emoji regex uses Python \\U syntax that must become Go \\x{} syntax."
+}

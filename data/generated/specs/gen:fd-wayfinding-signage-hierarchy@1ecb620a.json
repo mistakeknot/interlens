@@ -1,0 +1,30 @@
+{
+  "anti_overlap": "Focuses on information hierarchy and progressive disclosure from wayfinding design, not format structure or visual compression",
+  "decision_lens": "Evaluates whether the information hierarchy matches the decision sequence — show what the navigator needs NOW, defer everything else",
+  "distance_rationale": "Physical navigation signage and terminal state encoding both solve conveying spatial information for decision-making under attention constraints.",
+  "expected_isomorphisms": "Progressive disclosure hierarchy, decision-point focus, landmark-based orientation, and information density thresholds all transfer to terminal state encoding.",
+  "focus": "Wayfinding and signage design — how physical navigation systems convey spatial information through hierarchical progressive disclosure",
+  "name": "fd-wayfinding-signage-hierarchy",
+  "persona": "Environmental graphic designer specializing in hospital and airport wayfinding systems, who understands how to guide decision-making through minimal, hierarchically organized visual cues",
+  "review_areas": [
+    "Progressive disclosure hierarchy — wayfinding shows broad direction first, then specific route, then final destination. Terminal state could be disclosed progressively.",
+    "Decision-point signage — signs appear at decision points, not continuously. Terminal state updates should focus on where the agent needs to make a choice.",
+    "Landmark-based navigation — wayfinding uses landmarks not coordinates. Terminal navigation could use landmarks (prompt, error block, menu).",
+    "Information overload thresholds — wayfinding research shows maximum useful sign density before confusion. Maps to: maximum useful terminal state detail before LLM confusion."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Terminal header, content, status bar all encoded at same detail — no hierarchy",
+      "scenario": "All information at same priority level",
+      "severity": "P1"
+    },
+    {
+      "condition": "Agent must parse entire screen to find where it should look",
+      "scenario": "No landmark system",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Wayfinding and environmental graphic design (hospital/airport navigation systems)",
+  "success_hints": "Proposes a hierarchical encoding where the agent can quickly orient (which region matters?) before diving into detail",
+  "task_context": "Wayfinding research quantifies how much information a navigator can absorb at each decision point. LLM agents navigating terminal UIs face the same cognitive budget."
+}

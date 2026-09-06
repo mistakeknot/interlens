@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "fd-audio-authorship-identity covers provenance and 'my asset' trust mechanisms",
+    "fd-screenwriter-authorship-trust covers identity politics and anti-AI-slop narrative positioning",
+    "fd-couture-style-scaling covers production volume and style-identity under scaling"
+  ],
+  "decision_lens": "Evaluates whether Undersketch's asset model, pricing posture, and workflow integration are structured to create the same 'catalog gravity' that professional photography tools use to retain serious users — or whether the product is structurally positioned as a commodity service.",
+  "distance_rationale": "Photography software operates at the same abstraction level — professional creative tools with asset-as-identity economics, pro vs. amateur segmentation pressure, and workflow-fit requirements — but in a domain that has already solved many of the catalog-gravity and asset-ownership problems that Undersketch is implicitly making decisions about without naming them.",
+  "expected_isomorphisms": "How Capture One pro users feel about their catalog — as a long-term, irreplaceable, self-owned asset that creates switching costs — should be how artists feel about their trained LoRA model, but the Undersketch doc does not explicitly design for this. The RAW-vs-export distinction (source files vs. deliverables) maps directly to training corpus vs. generated output and implies separate provenance, storage, and backup treatments that the doc does not yet distinguish.",
+  "focus": "How professional photography software (Capture One, Lightroom) structures the catalog as source of truth, prices for pros vs. amateurs, and creates switching costs through asset ownership",
+  "name": "fd-photography-catalog-economics",
+  "persona": "A product strategist with deep familiarity with the professional photography software market, including how Capture One's per-camera-brand licensing, Lightroom's catalog lock-in, and the DAM-as-moat pattern shaped photographer adoption and retention.",
+  "review_areas": [
+    "Whether the trained model is treated as a persistent, version-controlled, artist-owned asset (analogous to a Lightroom catalog) or as an ephemeral service output — the distinction determines long-term retention and switching cost",
+    "Whether the review doc's MLP implies a pricing model consistent with professional-tier photography software (annual license, per-seat, one-time) vs. consumption-based pricing that erodes the 'private instrument' positioning",
+    "Whether the onboarding experience is designed for the workflow of a working professional who already has organized, high-quality assets — not a tourist uploading anything — mirroring how Capture One assumes photographers have a shoot-based ingestion workflow",
+    "Whether the product distinguishes clearly between the training corpus (the artist's uploaded work) and the generated outputs, with separate provenance and storage treatment, as photographers distinguish between RAW source files and exported deliverables",
+    "Whether the review doc accounts for the 'pro vs. amateur' segmentation pressure that photography software faces — where serving both cohorts with the same product often results in serving neither well"
+  ],
+  "severity_examples": [
+    {
+      "condition": "A professional photographer would never store their Lightroom catalog exclusively on Adobe's servers with no local copy; artists will ask the same question about their trained model",
+      "scenario": "Trained models are stored opaquely on Replicate infrastructure with no export, backup, or ownership-transfer mechanism described",
+      "severity": "P1"
+    },
+    {
+      "condition": "Consumption pricing conflicts with the 'private instrument' trust framing; pro photographers specifically chose Capture One over subscription models to own their toolchain",
+      "scenario": "Pricing model is implicitly consumption-based (per-generation or per-training-run) rather than asset-ownership-based",
+      "severity": "P1"
+    },
+    {
+      "condition": "Professionals who shoot 1000 frames per session and cull to 50 heroes have strong opinions about ingestion workflows; an undifferentiated upload UX signals a consumer product",
+      "scenario": "Upload ingestion flow is designed for any image rather than curated, organized professional work",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Professional photography studio software (Capture One, Lightroom, DAM systems, RAW workflow)",
+  "success_hints": [
+    "The trained model is positioned as a durable, exportable, version-controlled artist asset, not a service-side artifact",
+    "Pricing structure is consistent with professional tool economics (not per-generation consumption)",
+    "The ingestion and training flow respects the organization and curation practices of working professionals"
+  ],
+  "task_context": "Reviewing the first-principles product strategy document for Undersketch, a Tauri desktop app for professional visual artists to train private LoRA models on their own artwork and generate style-consistent production output. The document defines core user, core job, non-negotiable value, trust requirements, MLP, and existential risks."
+}

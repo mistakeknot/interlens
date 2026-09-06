@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-information-loss-audit covers extraction representation",
+    "fd-retrieval-gap-analysis covers RAG architecture",
+    "fd-eval-blind-spots covers scoring validity"
+  ],
+  "decision_lens": "Prioritizes partitions of the eval set where failure pattern is clustered — systematic failure on a specific edit type is fixable; random noise is not.",
+  "focus": "Per-pair and per-edit-category analysis to identify which types of editorial decisions are reconstructable and which systematically fail",
+  "name": "fd-edit-type-reconstructability",
+  "persona": "An NLP researcher specializing in error analysis and edit classification. Approaches aggregate scores with suspicion — a 6.6 average could hide 9.0 on easy pairs and 3.5 on hard ones.",
+  "review_areas": [
+    "Cross-reference scores with CIPHER content type to find whether failure is concentrated in specific categories",
+    "Audit edit taxonomy to determine whether per-hunk edit types are logged at reconstruction time",
+    "Check whether experiment logs retain per-pair scores or only means",
+    "Evaluate whether discourse-level edits score systematically lower than sentence-level edits",
+    "Assess whether near-pass-through pairs inflate or deflate means",
+    "Check whether per-content-type breakdown is exported at pair level or bucket mean level"
+  ],
+  "success_hints": [
+    "Identify at least one category scoring above 8.0 and one below 5.0 enabling targeted intervention",
+    "Produce a ranked list of lowest-scoring pairs with IDs for manual inspection",
+    "If failure concentrates in discourse-level edits, that points to context window fix not retrieval fix"
+  ],
+  "task_context": "The system extracts constitution via Inverse CAI and CIPHER preferences from professional before/after pairs. GPT-5.4 scores 6.6/10 and prompt engineering hit a ceiling."
+}

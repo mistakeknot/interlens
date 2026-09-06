@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-deontic-defeasible-hierarchy covers rule priority and conflict resolution via formal logic, not utility aggregation",
+    "fd-biological-immune-exception covers exception detection via immune analogies, not multi-factor weighting",
+    "fd-dual-encoder-editorial covers the similarity retrieval component, not decision architecture"
+  ],
+  "decision_lens": "Prioritizes architectures that are explainable to a non-technical domain expert (Ryan can inspect why the system chose one edit over another), computationally cheap at inference time, and extensible to new editorial objectives without retraining.",
+  "focus": "Game AI utility theory and multi-factor decision architectures for weighing competing editorial objectives in real-time",
+  "name": "fd-gameai-utility-decisions",
+  "persona": "A game AI researcher and practitioner specializing in utility-based agent design, behavior trees with utility selectors, and multi-objective decision making under uncertainty. Reads GDC AI Summit proceedings, IEEE CoG, and AIIDE alongside decision theory literature from 2024-2026.",
+  "review_areas": [
+    "Survey utility-based AI architectures from game AI (Dave Mark's Infinite Axis Utility System successors, GDC 2024-2025) for multi-factor scoring that maps to editorial dimensions: clarity, voice, correctness, client-style adherence",
+    "Research behavior tree + utility selector hybrids (2024-2026 IEEE CoG papers) for sequencing editorial sub-decisions — e.g., 'check grammar first, then style, then voice' with utility-gated fallback",
+    "Find 2024-2025 papers on learned utility functions from demonstration data (inverse utility learning, preference learning) — maps to learning Ryan's implicit weighting of editorial factors from 23K pairs",
+    "Examine multi-objective reinforcement learning (MORL) 2024-2026 for Pareto-front editorial policies — how to expose tradeoff curves to Ryan rather than collapsing to a single objective",
+    "Survey game AI approaches to 'contextual utility' — utility weights that shift based on document genre/client — as architectural pattern for the client-style exception layer",
+    "Research 2024-2025 explainable utility AI papers for generating natural-language rationales from utility scores — connects to annotation schema's rationale field"
+  ],
+  "success_hints": [
+    "A concrete utility axis specification for editorial decisions (4-8 axes with normalization and combination semantics) derived from game AI literature and mappable to the v2 annotation schema dimensions",
+    "An inverse utility learning approach that can be bootstrapped from the 23K pairs without requiring explicit per-pair utility annotations"
+  ],
+  "task_context": "A self-improving editorial AI has 23K before/after editing pairs with 7K editor comments. Phase 2 requires annotation schema design, weak supervision from comments, a defeasible rule hierarchy, and dual-encoder embeddings for editorial similarity."
+}

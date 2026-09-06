@@ -1,0 +1,37 @@
+{
+  "anti_overlap": [
+    "fd-orchestration-phase-sequencing covers pipeline mechanics and phase ordering — this agent focuses on token economics and cost modeling",
+    "fd-skill-config-surface covers configuration toggles — this agent focuses on whether the right cost guards exist and are wired correctly",
+    "fd-synthesis-deduplication covers synthesis logic — this agent focuses on cost upstream of synthesis, not synthesis itself"
+  ],
+  "decision_lens": "Token spend that scales super-linearly with agent count is P1 — an N-agent reaction round that sends all N findings indexes to each agent is O(N²) in context tokens. Missing cost guards are P2.",
+  "focus": "Token efficiency and cost impact of the reaction round across agent counts and finding volumes",
+  "name": "fd-token-cost-modeling",
+  "persona": "A cost optimization engineer who has instrumented multi-agent LLM pipelines, with expertise in context window budgeting, identifying token sinks in intermediate aggregation steps, and designing cost-aware fallback strategies.",
+  "review_areas": [
+    "Audit the findings index payload sent to each reaction agent: does each agent receive all peer findings indexes (O(N) tokens per agent, O(N²) total) or a summarized/truncated version?",
+    "Check whether findings-helper.sh has a token budget guard before assembling the peer index payload — large reviews with many findings could exceed context limits in the reaction step",
+    "Inspect whether Phase 2.5 is skipped (or summarized rather than full-text) when the combined findings index exceeds a configurable token threshold",
+    "Verify that reaction agents are given only the findings index (structured data) rather than the full Phase 2 agent outputs — reaction on summaries is far cheaper than reaction on full reviews",
+    "Check flux-drive.yaml for a reaction_round.max_findings_per_peer or equivalent guard to prevent a single verbose agent from dominating peer context",
+    "Audit whether the reaction round's added latency and cost are surfaced in the interflux run summary — operators need visibility to tune the threshold or disable when not needed"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When findings-helper.sh concatenates all peer findings verbatim with no truncation or summarization strategy",
+      "scenario": "A 10-agent review with 50 findings each sends each reaction agent a 500-finding index payload, exhausting the context window before the agent can write reactions",
+      "severity": "P1"
+    },
+    {
+      "condition": "When flux-drive.yaml has no reaction_round.enabled toggle and no cost threshold for automatic bypass",
+      "scenario": "The reaction round doubles total pipeline cost with no opt-out, making interflux prohibitively expensive for large codebases and causing users to avoid the tool entirely",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "Reaction agents receive a structured findings index (ID + title + severity) rather than full findings text by default, with a verbose mode opt-in",
+    "flux-drive.yaml exposes reaction_round.token_budget_per_agent with a documented default that fits within standard context limits",
+    "The pipeline run summary reports Phase 2.5 token spend separately so operators can evaluate cost/benefit"
+  ],
+  "task_context": "The reaction round (Phase 2.5) inserts a cross-agent visibility step between independent parallel review (Phase 2) and synthesis (Phase 3) in the Interflux pipeline. Agents write reactions to peer findings indexes after completing their own independent review."
+}

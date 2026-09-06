@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Does NOT cover append-only log cursor mechanics (fd-append-log-cursor-correctness)",
+    "Does NOT cover schema migration or backward compat (fd-schema-migration-backward-compat)",
+    "Does NOT cover SessionEnd hook wiring (fd-sessionend-hook-integration)"
+  ],
+  "decision_lens": "A calibration algorithm that promotes a gate from soft to hard on 10 samples with FNR > 0.30 is defensible only if the confidence interval at n=10 is narrow enough to distinguish signal from noise — if the algorithm can be gamed by a single bad sprint (3 FN in 10 observations = FNR 0.30 exactly), the promotion rule creates instability rather than stability.",
+  "focus": "Validates the statistical soundness of the 30-day rolling-window FPR/FNR computation, promotion rule stability, and edge-case behavior at minimum sample thresholds",
+  "name": "fd-rolling-window-algorithm-soundness",
+  "persona": "Apply the perspective of a calibration systems statistician who has designed adaptive threshold algorithms for monitoring pipelines — they care about convergence stability, measure correctness by asking 'what does this algorithm do with 0, 1, 9, and 10 samples', and flag any promotion rule that can fire on a statistically insufficient sample.",
+  "review_areas": [
+    "FPR/FNR computation formula: with rolling-window outcomes, FPR = FP / (FP + TN) and FNR = FN / (FN + TP) — confirm these denominators are correct and not confused with each other, and that the code handles the degenerate case where the denominator is zero (no positive or no negative outcomes in the window)",
+    "Promotion rule boundary at n=10: the existing rule fires when FNR > 0.30 AND n >= 10 — at exactly n=10 with 3 FN, FNR = 0.30, which does not satisfy > 0.30, so promotion requires at least 4 FN in 10 observations (FNR = 0.40); verify the implementation uses strict inequality (> not >=) and that weighted_n reflects window-filtered count not total historical count",
+    "7-day cooldown enforcement: after a tier change, no further changes are allowed for 7 days — the cooldown must be checked against last_changed_at in UTC, and the comparison must be wall-clock time not session count; verify the check uses time.Since(lastChangedAt) >= 7*24*time.Hour and is applied before computing FPR/FNR (fast-path exit)",
+    "90-day change count cap: change_count_90d <= 2 is the stability floor — this counter must be decremented when a change ages out of the 90-day window, not only incremented on promotion; if the counter only ever increments, the cap permanently locks calibration after 2 changes regardless of age",
+    "Rolling window boundary: records exactly at cursor_ts + 30 days should be included or excluded consistently — an off-by-one in the window boundary can include or exclude a full day of outcomes, and the boundary condition must be documented (strictly less than, or less than or equal to, the window edge)",
+    "Theme bucket with no history: a new theme (e.g., 'perf' appearing for the first time after migration) has weighted_n = 0 and no FPR/FNR data — the algorithm must initialize new theme buckets to the v1 defaults (or hardcoded defaults) rather than leaving them absent, so enforce-gate does not read a missing key as 'no calibration' and default to a different tier"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Gates that should promote to hard tier based on override rate remain soft indefinitely; defect-escape probability increases without triggering automated escalation",
+      "scenario": "FNR denominator uses total outcome count instead of (FN + TP) — in a window with 8 verdicts of 'pass' (TP) and 2 verdicts of 'override' (FN), total = 10, FNR = 2/10 = 0.20; correct FNR = 2/(2+8) = 0.20 by coincidence here, but in a window with 5 'pass' and 2 'override' and 3 'skip' (TN), total = 10, FNR = 2/10 = 0.20, correct FNR = 2/(2+5) = 0.286 — the miscalculation suppresses promotions that should fire",
+      "severity": "P0"
+    },
+    {
+      "condition": "Calibration appears to be running (SessionEnd hook fires, v2 is written) but thresholds never change after the initial 2 promotions; the 10-sprint no-touch streak target is never reached because calibration is silently frozen",
+      "scenario": "change_count_90d is only ever incremented and never decremented as old changes age out — after 2 promotions in the first 90 days, the 90-day cap permanently prevents any further tier changes even after 180 days; the calibration loop runs but locked=false while change_count_90d=2 suppresses all updates",
+      "severity": "P1"
+    },
+    {
+      "condition": "All gate checks for the 'perf' theme block at hard tier until the first calibration cycle accumulates n >= 10 observations, causing unexpected gate failures for new theme categories",
+      "scenario": "A new 'perf' theme appears post-migration with no history in the 30-day window (weighted_n = 0) — the theme key is absent from themes map; enforce-gate reads the missing key and falls back to a hardcoded default tier that is 'hard', but the intended default for new themes should be 'soft' matching the v1 behavior",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Unit tests cover n=0, n=9, n=10, n=11 boundary cases for the promotion rule with explicit FPR/FNR values",
+    "change_count_90d has a corresponding expiry test that runs the algorithm past 90 days and confirms the counter decrements",
+    "Zero-denominator case for FPR/FNR is handled and defaults to 0.0, not NaN or error"
+  ],
+  "task_context": "The rolling-window algorithm recomputes FPR/FNR on each drain using outcomes within the last 30 days. Promotion rule: FNR > 0.30, n >= 10, 7-day cooldown, <= 2 changes per 90 days. Schema v2 stores weighted_n, fpr, fnr, change_count_90d, locked, last_changed_at per theme × check|phase key. The algorithm is an extension of existing cmdCalibrateGateTiers in gate_calibration.go."
+}

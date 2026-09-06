@@ -1,0 +1,36 @@
+{
+  "anti_overlap": "Focuses on the continuous model-switching decision mechanism and context handoff — not on approval flow (Cham), not on intermediary trust architecture (Sogdian).",
+  "decision_lens": "Kaveinga signal-switching — the navigator never commits to one reference system. Stars rotate out of useful arcs; swells shift with weather; clouds occlude. The art is continuously re-evaluating which available signal is cheapest-to-read while still adequate for the current leg, and switching without losing course memory.",
+  "distance_rationale": "Pre-industrial non-Western navigation epistemology from the Pacific — a system that solved the exact problem of routing decisions across degrading, heterogeneous signal sources without instruments. No software architect would consult Polynesian wayfinding for model routing design.",
+  "expected_isomorphisms": "Star arc rotation maps to model capability degradation on specific subtasks. Swell cross-referencing maps to cross-model verification. Dead-reckoning legs map to multi-turn sequences between verifiable checkpoints. The kaveinga's continuous signal-switching maps directly to per-turn model re-selection. Course memory across navigator handoffs maps to context preservation across model escalation.",
+  "focus": "Evaluate Hassease's multi-model routing strategy through the star compass (kaveinga) of Polynesian open-ocean wayfinding — navigating vast distances by continuously selecting from a repertoire of weak, shifting reference signals (star arcs, swell patterns, phosphorescence, bird flight lines) rather than relying on any single precise instrument.",
+  "name": "fd-polynesian-wayfinding-star-compass-routing",
+  "persona": "A tautai (master navigator) in the Tongan kalia double-hull tradition, trained in the full kaveinga star compass system — routing voyages across 3000+ km of open Pacific by reading which celestial and oceanic signal is most reliable at this moment and switching to the next when it degrades.",
+  "review_areas": [
+    "Does Hassease's cost router continuously re-evaluate model selection per-turn, or does it lock a model at task start and ride it even when evidence suggests degradation (like navigating by a star that has rotated past its useful arc)?",
+    "Is there a concept of 'signal adequacy threshold' — the minimum model capability needed for the current specific subtask — distinct from general task complexity classification?",
+    "How does the router handle the dead-reckoning gap — when the cheap model's output cannot be verified until several turns later, how does it maintain course confidence without eagerly escalating?",
+    "Does the system preserve 'course memory' across model switches — when escalating from GLM to Claude mid-task, does Claude receive the full navigational context or just the current position?",
+    "Is there a concept of complementary signal integration — using one model's strength to verify another's output (like cross-referencing star bearing against swell direction) rather than treating models as interchangeable?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Router selects GLM at task start based on initial complexity assessment, then the task reveals cross-module dependencies mid-execution — but the router has no per-turn re-evaluation, so GLM produces cascading incorrect edits (like continuing to navigate by a star that has set below the horizon)",
+      "scenario": "Model lock-in during degradation",
+      "severity": "P0"
+    },
+    {
+      "condition": "When escalating from Qwen to Claude Sonnet mid-refactor, the context window only includes the current file state — Claude lacks the reasoning chain that led to earlier decisions, producing inconsistent edits (like a relief navigator who knows the destination but not the route taken so far)",
+      "scenario": "Course memory lost on model switch",
+      "severity": "P1"
+    },
+    {
+      "condition": "GLM's edits are accepted or rejected in isolation — there is no mechanism for using a second model to spot-check the first model's output on uncertain turns (like navigating by stars alone without cross-referencing against swell patterns)",
+      "scenario": "No cross-model verification",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Polynesian celestial navigation (Tongan kaveinga star compass, pre-contact Pacific, 3000+ years of open-ocean voyaging tradition)",
+  "success_hints": "The cost router should operate per-turn, not per-task. Each turn should re-assess which model is cheapest-adequate for the specific subtask at hand, with smooth context handoff on switches and optional cross-model verification for uncertain outputs.",
+  "task_context": "Hassease routes ~80% of work to cheap models (GLM 5.1, Qwen 3.6) and escalates to Claude for planning/review/complex work. The router's escalation triggers include low confidence, large edits, and multi-file dependencies. The kaveinga lens tests whether this routing is truly continuous and adaptive or merely a one-shot classification at task start."
+}

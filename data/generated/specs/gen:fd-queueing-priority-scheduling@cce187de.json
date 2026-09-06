@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Does NOT cover sensor fusion (fd-kalman-filter-fusion)",
+    "Does NOT cover budget feedback (fd-mpc-control-budget)"
+  ],
+  "decision_lens": "When this step queues work, does the queue discipline match the cost-time tradeoff, and does utilization remain in the safe regime where small disturbances do not blow up wait times?",
+  "distance_rationale": "Queueing theory is foundational in OS, networking, and operations research, but agent-platform engineering routinely under-applies it — parallel dispatch caps, timeouts, and partial results are afterthoughts",
+  "expected_isomorphisms": "M/M/k maps to parallel agent dispatch cap; Little's Law maps to tokens-in-flight; head-of-line blocking maps to synthesis-waits-for-slowest; priority inversion maps to hook-blocked-by-low-priority work",
+  "focus": "Reviews parallel agent dispatch, MCP latency, and hook firing through the lens of queueing theory — Little's Law, head-of-line blocking, priority scheduling under utilization",
+  "name": "fd-queueing-priority-scheduling",
+  "persona": "Apply the perspective of a performance engineer trained on queueing theory — they care about the relationship between arrival rate, service rate, utilization, and queue length, the cost of head-of-line blocking, and the practical consequences of priority inversion",
+  "review_areas": [
+    "Parallel-dispatch saturation: when /flux-review fans out 16 agents, is there a cap, or do all 16 contend for the same upstream API at once?",
+    "Head-of-line blocking: when one slow agent in a parallel set delays synthesis, can synthesis proceed with partial results (M/M/k with timeout) or does it wait?",
+    "Priority inversion: when a P0 hook fires while a P3 agent is mid-execution, does the P3 work block the P0 hook?",
+    "Utilization regime: rule of thumb is keep utilization < 70% to avoid wait-time explosion; what does Sylveste's effective utilization look like across MCP servers, parallel agent dispatch, hook chains?",
+    "Little's Law: average tokens-in-flight = arrival rate × turnaround time — when this product spikes, expect cascading slowdowns",
+    "Backpressure: when an MCP server is slow or disconnected, does the harness apply backpressure or queue indefinitely?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Real wall-clock time per /flux-review balloons; some agents fail, retry, double-pay tokens",
+      "scenario": "/flux-review dispatches 16 agents in parallel without an upstream concurrency cap; all 16 contend for the same Anthropic API quota, causing rate-limit retries",
+      "severity": "P1"
+    },
+    {
+      "condition": "Synthesis latency = max(agent latency) instead of percentile-bounded",
+      "scenario": "Synthesis step blocks on the slowest agent in the fan-out instead of timing out and proceeding with partial results",
+      "severity": "P2"
+    },
+    {
+      "condition": "Per-turn latency includes timeout for each disconnected server",
+      "scenario": "MCP server disconnect (4 disconnected this session) causes hook chains to stall instead of degrading gracefully",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Queueing theory (M/M/k, priority queues, scheduling)",
+  "source_domain_full": "Queueing theory and scheduling",
+  "success_hints": [
+    "Estimate utilization per pipeline (parallel dispatch, MCP, hook chain)",
+    "Apply Little's Law to pick safe concurrency caps",
+    "Identify head-of-line blocking via 'what waits for what?' analysis",
+    "Recommend timeout + partial-result protocols for fan-out synthesis"
+  ],
+  "task_context": "Sylveste fans out parallel agents (16 in /flux-review), serially calls MCP tools, and chains hooks per tool call. Apply queueing theory: identify where utilization is too high (small disturbances cause large delays), where head-of-line blocking penalizes urgent work, and where priority inversion causes the wrong work to wait."
+}

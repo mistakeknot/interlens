@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Leave lifecycle stage definitions and transitions to fd-culture-event-lifecycle",
+    "Leave annotation verb semantics and advisor-voice design to fd-advisor-proposal-loop",
+    "Leave JSON-schema versioning/extensibility and cross-codebase contract policy to fd-cross-codebase-schema-contract"
+  ],
+  "decision_lens": "Can a real Hermes agent — with bounded context, per-colony memory, session-load discipline, and the write-revel-proposal/write-debrief skills — actually produce and consume Proposal/Debrief artifacts conforming to the spec across realistic session boundaries?",
+  "focus": "Hermes-agent ACP integration patterns: per-colony memory, session/load semantics, skill boundaries (write-revel-proposal / write-debrief), and cross-game agent-identity continuity",
+  "name": "fd-hermes-acp-integration",
+  "persona": "Apply the perspective of an agent-platform integrator who has shipped per-tenant memory and session-loaded agent skills — they care about whether the proposal/debrief artifacts can actually be produced and consumed by a real Hermes agent with bounded context, persistent state across sessions, and shared identity across two games. They measure success by asking 'can a fresh session reconstruct enough state to write a coherent Proposal?' and they flag any spec that assumes infinite context, perfect recall, or that the same Hermes-Curator and Hermes-Steward magically share memory without specifying the channel.",
+  "review_areas": [
+    "Per-colony memory: each colony/scene needs durable advisor memory across sessions — is the spec silent on where 'next_proposal_hints' is persisted and reloaded?",
+    "Session-load contract: when a Hermes session opens, what does it MUST load (last Debrief? PatronTaste? full event history?) to produce a coherent next Proposal?",
+    "Skill boundaries: write-revel-proposal vs write-debrief are mentioned as separate skills — does the spec scope each skill's inputs/outputs cleanly, or do they overlap?",
+    "Cross-game agent identity: is the Hermes-for-Elf-Revel and Hermes-for-UB the same agent with two roles, or two agents with shared schemas? The brainstorm is ambiguous",
+    "Context budget realism: a Proposal+Debrief loop accumulates rationale, lessons, hints — what's the eviction/compaction policy when context fills?",
+    "ACP-specific concerns: how does the proposal artifact flow from skill output through ACP to the game's in-world Curator/Steward UI? Is the transport specified?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Persisted-bias storage location is the single biggest determinant of whether the loop actually closes; if unspecified the contract is half-defined",
+      "scenario": "The Debrief schema's 'next_proposal_hints' is described as 'persisted bias for future Prepare stages' but the spec does not say where, by whom, or with what scope (per-colony? per-patron? per-game-save?) — leaving each Hermes implementation to guess",
+      "severity": "P1"
+    },
+    {
+      "condition": "Without explicit session-load semantics, two Hermes sessions on the same colony will produce inconsistent proposals depending on what the implementer happened to load",
+      "scenario": "write-revel-proposal and write-debrief are referenced as separate skills but the brainstorm does not specify what inputs each skill loads at session start (last N debriefs? PatronTaste snapshot? full event log?) — leaving session-load semantics implementation-defined",
+      "severity": "P2"
+    },
+    {
+      "condition": "Agent-identity ambiguity becomes a real interop question when the same player plays both games and expects continuity",
+      "scenario": "The brainstorm assumes 'the Hermes agent for Elf Revel and the Hermes agent for Underground Beets will both produce Proposal artifacts' but does not specify whether they share memory, share skills, or merely share schemas",
+      "severity": "P3"
+    }
+  ],
+  "success_hints": [
+    "For write-revel-proposal and write-debrief, write the (session-load inputs, skill output, persistence target) tuple — flag any field that cannot be filled in",
+    "Check whether 'next_proposal_hints' has a specified storage location, scope, and eviction policy",
+    "Verify the ACP transport from skill output to in-world advisor UI is at least gestured at — even 'TBD: ACP message envelope' is better than silence",
+    "Ask whether a brand-new Hermes session on an existing colony can produce a coherent first Proposal — what's the cold-start path?"
+  ],
+  "task_context": "Review the harmonization brainstorm with focus on Hermes-agent ACP integration: whether the proposed Proposal/Debrief artifacts and the write-revel-proposal/write-debrief skills are realistically producible and consumable by a bounded-context Hermes agent with per-colony memory and session-load discipline, across both Elf Revel and Underground Beets, with specified persistence and transport semantics."
+}

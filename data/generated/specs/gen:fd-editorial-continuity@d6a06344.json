@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-upload-ingestion-ux covers file handling, not prompt design",
+    "fd-chunk-progress-state covers job state, not LLM prompts",
+    "fd-rule-layer-chunking-integration covers layer data flow mechanics"
+  ],
+  "decision_lens": "Prioritizes preventing cross-chunk failure modes — style drift accumulation, inconsistent terminology, and analysis scores diverging from isolation.",
+  "focus": "Cross-chunk editorial consistency — voice, tone, style profile, and rule-layer context across independent LLM calls",
+  "name": "fd-editorial-continuity",
+  "persona": "A technical editor and prompt engineer who understands both craft (what breaks voice coherence) and system (how LLM context, RAG, and rule layers interact chunk-by-chunk).",
+  "review_areas": [
+    "Whether CIPHER classification runs once on full document or per chunk",
+    "Whether style profile from early chunks constrains later chunk prompts",
+    "How RAG retrieval works at manuscript scale",
+    "Whether developmental pass gate should be per-chunk, per-chapter, or document-level",
+    "Whether constitution tier should be constant across chunks or per-chunk",
+    "How Vale and rule layers handle terminology consistency across chunks"
+  ],
+  "success_hints": [
+    "Voice drift at manuscript end is no worse than for a single 2K piece",
+    "Terminology decisions in chunk 1 are available as context for chunk 40",
+    "Developmental pass fires consistently regardless of chunk number"
+  ],
+  "task_context": "Texturaize processes editorial text through a pipeline worker on slse. Current UI uses TiptapEditor for paste input. Task extends this for 50K-250K word manuscripts."
+}

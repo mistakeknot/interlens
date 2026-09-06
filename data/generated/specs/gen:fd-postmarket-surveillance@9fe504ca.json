@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "Nuclear maintenance rule monitoring (covers equipment functional failure rate monitoring, not product-level safety signal detection)",
+    "Financial audit continuous controls monitoring (covers financial control exception rates, not adverse event signal detection and disproportionality analysis)",
+    "Air traffic control surveillance (covers positional surveillance and clearance gates, not product-safety signal accumulation over time)"
+  ],
+  "decision_lens": "Prioritize findings where Break-as-gate would allow a subsystem to enter Epoch carrying an approval certificate that does not require ongoing signal validation. In pharmacovigilance, approval is the beginning of the evidence obligation, not its conclusion. If Break receipts unlock Epoch without a requirement to continue surfacing contradictions post-transition, the design has replicated the pre-1962 drug approval model: prove it once, sell it forever.",
+  "distance_rationale": "Pharmacovigilance is the canonical regulatory discipline for managing the transition from gate-based approval to continuous safety monitoring, at a scale and stakes level comparable to autonomous-agent trust architecture.",
+  "expected_isomorphisms": "NDA/BLA approval maps to Break-as-gate: a point-in-time determination that the risk-benefit profile is acceptable. Post-market surveillance maps to Break-as-continuous-mode: the signal detection rate is itself evidence about whether the pre-approval evidence base remains valid under real-world conditions. The pharmacovigilance concept of 'signal strengthening' — where a weak initial signal becomes actionable only after sustained rate accumulation — maps to the Tier-2 evidence proposal in option (b). The REMS requirement to demonstrate program effectiveness on an ongoing schedule maps to the sustained rate becoming evidence of self-observation health.",
+  "focus": "Regulatory approval gate versus sustained pharmacovigilance signal rate as a product-safety health indicator",
+  "name": "fd-postmarket-surveillance",
+  "persona": "Apply the perspective of a pharmacovigilance scientist who designs post-market surveillance systems under EU Risk Management Plans and FDA REMS. They care about the distinction between NDA/BLA approval — a gate that permits a product to enter the market — and ongoing signal detection, which monitors whether the product's risk-benefit profile remains valid under real-world conditions. They measure whether the adverse event signal rate is consistent with the pre-approval evidence base, and treat a signal rate that drops to zero as a data-collection failure rather than evidence of safety. They flag any design that conflates approval-gate passage with durable safety.",
+  "review_areas": [
+    "Assess whether Break-as-gate has an equivalent to 'post-approval commitments' — ongoing obligations that persist after the gate is passed, rather than treating passage as the end of the evidence obligation",
+    "Check whether the Break spec distinguishes between the pre-Epoch surfacing obligation and any post-Epoch surveillance requirement — pharmacovigilance is explicit that approval does not end the monitoring obligation",
+    "Evaluate whether N Break receipts are sufficient evidence that the subsystem's contradiction-detection mechanism is calibrated correctly, or whether the spec needs a signal-detection sensitivity assessment analogous to pharmacovigilance disproportionality analysis",
+    "Verify that the scoring of Break receipt severity by Interspect has a defined minimum detectable signal — pharmacovigilance systems are required to demonstrate they can detect a signal of defined magnitude within a defined timeframe",
+    "Examine whether the Break gate has a defined false-negative risk: a subsystem that has genuine contradictions but surfaces zero receipts should be distinguishable from a subsystem that genuinely has no contradictions",
+    "Consider whether Epoch should trigger a re-baselining of the expected Break receipt rate, analogous to a post-Epoch-trigger reassessment of the product's surveillance program under changed conditions"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When §7.1 specifies Break as a pre-Epoch gate but does not specify whether Break-equivalent monitoring continues in Epoch",
+      "scenario": "Break passage grants Epoch entry without any post-Epoch contradiction-surfacing obligation — the subsystem is approved once and carries that approval until a Demote trigger fires, with no ongoing surveillance requirement",
+      "severity": "P0"
+    },
+    {
+      "condition": "When the Break spec specifies a minimum count but not a mechanism for validating that the counting instrument is working at adequate sensitivity",
+      "scenario": "The ≥N gate does not include a sensitivity assessment — the spec cannot distinguish a subsystem that has no contradictions from a subsystem whose self-observation mechanism has insufficient sensitivity to detect the contradictions that exist",
+      "severity": "P1"
+    },
+    {
+      "condition": "When the Break receipt ledger does not isolate receipts by Compound window for per-window rate analysis",
+      "scenario": "Break receipts from different Compound windows are aggregated into a lifetime count rather than evaluated per-window — a subsystem that had active self-observation three epochs ago but has been silent for two epochs appears to have a strong Break record",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Pharmaceutical post-market surveillance and pharmacovigilance (FDA REMS, EU RMP, ICH E2E)",
+  "success_hints": [
+    "Identifies whether Break is framed as a one-time approval gate or as the beginning of an ongoing surveillance obligation, and surfaces what happens to contradiction-surfacing requirements post-Epoch",
+    "Flags the false-negative risk gap — the absence of a minimum-detectable-signal specification for the Break counting instrument"
+  ],
+  "task_context": "Reviewing §7.1 of the Sylveste vision v6 outline, which introduces a Break phase between Compound and Epoch in the subsystem trust lifecycle. The upstream judgment call is whether Break should be a discrete gate (≥N receipts before transition) or a continuous-mode requirement (sustained contradiction-surfacing rate as Tier-2 evidence about self-observation health). The reviewer brings pharmaceutical post-market surveillance practice — specifically the NDA/BLA approval gate versus ongoing pharmacovigilance signal-rate monitoring distinction — as a parallel professional discipline."
+}

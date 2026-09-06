@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Focuses on closed-loop calibration, dated decay, and corrections-publication cadence only",
+    "Does not address substrate-vs-application boundary or transmission lineage",
+    "Surfaces the publication-and-distribution gap that pure observability misses"
+  ],
+  "decision_lens": "Closed-loop authority with dated decay — every assertion (depth, hazard, current, route) carries an as-observed date, an authority weight that decays without renewed observation, and an explicit distinction between observed and inferred; the loop must close (observation → chart update → distribution → next voyage's observation) on a published cadence or the chart silently rots.",
+  "distance_rationale": "A maritime cartographic correction discipline whose entire structure is dated authority, observed-vs-inferred separation, and publication cadence — no platform observability engineer would consult portolan correction practice for calibration design.",
+  "expected_isomorphisms": "The Notice to Mariners cadence maps to a missing platform corrections-feed primitive distinct from per-instance observability; portolan dated-decay and observed-vs-inferred distinctions map directly to required semantics for trust scores and memory graduation; the rutter feedback format maps to a structured session-reflection format that closes the OODARC loop.",
+  "focus": "Evaluate Claude Code's calibration, observability, and routing-feedback primitives through the lens of Mediterranean portolan chart correction practice (13th-16th century) and the later Notice to Mariners system — where every voyage's observations became dated corrections to a master chart, where chart authority degraded with time-since-correction, and where a chart without observed-update history was treated as advisory rather than navigable.",
+  "name": "fd-portolan-chart-corrections-closed-loop-calibration",
+  "persona": "Apply the perspective of a master cartographer in a 15th-century Genoese chart workshop, later succeeded by a 19th-century Hydrographic Office Notice to Mariners editor — they care about the dated chain of observed corrections feeding back into the master chart, the explicit decay of authority for sections without recent observation, the strict separation between observed updates (high authority) and inferred updates (advisory), and the publication cadence that makes corrections actually reach the helm; they flag any chart distributed without correction-date metadata or any system that treats inference as observation.",
+  "review_areas": [
+    "Sylveste's PHILOSOPHY.md demands closed-loop calibration (predict → observe → calibrate → defaults-as-fallback). The portolan tradition operationalized this with dated correction logs and the Notice to Mariners cadence. Is the prior pass's 'observability' primitive sufficient, or is the missing primitive specifically a Notice-to-Mariners-grade publication cadence — a regular, dated, machine-readable feed of corrections to platform defaults that every Claude Code instance subscribes to?",
+    "Do agent trust scores, routing thresholds, and gate decisions carry as-observed dates with explicit decay? Portolan charts darkened ink for high-confidence shorelines and used dotted lines for inferred coast; the visual language encoded authority decay. Are interspect / intertrust / intercept calibration outputs date-tagged and authority-decayed, or do they present as flat scores that hide their staleness?",
+    "What is the Claude Code equivalent of the rutter (routier) — the narrative log of a voyage's observations that fed back into chart corrections? Sylveste has /reflect, cass session export, and reflect docs, but is there a structured rutter format that makes session observations into chart-correctable contributions? Or is the feedback loop open at the rutter step?",
+    "How are observed corrections distinguished from inferred ones across the ecosystem? Portolan tradition rigorously separated 'observed by Captain X on date Y' from 'inferred from prevailing currents.' In intermem / interknow / interlearn / AGENTS.md memory graduation, is there a categorical distinction between fact (observed by hook event) and inference (synthesized by agent), and does this distinction survive graduation?",
+    "What is the publication cadence problem? A chart correction observed in Cadiz only helps when it reaches Lisbon's chart-printers and then the next voyage's helm. The prior pass treats observability as instrumentation; portolan practice shows the gap is the publication-and-distribution loop. Is there a missing 'platform corrections feed' primitive — what calibration data does Anthropic publish back to all Claude Code instances on what cadence?",
+    "Is there a hazard-marker equivalent? Portolan charts marked rocks, shoals, and unreliable coasts with explicit symbols whose meaning never changed across centuries. Does the Claude Code platform have stable hazard semantics (deprecated tool, untrusted source, low-confidence routing region) that survive across versions, or do warning semantics drift each release the way uncalibrated chart symbols drift across copyists?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Native observability primitive ships with per-instance instrumentation but no platform-level corrections feed — equivalent to every captain keeping their own corrections without a Notice to Mariners cycle, leaving the fleet uncalibrated and silently drifting",
+      "scenario": "Calibration without publication cadence",
+      "severity": "P1"
+    },
+    {
+      "condition": "Trust scores, routing thresholds, or memory authority are surfaced as flat values without as-observed dates and without decay rules — equivalent to a chart that does not distinguish a coastline observed last year from one observed in 1620",
+      "scenario": "Authority weights without dated decay",
+      "severity": "P1"
+    },
+    {
+      "condition": "When auto-memory facts graduate to AGENTS.md or patterns graduate in interknow, the source distinction (hook-observed event vs. agent-synthesized inference) is lost — equivalent to a chart copyist transcribing dotted-inferred coastline as solid-observed",
+      "scenario": "Observed and inferred conflated in memory graduation",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Mediterranean portolan chart tradition (Genoa, Majorca, Catalonia, 13th-16th century) and the British Admiralty / US NIMA Notice to Mariners system (1827-present)",
+  "success_hints": [
+    "Name the missing primitive as a publication-cadence corrections feed, not just instrumentation",
+    "Specify dated authority decay as a memory and trust-score requirement",
+    "Distinguish observed vs. inferred as a category that must survive graduation",
+    "Identify the rutter-equivalent format gap if it exists"
+  ],
+  "task_context": "This review evaluates Claude Code's calibration, observability, and feedback-loop primitives. The portolan/Notice-to-Mariners lens evaluates whether the closed-loop OODARC promise is operationalized at platform scale — with dated decay, observed-vs-inferred distinction, and a published corrections cadence — or whether it stops at instrumentation and never closes the loop back to the fleet."
+}

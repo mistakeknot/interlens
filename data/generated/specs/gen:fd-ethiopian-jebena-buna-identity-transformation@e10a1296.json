@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Focuses exclusively on identity continuity across transport migration and the concurrent-operation transition period — not on phase sequencing (togishi), proportional preservation (thangka), or tonal transplantation (organ).",
+  "decision_lens": "Identity through transformation — when substance (the user's data and context) is transferred across containers (transports), the identity must be preserved even as the medium changes. The person receiving the third cup (baraka/blessing) must be recognized as the same person who received the first (abol/initiation).",
+  "distance_rationale": "A social ritual governing identity recognition across progressive substance transformation — no database migration engineer would consult coffee ceremony protocols for user identity crosswalk design.",
+  "expected_isomorphisms": "The three rounds (abol/tona/baraka) map to pre-migration/concurrent/post-migration states. The same-grounds-different-extraction pattern maps to the same user data yielding different capabilities across transports. The service-order protocol maps to transport-of-origin priority in the identity system.",
+  "focus": "Evaluate the transport migration and user identity crosswalk through the Ethiopian coffee ceremony (jebena buna) — a three-round ritual where the same grounds are transformed through successive extractions, each round carrying different social meaning, with strict protocols for who receives which cup and when.",
+  "name": "fd-ethiopian-jebena-buna-identity-transformation",
+  "persona": "An elder who has presided over jebena buna ceremonies for decades in an Amhara household, where the three rounds (abol, tona, baraka) are not mere re-brewings but a progressive transformation of substance and social meaning — the same grounds yielding progressively lighter but spiritually more significant cups, with strict social protocol governing service order and identity recognition.",
+  "review_areas": [
+    "Does the user_identities table preserve continuous identity across transport migration? In jebena buna, the same person receives all three rounds — their social identity is tracked across the ceremony's phases. When a user moves from Signal to Intercom, is their preference history, profile, and conversation context carried as a continuous identity or fractured?",
+    "Is there an 'abol' (first round) moment in the migration? The first extraction is the strongest — the first interaction on a new transport sets the user's expectations. Does the migration plan account for the first-impression quality of the new transport experience?",
+    "How does the plan handle the 'tona' (second round) — the transitional state where both old and new transports may be active? The concurrent operation period (Open Question 5) is the tona round. In ceremony, the second round is explicitly transitional, not inferior. Is the dual-write/dual-read period designed as a legitimate state, not just a hack?",
+    "Does the identity crosswalk handle the 'baraka' (blessing) semantics — that the final state should be richer, not just equivalent? After migration, the Intercom-based identity should offer capabilities the Signal-only identity never had (cross-transport presence, unified profile). Is this additive value specified?",
+    "How does the normalized ChatID format ('tg:123', 'signal:+1234567890') handle the ceremony's service-order protocol? In jebena buna, the order of service communicates social hierarchy. Does the identity system encode transport-of-origin priority or preference, or is it flat?",
+    "Is there a 'frankincense moment'? The ceremony burns incense before coffee — a purification step that prepares the space. Is there a data-cleaning or validation step before migrating user data from Auraken's SQLAlchemy schema to Intercom's pgx schema?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "User's preference_entities and working_profiles are not linked to their new Intercom identity — the person who received abol (Signal history) is not recognized as the same person receiving baraka (Intercom experience), causing loss of accumulated context",
+      "scenario": "Identity fracture during transport migration",
+      "severity": "P0"
+    },
+    {
+      "condition": "The dual-transport period (Open Question 5) is treated as a temporary hack rather than a designed state — no protocol for which transport is authoritative for profile updates, leading to divergent user state",
+      "scenario": "Concurrent operation without explicit transition design",
+      "severity": "P1"
+    },
+    {
+      "condition": "After migration, the user's Intercom identity has exactly the same capabilities as their Signal identity — the baraka round is just weaker abol, missing the opportunity for cross-transport unification",
+      "scenario": "Migration produces equivalent rather than enriched identity",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Ethiopian coffee ceremony (jebena buna, Amhara/Oromo tradition, three-round extraction ritual)",
+  "success_hints": "The identity crosswalk should be designed as a progressive enrichment (abol to baraka), not a flat copy. The concurrent operation period should be explicitly designed as a legitimate transitional state with clear authority rules. Post-migration identity should be richer than pre-migration.",
+  "task_context": "This brainstorm migrates users from Signal/Telegram transports to Intercom, with a user_identities table mapping multi-transport identity. The jebena buna lens evaluates whether user identity survives the transport transformation intact and enriched — and whether the concurrent operation period is designed as a legitimate transitional state."
+}

@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "Focus on routing policy and economics, not integration plumbing (fd-openrouter-dispatch-integration) or output normalization (fd-llm-output-calibration)",
+  "decision_lens": "Which agent types have the steepest quality-cost curves, and where do cheaper models hit diminishing returns vs adequate quality?",
+  "focus": "Routing policy for which agent roles can safely run on cheaper OpenRouter models vs which must stay on Claude",
+  "name": "fd-heterogeneous-fleet-cost-routing",
+  "persona": "A fleet economics specialist who optimizes total cost of ownership across heterogeneous compute tiers while maintaining SLA guarantees",
+  "review_areas": [
+    "Agent-type → model tier mapping: which review/cognitive/research agent types tolerate cheaper models without P0/P1 recall loss",
+    "Safety floor enforcement: fd-safety and fd-correctness must never route to models below a quality threshold regardless of cost savings",
+    "Cost modeling across providers: Opus ($15/M input) vs DeepSeek V3 ($0.27/M) — where does the 55x cost gap translate to actual quality delta?",
+    "Tiered dispatch policy: Stage 1 on Claude (high-judgment triage), Stage 2 expansion on OpenRouter (lens application)",
+    "Budget-aware provider selection: when sprint budget is tight, auto-route more agents to OpenRouter; when quality-critical, keep on Claude"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When cost routing overrides safety floor for exempt agents",
+      "scenario": "Safety-critical agent (fd-safety) routed to DeepSeek, misses a credential exposure finding that Claude catches",
+      "severity": "P0"
+    },
+    {
+      "condition": "When cost optimization doesn't protect the triage-quality bottleneck",
+      "scenario": "All Stage 1 agents routed to cheap models, producing low-quality triage that cascades wrong expansion decisions",
+      "severity": "P1"
+    },
+    {
+      "condition": "When model capability falls below threshold for genuine peer critique",
+      "scenario": "Reaction round agents on cheaper models produce hearsay confirmations instead of independent analysis",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Look for explicit quality-sensitive vs quality-tolerant agent classification, safety floor list, and cost-quality calibration data from real runs",
+  "task_context": "Cross-model dispatch already routes within Claude tiers (haiku/sonnet/opus). This extends to non-Claude models with much larger cost gaps."
+}

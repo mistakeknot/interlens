@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-dimension-construct-validity covers whether dimensions measure the right things conceptually",
+    "fd-pillar-dimension-gap covers which product pillars are unrepresented",
+    "fd-reference-relative-scoring covers whether the reference-comparison paradigm is appropriate"
+  ],
+  "decision_lens": "Prioritizes failure modes that corrupt the entire eval matrix — halo effects, prompt ambiguities, scoring direction inconsistencies, and judge self-preference bias.",
+  "focus": "Whether LLM-as-judge can reliably score these dimensions given the prompt design",
+  "name": "fd-llm-judge-reliability",
+  "persona": "An ML evaluation engineer with experience stress-testing LLM judges for NLG tasks. Focuses on systematic biases, prompt ambiguities, and scoring artifacts.",
+  "review_areas": [
+    "Check whether 'over_editing' key name vs 'Restraint' rubric label creates scoring direction confusion",
+    "Assess halo effect risk from overall_similarity being asked at the end of the rubric",
+    "Evaluate whether the prompt makes it impossible to distinguish 'model was better' from 'model diverged'",
+    "Check whether principle_adherence scoring requires the judge to infer which principles are relevant",
+    "Examine whether truncating texts to 4000 chars creates systematic bias for longer documents",
+    "Review whether calibration_examples are used in practice and whether their absence causes evaluator drift"
+  ],
+  "success_hints": [
+    "Scoring direction of every dimension key should match its rubric description unambiguously",
+    "Inter-judge agreement should exceed 0.7 Spearman correlation for dimensions to be useful"
+  ],
+  "task_context": "The eval scoring module uses 6 dimensions to judge a model's line-edit against a human editor reference on a 1-10 scale. The product's editorial identity is defined by 7 pillars but these are not directly used as eval dimensions."
+}

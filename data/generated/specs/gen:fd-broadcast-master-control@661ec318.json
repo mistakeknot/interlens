@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "fd-concurrency-reliability covers thread-safety of cache writes and silent data loss under ThreadPoolExecutor. fd-cost-efficiency covers budget optimization across backends. This agent focuses exclusively on the traffic-shaping and backpressure correctness of the AIMD algorithm and cross-backend isolation.",
+  "decision_lens": "Flags concurrency designs where a single slow or rate-limited backend can block progress on unrelated backends, where the adaptive algorithm oscillates rather than converges, or where backpressure from one source propagates incorrectly to others.",
+  "distance_rationale": "Broadcast master control engineers manage multiple simultaneous transmission chains with independent backpressure, source-switching on failure, and hard throughput requirements — the same structural problem as multi-backend LLM dispatch with per-model rate limits, but in a physical transmission domain where the consequences of starvation are visible on air.",
+  "expected_isomorphisms": "Per-model AIMD maps to per-channel traffic shaping; cross-process cooldown file maps to shared transmission-chain state; CAAM account rotation maps to source failover switching. Broadcast engineers have developed specific heuristics for AIMD parameter tuning (additive increase rate, decrease factor) that translate directly to the semaphore design.",
+  "focus": "Whether the AIMD concurrency control and multi-backend dispatch handle backpressure, burst recovery, and starvation correctly",
+  "name": "fd-broadcast-master-control",
+  "persona": "A broadcast master control engineer responsible for scheduling live and pre-recorded content across multiple transmission chains with hard latency budgets. Specializes in traffic shaping, source switching under failure, and ensuring that one overloaded source does not starve all other active playout channels.",
+  "review_areas": [
+    "Examine whether per-model AdaptiveSemaphores are truly independent — verify that a 429 cooldown written to the cross-process shared file by one model does not inadvertently delay other models sharing the same file-based coordination",
+    "Assess whether the multiplicative decrease (halve concurrency on 429) + additive increase (ceil(current) consecutive successes to +1) converges to a stable operating point or oscillates between 1 and N for bursty APIs",
+    "Check whether the ThreadPoolExecutor pool size is matched to the sum of all model semaphore maxima — if the pool is smaller than max simultaneous concurrency, the semaphore allows more acquisitions than threads to execute them",
+    "Evaluate whether CAAM account rotation on rate limits is aware of the AdaptiveSemaphore state — account rotation should reset the semaphore's consecutive-success counter and possibly restore concurrency",
+    "Review whether the cross-process cooldown file (_cross_process_wait) uses a file lock or is subject to read-check/write races between parallel eval scripts running simultaneously on the same model",
+    "Check whether the 'all evaluators for one reconstructor' vs 'all reconstructors for one evaluator' execution order in cipher_evaluator_matrix.py affects how rate limits propagate across the matrix cells"
+  ],
+  "severity_examples": [
+    {
+      "condition": "claude-sonnet-4.6 rate limit causes gpt-5.4-api to pause even though it is on a different rate limit domain",
+      "scenario": "The cross-process cooldown file is written by one model's AdaptiveSemaphore and read by a different model's semaphore because both use the same cooldown file path pattern, causing an unaffected model to wait unnecessarily",
+      "severity": "P1"
+    },
+    {
+      "condition": "Matrix evaluation stalls with no error output, appearing to run but producing no completions",
+      "scenario": "ThreadPoolExecutor(max_workers=N) is set to a fixed value independent of the number of models being evaluated, and for a full 9×9 matrix run the pool is smaller than the semaphore headroom, causing live-lock where all threads are acquired but blocked waiting for pool slots",
+      "severity": "P1"
+    },
+    {
+      "condition": "After a burst of 429s that collapses concurrency to 1, the model takes 100+ successful calls to restore prior throughput, causing the matrix run to take 10x longer than expected",
+      "scenario": "AIMD ramp threshold is ceil(current) consecutive successes — at concurrency=1 this requires 1 success to reach 2, then 2 to reach 3, then 3 to reach 4, which is O(n^2) recoveries after a multiplicative decrease to 1 from a large concurrency value",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Broadcast master control engineering (playout, traffic shaping, multi-source scheduling)",
+  "success_hints": "Each model's AdaptiveSemaphore should use a namespaced cooldown file keyed by model_key, not a shared file. The AIMD increase rate should be tuned so recovery from minimum takes at most 20-30 successful calls regardless of prior maximum. ThreadPoolExecutor size should be set to max_workers = sum of all model semaphore maxima plus a buffer.",
+  "task_context": "cipher_comparison.py and cipher_evaluator_matrix.py dispatch LLM calls across 6 backends (claude-cli, codex, anthropic-api, openai-api, gemini, openrouter) with per-model AdaptiveSemaphores implementing AIMD. A cross-process cooldown file allows independent processes running the same model to back off together. CAAM rotation handles per-account rate limits on claude-cli and codex backends."
+}

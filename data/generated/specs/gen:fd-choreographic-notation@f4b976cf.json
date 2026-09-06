@@ -1,0 +1,30 @@
+{
+  "anti_overlap": "Focuses on multi-channel symbolic abstraction from dance notation, not compositional grammar (heraldry) or spatial importance (astronomy)",
+  "decision_lens": "Asks 'what level of abstraction captures the movement without losing the choreographic intent?' — maps to 'what abstraction captures terminal state without losing agent-relevant information'",
+  "distance_rationale": "Dance notation systems encode rich spatial-temporal data in compact symbolic marks — structurally isomorphic to terminal state encoding but from a completely unexpected domain.",
+  "expected_isomorphisms": "Multi-channel separation (structure/content/emphasis), motif vs. full notation (summary vs. detail), and effort qualities (movement qualities to text styling) directly transfer.",
+  "focus": "Dance notation systems — encoding complex spatial-temporal movement in compact symbolic marks",
+  "name": "fd-choreographic-notation",
+  "persona": "Choreographer and notation specialist versed in Labanotation and Benesh movement notation, who understands how to encode body positions, spatial paths, and timing in minimal symbolic marks on a staff",
+  "review_areas": [
+    "Level of body representation — Labanotation distinguishes 'support', 'gesture', and 'body' columns. Terminal state could have 'structure', 'content', and 'emphasis' channels.",
+    "Direction symbols vs. position coordinates — notation uses 8 directional symbols instead of x,y coordinates. Terminal content could use relative positioning.",
+    "Effort notation — Laban's effort graph encodes quality-of-movement in 4 dimensions. Maps to: encoding emphasis quality (dim, bold, blinking, inverse).",
+    "Motif notation — simplified notation for choreographic intent vs. full notation for exact reproduction. Maps to: summary vs. full-fidelity terminal state."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Agent must parse full terminal state when a high-level summary of changes would suffice",
+      "scenario": "No motif-level summary available",
+      "severity": "P1"
+    },
+    {
+      "condition": "Can't separate 'what changed' from 'where everything is'",
+      "scenario": "Temporal and spatial mixed in one encoding",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Choreographic notation (Labanotation, Benesh movement notation, 20th century)",
+  "success_hints": "Proposes a multi-channel encoding where structure, content, and emphasis are separable layers",
+  "task_context": "Dance notation compresses rich 3D spatial-temporal information into compact 2D symbolic marks. Terminal state is simpler (2D grid + attributes) but faces the same compression challenge."
+}

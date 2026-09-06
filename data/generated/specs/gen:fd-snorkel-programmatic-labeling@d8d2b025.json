@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-laf-graf-annotation-schema covers the schema format into which weak labels are stored",
+    "fd-deontic-defeasible-hierarchy covers the logical structure of rules that labeling functions might invoke",
+    "fd-biological-immune-exception covers exception detection mechanisms, not the labeling pipeline"
+  ],
+  "decision_lens": "Prioritizes labeling function designs that maximize coverage on the 7K comment corpus with measurable conflict resolution, and modeling approaches that propagate uncertainty rather than collapsing it — downstream consumers (the dual encoder, constitution) need calibrated labels.",
+  "focus": "Snorkel-style weak supervision and programmatic labeling techniques for extracting structured editorial judgments from 7K editor comments",
+  "name": "fd-snorkel-programmatic-labeling",
+  "persona": "A data programming and weak supervision researcher who has followed the Snorkel/FlyingSquid/WRENCH lineage through 2026, and applies it to low-resource annotation scenarios in specialized domains. Reads NeurIPS, EMNLP, and ICML data-centric AI tracks.",
+  "review_areas": [
+    "Survey Snorkel 2.0 and post-2023 data programming extensions (e.g., WSRL, ASTRA, AMCL) for handling structured output spaces beyond binary/multiclass — needed for multi-dimensional editorial judgments",
+    "Research LLM-as-labeling-function approaches (2024-2026): GPT/Claude-generated weak labels with calibration, disagreement modeling between LLM and human heuristics over comment text",
+    "Find 2024-2025 papers on extracting implicit rules from expert rationales/comments (rationale distillation, explanation-guided labeling) — maps directly to parsing Ryan's 7K comments",
+    "Survey conditional independence violation detection in label model fitting for correlated labeling functions — critical when multiple comment-derived heuristics fire on the same edit",
+    "Examine WRENCH benchmark 2024 follow-ons for which labeling function architectures perform best on text with domain-specific jargon (editorial terminology) and short, elliptical comments",
+    "Research active weak supervision / interactive data programming (2024-2026) for iteratively refining labeling functions using Ryan's feedback loop — connects to the self-improving loop"
+  ],
+  "success_hints": [
+    "A labeling function template library specifically for editorial comment patterns (e.g., 'stet', 'per house style', 'author voice', 'awkward') with estimated coverage/accuracy priors",
+    "A concrete label model architecture recommendation that outputs per-example label distributions (not hard labels) compatible with the dual-encoder and constitution training pipelines"
+  ],
+  "task_context": "A self-improving editorial AI has 23K before/after editing pairs with 7K editor comments. Phase 2 requires annotation schema design, weak supervision from comments, a defeasible rule hierarchy, and dual-encoder embeddings for editorial similarity."
+}

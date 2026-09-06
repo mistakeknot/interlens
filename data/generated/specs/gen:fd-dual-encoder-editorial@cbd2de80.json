@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-music-expressivity-deviation covers contrastive pair training framing from a music AI angle, not embedding architecture",
+    "fd-category-editorial-transforms covers the algebraic structure of edit operations, not retrieval",
+    "fd-snorkel-programmatic-labeling covers label generation, not embedding training"
+  ],
+  "decision_lens": "Prioritizes architectures with proven domain adaptation paths under data constraints (23K pairs is moderate, not large), explicit support for hard negative mining from the editorial corpus, and embedding spaces that support interpretable similarity axes (not just cosine black boxes).",
+  "focus": "Dual-encoder and contrastive embedding architectures for editorial similarity, retrieval-augmented editing, and before/after pair representation",
+  "name": "fd-dual-encoder-editorial",
+  "persona": "A dense retrieval and representation learning researcher specializing in asymmetric and multi-modal contrastive learning. Follows DPR, E5, GTE, NV-Embed, and 2024-2026 BEIR/MTEB leaderboard leaders. Has experience adapting general-purpose embeddings to specialized domains with limited labeled pairs.",
+  "review_areas": [
+    "Survey 2024-2026 asymmetric dual-encoder designs (query != document encoder) for the editorial retrieval case: query=draft, document=reference-edit — catalog architectural choices and training objectives",
+    "Research matryoshka representation learning (MRL) and its 2024-2025 extensions for variable-resolution editorial similarity — useful for coarse topic-match vs. fine-grained style-match retrieval",
+    "Find hard negative mining strategies specifically for before/after text pairs where negatives must be 'plausible but wrong edits' — survey 2024-2025 data augmentation and mining techniques",
+    "Examine late interaction models (ColBERT v3, XTR, 2025 variants) vs. single-vector dual encoders for the editorial case — late interaction may capture span-level edit alignment better",
+    "Survey domain adaptation of general embedding models (E5-Mistral, NV-Embed-v2 successors) to specialized editorial corpora with < 50K pairs — LoRA, prefix tuning, and contrastive fine-tuning recipes",
+    "Research 2024-2026 papers on multi-vector representations for structured documents — applicable to encoding before/after pairs jointly vs. independently"
+  ],
+  "success_hints": [
+    "A specific training recipe (architecture + loss + hard negative strategy) validated on a domain-similar task (e.g., code edit retrieval, legal document revision) with < 30K pairs",
+    "An evaluation protocol using the 23K pairs as a retrieval benchmark — what does 'editorial similarity' mean as a ranking metric, and which 2025 MTEB tasks are closest proxies"
+  ],
+  "task_context": "A self-improving editorial AI has 23K before/after editing pairs with 7K editor comments. Phase 2 requires annotation schema design, weak supervision from comments, a defeasible rule hierarchy, and dual-encoder embeddings for editorial similarity."
+}

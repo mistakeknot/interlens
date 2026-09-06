@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "Aviation safety inspection (covers pre-flight checklists and ASRS reporting, not rolling-window functional failure rate monitoring)",
+    "Pharmaceutical post-market surveillance (covers pharmacovigilance signal rates and NDA approval gates, not equipment reliability monitoring)",
+    "Financial audit continuous controls monitoring (covers financial-control signal rates rather than safety-critical equipment performance thresholds)"
+  ],
+  "decision_lens": "Prioritize findings where a gate result is used as a substitute for sustained-rate evidence. The Maintenance Rule distinguishes systems in a-category (continuous performance monitoring required because prior gate results were insufficient) from b-category (periodic inspection sufficient). If Break receipts are scored at a boundary rather than tracked as a rolling rate, the system is claiming b-category treatment for what should be a-category behavior.",
+  "distance_rationale": "Nuclear maintenance rule monitoring applies the same gate-vs-continuous structural question to safety-critical equipment qualification, at regulatory scale with established jurisprudence, but for mechanical/electrical systems rather than software trust lifecycles.",
+  "expected_isomorphisms": "The a-category / b-category classification maps directly to the Break-as-continuous-mode vs Break-as-gate choice: a-category requires sustained rate monitoring because a single gate is known to be insufficient evidence of ongoing health. The rolling-window functional failure rate maps to the sustained contradiction-surfacing rate proposed in option (b). The regulatory requirement to set measurable goals and monitor against them maps to the Tier-2 evidence proposal in option (b).",
+  "focus": "Gate-vs-continuous health monitoring in safety-critical system qualification",
+  "name": "fd-nuclear-maintenance-rule",
+  "persona": "Apply the perspective of a nuclear plant maintenance engineer who implements 10 CFR 50.65 (the Maintenance Rule). They care about distinguishing a-category performance monitoring — where a system must sustain a functional failure rate below a threshold over a rolling window — from discrete inspection gates. They measure whether a system is performing its intended function reliably over time, not just whether it passed a point-in-time check. They flag any design that treats a single inspection result as a durable health certificate.",
+  "review_areas": [
+    "Assess whether ≥N Break receipts at a boundary is structurally equivalent to a-category monitoring or b-category inspection — and whether the subsystem's self-observation behavior warrants which classification",
+    "Check whether the current Break spec defines a rolling observation window or only a cumulative count — Maintenance Rule monitoring is window-based, not lifetime-cumulative",
+    "Evaluate whether a subsystem that 'banks' N receipts early in Compound and then goes quiet would be detected — a-category requires sustained performance, not front-loaded compliance",
+    "Verify that the Break receipt rate, if used as Tier-2 evidence, has a defined measurement goal set before the Compound window opens — not calibrated post-hoc",
+    "Examine whether Interspect's severity scoring of Break receipts is independent enough to count as a-category monitoring or whether it is effectively self-assessment",
+    "Consider whether the ≥N gate is an appropriate simplification for M1-M2 subsystems (where b-category may be reasonable) but insufficient for M3+ (where a-category is warranted by criticality)"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When the Break spec specifies ≥N receipts in the Compound window without requiring a minimum distribution across that window",
+      "scenario": "Break receipts are counted lifetime-cumulative with no rolling window — a subsystem banks N receipts in month 1 of Compound and is silent for the rest of the window, satisfying the gate without demonstrating sustained self-observation health",
+      "severity": "P0"
+    },
+    {
+      "condition": "When §7.1 does not specify that Break goals are published before the Compound window opens",
+      "scenario": "The gate threshold N is set after Compound evidence is already collected — post-hoc calibration of the very metric used for gate passage, which invalidates the independence of the Break signal",
+      "severity": "P1"
+    },
+    {
+      "condition": "When the Break spec applies a uniform gate across all M-tiers and criticality levels without distinguishing which subsystems warrant continuous-mode monitoring",
+      "scenario": "High-criticality subsystems (Governance, Routing) use the same ≥N gate as low-criticality subsystems — the Maintenance Rule would mandate a-category for critical-function equipment regardless of past inspection record",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Nuclear power plant maintenance and reliability engineering (10 CFR 50.65)",
+  "success_hints": [
+    "Identifies whether the Break spec is structurally a-category (rate-monitored) or b-category (gate-only) and whether that matches the criticality of the subsystems it governs",
+    "Flags if the spec lacks a rolling-window requirement or pre-specified measurement goals, which are the two distinguishing features of a-category compliance"
+  ],
+  "task_context": "Reviewing §7.1 of the Sylveste vision v6 outline, which introduces a Break phase between Compound and Epoch in the subsystem trust lifecycle. The upstream judgment call is whether Break should be a discrete gate (≥N receipts before transition) or a continuous-mode requirement (sustained contradiction-surfacing rate as Tier-2 evidence about self-observation health). The reviewer brings nuclear maintenance rule monitoring practice — specifically the a-category vs b-category classification for safety-critical equipment — as a parallel professional discipline for evaluating this structural choice."
+}

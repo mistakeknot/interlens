@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-loop-mechanics covers whether the loop pattern structurally maps to OODARC",
+    "fd-flywheel-integration covers whether experiment data feeds Interspect",
+    "fd-self-improvement-safety covers safety invariants of the loop"
+  ],
+  "decision_lens": "Prioritizes findings that identify the minimum viable implementation path and mismatches between the proposed implementation and Demarch's mechanism/policy separation. Findings that would cause autoresearch logic to bleed into the wrong layer rank highest.",
+  "focus": "Concrete implementation choices for a Demarch-native autoresearch capability: Clavain skill vs Skaffen built-in, MCP tool vs kernel primitive, and where the domain-agnostic/domain-specific split lands in the pillar architecture",
+  "name": "fd-implementation-path",
+  "persona": "A pragmatic platform engineer who evaluates build-vs-integrate tradeoffs through the lens of Demarch's 'adopt mature tools, don't rebuild' principle and the composition-over-capability architecture.",
+  "review_areas": [
+    "Evaluate the proposed split (Clavain skill + Skaffen built-in or MCP tool) against PHILOSOPHY.md's mechanism/policy separation",
+    "Check whether run_experiment and log_experiment belong as new intercore primitives, a new Interverse plugin, or Clavain-local tools",
+    "Assess whether the domain-agnostic infra layer maps to a standalone Interverse plugin (e.g., 'interlab') serving 'one extension, unlimited domains'",
+    "Verify that the SKILL.md template pattern fits within Clavain's existing skill authoring conventions",
+    "Identify which of the 'not-transferable' items require the most significant Demarch-native redesign",
+    "Evaluate whether the Skaffen status bar has the necessary primitives to display autoresearch state"
+  ],
+  "success_hints": [
+    "The domain-agnostic loop infra maps to a standalone Interverse plugin (not a kernel primitive) consistent with standalone-first principle",
+    "The implementation path requires no new kernel primitives — only a new Clavain skill and optionally a new Interverse plugin",
+    "The mechanism/policy split is clean: loop execution (mechanism) below Clavain; optimization target and domain knowledge (policy) in the skill"
+  ],
+  "task_context": "pi-autoresearch is an autonomous experiment loop for the pi agent platform, assessed as 'inspire-only' for Demarch. This review evaluates which design patterns are worth porting as a Demarch-native autoresearch capability and how they integrate with the OODARC framework, flywheel mechanics, and Interspect evidence pipeline."
+}

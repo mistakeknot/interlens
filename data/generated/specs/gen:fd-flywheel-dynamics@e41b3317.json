@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Defer evidence pipeline integrity to fd-evidence-pipeline-integrity",
+    "Defer trust mechanics to fd-trust-mechanics",
+    "Defer cost economics to fd-dispatch-economics"
+  ],
+  "decision_lens": "If the flywheel is given six months of data, does it converge to a stable improvement trajectory, oscillate, or saddle into a degenerate optimum?",
+  "focus": "Reinforcing/balancing-loop dynamics of the v5.0 flywheel and the upstream dependency ordering",
+  "name": "fd-flywheel-dynamics",
+  "persona": "Apply the perspective of a systems-dynamics modeler who has built stock-and-flow simulations for adaptive infrastructure — they care about delays, oscillations, equilibrium dependence on initial conditions, and the difference between healthy reinforcement and runaway feedback, measure loop gain and time-to-equilibrium, and flag when balancing loops are named without specifying their dampening behavior.",
+  "review_areas": [
+    "Whether the bootstrap problem for Phase 3-4 (Governance to Routing to Measurement loop) is specified — what initial policy and how it is removed",
+    "Whether B1 (weakest-link) and B2 (saturation) balancing loops have explicit dampening parameters or are described only narratively",
+    "Whether Phase 1 (Interop independent) actually unblocks Phase 2 — or whether Phase 2 has hidden Interop dependencies",
+    "Whether evidence-source addition during phase rollout destabilizes the loop in transition",
+    "Whether system-level trust = min(maturity) creates a single-bottleneck dynamic that disincentivizes parallel investment",
+    "Whether the closing link (autonomy to more sprints to more evidence) has a quality-of-evidence stratification or treats all sprint output as equal-weight evidence"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The loop cannot be initialized without violating its own preconditions",
+      "scenario": "Bootstrap policy for governance-routing loop unspecified",
+      "severity": "P0"
+    },
+    {
+      "condition": "Cannot detect when reinforcement is overwhelming dampening before damage shows",
+      "scenario": "Balancing loop dampening not parameterized",
+      "severity": "P1"
+    },
+    {
+      "condition": "Teams avoid declaring subsystem M1+ to keep their cell out of the floor calculation",
+      "scenario": "min() trust creates investment perverse incentive",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Look for explicit initial-conditions story for Phase 3-4 cycle",
+    "Check whether sprint-as-evidence has a quality filter",
+    "See if the doc acknowledges that Interspect changes are themselves part of the loop",
+    "Note whether epoch resets propagate through balancing loops correctly"
+  ],
+  "task_context": "Reviewing the Sylveste v5.0 vision document to evaluate the flywheel as a dynamic system. Goal: surface stability and bootstrap risks in the evidence loop."
+}

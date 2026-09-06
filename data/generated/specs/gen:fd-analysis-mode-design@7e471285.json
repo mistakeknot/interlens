@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does NOT cover persona config (fd-persona-*) or data migration (fd-data-migration-*)",
+  "decision_lens": "Observation must not alter the observed — analysis mode must inspect agent cognition without changing the agent's behavior or corrupting its state",
+  "focus": "Evaluates the Westworld-style analysis/debugging mode architecture for completeness and safety",
+  "name": "fd-analysis-mode-design",
+  "persona": "Observability platform architect who designs introspection tools for production AI systems",
+  "review_areas": [
+    "Live analysis (/analysis command): does pausing normal flow corrupt session state or lose messages?",
+    "Post-hoc replay: can turns be replayed with modified context without writing to the live session?",
+    "Inspector package scope: what agent internals are exposed? Lens selection reasoning, fingerprint state, preference deltas — all read-only?",
+    "Builder identity gating: how is analysis mode restricted to the builder? Transport-agnostic authentication?",
+    "State isolation: does adjusting personality parameters in analysis mode bleed into the live agent?",
+    "Evidence trail: are analysis mode actions logged separately from normal conversation evidence?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "User experiences amnesia after builder inspection",
+      "scenario": "Live analysis modifies session state, causing the agent to lose conversation context when resuming",
+      "severity": "P0"
+    },
+    {
+      "condition": "Builder testing silently changes production agent personality",
+      "scenario": "Parameter adjustments in post-hoc replay accidentally persist to the live persona config",
+      "severity": "P1"
+    },
+    {
+      "condition": "Quality mutations trained on builder debugging sessions, not real user interactions",
+      "scenario": "Analysis mode evidence mixed with normal evidence, polluting quality mutation signals",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Read-only Inspector with explicit copy-on-write for parameter experiments; separate evidence stream; authentication via config not transport ID; session state snapshot/restore around analysis",
+  "task_context": "Forge mode reimagined as Westworld analysis mode. Two interfaces: live in-band (/analysis) and post-hoc separate session. Builder inspects lens selection, replays turns, adjusts parameters. Must not alter the observed agent's state."
+}

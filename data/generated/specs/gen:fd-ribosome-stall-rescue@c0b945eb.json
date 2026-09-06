@@ -1,0 +1,47 @@
+{
+  "anti_overlap": [
+    "Does NOT cover sensor fusion (fd-kalman-filter-fusion)",
+    "Does NOT cover queueing under load (fd-queueing-priority-scheduling)",
+    "Does NOT cover budget control (fd-mpc-control-budget)"
+  ],
+  "decision_lens": "Does this orchestration step have a clean stall-rescue path, a degradation tag for stale work, and a routing peptide that decides destination cheaply?",
+  "distance_rationale": "Translation regulation is studied at the rate-constant level by molecular biologists who never look at orchestration platforms — the specific mechanisms (stall-rescue, signal peptide, no-go decay) are vivid structural patterns that map directly to agent orchestration concerns",
+  "expected_isomorphisms": "Stall-rescue (Pelota/Hbs1) maps to subagent stall detection; signal peptide maps to short-prefix routing; no-go decay maps to agent-tier downweighting; ubiquitin tagging maps to artifact lifecycle tagging",
+  "focus": "Reviews skill routing, hook firing, and agent termination through the lens of cellular translation — ribosome stalling, mRNA decay rates, signal peptides, ubiquitin tagging",
+  "name": "fd-ribosome-stall-rescue",
+  "persona": "Apply the perspective of a molecular biologist studying translation regulation — they care about the rate constants of stalling vs rescue, how the ribosome decides 'this transcript is bad' (no-go decay), how signal peptides route nascent proteins, and how ubiquitin tagging schedules degradation",
+  "review_areas": [
+    "Stall-rescue analog: when an agent gets stuck (the four design agents this session that hit Write permission), is there a Pelota/Hbs1 equivalent that detects and rescues, or does it just hang?",
+    "mRNA decay rate: stale memory entries, archived beads, old handoff docs — do they have a half-life that triggers expiration, or accumulate forever?",
+    "Signal peptide / SRP analog: a 5-residue prefix decides 'this protein goes to the ER' — could a 3-token user-input prefix decide 'this work goes to subagent X' before paying full LLM-routing cost?",
+    "No-go decay: when a finding is produced but never acted on, is the producing agent down-weighted (no-go-decay equivalent on the agent registry)?",
+    "Ubiquitin tagging: do artifacts that need degradation (stale roadmaps, completed beads, finished sprints) carry a tag that schedules cleanup?",
+    "Co-translational folding: can downstream work begin before upstream completes (stream agent findings into synthesis as they arrive vs wait for all)?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Wall-clock time spent waiting for stalls instead of redirecting work",
+      "scenario": "When a subagent stalls on permission errors (as observed this session), the parent harness has no detection-and-rescue protocol — the subagent just times out",
+      "severity": "P1"
+    },
+    {
+      "condition": "Manual /intermem:tidy required to prevent budget overflow",
+      "scenario": "Memory entries accumulate without expiration; MEMORY.md is 132 lines over a 120 budget because nothing degrades stale entries",
+      "severity": "P2"
+    },
+    {
+      "condition": "Short-prefix routing not exploited; LLM does the work a regex could do",
+      "scenario": "Routing decisions burn LLM tokens on inputs whose first 5 tokens (e.g., '/recall', '`bd `', 'fix typo') deterministically signal destination",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Cellular translation regulation (no-go decay, NMD, signal recognition particle, ubiquitin)",
+  "source_domain_full": "Cellular translation regulation (specific mechanisms, not 'biology' generally)",
+  "success_hints": [
+    "Map specific molecular mechanisms to specific Sylveste components",
+    "Reference rate constants and half-lives explicitly",
+    "Suggest 'signal peptide' patterns: short prefixes that route deterministically",
+    "Quantify the no-go-decay analog (how many findings produced vs acted-on per agent)"
+  ],
+  "task_context": "Cells solve the same problem agent platforms face: noisy substrate (mRNAs / user prompts) must be processed by an expensive machine (ribosomes / LLMs), with rescue paths for stalls, decay rates for stale state, and routing tags decided cheaply at the start. Identify Sylveste analogs: where does work stall without rescue, where does stale state linger past its useful life, and where is routing decided expensively when a short prefix would do."
+}

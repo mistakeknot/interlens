@@ -1,0 +1,51 @@
+{
+  "anti_overlap": [
+    "Do not critique normative MUST/SHOULD language — that is the RFC editor's concern",
+    "Do not assess voice/register portability — that is the TTRPG designer's concern",
+    "Stay out of cross-repo governance and amendment workflows"
+  ],
+  "decision_lens": "When the write-revel-proposal skill and UB's equivalent skill both emit Proposal artifacts, will a downstream eval/replay/debug tool be able to consume both without per-game branching?",
+  "distance_rationale": "Parallel discipline: both define a shared output schema that multiple LLM-driven agents must conform to while preserving distinct voice/register, but in general AI-skill engineering rather than culture-sim game design specifically.",
+  "expected_isomorphisms": "The 'shared output contract + per-skill prompt template' pattern in agent-skill engineering maps directly to 'shared Proposal/Debrief schema + per-game advisor prompt'. Evaluation, replay, and debugging requirements for LLM artifacts transfer wholesale — the spec is consumed not just by humans but by tools (eval, replay) the brainstorm explicitly mentions.",
+  "expected_isomorphisms_note": "",
+  "focus": "Whether the shared schemas survive contact with two divergent LLM-driven advisor agents and remain machine-tractable for downstream tooling",
+  "name": "fd-llm-multi-agent-prompt-template-contract",
+  "persona": "Apply the perspective of an LLM agent-skill engineer who has shipped multiple skills sharing one output contract — they care about whether two independently prompted LLMs can reliably produce schema-conformant artifacts, measure success by parse-failure rate and downstream tool compatibility, and flag any field where natural-language ambiguity will cause the model to drift.",
+  "review_areas": [
+    "Field tractability: can an LLM reliably produce each required field given only the prompt + spec, without per-game fine-tuning?",
+    "Free-text fields: are 'summary', 'rationale', 'lessons' bounded (length, structure) or unbounded prose that will defy parsing?",
+    "event_local_name handling: is it an enum, a free string, or a registry? Will downstream tools need to know all valid values?",
+    "Annotation embedding: how do annotation verbs round-trip through the artifact when Annotate-stage output feeds the next Prepare stage?",
+    "Failure modes: what should the advisor emit when it cannot fill a required field? Is there a defined null/unknown convention?",
+    "Replay/eval compatibility: can a debugging tool consume both games' artifacts with a single parser, or is per-game branching required?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "summary/rationale/lessons defined without max length, format hint, or schema validation",
+      "scenario": "Required field is unbounded free prose with no length cap or structure",
+      "severity": "P1"
+    },
+    {
+      "condition": "Field accepts arbitrary strings with no enumeration mechanism for downstream tools",
+      "scenario": "event_local_name is open-ended with no registry",
+      "severity": "P1"
+    },
+    {
+      "condition": "Spec does not specify how Annotate-stage output is encoded back into next-cycle Proposal inputs",
+      "scenario": "Annotation round-trip is undefined",
+      "severity": "P2"
+    },
+    {
+      "condition": "Spec does not state what an advisor emits when it cannot generate a confident rationale",
+      "scenario": "No defined null/missing-data convention",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "LLM prompt-template engineering for multi-agent skill systems (shared schema, agent/game-specific content; multi-skill contract design across products)",
+  "success_hints": [
+    "Treat each schema field as a prompt-engineering target",
+    "Identify which fields require structured output mode vs free completion",
+    "Propose a minimum eval-tool compatibility test"
+  ],
+  "task_context": "Reviewing shared JSON schemas that will be produced by two independently prompted LLM advisor agents (Hermes-as-Curator, Hermes-as-Steward) and consumed by cross-product debugging/eval tooling."
+}

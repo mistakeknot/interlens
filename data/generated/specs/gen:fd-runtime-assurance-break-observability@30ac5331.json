@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Does not cover SRE burn-rate or SLO compliance — defer to fd-sre-burn-rate-vs-gate",
+    "Does not cover ML canary or sample-size calculation — defer to fd-progressive-delivery-shadow-eval",
+    "Does not cover quality control SPC patterns — defer to fd-spc-break-process-control"
+  ],
+  "decision_lens": "In formal verification, a proof obligation is checked once (at compile time or phase boundary); a runtime monitor enforces an invariant continuously during execution. The Break gate checks self-observation health at the Compound-to-Epoch boundary; a continuous monitor would enforce the invariant 'self-observation is active' throughout Compound. Which property is actually being asserted — 'self-observation was active enough in Compound' (retrospective gate) or 'self-observation is currently healthy' (ongoing invariant)?",
+  "focus": "Applies formal verification's runtime-monitor-based assurance patterns to the Break phase, asking whether the break requirement is a discrete proof obligation or an ongoing behavioral invariant that must be monitored continuously",
+  "name": "fd-runtime-assurance-break-observability",
+  "persona": "Apply the perspective of a formal verification engineer who has designed runtime monitors for safety-critical systems — they care about the difference between a property proved once at a boundary versus a property that must hold continuously throughout operation, measure monitor adequacy by asking 'does the monitor detect a violation immediately or only at the next check point', and flag when a lifecycle gate checks a property at a boundary that should be enforced throughout the phase.",
+  "review_areas": [
+    "Whether the property being enforced by Break is a retrospective property (N receipts were filed) or a liveness property (self-observation remains active) — these have different monitor architectures and the spec should be explicit about which it intends",
+    "Whether a subsystem that satisfies the ≥N gate but experiences an observation-blind period mid-Compound is caught by any mechanism other than the downstream Epoch or Demote phases — specifically, whether Break provides mid-Compound detection or only Epoch-boundary detection",
+    "Whether Interspect's severity scoring (which is the external verifier for Break receipts) constitutes a runtime monitor or a post-hoc audit — the distinction matters for whether violations are detected and actable in real time or only visible in retrospect",
+    "Whether the jo-ha-kyū framing in §7.1 ('the climax is legitimate only if the slow build is interrupted by an honest break') implies a temporal property — the break must occur during the build, not after — and whether this temporal property is enforced by the gate or only implied by it",
+    "Whether the continuous-mode variant's sustained-rate requirement maps to a runtime monitor that could trigger a demotion signal if the rate falls below threshold mid-Compound, and whether such a mid-Compound demotion signal is architecturally supported by §7.4 latency bounds",
+    "Whether the spec's claim that 'a subsystem that cannot find contradictions to surface is a subsystem whose self-observation has gone blind' requires a detection mechanism that fires during Compound (liveness) or only at Epoch-transition (safety check) — and whether the two variants enforce different properties here"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The gate provides no mid-Compound detection of the 10-week observation failure. The subsystem enters Epoch having been effectively unobserved for 83% of its Compound window. The trust architecture cannot distinguish this case from a healthy self-observer.",
+      "scenario": "Gate variant: a subsystem files N Break receipts in weeks 1-2 of a 12-week Compound window, then its self-observation mechanism fails silently in weeks 3-12. The gate fires at week 12, sees N receipts, and passes the subsystem to Epoch.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Without a quantitative rate floor, continuous mode cannot be operationalized as a monitor with a well-defined violation condition. Engineers cannot determine whether a subsystem is compliant or not from the rate signal alone.",
+      "scenario": "Continuous-mode variant: the receipt rate is reported as Tier-2 evidence but the spec does not define a minimum rate threshold, leaving the rate as an informational signal without an enforcement boundary. The 'sustained rate' requirement is qualitative.",
+      "severity": "P1"
+    },
+    {
+      "condition": "The gate systematically undercounts recent Break receipts. Subsystems that front-load receipts early pass cleanly; subsystems that file receipts continuously toward window-end may fail the gate despite healthy self-observation behavior.",
+      "scenario": "Gate variant: the ≥N gate is checked only at Epoch-transition time. Interspect's severity scoring of Break receipts has a latency of up to 48 hours (consistent with §7.3's evidence quarantine pattern). Receipts filed in the last 48 hours of Compound may not yet be scored, causing the gate to evaluate against an incomplete receipt count.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Determine whether the spec claims Break enforces a retrospective property or a liveness property — the answer determines which design is correct",
+    "Check whether any mid-Compound detection mechanism exists for observation failure under the gate variant",
+    "Look for whether the continuous-mode variant defines a quantitative rate floor that can serve as a monitor violation condition"
+  ],
+  "task_context": "Reviewing §7.1 of the Sylveste vision v6 outline and trust lifecycle prose to evaluate the Break gate/continuous distinction through formal verification's proof-obligation vs runtime-monitor patterns. Goal: clarify whether the property Break enforces is retrospective (gate) or a liveness invariant (continuous monitor), and identify gaps in mid-Compound detection under each variant."
+}

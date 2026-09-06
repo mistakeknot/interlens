@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-upload-ingestion-ux covers pre-processing file handling",
+    "fd-result-assembly-display covers post-processing display",
+    "fd-editorial-continuity covers LLM prompt context, not UI state"
+  ],
+  "decision_lens": "Prioritizes resilience over polish: a progress bar that survives tab navigation and accurately reflects partial failure is more valuable than a smooth animation.",
+  "focus": "Progress indication and session state management during multi-chunk processing spanning 10-50 LLM calls at 1-2 minutes each",
+  "name": "fd-chunk-progress-state",
+  "persona": "A frontend engineer with deep experience in long-running async UI patterns — job queues, upload progress, background processing.",
+  "review_areas": [
+    "Whether chunk progress is polled from a persistent job record or streamed via SSE, given Vercel 60s function timeout",
+    "How the UI communicates per-chunk status vs aggregate progress",
+    "Whether the user can close and reopen the browser tab mid-job without losing progress",
+    "How partial failure (chunk 23 of 40 errors) is communicated and handled",
+    "Whether 5-minute PROCESS_TIMEOUT_MS needs per-chunk vs total-job timeout redesign",
+    "How estimated time remaining is calculated without being misleading"
+  ],
+  "success_hints": [
+    "User who closes tab and returns 30 minutes later sees accurate job status",
+    "Partial failures surfaced at chunk level, not just generic top-level error",
+    "Progress UI explains which phase a chunk is in (LLM pass vs post-processing)"
+  ],
+  "task_context": "Texturaize processes editorial text through a pipeline worker on slse. Current UI uses TiptapEditor for paste input. Task extends this for 50K-250K word manuscripts."
+}

@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Covers Python protocol internals; fd-mcp-tool-schema-discoverability covers MCP surface; fd-cross-connector-fan-out covers multi-connector composition",
+  "decision_lens": "Does the QueryTemplate protocol follow established patterns (Connector, EntityType, InteractionRule) and handle edge cases those patterns already solved?",
+  "focus": "Python QueryTemplate ABC design consistency with existing connector/registry patterns",
+  "name": "fd-query-template-protocol-design",
+  "persona": "Python API designer who has built plugin registries and protocol-based extension systems",
+  "review_areas": [
+    "QueryTemplate ABC mirrors Connector ABC structure (name, description, typed methods)",
+    "TemplateRegistry handles name collision (silent overwrite vs error vs warning)",
+    "reset_registry() exists for test isolation (like reset_rules() in rules.py)",
+    "execute() return type is a typed QueryResult, not dict[str, Any]",
+    "Parameter validation happens before execute(), not inside each template",
+    "Templates are stateless — crosswalk/registry injected, not stored"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Two plugins register different templates with the same name; last-loaded wins without warning",
+      "scenario": "Registry silently overwrites templates on name collision",
+      "severity": "P1"
+    },
+    {
+      "condition": "Template registration leaks across test cases causing flaky tests",
+      "scenario": "No reset_registry() for testing",
+      "severity": "P2"
+    },
+    {
+      "condition": "Callers must defensively check for keys instead of accessing typed fields",
+      "scenario": "execute() returns untyped dict",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Template protocol is a natural extension of the existing ABC pattern. Registry has explicit collision handling. Tests can isolate.",
+  "task_context": "The template layer is the most visible API in interweave — poor protocol design creates friction for every template author and every consumer."
+}

@@ -1,0 +1,49 @@
+{
+  "anti_overlap": [
+    "Does not evaluate ecosystem layering architecture or extension-point mechanics — see fd-ecosystem-layering",
+    "Does not evaluate naming vocabulary consistency — see fd-naming-vocabulary-discipline",
+    "Does not evaluate protocol conformance levels or version contracts — see fd-protocol-conformance"
+  ],
+  "decision_lens": "For every statement in the adapter spec: is this inherited-and-immutable (interflux canonical), sanctioned-elaboration-with-explicit-source (Athenflux addition with upstream anchor), or original-responsa-for-a-novel-case (Hermes-specific behavior with no upstream parallel)? Confusing these three genres creates a document that cannot be reliably adjudicated.",
+  "distance_rationale": "The Halakhic tradition has millennia of refined practice for the exact problem the adapter spec faces: how derivative rulings inherit, extend, or depart from a canonical source while remaining traceable. The genre distinctions (canonical text, elaboration, responsa) map directly to the spec's inherited/added/novel-case structure. The provenance and citation obligations map to the spec's provenance contract. The machloket-without-pesak maps to the unresolved review-authority question.",
+  "expected_isomorphisms": [
+    "Torah/Mishnah = interflux canonical protocol → Talmudic elaboration = Athenflux adapter additions → responsa = Hermes-specific novel-case behaviors",
+    "Citation obligation (every ruling must trace to canonical source) = provenance contract (every artifact must label upstream vs. adapter origin)",
+    "Machloket without pesak (disputed ruling with no authoritative resolution) = open design question about review authority with no assigned decision-maker",
+    "Issur (prohibition with detectable violation) = non-goals stated as observable prohibitions, not preferences"
+  ],
+  "focus": "Canonical-text vs. derivative-commentary integrity — whether the adapter spec correctly distinguishes the immutable upstream source (interflux) from sanctioned gloss, and whether derivative additions carry the authority they claim",
+  "name": "fd-halakhic-commentary-layering",
+  "persona": "Apply the perspective of a Halakhic legal scholar trained in the distinction between Torah she-bi-khtav (written law), Talmudic elaboration, Rishonim commentary, and responsa — they care about whether each textual layer acknowledges its source, carries only the authority its genre permits, and cannot quietly rewrite the layer above it. They measure whether a derivative ruling could be mistaken for a canonical ruling, and flag any gloss that claims binding force it did not inherit.",
+  "review_areas": [
+    "Each section of the spec is identifiable as canonical-inherited, adapter-elaboration, or novel-case-response — no section blends genres without marking the transition",
+    "The provenance contract (canonical upstream capability vs. adapter layer) mirrors the Halakhic citation obligation — every durable artifact must trace its ruling back to the authoritative source, and the spec defines how that tracing works in practice",
+    "The qualification rule for earning the 'Athenflux' name parallels the concept of a teshuvah that must cite precedent before ruling — the spec should require that each adapter addition cites the interflux behavior it extends or departs from",
+    "The 'non-goals' section functions as an issur (prohibition) — verify it is stated with the force of a negative commandment, not a preference, and that each prohibition has a detectable violation",
+    "Open design questions about review authority (when adapter synthesis disagrees with upstream findings) map to a machloket (halachic dispute) with no pesak — the spec should name who has authority to issue a final ruling, not leave the dispute permanently open"
+  ],
+  "severity_examples": [
+    {
+      "condition": "In the Halakhic analogy: a ruling with no cited source is inadmissible; a provenance field with no defined schema is functionally absent",
+      "scenario": "The output contract requires provenance indicating which parts came from interflux vs. Athenflux, but no format or example is provided — two implementations will produce incompatible provenance labels",
+      "severity": "P1"
+    },
+    {
+      "condition": "A gloss that elides rather than elaborates the canonical text undermines rather than extends it; permitted condensation must be bounded",
+      "scenario": "The spec allows Athenflux to define synthesis shapes that condense raw interflux findings — but gives no rule for what condensation may omit, creating a risk that the adapter silently discards findings the canonical layer considers required",
+      "severity": "P1"
+    },
+    {
+      "condition": "Homonymic use of 'canonical' at two different layers — adapter artifact status vs. upstream authority — will cause attributional confusion in practice; one usage must be renamed or scoped",
+      "scenario": "The promotion ladder (Draft through Canonical) uses the word 'canonical' as a status label for Athenflux artifacts, in a document whose upstream layer is also called 'canonical interflux'",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Halakhic legal commentary (Talmudic-rabbinic textual layering: Torah, Talmud, Rishonim, Acharonim, responsa)",
+  "success_hints": [
+    "Every addition in the spec names the interflux behavior it extends, parallels, or consciously departs from — no addition is unanchored",
+    "The provenance contract has a concrete template or example, not just a field enumeration",
+    "The review-authority open question is assigned to a named decision-maker or process, not left as a permanent dispute"
+  ],
+  "task_context": "Review the Athenflux adapter spec to evaluate whether the layering between canonical upstream and adapter additions is clear, whether derivative claims carry only the authority they can legitimately inherit, and whether the provenance obligations are concrete enough to produce consistent implementations."
+}

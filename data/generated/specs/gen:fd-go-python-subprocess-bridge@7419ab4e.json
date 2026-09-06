@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Covers the transport layer; fd-queryresult-serialization-contract covers data format; fd-query-template-protocol-design covers Python-side logic",
+  "decision_lens": "Will the subprocess bridge handle real-world loads without deadlocking, timing out, or losing data?",
+  "focus": "Go-to-Python subprocess bridge reliability, latency, and failure modes",
+  "name": "fd-go-python-subprocess-bridge",
+  "persona": "Systems engineer who has debugged cross-language subprocess communication deadlocks and performance issues",
+  "review_areas": [
+    "JSON framing protocol handles payloads larger than OS pipe buffer (64KB)",
+    "Process lifecycle: per-call spawn vs persistent worker process tradeoff",
+    "Concurrent invocation: multiple MCP tool calls hitting the bridge simultaneously",
+    "Python stderr capture for error reporting without corrupting stdout JSON",
+    "Timeout handling: Go-side timeout vs Python-side timeout coordination",
+    "Graceful degradation when Python process crashes mid-response"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Go writes >64KB to stdin while Python tries to write >64KB to stdout, both block",
+      "scenario": "Stdin/stdout deadlock on large payloads",
+      "severity": "P0"
+    },
+    {
+      "condition": "Agent chains multiple queries and total latency becomes unacceptable",
+      "scenario": "Per-call process spawn adds 400ms latency to every query",
+      "severity": "P1"
+    },
+    {
+      "condition": "Uncaught exception writes to stdout instead of stderr, corrupting the JSON stream",
+      "scenario": "Python traceback appears in JSON response",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Bridge handles concurrent calls, large payloads, and crashes without deadlocking. Latency budget is documented.",
+  "task_context": "The Go-Python bridge is the critical path for every MCP tool invocation. Reliability issues here affect all 8 named queries."
+}

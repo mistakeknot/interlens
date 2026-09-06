@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Does NOT cover prompt cache mechanics (handled by adjacent track)",
+    "Does NOT cover ranking pipelines for agents (fd-search-engine-ranking)"
+  ],
+  "decision_lens": "When the user has a goal, can they find the right slash command in under 3 seconds without typing more than the prefix, and does the system avoid surfacing irrelevant commands?",
+  "distance_rationale": "IDE platforms and slash-command surfaces both face the same problem (large action catalog, user wants minimal-keystroke retrieval) but IDEs have refined this UX over 20+ years of feedback",
+  "expected_isomorphisms": "Code-action ranking maps to slash-command listing order; intention grouping maps to command namespace UX; keyboard ergonomics maps to alias/shortcut design",
+  "focus": "Reviews slash command discoverability, naming, and argument patterns through the lens of IDE quick-action UX — code-action ranking, intent classification, keyboard shortcut design",
+  "name": "fd-ide-quick-actions",
+  "persona": "Apply the perspective of an IDE platform designer (IntelliJ Code Actions, VSCode quick-fix, JetBrains intentions) — they care about action discoverability under context, ranking actions by relevance, suggestion fatigue from too many options, and keyboard-first ergonomics",
+  "review_areas": [
+    "Prefix collision: how many slash commands share a 3-letter prefix (e.g., /clavain:* vs /interflux:*) — does typing the prefix narrow effectively?",
+    "Context relevance: when the user is in a sprint phase, are sprint-relevant commands ranked above unrelated ones in the listing?",
+    "Suggestion fatigue: 100+ commands in flat listing — does the user have to read all to find one?",
+    "Intent grouping: are commands grouped by user-intent verb (review, plan, ship, recall) or by plugin source?",
+    "Keyboard ergonomics: are the most-frequent commands (resolved via cass usage data) the shortest to type?",
+    "Argument hints: does the slash command surface accept `<args>` patterns that match user mental models, or require trial and error?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "User picks wrong command, wastes a turn, retries with another",
+      "scenario": "Two slash commands have nearly identical names but different scopes (e.g., /clavain:review vs /code-review:code-review vs /pr-review-toolkit:review-pr) — user can't tell which to invoke",
+      "severity": "P1"
+    },
+    {
+      "condition": "Discoverability collapses; user falls back to `/help` or `cass search`",
+      "scenario": "The user types a verb (`/recall`) but must remember the plugin namespace prefix",
+      "severity": "P2"
+    },
+    {
+      "condition": "Keyboard-first ergonomics inverted vs usage frequency",
+      "scenario": "Frequently-used commands (per cass tool analytics) require more keystrokes than rarely-used ones",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "IDE quick-action UX (IntelliJ Code Actions, VSCode commands)",
+  "source_domain_full": "IDE quick-action UX",
+  "success_hints": [
+    "Cite specific command-name collisions and rank-disorder examples",
+    "Apply IDE intention-action ranking heuristics (recency, frequency, context-fit)",
+    "Recommend a verb-grouped or context-aware command listing",
+    "Reference cass usage data when proposing rank order"
+  ],
+  "task_context": "Sylveste exposes 100+ slash commands across plugins. Discoverability and naming follow no IDE-grade ranking discipline. Apply IDE quick-action playbook: rank by context relevance, group by intent, avoid suggestion fatigue, ensure prefixes don't collide. Identify the dominant discoverability gaps and propose ranking rules."
+}

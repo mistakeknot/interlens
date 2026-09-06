@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "fd-agent-teams-primitive covers runtime API semantics once teams are available, not detection and fallback",
+    "fd-debate-coordination-patterns covers coordination design, not availability gating",
+    "fd-teams-cost-economics covers cost measurement, not version detection"
+  ],
+  "decision_lens": "The fallback path is a correctness boundary: --teams requested but unavailable must produce a clear, actionable notice and fall through to single-Sonnet synthesis without data loss. Evaluate whether the detection code is robust enough to handle version strings that don't match the expected format, and whether the fallback path is exercised in CI or only in production.",
+  "focus": "Evaluate the version-detection and fallback path for --teams — env var check, semver parsing, silent-degradation prevention, and resilience to Claude Code version instability in an experimental feature gate",
+  "name": "fd-experimental-flag-stability",
+  "persona": "Apply the perspective of a platform reliability engineer who has operated systems with experimental feature flags at the boundary between stable and unstable APIs — specifically the failure modes that emerge when version detection is done at runtime in bash, when experimental flags are removed or renamed between minor versions, and when fallback paths are exercised so rarely that they rot undetected.",
+  "review_areas": [
+    "Semver parsing robustness: the brainstorm's bash snippet uses `claude --version 2>/dev/null | head -1` and 'parse and compare against 2.1.32' — bash semver comparison is error-prone; what happens if the version string includes a build suffix (e.g., '2.1.32-beta.1') or is formatted differently across platforms?",
+    "Env var removal risk: CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 is an experimental flag — what happens when it's promoted to stable (flag removed, feature always on) or removed entirely (flag silently ignored, feature gone)? The detection logic has no way to distinguish 'flag not set' from 'flag was renamed'",
+    "Silent degradation prevention: the brainstorm requires a clear notice ('agent teams unavailable: flag/version') — verify the notice reaches the user and is not swallowed by subagent stderr capture or sprint log buffering",
+    "Fallback path rot: the fallback to single-Sonnet synthesis is the original code path — but if --teams code is added to Step 4, the original path may accumulate conditional branches that break the fallback when --teams is not available; test coverage for the fallback path is not mentioned",
+    "Version detection ordering: the brainstorm checks flag first, then version — if the flag is set but version is below 2.1.32, the version check runs `claude --version` which may be slow or fail in CI; is there a cached version or a faster detection path?",
+    "Partial team launch failure: if the env var and version check pass but team launch fails at runtime (e.g., primitive returns an error on the first TeammateCreate call), does the implementation fall back to subagent synthesis or propagate the error and abort the entire flux-explore run?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Bash string comparison treats '+build.5' suffix as less-than; feature never activates on build-stamped releases",
+      "scenario": "Version string '2.1.32+build.5' fails the bash comparison; teams_available stays false; --teams is silently ignored even when the primitive is available",
+      "severity": "P0"
+    },
+    {
+      "condition": "No try/catch or error-branch around team launch; partial team failure is not handled as a fallback trigger",
+      "scenario": "Runtime team launch fails after version check passes; error is not caught; flux-explore aborts mid-synthesis with no synthesis doc written",
+      "severity": "P1"
+    },
+    {
+      "condition": "No mechanism to detect that the experimental flag graduated; flag-check logic is not updated when primitive becomes stable",
+      "scenario": "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS is promoted to stable and removed; detection logic always falls through to fallback; --teams never activates even on new versions that support it natively",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Semver parsing handles pre-release suffixes and unknown formats with a safe fallback (treat as unavailable, log the unparseable string)",
+    "Runtime team launch failure triggers the same fallback path as detection failure — synthesis always completes",
+    "Fallback notice is written to the brainstorm doc frontmatter (teams_fallback: true) so the user can see it post-run even if sprint log is buffered",
+    "A note in the implementation doc flags the experimental-flag graduation risk and suggests a periodic version-check audit"
+  ],
+  "task_context": "The brainstorm gates --teams on both CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 and Claude Code >= v2.1.32. When unavailable, it falls through to existing single-Sonnet synthesis. The brainstorm explicitly requires 'no silent degradation' — the user must see a clear notice."
+}

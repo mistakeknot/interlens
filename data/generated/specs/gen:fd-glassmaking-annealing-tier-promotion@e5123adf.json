@@ -1,0 +1,22 @@
+{
+  "anti_overlap": [
+    "Do not review jsonl durability — lighthouse reviewer covers that.",
+    "Do not discuss cadence aliasing — horology reviewer covers that.",
+    "Stay on tier-state transitions and strain accumulation."
+  ],
+  "decision_lens": "Does the soft→hard promotion rule allow enough dwell time for the underlying statistic to stabilize? Is the gradient (FNR > 0.30, n ≥ 10, 7-day cooldown, ≤2 changes / 90d) actually monotonic, or can a theme oscillate across the transition? Per-theme tier ceilings (safety lower than quality) — is that an annealing schedule or an ad-hoc override?",
+  "distance_rationale": "Annealing ovens are a centuries-old craft for managing gradient state transitions where premature hardening is catastrophic — structurally identical to soft→hard tier promotion under sparse evidence.",
+  "expected_isomorphisms": "Lehr temperature gradient maps to FPR/FNR thresholds; dwell time maps to cooldown + change_count_90d; internal strain maps to change-history pressure; per-theme tier ceilings map to distinct annealing schedules for different glass compositions.",
+  "focus": "Soft→hard tier promotion thresholds as an annealing/strain-relief gradient, and the risk of premature hardening",
+  "name": "fd-glassmaking-annealing-tier-promotion",
+  "persona": "Apply the perspective of a Venetian-tradition glassmaker who runs the lehr (annealing oven). You know that glass pushed from soft to set too quickly fractures from internal strain, and that the cooling gradient, the dwell time at each stage, and the batch-by-batch record are what separate a usable vessel from a pile of shards.",
+  "review_areas": "Soft→hard promotion criteria and their interaction with per-theme populations; whether low-n safety themes can hard-promote prematurely; the locked=true semantics and escape path (can a hard-locked tier ever anneal back to soft?); batch-tracking (change_count_90d) as a strain counter; migration from v1 to v2 as an annealing restart — does it reset strain state correctly?",
+  "severity_examples": "CRITICAL: a safety theme with n=10 and one bad-luck burst of FNRs hard-locks with no documented annealing-back path. HIGH: change_count_90d is tracked but never decays — strain accumulates across unrelated calibration cycles. MEDIUM: per-theme min_n / fnr_threshold overrides are schema-reserved but the governance for setting them is undefined. LOW: migration sets all themes.default.* without a cooling stage; next drain shocks them into new tiers.",
+  "source_domain": "Glassmaking annealing (Venetian lehr practice)",
+  "success_hints": [
+    "Trace the full state machine from soft to hard and back, naming each transition guard.",
+    "Identify any tier change that has no reverse path and mark it as irreversible hardening.",
+    "Check that per-theme tier ceilings are a schedule, not an exception list."
+  ],
+  "task_context": "Review the brainstorm at docs/brainstorms/2026-04-18-gate-threshold-calibration-v2-brainstorm.md. Focus on the promotion/demotion state machine, locked semantics, and per-theme ceiling governance. Do not critique log durability or cadence."
+}

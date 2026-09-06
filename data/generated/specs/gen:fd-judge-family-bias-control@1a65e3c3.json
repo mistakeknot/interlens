@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "Pillar rubric validity — covered by fd-eval-measurement-validity",
+    "Bootstrap implementation — covered by fd-statistical-implementation",
+    "Autoresearch decisions — covered by fd-autoresearch-loop-integrity"
+  ],
+  "decision_lens": "Any implementation letting one family's preferences dominate the aggregate defeats the purpose and reintroduces the bias.",
+  "focus": "Whether cross-family judge implementation correctly isolates evaluator bias and prevents single family domination",
+  "name": "fd-judge-family-bias-control",
+  "persona": "A researcher who studies LLM self-evaluation bias and cross-model agreement patterns.",
+  "review_areas": [
+    "Verify aggregation is family-weighted (one vote per family) not model-weighted (one vote per model)",
+    "Check fallback when judge family unavailable does not collapse to single-family evaluation",
+    "Verify evaluator matrix fingerprint includes full judge model IDs in stable sort order",
+    "Check REASONING_MODELS treatment — reasoning models may have systematic scoring offsets",
+    "Verify human-editor calibration scored by ALL judge families, not just primary",
+    "Check per-family score variance is computed and logged to detect substantial family bias"
+  ],
+  "success_hints": [
+    "Within-family judge correlation should be > 0.7; cross-family < 0.7",
+    "Swapping primary judge family should change system ranking by at most one position"
+  ],
+  "task_context": "cipher_evaluator_matrix.py runs N×M matrix. DEFAULT_EVALUATORS includes Anthropic, OpenAI, Google, DeepSeek, Qwen, GLM, Kimi families. Multi-family pool requires careful aggregation."
+}

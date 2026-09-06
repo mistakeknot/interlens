@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "Do not evaluate the technical correctness of the microrouter design findings — fd-architecture and fd-safety cover those",
+    "Do not assess workstream sequencing for schedule purposes — fd-broadcast-scheduling covers slot ordering",
+    "Do not evaluate test coverage gaps — fd-kaizen-testability covers those"
+  ],
+  "decision_lens": "A handoff that omits a known risk is not a neutral omission — it is an active transfer of that risk to the incoming agent operating without warning. Evaluate the roadmap's handoff artifacts (beads, design docs, handoff markdown files) for completeness: does the incoming session have everything it needs to avoid re-discovering known dead ends, or does it have to reconstruct context that was already earned?",
+  "distance_rationale": "Hospital charge nurses manage shift-handoff completeness as a patient-safety discipline, where omitted context directly causes adverse events — structurally identical to multi-session agent work where incomplete bead bodies or Dolt drift cause downstream sessions to operate on a false-clean state, but in a clinical care context rather than software.",
+  "expected_isomorphisms": "Shift handoff record omitting a known risk maps to a bead body that names a finding without describing the failure scenario. 'Mental model never externalized' maps to Architecture α/β decision criteria existing only in a handoff file, not in the bead. False-clean state on incoming shift maps to Dolt missing 14 P0 beads.",
+  "focus": "Knowledge transfer completeness, session-to-session continuity gaps, and compounding failure modes in multi-session multi-agent handoff chains",
+  "name": "fd-handoff-fidelity",
+  "persona": "Apply the perspective of a hospital charge nurse managing shift handoff rotations in a complex care unit — one who knows that most preventable adverse events trace to incomplete handoffs: information that existed in one shift's mental model but was never externalized into the transfer record, leaving the incoming team to rediscover known risks from scratch.",
+  "review_areas": [
+    "Assess the bead/JSONL drift (14 microrouter finding beads + s3z6.19.x only in issues.jsonl, not in live Dolt) as a handoff gap: an incoming session that queries Dolt directly will not see these beads, creating a risk of duplicate work or contradictory decisions",
+    "Check the handoff coverage of the four P0 Track B6 findings (jm4/emv/a5u/906): does each finding bead contain enough context for a cold-start session to understand the failure scenario without reading the full flux-review transcript? Flag findings that are named but not described",
+    "Verify that the Architecture α/β fork decision — described as 'the deepest finding' in the handoff — has its decision criteria and current state externalized in a durable artifact, not only in session memory or prose notes",
+    "Assess the interflect scaffold status (recent commits 8e027b22, d3f47fc9): a 'scaffold' companion plugin that feeds retrospective compounding is only useful if its output format and integration path are documented before it accumulates session data that cannot be retrospectively compounded",
+    "Check whether the 'bead/code drift' warning (sylveste-n6zw open while commit reports 17/18 shipped) has a stated verification procedure — an unresolved drift without a check procedure will recur; flag if no procedure is defined",
+    "Evaluate the research-mode parity gap (peer findings, reaction round, sycophancy detection missing from research mode): does the roadmap capture what a research-mode session is missing in a way that would prevent it from silently producing incomplete output, or is the gap only visible to someone who has read the full roadmap?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When the push.sh step to sync JSONL→Dolt has not been run and no session guard prevents Dolt-only queries from returning a false-clean state",
+      "scenario": "The live Dolt DB is missing all 14 microrouter finding beads — an incoming session querying Dolt for open P0 items will see zero Track B6 P0s, and may proceed as if the safety-floor bypass and circular calibration issues are resolved",
+      "severity": "P0"
+    },
+    {
+      "condition": "When the bead body for s3z6.19.8 does not include the α/β fork definition and the criteria for choosing between them",
+      "scenario": "Architecture α/β decision criteria exist only in a handoff document, not in the s3z6.19.8 bead body — a new session working on .19.8 must re-read the handoff file or risk re-opening a settled design question",
+      "severity": "P1"
+    },
+    {
+      "condition": "When interflect commits show scaffold-only state with no schema or integration spec committed alongside",
+      "scenario": "interflect's retrospective compounding format is not documented before it begins accumulating session data — sessions that produce interflect output cannot be retrospectively compounded into its intended knowledge format if the schema is defined after the data",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "hospital shift handoff rotation",
+  "success_hints": [
+    "For each P0 finding bead, check: can a session that has never read the flux-review transcript understand the failure scenario from the bead body alone? If not, flag the gap with the specific missing context",
+    "Distinguish between 'context in a handoff file' (session-scoped, may be pruned) and 'context in a bead body' (durable, queryable) — findings that exist only in handoff files are at risk of being lost across session boundaries",
+    "When assessing drift (bead/code, Dolt/JSONL), check both directions: code ahead of bead AND bead ahead of code — the roadmap audit flags the former but the latter is also a failure mode"
+  ],
+  "task_context": "The interflux v0.2.68 roadmap has multiple handoff artifacts: bead files, JSONL exports, design docs, and handoff markdown. The bead audit section flags Dolt/JSONL drift and an open-but-shipped bead state. Review through the lens of shift handoff fidelity: does each durable artifact contain enough context for an incoming session to operate safely, or is critical context trapped in session memory or ephemeral prose?"
+}

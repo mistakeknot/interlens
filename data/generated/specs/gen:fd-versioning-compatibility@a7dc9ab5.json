@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-mcp-server-packaging covers pyproject.toml dependency pinning inside the Python package — not the distribution-level MANIFEST",
+    "fd-distribution-installer-safety covers install.sh version gate enforcement — not whether the declared version range is accurate",
+    "fd-skill-bundle-conformance covers SKILL.md frontmatter fields — not the MANIFEST.yaml schema"
+  ],
+  "decision_lens": "Prioritizes gaps between what the MANIFEST.yaml declares and what the development tree has actually been tested against. Flags model identifiers that may differ between provider APIs, and version ranges that were never falsified against a lower bound. De-prioritizes aesthetic choices in the MANIFEST schema.",
+  "focus": "MANIFEST.yaml version claims — Hermes compat range accuracy, model matrix completeness, semver discipline, binary version coordination",
+  "name": "fd-versioning-compatibility",
+  "persona": "Apply the perspective of a compatibility engineer who maintains a library that runs across multiple model providers and runtime versions — they care about whether stated compatibility ranges are backed by actual test evidence, measure claims by whether a user following them exactly can expect the described behavior, and flag any model name or version string that may be stale, ambiguous, or provider-specific.",
+  "review_areas": [
+    "Hermes compat lower bound: `hermes_agent: >=2026.4.0` — assess what evidence exists that this bound is accurate, what breaks below it, and whether v0.1 should surface a tested-range qualifier separately from a minimum",
+    "Model name accuracy for v0.1 release: MANIFEST lists `claude-opus-4-7` and `claude-haiku-4-5-20251001` — verify these are the correct API identifiers at v0.1 release time, and flag the `gpt-5.5` / `gpt-5.4` entries against known OpenAI API model ID conventions",
+    "Observed register drift documentation: the brainstorm notes `gpt-5.5` has 'observed register drift' — assess whether this is documented in MANIFEST.yaml clearly enough for a user to understand what 'drift' means operationally and whether it disqualifies the model from primary use",
+    "Binary version coordination: the MCP server capability entry references `auraken-lens@v0.1.0` as a Go package path — verify the Go module version tag matches the distribution version and the binary release asset naming",
+    "SemVer pre-1.0 breaking-change policy: the brainstorm states 'v0.1 → v0.2 may break installs (intentional)' — assess whether MANIFEST.yaml or CHANGELOG seeds communicate this policy to users before they install",
+    "excluded_from_v01 as scope contract: the MANIFEST lists explicit non-goals — assess whether this field is part of the auraken-distribution schema or a Sylveste-internal convention that users will encounter without context"
+  ],
+  "severity_examples": [
+    {
+      "condition": "v0.1 ships claiming `>=2026.4.0` compatibility but a skill API or config format required by install.sh was only added in 2026.5.0 — users with 2026.4.x installs get cryptic failures that look like installation errors",
+      "scenario": "Hermes lower bound is too low and the stated compat range is false",
+      "severity": "P1"
+    },
+    {
+      "condition": "MANIFEST lists `claude-opus-4-7` but the provider API canonical name is `claude-opus-4-7-20260418` — users configuring Hermes with the MANIFEST name get model-not-found errors from the provider",
+      "scenario": "Model identifiers don't match provider API names at release time",
+      "severity": "P1"
+    },
+    {
+      "condition": "MANIFEST references `auraken-lens@v0.1.0` but the Go module tag is `v0.1.0-alpha` — `go install` installs a different binary than MANIFEST claims, and the discrepancy is only visible on close inspection",
+      "scenario": "auraken-lens binary version tag mismatches the distribution tarball version",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Cross-check every model identifier in MANIFEST.yaml against the provider's current API reference",
+    "Confirm the Hermes compat lower bound by identifying the specific feature or API used by install.sh that requires it",
+    "Verify the auraken-lens Go module version tag exists as a real git tag before the release"
+  ],
+  "task_context": "The brainstorm document includes a MANIFEST.yaml schema with specific version claims, model identifiers, and a Hermes compat range. This review assesses whether those claims are accurate, testable, and communicated with enough precision for users to act on them safely."
+}

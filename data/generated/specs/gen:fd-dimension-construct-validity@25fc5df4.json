@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-pillar-dimension-gap covers the coverage gap between product pillars and eval dimensions",
+    "fd-llm-judge-reliability covers how LLM evaluators interpret and apply these dimensions",
+    "fd-editorial-theory covers whether the dimensions reflect established line-editing frameworks"
+  ],
+  "decision_lens": "Flags dimensions that are either redundant with each other or too abstract to be reliably scored by an LLM. Prioritizes dimensions that map cleanly to observable textual properties.",
+  "focus": "Whether each eval dimension actually measures a distinct, meaningful editorial construct",
+  "name": "fd-dimension-construct-validity",
+  "persona": "A psychometrician specializing in rubric design and construct validity for subjective quality assessments. Approaches evaluation frameworks with skepticism about vague or overlapping constructs.",
+  "review_areas": [
+    "Check whether 'overall_similarity' is a distinct construct or just a weighted average of the other five",
+    "Examine whether 'fidelity' (wording closeness) and 'completeness' (issues caught) are genuinely independent",
+    "Assess whether 'tonal_match' is separable from 'principle_adherence' when tone is encoded in constitution principles",
+    "Identify whether 'over_editing' is measuring restraint (a positive skill) or error (unnecessary changes)",
+    "Check for missing constructs from the 7 editorial pillars — specifically specificity, cadence, de_aiisms, and structure",
+    "Evaluate whether a 1-10 scale provides sufficient discriminative resolution for LLM judges"
+  ],
+  "success_hints": [
+    "Each dimension should be independently scorable without needing to know the scores of other dimensions",
+    "An LLM judge given only the rubric description should produce consistent scores across evaluators"
+  ],
+  "task_context": "The eval scoring module uses 6 dimensions to judge a model's line-edit against a human editor reference on a 1-10 scale. The product's editorial identity is defined by 7 pillars but these are not directly used as eval dimensions."
+}

@@ -1,0 +1,37 @@
+{
+  "anti_overlap": [
+    "fd-orchestration-phase-sequencing covers pipeline mechanics and phase ordering — this agent focuses on the content and structure of reaction instructions",
+    "fd-synthesis-deduplication covers how synthesis processes reactions — this agent focuses on what agents produce before synthesis sees it",
+    "fd-skill-config-surface covers SKILL.md and flux-drive.yaml configuration — this agent focuses on prompt content, not config surface"
+  ],
+  "decision_lens": "Findings that allow reaction agents to misinterpret peer findings or produce free-form prose that breaks synthesis parsing are P1. Instructions that introduce confirmation bias or echo-chamber dynamics are P2.",
+  "focus": "Quality and precision of agent-to-agent communication prompts in the reaction phase",
+  "name": "fd-reaction-prompt-semantics",
+  "persona": "A prompt engineer specializing in multi-agent instruction design, with expertise in reaction/critique protocols, grounding prompts in structured data, and preventing prompt injection or semantic drift when agents process peer outputs.",
+  "review_areas": [
+    "Inspect the reaction.md phase prompt: does it clearly distinguish 'agreement', 'disagreement', and 'extension' as structured output types, or allow free-form reactions that synthesis must re-parse?",
+    "Check whether reaction instructions ground agents in the actual peer findings text or only in finding IDs — ID-only references risk agents reacting to a finding they haven't fully read",
+    "Audit for confirmation bias vectors: does the reaction prompt inadvertently encourage agents to agree with peers from the same domain, reducing the value of cross-domain diversity?",
+    "Verify that reaction agents are instructed to react to findings, not to the peer agent's persona or reasoning style — persona-directed reactions contaminate synthesis",
+    "Check that the reaction prompt enforces structured output format (e.g., finding_id, reaction_type, reaction_text) compatible with synthesize-review.md's parser",
+    "Inspect whether agents are told what to do when a peer finding is outside their domain expertise — a forced reaction here can lower signal quality"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When reaction.md instructs agents to 'respond to peer findings' without specifying output structure",
+      "scenario": "Reaction agents produce free-form paragraph reactions with no structured finding_id anchor, causing synthesize-review.md to discard all reactions as unparseable",
+      "severity": "P1"
+    },
+    {
+      "condition": "When reaction output format uses the same schema as Phase 2 findings rather than a distinct reactions schema",
+      "scenario": "An agent reacts to a finding by restating it in its own words as 'agreement', which synthesis deduplicates as a new finding rather than a reaction signal",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "Reaction output schema is distinct from findings schema — field names or a type discriminator clearly mark it as a reaction",
+    "The reaction prompt includes explicit examples of agreement/disagreement/extension with structured output samples",
+    "Agents are given an explicit 'out-of-domain' option to skip reacting to findings they cannot evaluate"
+  ],
+  "task_context": "The reaction round (Phase 2.5) inserts a cross-agent visibility step between independent parallel review (Phase 2) and synthesis (Phase 3) in the Interflux pipeline. Agents write reactions to peer findings indexes after completing their own independent review."
+}

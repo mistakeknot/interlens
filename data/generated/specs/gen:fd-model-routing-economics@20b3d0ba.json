@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "Do not critique autonomy tier promotion/demotion — that is fd-autonomy-ladder-progression",
+    "Stay on model/tier dispatch and cost, not on agent-capability state"
+  ],
+  "decision_lens": "Prioritize findings where routing policy is opaque, where cost attribution cannot be reconciled to a subsystem or bead, or where fallback behavior could silently upgrade or downgrade quality without leaving evidence. Cache-window economics outrank raw token counts.",
+  "focus": "Whether model/tier routing decisions for agent dispatch are evidence-grounded, cost-aware, and observable per-subsystem",
+  "name": "fd-model-routing-economics",
+  "persona": "Apply the perspective of a platform engineer who has operated multi-model LLM routers under cost and latency SLOs — they care about per-task tier selection signals, fallback chains, cache-hit economics, and attributable spend per subsystem.",
+  "review_areas": [
+    "Per-task tier selection: is the choice (Haiku/Sonnet/Opus or peer-tier equivalent) driven by measurable task features or hand-coded heuristics, and is the decision logged?",
+    "Cost attribution granularity — can spend be sliced per pillar, per bead, per autonomy tier, or only globally?",
+    "Cache-window awareness: do long-running loops account for the 5-minute prompt-cache TTL when choosing sleep/poll intervals and batch sizes?",
+    "Fallback chains: when a preferred model is rate-limited or unavailable, what is the substitution policy and how is the quality delta recorded as evidence?",
+    "Routing evidence loop: do post-hoc outcomes (success, rollback, human override) feed back into router weights, or is the router static?",
+    "Budget enforcement: are per-subsystem token/dollar caps enforced at dispatch time, or detected after overspend?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "spend is aggregated globally so a runaway pillar cannot be isolated or capped",
+      "scenario": "No per-subsystem cost attribution",
+      "severity": "P0"
+    },
+    {
+      "condition": "router degrades to a cheaper model under pressure and the substitution is not logged against the originating task",
+      "scenario": "Silent model fallback with no evidence record",
+      "severity": "P1"
+    },
+    {
+      "condition": "background polling sleeps land in the 300-600s dead zone, paying repeated cache-miss costs without amortization",
+      "scenario": "Loop cadence ignores cache TTL",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Tie each routing finding to a measurable cost or quality signal",
+    "Name the specific tier or fallback edge that fails",
+    "Reference cache-window economics where loop cadence is involved"
+  ],
+  "task_context": "Review the Sylveste design for how agent tasks are routed to models/tiers, how that spend is attributed, and how routing decisions become evidence rather than opaque infrastructure choices."
+}

@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-constitution-revision-loop covers safety of constitution updates generally",
+    "fd-correction-routing-architecture covers where corrections go",
+    "fd-correction-signal-extraction covers parsing not voice effect"
+  ],
+  "decision_lens": "Prioritizes findings where a correction for one client's voice bleeds into another — misfired generalization homogenizes all output.",
+  "focus": "Whether the feedback loop preserves or erodes individual client voice as corrections accumulate",
+  "name": "fd-voice-identity-drift",
+  "persona": "A stylistics researcher and product ethicist who studies voice fingerprinting, style transfer, and over-regularization failure modes.",
+  "review_areas": [
+    "Verify corrections tagged to a specific client are stored in per-client namespace",
+    "Assess whether constitution revision distinguishes universal principles from client-specific preferences",
+    "Check whether post-correction outputs are evaluated against original client voice profile",
+    "Evaluate the risk of Ryan's personal preferences being encoded as generalizable principles",
+    "Identify whether fine-tuning data mixes corrections from different clients without scoping",
+    "Assess whether there is a voice drift regression test after constitution promotion"
+  ],
+  "success_hints": [
+    "Per-client corrections are stored in isolated namespaces",
+    "Constitution revision rejects client-specific voice preferences as universal rules",
+    "Voice drift is a measurable monitored metric with regression alerts"
+  ],
+  "task_context": "Ryan is Texturaize's editorial partner who reviews track-changes diffs and corrects the model's edits. The goal is to determine the best mechanism for Ryan's corrections to flow back into the model."
+}

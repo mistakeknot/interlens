@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Defer pipeline integrity to fd-evidence-pipeline-integrity",
+    "Defer trust mechanics to fd-trust-mechanics",
+    "Defer kernel boundary to fd-kernel-boundary"
+  ],
+  "decision_lens": "Does the cost trajectory ($1.17 to $2.93) reflect genuine improvement-via-evidence or improvement-via-spending-more-on-review, and how would the document distinguish those?",
+  "focus": "Cost dynamics, model routing, and agent-fleet economics under the cost-per-landable-change north star",
+  "name": "fd-dispatch-economics",
+  "persona": "Apply the perspective of an MLOps practitioner who has run mixed-model agent fleets in production — they care about per-call cost variance, cache hit economics, queueing under burst, and the Goodhart drift of any cost metric, measure cost p50/p95 per outcome and routing override rate, and flag when tokens-per-landable-change is presented as a north star without a normalization story across change sizes.",
+  "review_areas": [
+    "Whether cost-per-landable-change normalizes for change complexity, or whether trivial changes inflate the denominator",
+    "Whether the ~589-agent fleet has a utilization tail problem — long tail of agents that fire rarely but cost prompt engineering to maintain",
+    "Whether Opus-95-percent-of-cost (Feb 2026 baseline) is structural or incidental, and what the routing roadmap implies for that ratio",
+    "Whether evidence quarantine (48h delay) creates a windowed feedback loop that misses fast-moving model regressions",
+    "Whether multi-track / reaction-round expansion of review scope has a built-in efficiency check",
+    "How the metric behaves on epic-length campaigns vs single-PR sprints — same denominator unit"
+  ],
+  "severity_examples": [
+    {
+      "condition": "A flurry of one-line changes inflates efficiency while real work degrades",
+      "scenario": "Cost metric not normalized for change size",
+      "severity": "P0"
+    },
+    {
+      "condition": "Long tail of stub-tier agents drains design time and dilutes review signal",
+      "scenario": "Agent fleet bloat unaddressed",
+      "severity": "P1"
+    },
+    {
+      "condition": "48h is too slow for fast model regressions and too fast for slow drifts",
+      "scenario": "Evidence quarantine window is fixed",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Look for explicit normalization in the metric definition",
+    "Check whether the 64-plugin / 589-agent count is celebrated or scrutinized",
+    "See if there is a sunset path for unused capabilities",
+    "Note whether cost-per-landable-change has a confidence interval or just a point value"
+  ],
+  "task_context": "Reviewing the Sylveste v5.0 vision document to evaluate the cost-and-routing thesis. Goal: identify Goodhart and bloat risks under the north star metric."
+}

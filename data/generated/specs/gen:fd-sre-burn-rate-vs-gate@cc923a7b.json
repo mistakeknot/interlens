@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Does not cover statistical threshold calibration for N — defer to fd-ml-canary-break-rate",
+    "Does not cover formal proof obligations for the Break phase — defer to fd-runtime-assurance-break-observability",
+    "Does not cover reputation scoring update semantics — defer to fd-trust-reputation-scoring-break"
+  ],
+  "decision_lens": "In SRE, a burn-rate alert fires continuously when error-rate exceeds budget burn; a promotion gate fires once when the error budget is spent. The Break phase must choose: does ≥N receipts guarantee self-observation health (gate), or does receipt rate over the Compound window reveal observation quality (continuous)? Which failure mode — a subsystem that produces exactly N trivial receipts and stops — does the chosen design leave undetected?",
+  "focus": "Evaluates the Break phase design through the lens of SRE error-budget and SLO burn-rate alerting, where discrete gates and continuous burn-rate monitoring solve different failure modes",
+  "name": "fd-sre-burn-rate-vs-gate",
+  "persona": "Apply the perspective of an SRE platform engineer who has designed both SLO burn-rate alert ladders and explicit promotion gates for production services — they care about time-to-detect, alert fatigue from rate-based signals, and whether a gate passes because the system is healthy or because the observation window was quiet; they measure signal quality by asking 'does a zero-alert window mean nothing happened or that observation went blind', and flag designs where a count threshold can be satisfied by low-severity noise that crowds out the genuine contradictions.",
+  "review_areas": [
+    "Whether the ≥N gate can be satisfied by N low-severity Break receipts filed just before Epoch transition, analogous to a SLO that is technically met by end-of-window catch-up rather than sustained compliance",
+    "Whether the current spec distinguishes between a Compound window with steady break-finding activity versus one with a burst of receipts at window-close, and which operational mode the gate incentivizes",
+    "Whether 'a subsystem that cannot find contradictions to surface is a subsystem whose self-observation has gone blind' (§7.1) is detectable under the gate variant — specifically, a quiet Compound window that hits exactly N receipts late gives the same gate verdict as a genuinely active self-observer",
+    "Whether the rate of Break receipts over the Compound window should be a Tier-2 evidence signal (per §7.1) in its own right, indexed alongside the gate count, analogous to how SRE burn-rate rate-of-burn is reported alongside remaining budget",
+    "Whether Interspect's role as severity scorer for Break receipts provides enough signal under the gate variant to distinguish genuine self-observation from late-filed receipts, and what the Interspect scoring latency implies for real-time break detection",
+    "Whether the decay model in §7.3 interacts with Break receipt timestamps — if receipts age out before Epoch transition, does the gate reopen, and does the spec account for this coupling"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The gate passes a subsystem whose self-observation was effectively absent for most of Compound; the jo-ha-kyū analogy is violated — the break was not organic to the build but a compliance artifact filed to clear the gate.",
+      "scenario": "Gate variant: a subsystem files N-1 Break receipts across its Compound window and one high-severity receipt at day 89 of a 90-day window, passing the gate. The late burst was triggered by an external audit, not autonomous self-observation.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Continuous mode creates an unachievable rate floor for slow-maturing subsystems, forcing either an architectural exception or artificially shortened Compound windows that undermine evidence quality.",
+      "scenario": "Continuous-mode variant: the receipt rate threshold is set without reference to Compound window length, so a long Compound window (due to slow evidence accumulation) requires a rate that is arithmetically impossible to maintain for its full duration given the volume of operations.",
+      "severity": "P1"
+    },
+    {
+      "condition": "N is trivially achievable for high-throughput subsystems and proportionally burdensome for low-throughput ones; the gate becomes a tick-box for active subsystems and a genuine barrier for slower ones, skewing which subsystems advance to Epoch.",
+      "scenario": "Gate variant: N is a fixed integer not indexed to Compound window duration or subsystem activity level. A high-throughput subsystem with 10,000 operations in its Compound window and a low-throughput one with 200 operations face the same N.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Check whether the spec distinguishes end-of-window bursts from sustained receipt activity",
+    "Look for whether Break receipt rate appears anywhere as a Tier-2 evidence signal about observation health",
+    "Verify the spec addresses what a 'blind' self-observer looks like under the gate — specifically whether it is distinguishable from a healthy one with N receipts"
+  ],
+  "task_context": "Reviewing §7.1 of the Sylveste vision v6 outline and the existing Trust Lifecycle prose (docs/sylveste-vision.md lines 456-465) to evaluate whether the Break phase should be a discrete gate (≥N receipts to enter Epoch) or a continuous-mode requirement (sustained receipt rate as Tier-2 evidence). The goal is to surface operational failure modes each variant leaves undetected, drawing on SRE burn-rate vs gate-based promotion patterns."
+}

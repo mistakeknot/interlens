@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does NOT cover graph algorithms (fd-graph-algorithm-determinism), embed loading (fd-embed-data-integrity), LLM selection (fd-llm-provider-interface), or stack state machine (fd-stack-orchestration-state-machine)",
+  "decision_lens": "EMA state is the accumulated signal of user preference — any divergence from Python's parameters or any data loss through the Store interface boundary destroys the value of engagement tracking",
+  "focus": "Validates EMA scoring fidelity, engagement classification boundaries, and the Store interface contract for persistence delegation",
+  "name": "fd-evolution-tracking-semantics",
+  "persona": "Behavioral analytics engineer who has implemented and maintained EMA-based feedback loops in production recommendation systems",
+  "review_areas": [
+    "EMA parameter fidelity: engaged +0.1, ignored -0.05, pushed_back -0.1, floor 0.1, exploration bonus +0.15 for usage_count < 3 — are these constants named (not magic numbers), and is the floor applied before or after the delta, matching Python's order of operations?",
+    "Engagement classification boundary conditions: what counts as 'ignored' vs 'pushed_back' vs no event — are these driven by user action signals from the transport layer, and is the classification logic in the tracker or in the caller, and is that boundary documented?",
+    "Store interface completeness: the brainstorm defines Store for persistence but doesn't detail its method set — does it need GetEffectiveness(lensID, userID) for cross-session state recovery, or does the tracker only support in-memory state that callers must persist and restore?",
+    "In-memory state initialization: when a new session starts, effectiveness scores begin at what default? If callers provide a persistence implementation, how does the tracker load prior state — via constructor injection of initial scores, or via a Store.Load() call at initialization?",
+    "Concurrent access safety: if multiple goroutines record events for different users simultaneously (Skaffen serving multiple conversations), does the in-memory EMA state use per-user locks, a single global lock, or per-user sync.Map entries?",
+    "Usage count threshold semantics: the exploration bonus applies for usage_count < 3 — is usage_count per-user-per-lens or global-per-lens, and does it reset across sessions or accumulate indefinitely, and does the Store interface persist it?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "User's disliked lenses reach floor=0 and are never shown again, breaking the exploration guarantee",
+      "scenario": "The floor of 0.1 is applied after the delta but Python applies it before, so pushed_back events on a lens already at 0.1 produce 0.0 in Go but remain at 0.1 in Python — lenses permanently suppressed in Go that Python would continue offering",
+      "severity": "P0"
+    },
+    {
+      "condition": "Effectiveness tracking is silently stateless across sessions despite the Store interface existing",
+      "scenario": "In-memory EMA state is never restored from the Store between sessions because the constructor doesn't call Store.Load() — every new session starts all lenses at effectiveness=1.0, losing accumulated user preference signal",
+      "severity": "P1"
+    },
+    {
+      "condition": "New users receive no exploration bonus for rare lenses, reducing lens diversity",
+      "scenario": "usage_count is tracked globally (not per user) in the in-memory map, so a lens used by 3 different users loses its exploration bonus for all future users, even first-time recipients of that lens",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "EMA constants extracted to named package-level vars with comments citing Python source line numbers; floor application order covered by a dedicated unit test with boundary inputs; Store interface documented with explicit session lifecycle contract (Load on init, Flush on close); per-user effectiveness map with a RWMutex per user entry",
+  "task_context": "lens_evolution.py tracks lens effectiveness per user using EMA scoring with five named parameters and an exploration bonus. The Go Tracker interface exposes RecordEvent(lensID, userID, event) and Effectiveness(lensID) methods. In-memory EMA state replaces Python's SQLAlchemy LensUsage table. Callers (Skaffen agent, Intercom) provide a Store implementation for persistence. The package must support concurrent multi-user access within a single process."
+}

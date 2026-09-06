@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "Bootstrap algorithm correctness — covered by fd-statistical-implementation",
+    "Schema consistency — covered by fd-schema-cross-boundary",
+    "RAG retrieval — covered by fd-rag-retrieval-math"
+  ],
+  "decision_lens": "Flags anything that would let scores go up while actual editorial quality stays flat or degrades.",
+  "focus": "Whether the 7-pillar LLM-as-judge framework actually measures editorial quality improvement or just judge preferences",
+  "name": "fd-eval-measurement-validity",
+  "persona": "A psychometrician and NLP evaluation researcher who has spent years designing rubrics that resist gaming and confounding.",
+  "review_areas": [
+    "Verify the 7th pillar (preservation) has a distinct, non-overlapping definition that cannot be gamed by surface edits",
+    "Check whether the judge prompt's rubric anchors (1-5 per pillar) are calibrated against actual human editorial judgments",
+    "Assess whether cross-family judge support introduces systematic bias",
+    "Verify that the paired bootstrap significance tests are applied to the right null hypothesis",
+    "Check whether the composite score aggregation weights pillars proportional to their variance",
+    "Identify any pillar whose definition changes meaning under reference-based vs blind scoring"
+  ],
+  "success_hints": [
+    "Each pillar score distribution should be roughly bell-shaped — not ceiling-clamped",
+    "Pillar scores should be at most weakly correlated (r < 0.6)",
+    "Bootstrap p-values for known-good vs known-bad pairs should consistently fall below 0.05 with N >= 100"
+  ],
+  "task_context": "The plan adds a 7th eval pillar and replaces single-judge scoring with cross-family judge support plus paired bootstrap significance testing. This system drives all training decisions."
+}

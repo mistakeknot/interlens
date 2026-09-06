@@ -1,0 +1,36 @@
+{
+  "anti_overlap": "Focuses on breaking-change discipline, format versioning, lossy-quantization acceptability criteria, and statefulness risks — not on BPE tokenization optimization, SVG rendering, or semantic color preservation.",
+  "decision_lens": "Asks whether the format change is safe to ship as a default: a feed that changes its default precision or encoding silently breaks every subscriber who didn't read the changelog. Maps to whether changing get_screen default from 'full' to 'compact' is a breaking change requiring explicit versioning discipline, not just a 'mitigation: full remains available'.",
+  "distance_rationale": "Market data feed engineering is a professional discipline at the same abstraction level — designing compact wire formats for high-throughput structured data with strict subscriber contract discipline. The default-change and quantization decisions in the brainstorm are structurally identical to decisions that data feed engineers have formalized into precise breaking-change classifications.",
+  "expected_isomorphisms": "Default format change maps to feed tier default change (breaking); color quantization maps to price precision reduction (lossy, requires acceptability criteria); format version header maps to MDP message type; diff mode maps to delta encoding statefulness risk.",
+  "focus": "How financial market data feed engineers design compact wire formats for tick data — managing default stream selection, lossy quantization of precision, delta encoding, and breaking-change discipline for format evolution",
+  "name": "fd-market-data-feed",
+  "persona": "A senior market data engineer who has designed and operated high-throughput tick data feeds (FIX, FAST, MDP 3.0, OPRA) for major exchanges and data vendors. Has shipped default-change migrations that broke customer integrations and now has very precise opinions about what constitutes a breaking change, how to signal format version, and when lossy precision reduction is operationally acceptable vs. when it destroys downstream decisions.",
+  "review_areas": [
+    "Breaking change classification and migration discipline — market data vendors classify default changes as breaking regardless of backward compatibility because any subscriber relying on implicit defaults is broken. Assess whether the brainstorm's 'mitigation: full remains available' is sufficient, or whether the default change requires a deprecation period, explicit version header in output, and migration guide for existing integrations.",
+    "Lossy quantization acceptability criteria — data feeds routinely reduce precision (price to 4dp, volume to nearest 100) but always define the conditions under which lossy reduction is safe: when the decision the subscriber makes doesn't depend on the lost precision. Check whether the brainstorm defines the LLM decision types for which 16-color quantization is safe vs. unsafe (e.g., detecting a selected row is safe; detecting a custom-branded UI color is not).",
+    "Delta encoding and stateful format risks — FAST and MDP 3.0 use delta encoding (send change from last value, not full value) which creates a stateful format where a dropped message corrupts all subsequent values. Assess whether the annotated format is stateless (each output fully self-describing) or whether any planned extensions (diff mode, dictionary compression) introduce statefulness that could corrupt LLM context if a capture is missed.",
+    "Default stream selection and subscriber segmentation — exchanges offer multiple feed tiers (consolidated, direct, full-depth) with different defaults for different subscriber classes. Assess whether tuivision should segment callers by use case (agent vs. human-readable vs. debugging) with different defaults per caller class, rather than a single global default change.",
+    "Format version signaling — production data feeds include a message type or version field so subscribers can detect format changes and route accordingly. Assess whether the annotated format output includes a format identifier (e.g., a header line or a wrapper field) that lets consumers detect which format they received, enabling gradual migration without breaking existing parsers."
+  ],
+  "severity_examples": [
+    {
+      "condition": "When the compact and full formats are structurally different enough that a parser written for full will not produce an obvious error on compact input, instead producing subtly wrong data",
+      "scenario": "The default format change from 'full' to 'compact' ships without a format version identifier in the output — an existing integration that parses get_screen output receives compact output, fails to find expected fields, and silently misinterprets the terminal state rather than erroring",
+      "severity": "P1"
+    },
+    {
+      "condition": "When the annotated format has no per-call opt-out for color quantization, forcing callers who need exact colors to use the full or SVG format and losing all other annotated-format benefits",
+      "scenario": "16-color quantization is applied uniformly without a caller-specified 'I need exact colors' escape hatch — an agent debugging a color-picker TUI or a theme editor receives quantized colors and reports incorrect state",
+      "severity": "P2"
+    },
+    {
+      "condition": "When the stateless/stateful boundary is not an explicit design constraint in the annotated format spec, leaving the door open for future extensions that create hidden state dependencies",
+      "scenario": "The planned diff mode (deferred child .6) will introduce stateful output — but the annotated format is being designed now without statefulness constraints, making diff mode a potentially breaking format revision rather than a clean additive extension",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Financial market data feed engineering (FIX, FAST, MDP 3.0, OPRA tick data formats)",
+  "success_hints": "Proposes a format version header in annotated output (e.g., first line 'tuivision/annotated/v1'), a quantization opt-out parameter, and classifies the default change as requiring an explicit deprecation notice in the API response when the old default is used without explicit format specification.",
+  "task_context": "Tuivision's brainstorm proposes changing the get_screen default from 'full' (12K tokens) to 'compact', introducing color quantization, and adding an annotated format. Each of these is a data format evolution decision with downstream consumer implications that market data feed engineering has formalized into precise breaking-change and migration disciplines."
+}

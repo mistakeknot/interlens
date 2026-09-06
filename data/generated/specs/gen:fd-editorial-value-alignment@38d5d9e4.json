@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-slop-category-mapping covers empirical penetration rates",
+    "fd-platform-publishing-behavior covers why slop gets published",
+    "fd-exa-query-gap-analysis covers Exa query operationalization"
+  ],
+  "decision_lens": "Prioritizes slop categories where editorial changes are deep (voice, structure, intent) rather than shallow (filler word removal) — because deep corrections generalize across clients.",
+  "focus": "Determine which high-slop categories produce the richest editorial training signal when corrected by Ryan",
+  "name": "fd-editorial-value-alignment",
+  "persona": "A training data strategist who thinks about every corpus source through the lens of what a correction pair teaches. Knows that not all before/after pairs are equal.",
+  "review_areas": [
+    "Which AI content categories produce the most structurally interesting corrections — misaligned arguments, buried ledes, weak topic sentences?",
+    "In which categories does AI most consistently produce voice inconsistency requiring editorial judgment?",
+    "What is the relationship between content category and type of editorial principle being trained?",
+    "Which categories are high-slop but low-editorial-value because fixes are too trivial or too domain-specific?",
+    "Are there categories where AI slop has false fluency that obscures structural problems — creating uniquely valuable training signal?",
+    "How does content length interact with editorial training value per Ryan-review-hour?"
+  ],
+  "success_hints": [
+    "Ranked prioritization of categories by (AI penetration) x (editorial training value per corrected pair)",
+    "At least 2 categories to deprioritize because high-slop but low-training-value",
+    "Which editorial principles are best trained from which content categories"
+  ],
+  "task_context": "Texturaize uses 18 Exa queries. Ryan corrects edits to generate training pairs. Question is not just where slop lives but which slop produces the best training signal."
+}

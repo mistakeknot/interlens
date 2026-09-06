@@ -1,0 +1,38 @@
+{
+  "anti_overlap": [
+    "fd-pipeline-http-contract covers the HTTP contract the cron job calls into",
+    "fd-cli-subprocess-lifecycle covers the subprocess spawning within the pipeline worker itself",
+    "fd-session-state-integrity covers request-level state inside the pipeline worker"
+  ],
+  "decision_lens": "Prioritizes failure modes where the cron job completes with exit 0 despite doing no useful work (silent failures), overlapping runs that cause duplicate data ingestion, and environment leakage that causes the job to authenticate with wrong credentials on subsequent runs.",
+  "focus": "Failure handling, overlap prevention, environment isolation, and logging correctness in the training-scout cron job",
+  "name": "fd-cron-job-reliability",
+  "persona": "A site reliability engineer who has operated production cron jobs and systemd timers at scale. Has personally debugged overlapping cron runs that corrupted databases, missing error exits that marked failed jobs as successful, and environment variable leakage between cron invocations.",
+  "review_areas": [
+    "The overlap-prevention check calls /training-scout/status and treats a failed curl (network error) as 'running:true' (safe default) — verify this is correct and not overly conservative; a permanently unreachable status endpoint would permanently skip all cron runs",
+    "The main curl call uses --max-time 1800 (30 minutes) but the script has set -euo pipefail — if the pipeline returns a non-200 HTTP status, curl -sf exits non-zero and the script exits with a misleading 'Scout request failed' message regardless of what the actual error was",
+    "The .env sourcing uses 'source' (bash dot-source) which pollutes the cron shell environment for the duration of the script — if the .env file contains variables with side effects or exports, they persist and could affect subsequent commands",
+    "The log appended to /var/log/training-scout.log via crontab redirect never rotates — examine whether this file can grow unboundedly and whether it is world-writable (permission issues) or owned by root vs mk",
+    "Examine whether 'python3 -m json.tool' for result formatting will mask a non-zero exit from the prior command in the pipeline via EXIT_CODE=$? capture — the $? is captured before the python3 formatting, but the JSON extraction subshells also ignore errors",
+    "Assess whether the script handles the case where PIPELINE_HOST/PORT env vars are not set in cron's minimal environment — cron does not inherit the user's full shell environment, so defaults (127.0.0.1:3847) must be explicitly set or sourced from a known file"
+  ],
+  "severity_examples": [
+    {
+      "condition": "curl failure on status check defaults to 'running:true' with no timeout distinction from genuine running state",
+      "scenario": "The /training-scout/status endpoint is slow to respond (network congestion, not actually running), curl returns exit code 28 (timeout), the script interprets this as 'running:true', and the cron job silently skips every run for days",
+      "severity": "P1"
+    },
+    {
+      "condition": "The status-check and trigger are not atomic — there is a TOCTOU window between checking 'running' and setting 'running'",
+      "scenario": "Two cron runs overlap (cron triggered while previous run is still within its 30-minute --max-time window due to a slow scout run), both pass the status check in the same second before either updates the running flag, and both submit duplicate training-scout triggers",
+      "severity": "P1"
+    },
+    {
+      "condition": "source does not override previously-exported environment variables from cron's inherited environment",
+      "scenario": "The cron job sources .env which sets ANTHROPIC_API_KEY, but a previous cron run had already exported a different API key into the environment — source does not unset variables not in .env, so a rotated key may not take effect if the variable was already exported",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "A reliable cron job uses a lock file (flock) rather than a polling API call for overlap prevention, logs a distinct exit code for each failure mode, and loads its environment via a dedicated env file read with 'export $(grep -v ^# .env | xargs)' rather than source to avoid side effects.",
+  "task_context": "scripts/training-scout-cron.sh runs daily at 3:00 AM UTC via crontab on slse. It checks pipeline health, checks if a scout is already running, then POSTs to /training-scout/search with a 30-minute timeout. Results are logged to /var/log/training-scout.log. The script sources .env if PIPELINE_AUTH_TOKEN is not set. set -euo pipefail is active."
+}

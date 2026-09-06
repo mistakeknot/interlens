@@ -1,0 +1,36 @@
+{
+  "anti_overlap": "Focus on routing optimization algorithms from finance, not logistics (fd-supply-chain-sourcing) or broadcast (fd-broadcast-signal-routing)",
+  "decision_lens": "When you have the same 'order' (agent task) to fill across venues (model providers) with different fee/quality profiles, how do you optimize the routing?",
+  "distance_rationale": "Financial markets route the same instrument across competing venues with different cost/quality profiles — structurally identical to routing agents across model providers",
+  "expected_isomorphisms": "Venue scoring algorithms, order splitting strategies, best execution proof obligations, and post-trade cost analysis all map directly to model routing decisions",
+  "focus": "Smart order routing across multiple exchanges with different fee structures and execution quality",
+  "name": "fd-trading-desk-order-routing",
+  "persona": "A quantitative trading systems architect who has built smart order routers that split large orders across exchanges based on cost, speed, and fill probability",
+  "review_areas": [
+    "Venue selection: how trading desks classify exchanges by fee tier, latency, and fill quality — maps to model provider selection by cost, speed, and output quality",
+    "Order splitting: breaking large orders across venues to minimize market impact — maps to splitting agent workload across model tiers",
+    "Best execution obligation: regulatory requirement to demonstrate optimal routing — maps to proving model routing actually improves cost/quality ratio",
+    "Dark pool vs lit market tradeoffs: cheap hidden venues vs expensive transparent ones — maps to cheap OpenRouter models vs premium Claude",
+    "Post-trade analysis: TCA (Transaction Cost Analysis) for proving routing effectiveness — maps to cost report validation"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When cost optimization ignores output quality metrics entirely",
+      "scenario": "All orders routed to cheapest venue (dark pool) but fill quality is terrible — equivalent to routing all agents to cheapest model and getting garbage findings",
+      "severity": "P0"
+    },
+    {
+      "condition": "When cost report doesn't compare routed vs unrouted runs",
+      "scenario": "No post-trade analysis exists — impossible to prove routing is actually better than naive approach",
+      "severity": "P1"
+    },
+    {
+      "condition": "When model routing doesn't adapt to current budget pressure or task complexity",
+      "scenario": "Venue selection is static (same routing every time) instead of adapting to current market conditions",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Quantitative trading / smart order routing",
+  "success_hints": "Look for dynamic venue scoring, execution quality feedback loops, and TCA-equivalent cost analysis",
+  "task_context": "Trading desks solved the multi-venue routing problem decades ago. The structural parallels to multi-model dispatch are direct."
+}

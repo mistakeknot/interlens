@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Does NOT cover Claude Code hooks (fd-claude-code-hooks-economy)",
+    "Does NOT cover prompt cache shape (fd-prompt-cache-economics)"
+  ],
+  "decision_lens": "Is this MCP server pulling its weight per session — does it provide value commensurate with its instructions text, deferred-tool listing, and startup latency?",
+  "focus": "Reviews MCP server inventory for startup cost, deferred-tool bloat, and instructions injected per session",
+  "name": "fd-mcp-server-hygiene",
+  "persona": "Apply the perspective of an MCP server operator — they care about each server's startup latency, the size of its tool catalog, the cost of its `instructions` block in the host's system prompt, and how many tools sit deferred but listed",
+  "review_areas": [
+    "Deferred tool listing cost: ~80 tool names listed at session start — what is the byte/token cost, and how often are they actually used per session (cass analytics tools)?",
+    "MCP `instructions` blocks: which servers inject the longest instruction text, and is the instruction load-bearing or aspirational marketing?",
+    "Tool-name length: do MCP tool names use unnecessarily long prefixes (`mcp__plugin_interflux_openrouter-dispatch__review_with_model`) — could the registry collapse the namespace?",
+    "MCP startup latency: which servers add startup time but rarely provide tools used in-session?",
+    "Tool schema fetch: ToolSearch loads schemas on-demand. Are there servers whose tools should be schema-deferred entirely until first use?",
+    "Disconnection handling: when an MCP server disconnects (context7, exa, interrank, intersearch — all disconnected this session), is the tool list cleanly reaped or does it leak"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The instructions cost more than the tools save",
+      "scenario": "An MCP server injects 500+ tokens of instructions every session but its tools are used in <5% of sessions (per cass analytics tools)",
+      "severity": "P1"
+    },
+    {
+      "condition": "Tool listing alone consumes 5kt across the deferred-tool section",
+      "scenario": "An MCP tool name is 70+ characters long because of nested namespace prefixes",
+      "severity": "P2"
+    },
+    {
+      "condition": "Stale tool listings consume tokens for tools that cannot be invoked",
+      "scenario": "A disconnected MCP server's tools remain listed as deferred in subsequent turns until session restart",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "MCP server lifecycle and Claude Code agent SDK",
+  "success_hints": [
+    "Count actual tool usage per server using cass analytics tools",
+    "Quote specific instructions blocks and propose compressed versions",
+    "Recommend servers for full removal, lazy-load, or instructions-trim",
+    "Reference the disconnected-server pattern visible in this session"
+  ],
+  "task_context": "Sylveste loads ~80 deferred MCP tools at session start (visible in deferred-tools listing). Each MCP server can inject `instructions` text into the system prompt. Some servers (interlock, interlab, interlens, interflux exa, context7) inject substantial instructions and large tool lists. Identify which servers are not justifying their per-session cost and propose lazy-load or removal."
+}

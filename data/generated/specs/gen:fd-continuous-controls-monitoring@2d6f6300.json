@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "Nuclear maintenance rule monitoring (covers a-category rolling-window functional failure rate for safety-critical equipment, not financial control exception rates)",
+    "Pharmaceutical post-market surveillance (covers adverse event signal rates and regulatory approval gates, not financial control health monitoring)",
+    "Insurance underwriting re-rating (covers ongoing risk signal recalibration, not control-effectiveness monitoring)"
+  ],
+  "decision_lens": "Prioritize findings where the Break design would allow a subsystem to pass a gate without demonstrating that its self-observation mechanisms are operating continuously. In CCM, a control that fires zero exceptions for a month is suspicious — either the population is clean or the control has gone silent. If Break receipts can hit ≥N without triggering an alert when the rate drops to zero after passage, the gate is not a health signal; it is a one-time compliance artifact.",
+  "distance_rationale": "SOX 404 external audits and continuous controls monitoring embody the same gate-vs-continuous structural choice — annual opinion vs real-time exception rate — for financial control health, at enterprise scale with established regulatory frameworks.",
+  "expected_isomorphisms": "The SOX 404 annual audit maps to Break-as-gate: a point-in-time opinion that grants a certification. CCM maps to Break-as-continuous-mode: the exception rate is the signal, and a rate that drops to zero after a control 'passes' is itself an anomaly. The CCM concept of 'zero-exception alert' — flagging controls that fire no exceptions as potentially broken — maps directly to the option (b) proposal that a sustained rate below a floor is itself a Tier-2 demotion signal.",
+  "focus": "Annual audit gate versus real-time exception-rate monitoring for control health",
+  "name": "fd-continuous-controls-monitoring",
+  "persona": "Apply the perspective of a financial controls auditor who has worked both SOX 404 annual external audits and continuous controls monitoring (CCM) implementations. They care about the distinction between a point-in-time opinion (the annual audit gate) and a persistent exception rate signal (CCM dashboards). They measure control effectiveness not by whether a control passed its last test but by whether it is firing at the expected exception rate over time. They flag any design that treats a single gate test as a durable certificate of control health.",
+  "review_areas": [
+    "Assess whether Break as a gate produces a point-in-time certificate (analogous to annual audit opinion) that the subsystem then carries silently through the rest of Compound",
+    "Check whether the spec includes a zero-receipt floor — a minimum rate below which the absence of Break receipts is treated as a self-observation failure rather than health",
+    "Evaluate whether Interspect acts as an independent external auditor (like an external audit firm under SSAE 18) or as management's self-assessment — the distinction determines the evidential weight of Break receipts",
+    "Verify that Break receipts are not all generated at the start of Compound ('front-loading') analogous to management completing all control tests in Q1 before the annual audit",
+    "Examine whether the ≥N gate specifies both a minimum count and a minimum temporal distribution — CCM requires exceptions to be detected across the monitoring period, not batched",
+    "Consider whether the Break spec differentiates between 'control operative but no exceptions found' (a valid continuous result) versus 'control not queried' (a gap) — analogous to CCM's population-coverage requirement"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When the Break spec has no minimum distribution requirement and no zero-receipt floor that triggers a health alert",
+      "scenario": "A subsystem surfaces N Break receipts in the first sprint of Compound and then emits zero for the remaining window — the gate is satisfied, but the self-observation mechanism has effectively stopped operating, which CCM would flag as a control-silence anomaly",
+      "severity": "P0"
+    },
+    {
+      "condition": "When §7.1 does not specify the independence posture of Interspect relative to the subsystem surfacing Break receipts",
+      "scenario": "Interspect scores Break receipt severity but the spec does not establish whether Interspect is operating as an independent assurer or as a management-layer reviewer — this ambiguity determines whether Break receipts carry Tier-1 or Tier-2 evidential weight",
+      "severity": "P1"
+    },
+    {
+      "condition": "When ≥N is specified as an absolute count rather than a rate or density normalized to window length",
+      "scenario": "The Break gate uses a fixed N regardless of Compound window length — a 30-day Compound window and a 180-day Compound window both require the same N receipts, making the receipt rate meaningless as a health signal",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Financial audit and continuous controls monitoring (SOX 404, SSAE 18, CCM frameworks)",
+  "success_hints": [
+    "Identifies whether the Break design produces a one-time certificate (SOX-404-like) or a persistent rate signal (CCM-like) and surfaces the implications of each for post-passage self-observation health",
+    "Flags the zero-receipt floor gap if absent — the most operationally significant difference between gate and continuous-mode monitoring in financial controls practice"
+  ],
+  "task_context": "Reviewing §7.1 of the Sylveste vision v6 outline, which introduces a Break phase between Compound and Epoch in the subsystem trust lifecycle. The upstream judgment call is whether Break should be a discrete gate (≥N receipts before transition) or a continuous-mode requirement (sustained contradiction-surfacing rate as Tier-2 evidence about self-observation health). The reviewer brings financial audit and continuous controls monitoring practice — specifically the SOX 404 annual audit versus CCM exception-rate monitoring distinction — as a parallel professional discipline."
+}

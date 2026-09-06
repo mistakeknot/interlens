@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Covers multi-connector composition; fd-go-python-subprocess-bridge covers transport; fd-query-template-protocol-design covers single-template design",
+  "decision_lens": "When a query joins data from multiple connectors and one fails, does the result accurately communicate what succeeded and what is missing?",
+  "focus": "Partial result semantics when multi-connector queries encounter failures",
+  "name": "fd-cross-connector-fan-out-reliability",
+  "persona": "Distributed systems engineer who has built federated query engines with heterogeneous data sources",
+  "review_areas": [
+    "Partial result marking: result includes which connectors contributed vs which failed",
+    "Empty result vs connector-unavailable distinction (no actors found vs cass down)",
+    "Sequential vs parallel connector fan-out and latency implications",
+    "Stale data handling: query uses cached crosswalk data when connector harvest is outdated",
+    "Error propagation: connector errors bubble up as structured query errors, not silent empty results",
+    "Timeout per connector vs global query timeout"
+  ],
+  "severity_examples": [
+    {
+      "condition": "cass connector fails but beads data returns successfully, agent treats as complete",
+      "scenario": "bead_context returns partial data without marking it incomplete",
+      "severity": "P1"
+    },
+    {
+      "condition": "who_touched_file returns zero actors because harvest never ran, not because no one touched the file",
+      "scenario": "Empty actors list is indistinguishable from never-harvested",
+      "severity": "P2"
+    },
+    {
+      "condition": "3 connectors each take 1s, total is 3s instead of ~1s with parallel execution",
+      "scenario": "Sequential fan-out triples query latency",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "QueryResult has explicit connector_status field. Partial results are clearly marked. Fan-out is parallel where possible.",
+  "task_context": "Multi-connector queries are the core value of interweave. If agents can't distinguish partial from complete results, they make wrong decisions."
+}

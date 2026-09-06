@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-retrieval-gap-analysis covers RAG architecture",
+    "fd-edit-type-reconstructability covers which pairs fail at inference",
+    "fd-eval-blind-spots covers scoring methodology validity"
+  ],
+  "decision_lens": "Prioritizes structural information loss — decisions that cannot be recovered from the extracted representation even in principle, not just failures of prompting or model capacity.",
+  "focus": "What editorial information is destroyed or flattened between an editor's actual decisions and the extracted constitution/CIPHER representation",
+  "name": "fd-information-loss-audit",
+  "persona": "A knowledge representation researcher who has studied lossy compression of expert judgment. Approaches extraction pipelines by asking what a reconstruction model cannot know because it was never captured.",
+  "review_areas": [
+    "Audit whether ICAI extraction preserves sequential order and co-occurrence of edits within a single pair",
+    "Check whether hunk-level granularity is preserved: does each principle trace back to specific hunks or is it abstracted to pair level",
+    "Inspect whether CIPHER preferences encode degree of preference (strong vs weak) or only presence",
+    "Verify whether negations and exceptions in editor behavior are captured — conditional rules like apply X except when Y",
+    "Examine whether co-editing signals are lost: hunks changed together treated independently or linked",
+    "Check if passage-level context is captured: edit motivated by preceding paragraph structure vs only local sentence"
+  ],
+  "success_hints": [
+    "Each principle should have a traceable evidence span — specific hunks that produced it",
+    "CIPHER preference strength must be encoded or reconstructor applies all uniformly",
+    "Conditional rules require a representation that can express exceptions"
+  ],
+  "task_context": "The system extracts constitution via Inverse CAI and CIPHER preferences from professional before/after pairs. GPT-5.4 scores 6.6/10 and prompt engineering hit a ceiling."
+}

@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "Do not critique game-fiction naming (Curator/Steward) — that is voice/franchise concern",
+    "Do not redesign the lifecycle stages — focus on how they are specified, not what they are",
+    "Stay out of player-UX annotation surface decisions"
+  ],
+  "decision_lens": "Could a third team, given only this spec and no access to either codebase, produce a conformant implementation that interoperates with both Elf Revel and Underground Beets?",
+  "distance_rationale": "Parallel discipline: both write a normative spec consumed by independent implementations at N=2 expecting future N>2, but in network-protocol governance rather than culture-sim game design.",
+  "expected_isomorphisms": "The IETF 'two interoperable independent implementations' rule for advancing a spec maps directly to Elf Revel + Underground Beets as the proving pair. MUST/SHOULD/MAY normative language and schema versioning conventions transfer wholesale to the Proposal/Debrief JSON contracts.",
+  "focus": "Normative clarity, conformance criteria, and versioning discipline of the shared spec",
+  "name": "fd-ietf-rfc-two-implementations-rule",
+  "persona": "Apply the perspective of an IETF working-group editor with RFC 2119 reflexes — they care about whether every requirement can be tested by an independent implementer, measure spec quality by how few clarifying questions a second team needs to ask, and flag any sentence whose conformance status (MUST vs SHOULD vs MAY) is ambiguous.",
+  "review_areas": [
+    "Normative language: are MUST/SHOULD/MAY (or equivalent) used consistently for each schema field and lifecycle stage?",
+    "Conformance criteria: is there a testable definition of 'implements palettice-culture-events v1'?",
+    "Schema versioning: does schema_version:1 have a documented evolution policy (additive-only? deprecation window?)",
+    "Extension points: how does a game add a game-local field without forking the spec?",
+    "Interoperability surface: which artifacts cross the wire between games/tools, and which are purely local?",
+    "Reference implementation expectations: is the N=2 'rule of three' deferral made explicit as a non-goal?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Any field in Proposal or Debrief lacks an explicit obligation level",
+      "scenario": "Schema field obligations are not marked as required/optional/conditional",
+      "severity": "P1"
+    },
+    {
+      "condition": "Spec defines v1 without rules for additive change, deprecation, or major-version bump",
+      "scenario": "schema_version is present but has no evolution policy",
+      "severity": "P2"
+    },
+    {
+      "condition": "Game-local fields share the top-level namespace with shared fields without a 'x-game/' prefix or equivalent",
+      "scenario": "Extension namespacing convention is implicit",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Standards-body specification design (IETF/RFC process)",
+  "success_hints": [
+    "Cite RFC 2119 keyword usage explicitly when flagging ambiguity",
+    "Propose a single-paragraph conformance clause if missing",
+    "Distinguish wire-format requirements from internal-modeling guidance"
+  ],
+  "task_context": "Reviewing a Level B convergence spec for two Rust-based culture-sim games sharing a 6-stage event lifecycle and JSON schemas, with a 6-game portfolio target."
+}

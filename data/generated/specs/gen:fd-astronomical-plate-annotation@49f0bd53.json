@@ -1,0 +1,31 @@
+{
+  "anti_overlap": "Focuses on annotation-as-overlay from astronomy, not compositional grammar (heraldry) or channel separation (dance)",
+  "decision_lens": "Evaluates whether annotations correctly identify and classify objects while remaining separable from the underlying plate — the annotation is not the image, it's metadata about the image",
+  "distance_rationale": "Cataloguing celestial objects on photographic plates is maximally distant from terminal emulation, but the annotation-overlay pattern maps precisely.",
+  "expected_isomorphisms": "Separable annotation layers, classification vocabularies, magnitude-based detail allocation, and catalog cross-referencing all transfer to terminal state encoding.",
+  "focus": "Astronomical plate annotation — marking up photographic plates with object identifiers, magnitudes, and classifications without altering the image",
+  "name": "fd-astronomical-plate-annotation",
+  "persona": "Astronomical archivist who catalogues photographic plate collections, marking stellar objects with standardized annotations that overlay meaning onto raw imagery",
+  "review_areas": [
+    "Overlay vs. inline encoding — astronomical annotations are a separate layer from the plate image. Terminal annotations should be separable from the text content.",
+    "Classification vocabulary — stars get spectral types (O, B, A, F, G, K, M), galaxies get Hubble types. Terminal elements could get standardized type tags.",
+    "Magnitude as importance signal — brighter objects get more annotation detail. More important terminal regions get more encoding fidelity.",
+    "Coordinate systems — plates use RA/Dec relative to reference stars, not absolute pixels. Terminal encoding could use relative positions from landmarks.",
+    "Catalog cross-referencing — objects reference catalog IDs not descriptions. Repeated terminal patterns could reference a session-local dictionary."
+  ],
+  "severity_examples": [
+    {
+      "condition": "LLM can't distinguish terminal content from encoding metadata",
+      "scenario": "Annotations mixed into content stream",
+      "severity": "P1"
+    },
+    {
+      "condition": "Static header gets same annotation depth as active error output",
+      "scenario": "No importance weighting for annotation detail",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Astronomical plate archiving and annotation (19th-20th century observational astronomy)",
+  "success_hints": "Proposes a clean separation between terminal content and semantic overlay annotations",
+  "task_context": "Astronomical plate annotation adds structured meaning to visual data without modifying it. Terminal state encoding should similarly add meaning without bloating the content."
+}

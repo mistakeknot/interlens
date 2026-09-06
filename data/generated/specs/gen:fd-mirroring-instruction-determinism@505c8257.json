@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does NOT cover regex pattern matching (fd-regex-compilation-unicode-fidelity), EMA arithmetic (fd-ema-float-accumulation-parity), JSON struct tags (fd-json-wire-compatibility-struct-tags), or mutex concurrency (fd-fingerprint-concurrency-model)",
+  "decision_lens": "The mirroring instruction string is injected into the Skaffen agent's system prompt — any word change, whitespace difference, or missing instruction silently changes the agent's communication style, producing a user-visible personality shift that cannot be A/B tested without golden fixtures",
+  "focus": "Validates that BuildMirroring() and BuildInstantMirroring() produce identical text output to Python's build_mirroring_instructions() and build_instant_mirroring() for the same fingerprint and mode inputs",
+  "name": "fd-mirroring-instruction-determinism",
+  "persona": "Output fidelity engineer who specializes in porting human-facing text generation logic across language boundaries, where string formatting differences cause invisible UX regressions",
+  "review_areas": [
+    "Threshold boundary conditions for length instructions: Python uses avg_words <= 5 (very short), <= 10 (concise), <= 20 (medium), else (longer) — Go must use the same <= comparisons not < or >=, and the branch text must be character-identical to Python's strings ('Keep responses very short — 1-2 sentences.' including the em dash)",
+    "Laughter dominance calculation: Python computes dominance = laughter[top_laugh] / total where total = sum(laughter.values()) — if laughter is empty Python skips the block; if total is 0 (shouldn't happen but defensive) Python produces ZeroDivisionError in Python 3 but Go would produce NaN or Inf from float64 division — Go must guard against empty-map and zero-total cases explicitly",
+    "Intensifier dominance threshold: Python uses > 0.3 (not >= 0.3) for the intensifier instruction — Go must use > not >= to match Python's boundary and the string 'Primary intensifier: \\'%s\\'.' uses single quotes around the token, which must be reproduced exactly in Go's fmt.Sprintf",
+    "Mode-specific hedge special case: Python checks 'current_mode == \"emotional\" and \"i feel like\" in hedge' — this is a Python membership test on the hedge dict keys (not values), so Go must check _, ok := hedge[\"i feel like\"]; ok, not hedge[\"i feel like\"] > 0, to match Python's presence check semantics when the key exists with count 0",
+    "Header and footer strings: Python's build_mirroring_instructions returns '\\n## Communication Style — Mirror This Person\\n' + joined + '\\n\\nMirror their style by default. Use their vocabulary and tone.\\n' — the double newline before 'Mirror' and the trailing newline are part of the prompt injection contract and must be byte-identical in Go",
+    "BuildInstantMirroring word count format: Python uses '% wc' string formatting: 'They wrote ~%d words. Reply in 1-2 short sentences max.' % wc — the ~ tilde is intentional, the period is part of the string — Go's fmt.Sprintf must reproduce 'They wrote ~%d words. Reply in 1-2 short sentences max.' exactly including the tilde and period"
+  ],
+  "severity_examples": [
+    {
+      "condition": "A user whose fingerprint is at the 5-word boundary receives 'Keep responses concise — 2-3 sentences max.' from Skaffen but 'Keep responses very short — 1-2 sentences.' from Auraken during the concurrent operation period, causing inconsistent agent behavior",
+      "scenario": "Go uses avg_words < 5 instead of avg_words <= 5 for the 'very short' threshold — a user with exactly 5 avg_words falls into the 'concise' bucket in Go but 'very short' in Python, producing different mirroring instructions for users at the boundary",
+      "severity": "P1"
+    },
+    {
+      "condition": "Emotional mode hedging instruction ('when hedging, use i feel like not i think') is produced inconsistently between Python and Go for edge-case fingerprints",
+      "scenario": "Go's hedge special case uses hedge[\"i feel like\"] > 0 (value check) rather than _, ok := hedge[\"i feel like\"]; ok (presence check) — Python's 'in hedge' tests key presence, so a key with count 0 (which cannot normally occur but might in a deserialized fingerprint with integer 0 from JSON null coercion) would trigger the instruction in Python but not Go",
+      "severity": "P1"
+    },
+    {
+      "condition": "Prompt engineering tooling that extracts style sections by header string fails to find the Go-generated section, silently omitting style mirroring from analysis",
+      "scenario": "The header string in Go is '\\n## Communication Style - Mirror This Person\\n' using a hyphen instead of an em dash — the agent's system prompt contains a different heading character than Python's '—', causing text diff noise in prompt comparison tooling and breaking any downstream parser that looks for the exact heading",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Golden fixture test: run Python's build_mirroring_instructions and build_instant_mirroring on 8 representative fingerprint+mode combinations (including boundary cases at avg_words=5,10,20 and dominance=0.7,0.3), store output as testdata/*.golden, Go test compares byte-for-byte; em dash in Go source file verified as UTF-8 U+2014 not hyphen-minus; laughter empty-map guard tested explicitly with a fingerprint that has laughter={} and one that has laughter={'haha':1}",
+  "task_context": "build_mirroring_instructions() in style.py generates 7-10 conditional instruction strings joined with newlines, wrapped in a header/footer. build_instant_mirroring() generates 4-6 instructions from a single message's observables. Both functions are injected directly into Skaffen's system prompt — the exact strings matter for prompt stability. The brainstorm identifies these as the primary human-facing output of the package. Golden-file test strategy is the recommended parity approach (style.py:66 open question). The mirroring output is the highest-visibility consumer of the EMA and regex machinery."
+}

@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Does NOT cover v1→v2 migration idempotency (fd-schema-migration-backward-compat)",
+    "Does NOT cover rolling-window statistical correctness (fd-rolling-window-algorithm-soundness)",
+    "Does NOT cover OS-level file locking for concurrent writers (fd-file-locking-concurrent-writers)"
+  ],
+  "decision_lens": "A drain loop that advances the cursor before persisting the calibration result is a P0 crash-recovery failure — the gap between cursor advance and v2 write means a crash produces a state where records are consumed but their effect is lost, with no way to replay.",
+  "focus": "Validates the gate-outcomes.jsonl append semantics, cursor advance logic, crash-recovery behavior, and idempotency guarantees of the drain loop",
+  "name": "fd-append-log-cursor-correctness",
+  "persona": "Apply the perspective of a distributed systems engineer who has implemented append-only event logs with cursor-based consumers — they care about exactly-once processing semantics, measure correctness by asking 'what happens if the writer crashes mid-append', and flag any design that can cause a record to be processed twice or skipped.",
+  "review_areas": [
+    "Cursor persistence ordering: cursor_ts is stored inside gate-tier-calibration-v2.json — the drain loop must write the updated v2 (with new cursor_ts) atomically before considering the drain complete; if cursor_ts is updated in memory first and the write fails, the next drain will skip already-seen records",
+    "Partial-record append safety: if the clavain-cli process writing to gate-outcomes.jsonl crashes mid-line, the last line may be a truncated JSON object — the drain reader must detect and skip malformed lines rather than erroring out, and must not advance cursor_ts past a malformed line that could be completed by a future write",
+    "Idempotency of outcome recording: the brainstorm states the write point is inside cmdEnforceGate after runIC returns — if enforce-gate is retried (e.g., sprint retry on transient failure), the same gate outcome fires twice; the drain loop must tolerate duplicate {ts, check_type, theme, phase_from, phase_to, verdict} tuples without double-counting FPR/FNR",
+    "Cursor semantics with rolling window: cursor_ts marks the last-processed timestamp, but rolling-window calibration uses a 30-day window — records older than 30 days are outside the window but the cursor still advances past them; confirm that drained-but-expired records are not re-read on the next cycle",
+    "Concurrent writer safety: cmdEnforceGate appends to gate-outcomes.jsonl while cmdCalibrateGateTiers reads it — both run from clavain-cli subcommands that may be invoked concurrently (e.g., a long-running session fires SessionEnd while another gate check is in progress); does the append use O_APPEND mode or is it subject to interleaving from non-atomic multi-line writes?",
+    "Empty log handling: on first run before any gate fires, gate-outcomes.jsonl does not exist — the drain loop must handle a missing file as an empty log (cursor_ts stays at its current value) rather than erroring, since the SessionEnd hook fires unconditionally"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Gate tiers oscillate or permanently over-promote because a session crash causes every outcome in the re-processed window to be counted twice",
+      "scenario": "The drain loop updates cursor_ts in the v2 struct in memory, then calls json.Marshal + os.WriteFile — between Marshal success and WriteFile, the process is killed by SIGKILL; on next SessionEnd, cursor_ts in v2 still reflects the pre-drain value, so all records between old and new cursor_ts are drained again, doubling their contribution to FPR/FNR in the rolling window",
+      "severity": "P0"
+    },
+    {
+      "condition": "Drain loop is permanently stuck at the truncated record's timestamp; calibration halts for the lifetime of that log file",
+      "scenario": "cmdEnforceGate appends using os.OpenFile with os.O_APPEND but writes the JSON line in two separate Write calls (object bytes, then newline) — a concurrent drain reader reads the file between the two writes and gets a truncated line; if the reader errors on malformed JSON and returns early, it logs the error but does not advance cursor_ts, causing the same records to be re-drained on every subsequent SessionEnd until the log is rotated",
+      "severity": "P1"
+    },
+    {
+      "condition": "Noisy error logs on every new project setup before the first gate check runs; operators may mistake the error for a misconfiguration",
+      "scenario": "Gate-outcomes.jsonl does not exist on first SessionEnd (no gates have fired yet) — the drain loop calls os.Open and receives os.ErrNotExist; the error propagates up and the calibrate subcommand exits with a non-zero code, causing the SessionEnd hook to log an error on every session that ends before the first gate fires",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "v2 write uses atomic tmp-rename pattern so cursor_ts and calibration data are updated together",
+    "Drain reader skips malformed lines with a logged warning and continues without advancing cursor past them",
+    "Missing gate-outcomes.jsonl treated as empty log, not an error"
+  ],
+  "task_context": "gate-outcomes.jsonl is append-only, written by cmdEnforceGate after each gate check. The drain loop in cmdCalibrateGateTiers reads forward from cursor_ts stored in gate-tier-calibration-v2.json, processes records within the 30-day rolling window, updates FPR/FNR, and writes the updated v2 atomically. The brainstorm cites canary-pending.jsonl as an existing reference implementation of this pattern."
+}

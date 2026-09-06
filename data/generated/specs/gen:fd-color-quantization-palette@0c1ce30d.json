@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "fd-xterm-headless-renderer-architecture covers where quantization lives in the class structure — this agent covers the algorithm correctness and semantic accuracy of the mapping itself. fd-bpe-marker-tokenization covers how named color strings tokenize — this agent covers whether the mapping produces the semantically correct named color. fd-inverse-video-selection-semantics covers inverse color pre-resolution — this agent covers all other color attributes.",
+  "decision_lens": "Color quantization is correct when the LLM receiving the quantized output makes the same decisions it would make with the original colors. A quantization that maps Solarized yellow (#b58900) to 'yellow' and maps Solarized base1 (#93a1a1) to 'cyan' is semantically wrong even if the nearest-neighbor distance is small. The error criterion is not perceptual fidelity but task decision fidelity — does the LLM still know that a test failed, a menu item is selected, a file is staged?",
+  "focus": "Evaluate the correctness and completeness of the hex/256/truecolor to 16 named colors quantization strategy: color distance metrics, palette selection, semantic accuracy for common terminal themes, and the truecolor application edge case",
+  "name": "fd-color-quantization-palette",
+  "persona": "A color science and graphics engineer who has implemented palette quantization algorithms (median-cut, k-means, octree) and understands the perceptual and semantic dimensions of color mapping in terminal applications. Has worked on terminal theming systems and knows that xterm's 16-color and 256-color palettes are neither perceptually uniform nor standardly defined — the 'red' in Solarized is not the same RGB as the 'red' in Monokai. Knows the difference between nearest-neighbor in RGB space (wrong), nearest-neighbor in CIELAB (perceptually correct), and semantic nearest-neighbor (domain-correct for terminals).",
+  "review_areas": [
+    "Evaluate the proposed mapping strategy against the xterm default palette: the 16 xterm colors are not standardly defined across terminals, and a color in the xterm-256 palette maps to the 16-color palette via a lookup table that assumes specific RGB values — verify that the quantization uses the xterm default RGB values as centroids, not arbitrary named-color RGBs",
+    "Analyze semantic correctness for the 5 most common terminal color semantic patterns: (1) git diff red/green, (2) test runner red/green/yellow, (3) vim syntax highlighting (many colors), (4) htop color-coded metrics, (5) status line fg/bg — determine whether 16 named colors preserve the semantic distinctions that matter in each pattern",
+    "Assess the truecolor application edge case: terminals displaying image previews, color pickers, or gradient text use truecolor to represent data values, not semantic states — quantizing these to 16 colors produces garbage output. Determine whether the annotated format should detect and preserve exact hex for cells where quantization would be lossy beyond a threshold",
+    "Evaluate the nearest-neighbor algorithm in RGB space vs CIELAB vs palette lookup: for the xterm 256-color palette, a fast lookup table (256 entries) maps exactly and is O(1); for truecolor (16M values), nearest-neighbor in CIELAB is perceptually correct but expensive — assess the performance tradeoff for a 80x24 screen (1920 cells per quantization call)",
+    "Check the 16 named color vocabulary against BPE tokenization: 'bright_cyan', 'bright_magenta', 'dark_gray' each tokenize differently — determine whether compound named colors should be encoded as compound tokens or two-word pairs, and whether the vocabulary aligns with how Claude models recognize color semantics in training data"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Occurs when quantization uses Euclidean distance in RGB space against terminal-native color centroids that don't match the actual theme's palette distances; Solarized is the most widely used non-default theme and will fail this consistently.",
+      "scenario": "A terminal using Solarized theme maps its accent color (yellow, #b58900) to 'yellow' but maps its secondary highlight (base01 dark gray, #586e75) to 'cyan' because nearest-neighbor in RGB space finds a closer match in the cyan bucket — the LLM receives 'cyan' for elements that are visually dark gray, misidentifying selection state in applications that use Solarized base01 as their highlight color.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Triggered whenever an agent uses the annotated format in interactive automation mode, where get_screen is called after each simulated keystroke.",
+      "scenario": "The color quantization is applied inside getAnnotatedText() on a per-call basis, iterating all 1920 cells on every get_screen call — for a CIELAB-based quantizer with RGB-to-LAB conversion, this adds ~5ms per screen capture on a low-power server, degrading throughput for agents that poll frequently in interactive automation mode.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Occurs when the palette naming convention is not enforced by a constant enum in the TypeScript implementation, allowing different code paths to use different serialization conventions.",
+      "scenario": "The named color vocabulary uses underscore compound names ('bright_red', 'dark_gray') but the annotated format documentation uses hyphen variants elsewhere ('fg=bright-red') — the inconsistency causes agents to receive different naming schemes across calls and build incorrect parsing assumptions about the format.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "A palette mapping table: xterm-256 index ranges to named color, with RGB centroids and the decision rationale for each bucket boundary",
+    "Semantic correctness check: for each of the 5 common color semantic patterns, verify that the 16-color output preserves the distinctions an LLM needs (pass/fail, selected/unselected, error/success)",
+    "A performance estimate for the quantization step: cells per millisecond for the chosen algorithm, with the total overhead per 80x24 screen call"
+  ],
+  "task_context": "Tuivision's brainstorm proposes child .3 (color quantization) as the key mechanism to 'eliminate hex strings from output, save 400-600 tokens/screen'. The quantization maps hex/256/truecolor to 16 named colors as a private helper in TerminalRenderer. xterm.js exposes cell colors as palette indices (for 256-color mode) or RGB triples (for truecolor). The brainstorm acknowledges the truecolor edge case ('image viewers, color pickers will lose fidelity') and notes that full/SVG modes retain exact colors."
+}

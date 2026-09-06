@@ -1,0 +1,39 @@
+{
+  "anti_overlap": [
+    "Contents API SHA concurrency and retry strategy — covered by fd-git-api-concurrency",
+    "Three-way merge correctness and AncestorStore design — covered by fd-three-way-merge-correctness",
+    "Sync scope configuration and path filtering — covered by fd-sync-scope-safety",
+    "Periodic poll reconciliation coverage and tree-SHA comparison — covered by fd-filesync-reconciliation-coverage"
+  ],
+  "decision_lens": "A webhook is an at-most-once delivery mechanism with no ordering guarantee and an automatic disablement policy — any sync design that relies on webhooks for correctness rather than using them only as a latency optimization will fail silently when GitHub disables the endpoint after sustained failures.",
+  "focus": "Evaluates the push webhook handling strategy for delivery guarantees, deduplication, signature verification, ordering, and the gap between real-time webhook coverage and the periodic poll reconciliation fallback.",
+  "name": "fd-webhook-delivery-reliability",
+  "persona": "You are a platform reliability engineer who has operated webhook ingestion infrastructure at scale, having debugged GitHub webhook delivery failures caused by DNS hiccups, TLS certificate expiry, payload ordering inversions, and the silent disabling of endpoints that return non-2xx responses too frequently.",
+  "review_areas": [
+    "Verify the design specifies webhook signature verification using the HMAC-SHA256 signature in the X-Hub-Signature-256 header before processing any push event payload — absent verification means any HTTP POST to the webhook endpoint can trigger file writes, a direct code-execution risk given that the adapter writes to the local filesystem",
+    "Check whether the design addresses GitHub's webhook disablement policy: GitHub automatically disables a webhook endpoint after it returns non-2xx responses for a sustained period — the sync system must return 200 quickly (before any processing) and handle errors asynchronously to avoid disabling its own webhook",
+    "Confirm the brainstorm accounts for push event ordering inversion: GitHub delivers push events in delivery order, but network conditions can cause an older push event to arrive after a newer one — the adapter must use the push event's after SHA (the resulting commit SHA) to detect stale events, not just process them in arrival order",
+    "Assess whether the push payload parsing is robust to repo variations: push events include a commits array where each commit has added, removed, and modified file arrays — force-pushes produce a single commit entry with all changed files marked forced, while normal pushes produce individual commits; the parser must handle both",
+    "Validate the gap-filling strategy between webhook and periodic poll: if the poll runs every 5 minutes and a webhook is missed, changes can sit unsynced for up to 5 minutes — the design should specify whether this latency is acceptable and what the recovery path is if the poll itself fails (e.g., GitHub API unavailable)",
+    "Check whether the design handles webhook payload size limits: GitHub caps push event payloads at 25MB, and repos with large binary files or many changed files in a single push may trigger truncation, causing the push event to omit the file list — the adapter must detect truncation and fall back to a full tree comparison for that push"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When the webhook handler processes push event payloads without first verifying the X-Hub-Signature-256 header against the configured webhook secret",
+      "scenario": "An attacker sends a crafted HTTP POST to the interop webhook endpoint mimicking a push event payload that specifies docs/CLAUDE.md as modified with attacker-controlled content — without HMAC signature verification, the crafted event can be used to trigger arbitrary file fetches and overwrites on the local filesystem",
+      "severity": "P0"
+    },
+    {
+      "condition": "When the webhook handler blocks on downstream processing (API calls, file writes) before returning 200 instead of enqueuing the event and returning immediately",
+      "scenario": "A CI pipeline that runs on every push causes the interop webhook endpoint to receive 50 push events in 2 minutes, each triggering a sync attempt — if the endpoint takes more than 10 seconds to respond due to blocking on GitHub Contents API reads, GitHub marks responses as slow and eventually disables the webhook endpoint, eliminating all real-time sync",
+      "severity": "P1"
+    },
+    {
+      "condition": "When the push event handler does not check the forced flag and fall back to a full tree comparison for force-push events, relying instead on the commit file arrays which are incomplete in this case",
+      "scenario": "A force-push to the default branch rewrites 30 commits — the push event's commits array contains a single synthesized entry that GitHub marks with forced: true, and the added/removed/modified arrays reflect only the diff from the force-push ancestor, not the full set of changed files relative to the previous default branch state",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "The design specifies HMAC-SHA256 signature verification as a precondition before any payload parsing. The webhook handler returns 200 immediately and enqueues the event for async processing. The design explicitly calls out force-push handling with a full-tree fallback. The gap between real-time webhook and periodic poll is quantified and accepted as a design trade-off. The design mentions GitHub's disablement policy and specifies monitoring for webhook health.",
+  "task_context": "The brainstorm proposes a hybrid push-webhook-plus-periodic-poll detection strategy where GitHub push events provide sub-10-second latency and 5-minute tree-SHA polling provides correctness guarantees. The webhook handler is part of the existing GitHub adapter infrastructure shared with Issues/PR sync from earlier phases."
+}

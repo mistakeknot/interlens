@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-information-loss-audit covers extraction loss",
+    "fd-retrieval-gap-analysis covers RAG architecture",
+    "fd-edit-type-reconstructability covers failure patterns"
+  ],
+  "decision_lens": "Prioritizes findings that would explain the 6.6 ceiling as an evaluation artifact rather than genuine model quality ceiling — a flawed ruler cannot guide improvement.",
+  "focus": "Whether the LLM-as-judge evaluation can detect a 0.4-point improvement and whether 6.6 accurately reflects reconstruction quality or measurement artifacts",
+  "name": "fd-eval-blind-spots",
+  "persona": "A psychometrician who has audited NLP evaluation rubrics for construct validity and sensitivity. Treats every aggregate score as a hypothesis that must be stress-tested.",
+  "review_areas": [
+    "Audit curated evaluator panel composition: if all GPT-family, they may share biases blind to GPT-5.4 failure modes",
+    "Check whether rubric dimensions are sensitive to 6.6 vs 7.0 quality difference — coarse anchors may have resolution floor above 0.4",
+    "Verify whether judge prompt provides constitution and CIPHER to evaluator — without them judge cannot distinguish principled deviation from error",
+    "Assess whether LLM judges show position bias by checking if eval code randomizes ordering",
+    "Check whether per-pillar scores correlate with human accept/reject decisions",
+    "Examine scoring scale (1-10 vs 1-5) and composite aggregation for mixed-scale issues"
+  ],
+  "success_hints": [
+    "0.4-point target must exceed measurement noise floor — verify via inter-evaluator standard deviation",
+    "Human editorial accept/reject rates should correlate (Spearman r > 0.5) with composite scores",
+    "If all curated evaluators are same family as reconstructor, self-evaluation bias is confounded"
+  ],
+  "task_context": "The system extracts constitution via Inverse CAI and CIPHER preferences from professional before/after pairs. GPT-5.4 scores 6.6/10 and prompt engineering hit a ceiling."
+}

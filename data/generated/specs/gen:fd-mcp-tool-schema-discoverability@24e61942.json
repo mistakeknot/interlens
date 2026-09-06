@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Focuses on MCP protocol surface; fd-query-template-protocol-design covers Python internals; fd-queryresult-serialization-contract covers the data format",
+  "decision_lens": "Can an agent that has never seen this codebase discover and correctly invoke each named query from the tool listing alone?",
+  "focus": "MCP tool schema and description quality for cold agent discoverability",
+  "name": "fd-mcp-tool-schema-discoverability",
+  "persona": "MCP protocol specialist who has built tool discovery systems and knows how agents parse tool listings",
+  "review_areas": [
+    "Tool descriptions distinguish overlapping queries (who_touched_file vs actor_activity)",
+    "Parameter schemas use canonical ID format consistently across all 8 tools",
+    "Required vs optional parameters are correctly marked (limit/offset should be optional)",
+    "Return type schemas are specific enough for agents to parse without guessing",
+    "Tool names follow MCP naming conventions and are unambiguous",
+    "Error responses are structured and distinguishable from empty results"
+  ],
+  "severity_examples": [
+    {
+      "condition": "who_touched_file and actor_activity descriptions overlap without distinguishing scope",
+      "scenario": "Two tools have near-identical descriptions making agents pick the wrong one",
+      "severity": "P1"
+    },
+    {
+      "condition": "Agent passes native_id instead of subsystem:native_id format",
+      "scenario": "canonical_id parameter format not documented in schema",
+      "severity": "P2"
+    },
+    {
+      "condition": "entity_timeline returns 10K+ events with no pagination",
+      "scenario": "Missing limit parameter causes unbounded result sets",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Each tool has a unique, action-oriented description. Parameter schemas include format hints. Return schemas are typed.",
+  "task_context": "Named queries are the primary surface agents use to access the ontology. Poor discoverability defeats the entire purpose of individual tools over a generic query interface."
+}

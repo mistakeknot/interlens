@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does NOT cover migration fidelity (fd-python-go-*) or database concerns (fd-schema-*)",
+  "decision_lens": "Accept interfaces, return structs — packages must be independently testable and composable without importing the entire ecosystem",
+  "focus": "Reviews the Go package interface design for ecosystem reusability and idiomatic patterns",
+  "name": "fd-go-package-api-design",
+  "persona": "Go standard library contributor who designs packages used by thousands of downstream consumers",
+  "review_areas": [
+    "Package boundary design: are pkg/lens, pkg/fingerprint, pkg/extraction, pkg/profilegen properly decoupled?",
+    "Interface vs concrete type decisions at package boundaries",
+    "Dependency direction: do packages depend on each other or only on shared types?",
+    "Configuration injection patterns — functional options vs config structs vs builder pattern",
+    "Thread safety guarantees for concurrent agent access to shared packages",
+    "Versioning strategy for packages that will be imported by multiple Skaffen agents"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Packages cannot be used independently by non-Auraken agents",
+      "scenario": "pkg/extraction imports pkg/lens creating a circular dependency that prevents independent testing",
+      "severity": "P1"
+    },
+    {
+      "condition": "Any internal change to lens graph forces all consumers to update",
+      "scenario": "Lens Selector interface exposes internal graph types, coupling consumers to implementation details",
+      "severity": "P1"
+    },
+    {
+      "condition": "Haiku calls inside packages cannot be cancelled by parent agent",
+      "scenario": "No context.Context threading through package APIs prevents timeout and cancellation propagation",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Each package has zero imports from sibling packages; interfaces defined in consumer packages; context.Context as first parameter on all external-call functions",
+  "task_context": "Four Go packages being designed as ecosystem-wide libraries: lens (selection + graph), fingerprint (style observation), extraction (preference SPO triples via LLM), profilegen (narrative generation). Must be usable by any Skaffen agent, not just Auraken."
+}

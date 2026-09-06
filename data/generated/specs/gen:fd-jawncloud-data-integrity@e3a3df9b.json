@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "OAuth token lifecycle — covered by fd-gmail-oauth-token-lifecycle",
+    "Email HTML parsing correctness — covered by fd-email-parsing-robustness",
+    "MCP call contracts and idempotency — covered by fd-mcp-idempotency-contracts",
+    "User consent and GDPR/CCPA obligations — covered by fd-personal-data-pipeline-privacy"
+  ],
+  "decision_lens": "Optimize for schema-level enforcement — a missing constraint that allows bad data into jawncloud will surface as phantom recommendations or broken resale estimates months later.",
+  "focus": "Schema correctness, data type safety, and referential integrity of SKU and wardrobe records written by the import pipeline into jawncloud.",
+  "name": "fd-jawncloud-data-integrity",
+  "persona": "You are a PostgreSQL/Prisma data engineer who has tracked down production corruption caused by loose VARCHAR columns, missing unique constraints, and unenforced FK relationships in product catalog systems.",
+  "review_areas": [
+    "Check that ASIN is stored as a dedicated indexed column in the SKU table (not embedded in a JSON blob) and that the column has a unique constraint scoped per-brand — without this, future ASIN-based enrichment queries will require full-table scans or produce duplicate enrichment calls",
+    "Verify that `private=true` is enforced at the database row level (a non-nullable column with a default) rather than relying purely on application-layer logic — if any Auraken code path queries jawncloud without the privacy filter, private items must not leak",
+    "Validate that `status=OWN` in `add_wardrobe` is a constrained enum type, not a free-form string — allowing arbitrary strings means a typo in the parser (`'own'` vs `'OWN'`) silently creates orphaned wardrobe rows that no query will match",
+    "Confirm that the brand normalization step (fuzzy-match against `list_brands`) documents its fallback behavior — if no brand match is found, does it create a new brand record, use a placeholder, or skip the SKU? Each choice has downstream integrity implications",
+    "Check that price fields use a fixed-precision decimal type (e.g., `NUMERIC(12,2)`) rather than `FLOAT` — floating-point rounding in financial data corrupts spending-pattern aggregations and is notoriously hard to debug after the fact",
+    "Ensure that the wardrobe table has a composite unique constraint on (user_id, sku_id) so that idempotent re-runs cannot produce duplicate ownership records even if the application-level dedup logic has a race condition"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When the Prisma schema allows `private` to be nullable or when an INSERT omits the column and Postgres defaults to NULL",
+      "scenario": "`private` column has no database default and a code path inserts a wardrobe row without setting it, exposing a private purchase in public recommendations",
+      "severity": "P0"
+    },
+    {
+      "condition": "When the schema relies only on application-level dedup without a DB-enforced constraint",
+      "scenario": "No composite unique constraint on (user_id, sku_id) in the wardrobe table — re-runs multiply ownership records and recommendation queries double-count owned items",
+      "severity": "P1"
+    },
+    {
+      "condition": "When the Prisma model uses `Float` for any money field rather than `Decimal`",
+      "scenario": "Price stored as FLOAT — spending-pattern aggregations accumulate rounding error, causing totals to differ from receipts by a few cents",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Prisma schema shows `private Boolean @default(true)` on the wardrobe model, not nullable",
+    "Wardrobe table has `@@unique([userId, skuId])` in the Prisma model",
+    "Price fields use `Decimal` type in Prisma schema with explicit precision"
+  ],
+  "task_context": "Gmail purchase import pipeline: Auraken (Python 3.12+, PostgreSQL + pgvector) authenticates via Gmail OAuth (`gmail.readonly`), parses order confirmation emails, calls interjawn MCP to upsert SKUs into jawncloud, and writes purchase-pattern context to Auraken's profile models. MVP covers Amazon + App Store + Steam + Kindle. All imported items are private by default."
+}

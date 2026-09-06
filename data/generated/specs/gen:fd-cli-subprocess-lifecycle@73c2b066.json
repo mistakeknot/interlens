@@ -1,0 +1,38 @@
+{
+  "anti_overlap": [
+    "fd-concurrency-reliability covers Python-side ThreadPoolExecutor data loss in the eval framework",
+    "fd-pipeline-http-contract covers the HTTP layer and request routing in index.ts",
+    "fd-session-state-integrity covers session/auth state between requests at the HTTP level"
+  ],
+  "decision_lens": "Flags any path where user-supplied text can alter agent behavior via system prompt concatenation, and any subprocess that can hang the parent or leave zombie processes behind. Treats a silently truncated output as data corruption.",
+  "focus": "Correctness and safety of claude/codex CLI subprocess spawning: prompt injection, timeout handling, signal propagation, and stdin plumbing",
+  "name": "fd-cli-subprocess-lifecycle",
+  "persona": "A systems engineer with deep experience in subprocess lifecycle management and command-injection defense in LLM CLI tools. Has personally debugged hanging child processes and prompt injection via untrusted text.",
+  "review_areas": [
+    "In spawnClaude(), the system and user prompts are concatenated with a bare '---' separator before being written to stdin — examine whether user text containing '---\\n\\n' on its own line can confuse the claude CLI's prompt boundary parsing",
+    "Verify that the spawn() timeout option (Node.js child_process) actually delivers SIGTERM and that claude -p respects it; check whether SIGTERM causes partial stdout to be flushed or silently lost",
+    "In spawnCodex(), the codex exec flag is '-' (stdin) with '-s read-only' sandbox — verify that codex in read-only mode cannot write files and that there is no escape via tool calls in a pipeline context",
+    "Check whether concurrent spawnClaude() calls (e.g. spawnAgentsParallel) hit claude's own in-process auth/session lock, causing silent 429s that manifest as empty stdout rather than non-zero exit codes",
+    "Audit the JSON parse path in spawnAgent: if the model emits a markdown fence with content before the fence (preamble), the strip regex drops the preamble but the JSON may still be malformed — verify the error path includes the offending raw string in the AgentError",
+    "Examine whether bare: true suppresses error output that would normally appear in stderr and surface in AgentError.lastStderr, leaving debugging blind"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The system+user concatenation in spawnClaude uses a simple string delimiter with no escaping or sentinel",
+      "scenario": "User submits text containing a line that matches the '---' prompt separator, causing the claude CLI to treat trailing user text as a second system-prompt injection",
+      "severity": "P1"
+    },
+    {
+      "condition": "spawn() timeout kills the immediate process but not the grandchild claude binary",
+      "scenario": "A 5-minute timeout fires but SIGTERM is not delivered to claude's actual subprocess (which may be a shell wrapper), leaving a zombie that accumulates across concurrent pipeline requests until the worker OOMs",
+      "severity": "P1"
+    },
+    {
+      "condition": "claude CLI uses a single-writer lock for its session state on disk",
+      "scenario": "spawnAgentsParallel fires N claude -p processes simultaneously; claude's local session file or auth token is locked, causing all-but-one to emit a 'session already in use' error to stderr and exit 0 with empty stdout",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "A safe implementation uses a unique sentinel boundary that cannot appear in user text (e.g. a UUID-fenced separator), delivers SIGKILL after a SIGTERM grace period, and validates that stdout is non-empty before attempting JSON parse.",
+  "task_context": "The pipeline-worker uses agent-spawner.ts to spawn claude -p and codex CLI subprocesses for each editorial pass (analyst, line-editor, copy-editor, critique, verification). The system and user prompts are concatenated and passed via stdin. After migrating to claude-haiku-cli (Claude Max flat rate), CLI subprocess correctness is the production critical path."
+}

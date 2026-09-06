@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "fd-laboratory-middleware covers adapter-per-instrument message translation and bidirectional correlation patterns; fd-scada-energy-management covers circuit breaker and fault isolation patterns; fd-supply-chain-control-tower covers multi-party state sync and conflict resolution semantics; this agent focuses on event routing, ordering, and flow control between adapters",
+  "decision_lens": "Does the event bus route, sequence, and arbitrate between adapters the way ATFM routes and sequences aircraft across sector boundaries — with priority, ordering guarantees, and deterministic conflict resolution when two adapters claim the same resource?",
+  "distance_rationale": "ATFM operates at exactly the same abstraction level as an integration hub — routing structured events between isolated sector adapters with priority, ordering, and conflict avoidance — but in a safety-critical aviation context where the ordering and acknowledgment requirements are fully explicit",
+  "expected_isomorphisms": "Sector handoff with acknowledgment maps to cross-adapter event delivery with consumer acknowledgment; ground delay programs map to adapter-driven backpressure on webhook ingestion; conflict alert maps to concurrent-update detection before dual-emission to downstream adapters",
+  "focus": "Review through the lens of air traffic flow management's event-routing, sequencing, and adapter-per-sector conflict-avoidance systems",
+  "name": "fd-atc-flow-management",
+  "persona": "Senior ATC systems engineer who designed multi-center flow management units and inter-facility coordination protocols for a national ANSP",
+  "review_areas": [
+    "Event sequencing and ordering guarantees: ATFM must route events in strict priority order (emergency > delay program > normal flow) across sector adapters — assess whether the interop event bus defines message priority and delivery ordering, or whether goroutine scheduling makes delivery order non-deterministic between adapters processing the same logical resource (a beads issue being updated by both GitHub and Notion adapters simultaneously)",
+    "Sector handoff and the adapter boundary: in ATC, handoff is the explicit transfer of ownership from one sector controller to another, with acknowledgment — check whether interop models the equivalent: when a cross-adapter event (GitHub issue to beads bead) is emitted, does the receiving adapter acknowledge processing, or does the hub treat emission as completion, creating silent loss when the receiving adapter goroutine is backpressured or panicking",
+    "Flow control programs and backpressure: ATFM uses ground delay programs to slow ingest when downstream sectors are saturated — assess whether the event bus implements backpressure from slow adapters upstream, preventing the hub from accepting webhook payloads faster than adapters can consume them, and whether the design distinguishes between transient backpressure (retry) and structural capacity limits (drop + dead-letter)",
+    "Conflict alert and the two-bead problem: ATC conflict detection fires when two aircraft are projected to occupy the same airspace — check whether interop detects the equivalent: two external systems updating the same entity (a beads bead modified by both a Notion webhook and a GitHub webhook within the same sync window), and whether the conflict resolution strategy (three-way merge, last-write-wins) is applied before or after both updates are emitted to downstream adapters",
+    "Radar returns and adapter health heartbeats: ATC systems declare loss of radar contact when a sector data feed goes silent — assess whether each adapter emits a regular health signal and whether the hub can distinguish between a healthy adapter with no events (legitimate silence) and a failed adapter goroutine that stopped processing (silent failure), and what the hub does during the silence interval",
+    "Contingency routing and adapter fallback: when a sector goes offline, ATFM reroutes through adjacent sectors — check whether interop has a fallback routing strategy when a primary adapter (e.g., Notion webhook) fails: does it degrade to polling, queue events for retry, or lose them, and whether the fallback activation is automatic or requires operator intervention"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When the event bus does not serialize concurrent updates to the same entity through a per-entity ordering guarantee or optimistic locking, making conflict resolution outcomes depend on goroutine scheduling",
+      "scenario": "Two adapters emit conflicting updates for the same beads issue within the same sync window — the event bus delivers both to the beads adapter, which applies them in goroutine-scheduled order, producing a non-deterministic final state that differs between runs and cannot be reproduced",
+      "severity": "P0"
+    },
+    {
+      "condition": "When the hub webhook ingestion layer is decoupled from adapter readiness — payloads are accepted before the consuming adapter is healthy, and no durable queue bridges the gap",
+      "scenario": "A webhook payload arrives during a Notion adapter restart; the hub accepts the payload (HTTP 200), the adapter goroutine is not yet running, and the event is lost with no dead-letter queue or retry mechanism",
+      "severity": "P1"
+    },
+    {
+      "condition": "When per-adapter goroutine channels are unbounded and no backpressure signal propagates from the adapter to the webhook ingestion layer",
+      "scenario": "The Notion adapter goroutine pool is saturated processing a bulk sync; new events queue in an unbounded channel; the hub accepts webhook traffic normally; memory grows until the process OOMs with no operator-visible backpressure signal",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Air traffic flow management — ANSP systems, sector handoff protocols, ground delay programs, conflict detection, contingency routing",
+  "success_hints": "Per-entity event serialization, adapter readiness gates on webhook ingestion, bounded channels with dead-letter queues, conflict detection before dual-emission, adapter heartbeat monitoring with automatic fallback to polling",
+  "task_context": "Brainstorm for interop — a Go-based unified integration daemon replacing interkasten, bridging Notion, GitHub, beads, and local FS through goroutine-isolated adapters with an event bus hub, webhook-first sync, and three-way merge conflict resolution"
+}

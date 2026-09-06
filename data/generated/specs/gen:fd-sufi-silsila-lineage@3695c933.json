@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Leave redundant-encoding integrity checks to fd-vedic-chant-integrity (which handles detection of corruption, not legitimacy of origin)",
+    "Leave tacit-style-transmission-through-apprenticeship to fd-polynesian-wayfinding-tacit (which handles unspeakable knowledge, not authorization)",
+    "Focus here on WHO authorized, with a NAMED chain, and whether that chain is walkable and revocable"
+  ],
+  "decision_lens": "When an Undersketch user claims authorship of a style, does the system certify that claim through an auditable chain of human-attested links — or is it an unverifiable self-assertion dressed in cryptography?",
+  "distance_rationale": "A Tauri desktop app team reasoning about authorship in an ML pipeline will reach for copyright law, signatures, or blockchain before ever considering a centuries-old Sufi permission-to-teach protocol.",
+  "expected_isomorphisms": "The silsila-ijāza mechanism (each teacher grants a specific, named permission to transmit, with the chain back to the founder being the proof of legitimacy) maps to Undersketch's authorship story: a training-data provenance claim is only as strong as the chain of named human attestations behind each asset, and 'I own this style' is meaningless without a chain that could, in principle, be walked backward by an auditor to a recognizable human origin.",
+  "focus": "Chain-of-transmission authenticity, authorization, and the economics of inherited permission",
+  "name": "fd-sufi-silsila-lineage",
+  "persona": "A reviewer framework modeled on Sufi silsila — the documented human-to-human chain of transmission (ijāza / khirqa) by which a practitioner's authority is certified as descending through named teachers back to the source; an unbroken, auditable lineage where each link is a specific, identifiable human who personally vouched for the next.",
+  "review_areas": [
+    "Whether the review doc distinguishes self-asserted authorship from attested authorship, and whether the product treats them differently",
+    "Whether a 'clean training provenance' claim is backed by a walkable chain (who uploaded, from where, confirmed by whom) or by a single checkbox",
+    "Whether the 'wrong users' existential risk (style-theft attractors) is addressed by gating on lineage strength rather than on policy copy",
+    "Whether the product has any equivalent of ijāza revocation: once a chain is discovered to contain a forged link, is there a mechanism to invalidate downstream models?",
+    "Whether the trust story distinguishes 'private' (no one else sees it) from 'legitimate' (the user had the right to train on it) — silsila is about the latter",
+    "Whether the first-principles doc's priority order puts legitimacy verification ahead of model quality, since a high-quality model trained on unlegitimated data is the worst outcome"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No mechanism exists to link uploaded training images to a walkable chain of human attestation back to a recognizable creative origin.",
+      "scenario": "The product accepts arbitrary uploaded images as 'my work' with no chain-of-attestation, directly enabling the 'attracting the wrong users' existential risk that the doc itself names — the product becomes a style-laundering machine.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Provenance design does not include named human links between origin and training corpus.",
+      "scenario": "Provenance is treated as a hash-on-upload moment rather than a chain; when a dispute arises, there is no audit-able lineage to examine, only a cryptographic fingerprint of unknown origin.",
+      "severity": "P1"
+    },
+    {
+      "condition": "No lineage-invalidation mechanism described.",
+      "scenario": "There is no revocation path: once a LoRA is trained from a corrupted chain, the product cannot cleanly mark it or downstream outputs as tainted.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Sufi silsila / ijāza transmission (8th century CE onward, Islamic world — Persian, Arab, South Asian, Anatolian tariqas)",
+  "success_hints": [
+    "Name the specific silsila mechanism (ijāza, khirqa, named-link chain) and map it concretely",
+    "Distinguish 'private' from 'legitimate' — both words appear in the review doc's value props and they are not the same",
+    "Treat the 'wrong users' existential risk as a lineage-gating problem, not a policy-copy problem",
+    "Ask whether the chain could be WALKED — not just stored"
+  ],
+  "task_context": "First-principles product review of Undersketch as captured in /home/mk/projects/Undersketch/docs/reviews/2026-04-22-first-principles-review.md, focused on whether authorship claims and training-data provenance are certified by auditable human-attested chains rather than by self-assertion."
+}

@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-score-normalization covers per-benchmark normalization and scale handling before scores enter the weighting stage",
+    "fd-benchpress-prediction covers the accuracy of BenchPress predictions as inputs, not how they are weighted",
+    "fd-scraper-reliability covers whether raw scores arrive correctly from scrapers"
+  ],
+  "decision_lens": "Findings that cause the composite ranking to diverge significantly from expert intuition about model quality rank highest. Weight assignments that systematically favor models with broad coverage over narrow specialists also get priority.",
+  "focus": "Benchmark weighting methodology for domain indices and the overall composite, including weight rationale, sensitivity, and trust/predicted variants",
+  "name": "fd-composite-weighting",
+  "persona": "An AI evaluation researcher who designs composite scoring systems for model rankings. Focuses on whether domain weights reflect actual task importance, whether the weighting is robust to benchmark coverage asymmetry, and whether the trust/predicted variants serve their stated diagnostic purpose.",
+  "review_areas": [
+    "Audit default weights and trust weights for documented rationale — are these empirically derived, expert-assigned, or arbitrary?",
+    "Review minimum domains threshold for overall score: verify this does not create a systematic bias toward text-only or reasoning-only models",
+    "Examine the confidence floor mechanism — verify that the confidence-adjusted weight formula behaves correctly at extremes (all observed vs all predicted) and does not over-penalize models with partial BenchPress fill",
+    "Check whether trust vs predicted variants diverge significantly for any class of models — large divergence could indicate BenchPress predictions are systematically biasing domain scores",
+    "Review whether Chatbot Arena ELO in the Reasoning domain creates a circular dependency — Arena ELO is itself a composite derived from human preference votes",
+    "Assess whether Robustness domain benchmarks measure sufficiently distinct constructs to warrant equal per-benchmark weight within the domain"
+  ],
+  "success_hints": [
+    "Weight choices should have documented rationale and an accompanying sensitivity analysis showing how ranking changes under weight perturbations",
+    "The confidence floor mechanism should be tested at boundary conditions with verified expected output",
+    "Including Arena ELO in Reasoning should be explicitly justified given its derivation from a different methodology"
+  ],
+  "task_context": "AgMoDB aggregates AI model benchmark data from 35+ external scrapers, Artificial Analysis, OpenRouter, and BenchPress ML predictions. The goal is to identify data quality improvements across reliability, normalization, model matching, composite scoring, deduplication, and prediction quality."
+}

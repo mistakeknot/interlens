@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-dimension-construct-validity covers whether individual dimensions are internally valid",
+    "fd-pillar-dimension-gap covers which product pillars are missing from eval coverage",
+    "fd-llm-judge-reliability covers how LLM evaluators perform on the rubric"
+  ],
+  "decision_lens": "Flags cases where the eval design conflates 'similar to the human reference' with 'editorially good'.",
+  "focus": "Whether reference-relative scoring is the right evaluation paradigm for line-editing quality",
+  "name": "fd-reference-relative-scoring",
+  "persona": "An evaluation methodology researcher who has studied the limitations of reference-based NLG evaluation.",
+  "review_areas": [
+    "Assess whether fidelity and completeness are measuring editorial quality or just reconstruction ability",
+    "Evaluate the risk of reference overfitting: models learning to copy the reference rather than apply principles",
+    "Check whether the eval distinguishes 'different but equally valid editorial choice' vs 'missed an issue'",
+    "Examine whether principle_adherence can surface correct principles applied with different surface choices",
+    "Consider whether a dual evaluation (reference-relative + absolute pillar quality) would be better",
+    "Review whether the calibration ceiling validates that reference-relative scoring works"
+  ],
+  "success_hints": [
+    "A model producing a different-but-equally-valid edit should not be penalized",
+    "The eval should distinguish editorially skilled but stylistically divergent from simply careless"
+  ],
+  "task_context": "The eval scoring module uses 6 dimensions to judge a model's line-edit against a human editor reference on a 1-10 scale. The product's editorial identity is defined by 7 pillars but these are not directly used as eval dimensions."
+}

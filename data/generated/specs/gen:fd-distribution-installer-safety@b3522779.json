@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-mcp-server-packaging covers pyproject.toml pinning and venv discipline — not install orchestration",
+    "fd-skill-bundle-conformance covers SKILL.md format compliance — not installation mechanics",
+    "fd-onboarding-ux covers the user experience after install completes — not the installer script itself"
+  ],
+  "decision_lens": "Flags gaps between the brainstorm's stated install.sh contract (steps 1-6) and what the current development tree actually implements. Prioritizes anything that could corrupt a working Hermes profile. De-prioritizes cosmetic output formatting.",
+  "focus": "install.sh correctness — idempotency, rollback, Hermes version detection, profile discovery, error handling",
+  "name": "fd-distribution-installer-safety",
+  "persona": "Apply the perspective of a release engineer who has shipped open-source install scripts at scale — they care about atomicity and rollback under partial failure, measure idempotency by running the script twice and diffing state, and flag any path where a failed install leaves the user's Hermes profile in a broken half-configured state.",
+  "review_areas": [
+    "Idempotency guarantee: does re-running install.sh on an already-installed profile produce identical state, or does it double-register the MCP server or append duplicate config snippets?",
+    "Hermes install detection fallback: the brainstorm describes `hermes --version` plus a walk of `~/hermes-*/hermes-agent` — verify the fallback walk is sufficiently scoped and won't match unrelated binaries or stale directories",
+    "Profile discovery and selection: does install.sh correctly enumerate only valid Hermes profiles in `~/.hermes-*/profiles/` and gracefully handle zero profiles found (Hermes installed but never initialized)?",
+    "Version gate enforcement: the MANIFEST.yaml declares `hermes_agent: >=2026.4.0` — does install.sh parse the semver from `hermes --version` correctly, and does the refusal path exit cleanly without touching profile state?",
+    "MCP registration step atomicity: if the `auraken-lens` venv build succeeds but the config snippet write fails, is the install left in a state that's unrecoverable without manual cleanup?",
+    "Binary prerequisite handling: when the lens binary is absent and the user is prompted to install via `go install`, does install.sh abort cleanly and explain what's needed, or does it silently continue and produce a non-functional MCP server?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Hermes config format rejects duplicate keys silently, causing auraken-lens to load from one block and be shadowed by another — the user sees the skill installed but lens_select never returns results",
+      "scenario": "install.sh appends a duplicate `mcp_servers:` config block on re-run",
+      "severity": "P0"
+    },
+    {
+      "condition": "`hermes --version` output format changes between releases (e.g., `Hermes 2026.4.0-rc1` vs `2026.4.0`) and the semver parse regex matches the wrong substring, installing against an unsupported version",
+      "scenario": "Version gate passes an incompatible Hermes version",
+      "severity": "P1"
+    },
+    {
+      "condition": "Profile path enumeration assumes Linux `~/.hermes-*/profiles/` but macOS Hermes uses a different default config dir — install appears to succeed but Hermes never loads the MCP",
+      "scenario": "install.sh writes the MCP config snippet to the wrong location on macOS",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Verify install.sh can be run twice on a clean Hermes install with identical output both times",
+    "Confirm every exit path prints a diagnostic that tells the user what broke and how to recover",
+    "Check that no profile files are touched before the version gate passes"
+  ],
+  "task_context": "The brainstorm document at docs/brainstorms/2026-05-25-auraken-distribution-v01-brainstorm.md specifies an install.sh contract (six steps, idempotent, confirmation prompt). This review assesses whether the contract is implementable as written and flags gaps that would block a v0.1 release."
+}

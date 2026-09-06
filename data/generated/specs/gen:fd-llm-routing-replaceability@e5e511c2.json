@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "Does NOT cover preamble compression (fd-context-budget-orchestration)",
+    "Does NOT cover hook firing frequency (fd-claude-code-hooks-economy)",
+    "Does NOT cover MCP tool catalog (fd-mcp-server-hygiene)"
+  ],
+  "decision_lens": "What is the cheapest model that meets the precision/recall floor for this decision, and is the LLM-cost we pay today greater than the ML deployment cost?",
+  "focus": "Identifies LLM-orchestrated classification, routing, and ranking decisions that could be served by traditional ML, embeddings, or deterministic rules",
+  "name": "fd-llm-routing-replaceability",
+  "persona": "Apply the perspective of an ML engineer who has replaced LLM judgment with cheaper learned models — they care about input vector design, the precision/recall floor of the classifier, retraining cost, and whether the LLM-cost being paid today exceeds the ML-cost (latency + retraining + monitoring) over expected volume",
+  "review_areas": [
+    "Agent triage in flux-engine: today an LLM scores agent relevance to a target. Could embedding similarity (target text vs agent persona) plus a small classifier reach 90% precision at 1/100th the cost?",
+    "Skill routing: when user types a request, an LLM decides which skill to fire. Could a classifier on the user input text route to skill or 'no skill' faster?",
+    "Bead deduplication: `bd search` before `bd create` is currently the LLM's discipline. Could embedding-based fuzzy dedup (cosine over title+body) automate the search step?",
+    "Memory recall: deciding which memory file is relevant for a question is currently implicit LLM work. Could embeddings pre-filter, with the LLM only reading top-k?",
+    "Voice fidelity scoring: interfluence compare uses LLM judgment. Could an embedding-similarity + style classifier (sentence length, em-dash density, contrastive reframe count) score voice match deterministically?",
+    "Hook activation: hooks fire unconditionally today. Should some be gated by a deterministic predicate (regex match on user prompt + recent tool history) before paying LLM-orchestration cost?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Per-run LLM cost is the dominant share of triage; replacement saves 5-15kt per /flux-drive invocation",
+      "scenario": "An LLM-driven triage step is invoked on every flux-drive run but the agent-selection accuracy of an embedding-based router is within 2% — the LLM cost is unjustified",
+      "severity": "P1"
+    },
+    {
+      "condition": "Embedding-based dedup gate at bd create would prevent duplicates without LLM intervention",
+      "scenario": "Bead deduplication relies on the user remembering to bd search first; bypassed in practice, leading to duplicate beads",
+      "severity": "P2"
+    },
+    {
+      "condition": "A regex+embedding classifier at the harness level could short-circuit before the LLM sees the prompt",
+      "scenario": "Skill routing burns 200-500 LLM tokens per turn just to decide 'no skill needed'",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Traditional ML, embeddings + cosine, learning-to-rank, decision distillation",
+  "success_hints": [
+    "For each candidate: name input vector, output, precision floor, approximate LLM-cost-displaced",
+    "Note training data source (cass logs, intercept distillation pattern)",
+    "Estimate complexity: XS=regex, S=embedding+cosine, M=xgboost, L=new infra",
+    "Identify the 5 highest-leverage replacements ranked by token savings"
+  ],
+  "task_context": "The Intercept project replaces LLM decision-gate calls with Haiku → log → distill xgboost. Find the next 5 candidates across Sylveste. Examples to triage: agent triage in flux-engine, skill routing on user input, bead deduplication on bd create, memory recall relevance, doc routing for /interpath:propagate, PR theme classification in /pr-triage, sprint phase classification, voice fidelity scoring in interfluence. For each, identify input vector, output, expected precision floor, and approximate LLM-cost-displaced."
+}

@@ -1,0 +1,26 @@
+{
+  "anti_overlap": [
+    "fd-reward-modeling-rlhf covers preference learning and reward signal construction from pairs",
+    "fd-retrieval-augmented-editing covers RAG and few-shot inference-time retrieval",
+    "fd-constitutional-ai-refinement covers iterative self-critique and RLAIF",
+    "fd-eval-benchmark-design covers measurement validity"
+  ],
+  "decision_lens": "Prioritizes findings where data quantity or quality would cause a fine-tuned model to underperform a well-prompted baseline — overfitting, domain mismatch, and catastrophic forgetting rank above hyperparameter choices.",
+  "focus": "Whether fine-tuning (SFT, LoRA, full) is the right next step given 8,250 pairs, and which model families/sizes are viable",
+  "name": "fd-finetuning-feasibility",
+  "persona": "An ML practitioner who has fine-tuned language models for document editing and structured generation tasks. Evaluates training recipes against data volume, compute budget, and deployment constraints before recommending any tuning approach.",
+  "review_areas": [
+    "Assess whether 8,250 pairs meets the minimum threshold for supervised fine-tuning on editorial style transfer — review 2024-2026 literature on low-resource text editing fine-tuning (T5, Mistral, Llama-3, Qwen-2.5)",
+    "Evaluate LoRA/QLoRA vs full fine-tuning tradeoffs for a multi-pass pipeline (dev edit → line edit → copy edit) where each pass may warrant a distinct adapter",
+    "Assess instruction-tuning format design: whether pair-level (before/after) or constitution-conditioned (principle + before → after) formatting extracts more signal from the 8,250 pairs",
+    "Review 2025 advances in editing-specific fine-tuning: GEC-style token-level edits, span-level edit tagging (LaserTagger, Felix, EditBench), vs seq2seq generation",
+    "Identify catastrophic forgetting risk: fine-tuned editing models often lose instruction-following fidelity — check 2025 literature on continual learning and task arithmetic for this regime",
+    "Flag model size vs deployment constraints: self-hosted fine-tuned 7B may outperform prompted GPT-4o on style adherence but have higher latency — surface the cost-quality tradeoff"
+  ],
+  "success_hints": [
+    "A viable fine-tuning recommendation must specify data format, base model family, adapter strategy, and a minimum eval benchmark threshold before declaring it better than prompting",
+    "The 8,250 pair count should be benchmarked against published data scaling laws for text editing models to determine whether it's sufficient, borderline, or undersized",
+    "Any tuning approach must have a clear path to Vercel Serverless deployment or an explicit hosted inference plan"
+  ],
+  "task_context": "Texturaize runs a multi-pass LLM editorial pipeline (developmental → line-edit → copy-edit) with a 19-principle editorial constitution derived via Inverse Constitutional AI from 1,000 professional pairs. The question is which training or inference-time approach beyond prompt engineering best leverages 8,250 curated pairs."
+}

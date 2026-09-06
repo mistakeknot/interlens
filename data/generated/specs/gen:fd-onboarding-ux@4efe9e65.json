@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-distribution-installer-safety covers install.sh idempotency and error handling mechanics — not the user-facing communication quality",
+    "fd-skill-bundle-conformance covers SKILL.md behavioral spec correctness — not whether the first-invocation experience matches the spec",
+    "fd-versioning-compatibility covers MANIFEST.yaml accuracy — not how version information is surfaced to users during install"
+  ],
+  "decision_lens": "Prioritizes the user's moment-to-moment experience: does the output of install.sh tell me what happened? Does INSTALL.md prepare me for the one-liner? Does /auraken behave as the SKILL.md promises on first invocation? Flags anything that would cause a technically competent user to give up before seeing Auraken work. De-prioritizes internal implementation details.",
+  "focus": "User experience from one-liner curl install through first /auraken invocation — INSTALL.md clarity, next-steps output, failure visibility",
+  "name": "fd-onboarding-ux",
+  "persona": "Apply the perspective of a developer experience engineer who tests installation flows on fresh machines and evaluates documentation against the experience of a user encountering a tool for the first time — they care about whether each step produces observable feedback, measure success by whether a user can recover from a failed install without reading source code, and flag any gap between what the installer prints and what the user needs to do next.",
+  "review_areas": [
+    "INSTALL.md first-screen adequacy: does INSTALL.md lead with prerequisites (Hermes version, Go for binary option (a), Python 3.11+) before presenting the one-liner, or does the one-liner appear first and prerequisites only surface as errors during install?",
+    "curl|bash security caveat handling: the brainstorm acknowledges the 'review before piping to bash' caveat — assess whether INSTALL.md provides a practical 'download and inspect first' alternative path and whether the one-liner URL is stable across GitHub release tag renames",
+    "install.sh next-steps output: step 6 of the install contract says 'prints next steps: how to invoke /auraken, where logs go, how to uninstall' — assess whether the brainstorm's specification of this output is specific enough to implement, or whether 'next steps' is vague enough to produce unhelpful output",
+    "First /auraken invocation experience: SKILL.md specifies that /auraken with no problem stated should return a single short open question — verify there is no intermediate Hermes scaffolding output (skill loading message, capability announcement) that would appear before Auraken's first response and violate the 'no preamble' behavioral contract",
+    "Uninstall path documentation: the brainstorm mentions printing how to uninstall but does not specify an uninstall.sh or manual steps — assess whether this omission creates support burden and whether v0.1 INSTALL.md should document manual reversal steps explicitly",
+    "Platform gap communication: the brainstorm states v0.1 targets Linux with macOS as 'expected to work, untested' — assess whether INSTALL.md communicates this limitation before the user runs the one-liner on macOS, and whether the install.sh detection for macOS Hermes paths fails gracefully or silently"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Hermes prints 'Skill auraken loaded. Capabilities: lens_select' before handing off to the skill — the user's first Auraken experience begins with a capability announcement that SKILL.md explicitly forbids, breaking the behavioral contract on first contact",
+      "scenario": "First /auraken invocation produces Hermes skill-load boilerplate before the opening question",
+      "severity": "P1"
+    },
+    {
+      "condition": "INSTALL.md does not warn macOS users that the platform is untested; install.sh completes without error but writes config to a Linux-default path; the user runs Hermes and /auraken does not exist — no error, no signal, no path to diagnosis",
+      "scenario": "macOS users run the one-liner, install.sh silently installs to the wrong profile dir, and Hermes never loads the skill",
+      "severity": "P2"
+    },
+    {
+      "condition": "The brainstorm uses `github.com/mistakeknot/Sylveste` as the repo path — if the repo is later moved under an org or the tag format changes, all published one-liners in blog posts or README files become dead links with no redirect",
+      "scenario": "One-liner URL breaks if the GitHub release tag is renamed or the repo is renamed",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Walk through INSTALL.md as a first-time user: can you reach a working /auraken invocation following only the documented steps?",
+    "Confirm install.sh's next-steps output names the exact Hermes command to invoke /auraken and the exact file path where logs land",
+    "Verify the macOS limitation is prominently stated before the one-liner, not buried in a later troubleshooting section"
+  ],
+  "task_context": "The brainstorm document describes a v0.1 distribution targeting users who already have Hermes installed and want to add the Auraken personality. This review assesses the end-to-end onboarding experience from the perspective of that user — from reading INSTALL.md through their first successful /auraken session."
+}

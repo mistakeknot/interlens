@@ -1,0 +1,31 @@
+{
+  "anti_overlap": "Focuses on dynamic detail adaptation from game rendering, not compression (medical) or serialization (accessibility)",
+  "decision_lens": "Balances visual fidelity against frame budget — the right detail level is the one that achieves the task without exceeding the budget",
+  "distance_rationale": "Both domains dynamically choose visual detail levels to fit within a performance budget, but game engines have mature frameworks for this tradeoff.",
+  "expected_isomorphisms": "LOD selection, temporal coherence, and budget allocation directly map to adaptive terminal state encoding.",
+  "focus": "Level-of-detail rendering — dynamic fidelity based on distance, importance, and performance budget",
+  "name": "fd-game-rendering-lod",
+  "persona": "Game engine rendering engineer who implements LOD systems, impostor sprites, and performance-adaptive rendering pipelines",
+  "review_areas": [
+    "LOD selection — choosing detail level based on importance/distance (maps to: choosing terminal state detail based on agent task and context budget)",
+    "Impostor rendering — replacing complex 3D objects with 2D sprites when far away (maps to: replacing complex terminal regions with text summaries)",
+    "Occlusion culling — not rendering what's behind other objects (maps to: not encoding terminal regions covered by popups/dialogs)",
+    "Temporal coherence — reusing previous frame data when little has changed (maps to: diff-based terminal updates)",
+    "Performance budget allocation — distributing render budget to most important objects first (maps to: distributing token budget to most important terminal regions)"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Every terminal capture costs maximum tokens regardless of task complexity",
+      "scenario": "No LOD system — always maximum detail",
+      "severity": "P1"
+    },
+    {
+      "condition": "Agent notices quality jumps between detail levels and gets confused",
+      "scenario": "LOD transitions visible as 'popping'",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Game engine rendering (LOD, occlusion culling, performance budgets)",
+  "success_hints": "Proposes a multi-level detail system where the terminal state representation scales with the agent's current needs",
+  "task_context": "Game engines solved the 'too much visual detail for the budget' problem with LOD. Terminal state for LLMs has the same constraint: context window is the frame budget."
+}

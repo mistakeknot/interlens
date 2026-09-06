@@ -1,0 +1,38 @@
+{
+  "anti_overlap": [
+    "fd-concurrency-reliability covers Python ThreadPoolExecutor data loss patterns",
+    "fd-cli-subprocess-lifecycle covers the Node.js subprocess spawning layer",
+    "fd-cron-job-reliability covers the cron/systemd orchestration layer"
+  ],
+  "decision_lens": "Prioritizes permit accounting bugs that permanently reduce concurrency (leaked permits never restored) and cross-process races that cause all processes to wait on a stale cooldown. A semaphore that gets stuck at concurrency=1 kills throughput silently.",
+  "focus": "Correctness of AIMD adaptive semaphore logic: permit accounting on rate-limit, cross-process lock file race conditions, and divergence between per-model semaphore state and actual API quota",
+  "name": "fd-aimd-semaphore-correctness",
+  "persona": "A distributed systems engineer who has implemented and debugged adaptive rate limiters for high-throughput API clients. Understands the pitfalls of semaphore permit leaks, TOCTOU races on shared files, and the difference between rate-limit detection and connection errors.",
+  "review_areas": [
+    "In AdaptiveSemaphore.release(success=False): the permit is NOT released (return before self._sem.release()) — this is intentional to reduce concurrency, but verify there is a path to eventually restore permits if the model recovers, since ramp-up only occurs on success and a permanent minimum-1 state will never ramp without new successes",
+    "In _cross_process_wait(): the fcntl.LOCK_EX lock is held, state is read/written, then released — but the actual time.sleep(wait_secs) happens AFTER releasing the lock, meaning two processes can both compute wait_secs and both sleep independently without coordination; verify this is intentional and won't cause thundering herd",
+    "_get_semaphore() initializes with maximum=initial, so a semaphore initialized at concurrency=3 (cli backends) can never ramp above 3 — confirm this is intentional for CLI models and not a bug that silently caps API models",
+    "On a connection error (_is_connection_error), the code path does NOT call sem.release(success=False) — examine whether this causes a permanent permit leak that reduces effective concurrency on repeated connection failures",
+    "The codex provider in llm_call() checks for rate limit text in stderr/stdout rather than an HTTP status code — verify the string patterns ('rate limit', 'hit your limit') are comprehensive and won't miss new rate-limit message formats",
+    "Verify that _model_semaphores is module-level (shared within process but not across processes) and that the cross-process coordination via /tmp/ files correctly handles the case where the lock file is deleted between runs"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The exception handler in llm_call's retry loop does not call sem.release() on non-rate-limit errors",
+      "scenario": "A connection error causes sem.acquire() to succeed but sem.release() is never called (exception path), permanently consuming one permit per failure until the semaphore deadlocks at 0 available permits",
+      "severity": "P1"
+    },
+    {
+      "condition": "Ramp threshold math allows oscillation at low concurrency levels",
+      "scenario": "After rate-limit recovery, the semaphore stays at minimum=1 forever because ramp-up threshold is ceil(current)=1 consecutive successes needed, but each success immediately triggers a ramp attempt, causing the semaphore to oscillate between 1 and 2 indefinitely",
+      "severity": "P1"
+    },
+    {
+      "condition": "State file write is not atomic (no temp-file-then-rename pattern)",
+      "scenario": "Two concurrent processes both read a stale cooldown_until of 0, both immediately proceed, both hit 429, and both write competing cooldown_until values — the second write may overwrite the first with a shorter cooldown",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "A correct semaphore always releases its permit in the finally block and separately signals failure state. Cross-process state files use atomic rename. The maximum cap for CLI backends is documented as intentional and does not silently apply to API backends.",
+  "task_context": "cipher_comparison.py uses AdaptiveSemaphore with AIMD control (multiplicative decrease on 429, additive increase on consecutive successes) and cross-process coordination via /tmp/texturaize-ratelimit/ lock files. After migrating eval defaults to claude-haiku-cli with a hardcoded cap of 3 concurrent calls, the semaphore is the primary throughput governor for overnight benchmark runs."
+}

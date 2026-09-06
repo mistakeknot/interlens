@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Does NOT cover MEMORY.md auto-load content design (fd-context-budget-orchestration)",
+    "Does NOT cover hook firing frequency (fd-claude-code-hooks-economy)"
+  ],
+  "decision_lens": "Is the preamble structured so the cache cursor sits in the right place, and do orchestration decisions (sleeps, polls, /loop intervals) avoid crossing the TTL?",
+  "focus": "Reviews preamble shape, system prompt churn, and conversation structure against Anthropic's 5-minute prompt cache TTL",
+  "name": "fd-prompt-cache-economics",
+  "persona": "Apply the perspective of a Claude API user who has tuned an app for prompt caching — they care about cache breakpoints, what content sits before vs after the cache cursor, how often the cache invalidates, and whether sleeps/timing decisions accidentally cross the 5-minute TTL",
+  "review_areas": [
+    "Cache breakpoint placement: are stable items (CLAUDE.md, MEMORY.md, deferred tools) ordered before churn-prone items (current date, git status snapshot)?",
+    "Per-turn churn: which hook outputs change between turns, invalidating downstream cache?",
+    "TTL crossings: ScheduleWakeup default values, /loop intervals — do common patterns sit at 300s (worst case: cache-miss without long-wait amortization)?",
+    "MEMORY.md as cache-stable preamble: does it churn between sessions in ways that defeat cross-session caching?",
+    "Conversation shape: are tool results that bloat context (full file reads) inserted between cache-stable preamble and a stable instruction tail?",
+    "Background-agent prompts: when subagents are dispatched, is the dispatch prompt cache-stable across multiple dispatches in one session?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Every memory edit invalidates a 6kt cache region instead of a 1kt region",
+      "scenario": "MEMORY.md ordering puts churning fields (Active Projects state) before stable fields (workflow patterns), invalidating cache for downstream content",
+      "severity": "P1"
+    },
+    {
+      "condition": "The 5-minute breakpoint becomes the modal sleep, costing cache misses in steady-state polling",
+      "scenario": "ScheduleWakeup recommendations cluster around 300s, hitting the TTL miss without amortizing across a long wait",
+      "severity": "P2"
+    },
+    {
+      "condition": "Parallel-track dispatch (e.g., flux-review fan-out) misses cache between adjacent agent dispatches",
+      "scenario": "Subagent dispatches inline target descriptions that vary slightly per-call, defeating subagent prompt caching",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Anthropic prompt cache (5-min TTL) and Claude Code system prompt structure",
+  "success_hints": [
+    "Quote ordered preamble structure and identify churn points",
+    "Reference specific scripts and configs (statusline, hooks, ScheduleWakeup defaults)",
+    "Propose stable-prefix → churn-suffix reorderings",
+    "Estimate cache hit-rate impact per change"
+  ],
+  "task_context": "Sylveste's preamble was trimmed in sylveste-ynh7 (saving 2,285 tok/session). The next layer is cache hygiene: where do tokens churn that should be cache-stable, and where do orchestration decisions burn cache for no benefit. Look at hook output ordering, MEMORY.md placement, deferred tool listing, and scheduling primitives like ScheduleWakeup and /loop."
+}

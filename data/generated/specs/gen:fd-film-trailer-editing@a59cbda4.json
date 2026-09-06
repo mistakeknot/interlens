@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Does not assess first-impression threshold signals (fd-luxury-retail-threshold), physical form ergonomics and choice architecture (fd-restaurant-menu-engineering), or how content quality signals expertise (fd-magazine-editorial-curation).",
+  "decision_lens": "Does this sequence build commitment, or does it give the visitor permission to feel satisfied without converting?",
+  "distance_rationale": "Trailer editing operates under the same compressed-window, stranger-audience, single-conversion-action constraint as a landing page, but the practitioner's vocabulary is emotional arc, genre signal, and pacing rather than UX or copy.",
+  "expected_isomorphisms": "The trailer's 'information gap' technique — showing enough to create desire but withholding enough to require action — maps directly to how much product capability the animation should reveal before the waitlist ask. The trailer editor's obsession with the exact frame where the release date card drops maps to CTA placement relative to the animation's emotional peak.",
+  "focus": "Compressed narrative arc and emotional commitment within a bounded time window",
+  "name": "fd-film-trailer-editing",
+  "persona": "A theatrical trailer editor with credits on 50+ releases across studio and indie. Cuts 90-second trailers that must establish genre, stakes, and desire without spoiling the film — optimizing for the specific emotional state that produces a ticket purchase.",
+  "review_areas": [
+    "Inciting incident timing: the animation is the trailer's 'hook moment' — does it land early enough, or does the page frontload setup (nav, headline text) before delivering the demo?",
+    "Genre establishment: within the first 3 seconds, does the visitor understand the category (writing tool, editorial intelligence) or do they experience genre ambiguity?",
+    "Emotional arc of the animation: the before→redline→after sequence is the trailer's climax — does the pacing (200ms pause, 1000ms wait, 80ms per word) produce the correct emotional beat, or does it feel mechanical?",
+    "The 'trailer problem': trailers that show too much kill desire; trailers that show too little produce confusion — does showing all three diff examples in auto-rotation give away the full product range, or does each example compound desire?",
+    "Call-to-action placement as release date card: in trailers, 'In theaters Friday' appears at peak emotional activation — is the waitlist form positioned at the moment of maximum desire, or does it appear too early/late relative to the animation?",
+    "The loop: trailers don't loop in theaters, but the animation does — does looping feel like a confident demo or an anxious filler, and does the hold phase give the visitor enough time to read the after-state before the cycle resets?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "If all three diff examples (blog intro, LinkedIn post, marketing copy) cycle through before the visitor reaches the form, they may feel they've seen the full product range and have no remaining information-gap that joining the waitlist would close.",
+      "scenario": "Animation resolves too completely — the visitor feels informed rather than wanting",
+      "severity": "P1"
+    },
+    {
+      "condition": "The waitlist form is positioned below the animation in DOM order. A visitor experiencing maximum desire at the end of a particularly compelling diff cycle must scroll or shift visual focus to convert — momentum breaks.",
+      "scenario": "Peak emotional activation and CTA are not co-located",
+      "severity": "P2"
+    },
+    {
+      "condition": "The marketing copy example produces a 45-word after-sentence. At average adult reading speed, 2500ms hold allows approximately 10-12 words. The visitor may be mid-read when the cycle resets, producing frustration rather than desire.",
+      "scenario": "HOLD_MS (2500ms) may be insufficient for slower readers to process the after-state",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Theatrical film trailer editing and cinema marketing",
+  "success_hints": "The animation should produce a specific desire: 'I want my writing to look like the after.' The CTA should appear to catch that desire before it dissipates. Each diff example should compound the previous rather than substitute it. The page should leave a specific information gap (what does it cost? how do I get in?) that only signing up closes.",
+  "task_context": "The DiffAnimation is the sole product demonstration on the page — it carries all the persuasive load that a trailer carries for a film. Three examples cycle automatically at HOLD_MS=2500 with WORD_MS=80 per actionable word. The waitlist form is below the animation in layout order."
+}

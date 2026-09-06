@@ -1,0 +1,31 @@
+{
+  "anti_overlap": "Focuses on serialization format design from protocol engineering, not visual compression (medical/game) or semantic roles (accessibility)",
+  "decision_lens": "Evaluates bytes-per-semantic-field and parsing complexity — the best protocol is the one that encodes the most meaning in the fewest tokens while remaining LLM-parseable",
+  "distance_rationale": "Both domains serialize structured data over constrained channels, but protocol engineering has decades of research on minimal-overhead encoding.",
+  "expected_isomorphisms": "Delta encoding, dictionary compression, and schema-driven layouts directly map to compact terminal state representations.",
+  "focus": "Wire protocol design — compact binary and text serialization formats for structured data over constrained channels",
+  "name": "fd-wire-protocol-serialization",
+  "persona": "Protocol engineer who has designed wire formats (protobuf, msgpack, CBOR, ASN.1) and understands the tradeoffs between human-readability, compactness, and schema evolution",
+  "review_areas": [
+    "Schema-driven encoding — defining a terminal state schema where field order carries meaning, eliminating tag overhead",
+    "Varint and delta encoding — encoding row/column positions as deltas from previous, reducing numeric overhead",
+    "Dictionary compression — building a per-session dictionary of repeated strings (file paths, error messages) and referencing by short ID",
+    "Human-readable compact formats — YAML-like or DSL formats that tokenize well while remaining parseable by LLMs",
+    "Hybrid encoding — metadata in structured text + visual content as compressed inline (like multipart MIME)"
+  ],
+  "severity_examples": [
+    {
+      "condition": "JSON-style encoding where 'background_color' appears 1920 times for an 80×24 terminal",
+      "scenario": "Verbose format with redundant field names",
+      "severity": "P1"
+    },
+    {
+      "condition": "Compact binary-like encoding that the LLM can't parse without a schema in context",
+      "scenario": "Format not self-describing enough for LLM",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Wire protocol engineering (protobuf, msgpack, ASN.1, CBOR)",
+  "success_hints": "Proposes a specific compact text format (DSL) optimized for both token efficiency and LLM parseability",
+  "task_context": "The terminal state is structured data that needs to travel over a token-constrained channel to an LLM consumer. This is a wire protocol design problem."
+}

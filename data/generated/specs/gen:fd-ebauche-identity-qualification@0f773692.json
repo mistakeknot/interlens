@@ -1,0 +1,49 @@
+{
+  "anti_overlap": [
+    "Does not evaluate whether individual additions are correctly scoped to the Hermes host layer — see fd-adapter-boundary-rigor",
+    "Does not evaluate the layering architecture or ecosystem extension points — see fd-ecosystem-layering",
+    "Does not evaluate commentary-layer citation obligations or provenance format — see fd-halakhic-commentary-layering"
+  ],
+  "decision_lens": "Does each Athenflux addition constitute genuine 'maison finishing' — behavior that is visibly, durably, and distinctly Hermes-native — or is it a cosmetic rebranding of an interflux ébauche? Would a user of the final product be able to identify the maison-layer contributions without inspecting the movement?",
+  "distance_rationale": "The watchmaking ébauche/maison distinction is a centuries-refined industrial practice for exactly the problem the qualification rule faces: determining whether a derivative product has been sufficiently transformed to earn a distinct identity, or whether it is merely a rebranded base. The finishing standards (anglage, perlage, adjusted positions) map to the qualification conditions. The fraud risk (maison mark on unfinished movement) maps to the thin-wrapper risk. The construction certificate maps to provenance labeling.",
+  "expected_isomorphisms": [
+    "Ébauche (raw movement blank) = interflux canonical capability → maison finishing = Athenflux adapter additions → maison-marked piece = Athenflux-qualified implementation",
+    "Finishing standards (anglage, perlage, côtes de Genève) = qualification conditions (documented workflow, stable convention, artifact semantics, documented boundary)",
+    "Construction certificate = provenance contract (upstream capability vs. adapter layer on every output)",
+    "Maison mark on unfinished movement (fraud) = applying 'Athenflux' name to a thin wrapper that only documents but does not add running behavior"
+  ],
+  "focus": "Name-right and identity qualification — whether the adapter spec's threshold for using the 'Athenflux' name is rigorous enough to prevent a thin-wrapper from claiming the maison identity, and whether the finishing additions are substantial enough to constitute a distinct product",
+  "name": "fd-ebauche-identity-qualification",
+  "persona": "Apply the perspective of a Swiss haute horlogerie expert steeped in the ébauche/maison distinction — they care about whether a movement bearing a maison name has been finished to a standard that justifies that name (anglage, perlage, côtes de Genève, adjusted positions), or whether it is merely a branded-but-unfinished ébauche. They measure whether the finishing work added by the maison transforms the base movement into something qualitatively distinct, and flag any case where the maison name is applied to work that is indistinguishable from the raw blank.",
+  "review_areas": [
+    "The four qualification conditions for earning the 'Athenflux' name are each analogous to a finishing standard — verify each is a real transformation criterion, not a labeling criterion (a maison mark on an unfinished movement is fraud, not qualification)",
+    "The five categories of Athenflux additions (orchestration, prompt packaging, artifact lifecycle, operator workflow, runtime integration) are evaluated for whether any could be achieved by adjusting an interflux parameter rather than performing distinct finishing work",
+    "The minimum v0 success criteria require that 'Athenflux adds substantive value beyond command forwarding' — the spec should define what 'substantive' means in terms of observable output differences, not effort invested",
+    "The 'Hermes using interflux' fallback (when qualification conditions are not met) is the ébauche-with-no-maison-finish case — verify the spec makes this fallback easy to declare and not embarrassing, so implementors choose it honestly",
+    "Artifact provenance labels (upstream capability vs. adapter layer) map to the movement's construction certificate — verify the spec requires these to be present on every output, not just on request"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The ébauche fraud: the maison mark is applied to a movement that was never finished; the spec must require observable behavioral differentiation, not just documented intent",
+      "scenario": "An implementation meets the four qualification conditions by documentation alone — a workflow doc, a naming convention, a status label definition, and a boundary statement — without any running Hermes-specific behavior that differs from a plain interflux invocation",
+      "severity": "P0"
+    },
+    {
+      "condition": "A finishing standard that cannot be objectively assessed is not a standard; the qualification rule needs a measurable criterion for each condition",
+      "scenario": "The spec does not define what 'stable Hermes-specific synthesis or orchestration convention' means in terms of observable output — two reviewers will disagree on whether a given implementation qualifies",
+      "severity": "P1"
+    },
+    {
+      "condition": "The spec should distinguish packaging that changes downstream behavior (output condensation tuned for Hermes reply channels, synthesis adapted to Hermes memory constraints) from packaging that is purely aesthetic",
+      "scenario": "The 'prompt and synthesis packaging' addition category could be satisfied by a template file that wraps interflux output with a header and footer, which is cosmetic rather than functional finishing",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Swiss haute horlogerie ébauche and maison-finishing tradition (movement blank vs. finished maison piece, identity qualification, côtes de Genève finishing standards)",
+  "success_hints": [
+    "Each qualification condition has an observable behavioral test — a reviewer can determine pass/fail by examining a running implementation, not by reading its documentation",
+    "The 'substantive value beyond command forwarding' criterion is defined by at least one concrete example of what it looks like and one example of what it does not look like",
+    "The 'Hermes using interflux' fallback is presented as a legitimate and honorable outcome, not a failure label"
+  ],
+  "task_context": "Review the Athenflux adapter spec to evaluate whether the name-right qualification threshold is rigorous enough to distinguish genuine adapter finishing from cosmetic rebranding, and whether each proposed addition category constitutes substantive transformation of the upstream capability."
+}

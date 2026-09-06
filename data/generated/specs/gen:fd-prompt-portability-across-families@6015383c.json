@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "Focus on prompt engineering and output format, not integration plumbing (fd-openrouter-dispatch-integration) or cost routing (fd-heterogeneous-fleet-cost-routing)",
+  "decision_lens": "Does the current prompt template produce structurally identical outputs on non-Claude models, or does it silently degrade?",
+  "focus": "Whether interflux's Claude-optimized agent prompts work on DeepSeek/Qwen without silent quality degradation",
+  "name": "fd-prompt-portability-across-families",
+  "persona": "A prompt engineer who has shipped production systems across multiple model families and knows exactly where prompts break silently",
+  "review_areas": [
+    "Findings Index format compliance: do DeepSeek/Qwen reliably produce the exact '- SEVERITY | ID | Section | Title' format?",
+    "Instruction following fidelity: which prompt sections (output format, peer findings protocol, focus area) degrade on non-Claude models?",
+    "Refusal and safety differences: do Chinese models refuse different content patterns than Claude (geopolitical, IP sensitivity)?",
+    "System prompt vs user prompt split: some models handle system prompts differently — does the agent prompt template need restructuring?",
+    "XML tag handling: interflux uses XML-style tags in prompts — do non-Claude models parse these the same way?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When the model ignores structured output instructions and produces free-form prose",
+      "scenario": "DeepSeek produces findings without Findings Index header, breaking synthesis parsing entirely",
+      "severity": "P0"
+    },
+    {
+      "condition": "When the model doesn't follow 'start with ### Findings Index' instruction literally",
+      "scenario": "Qwen adds extra reasoning before the findings, causing the Findings Index regex to fail on the first non-empty line check",
+      "severity": "P1"
+    },
+    {
+      "condition": "When the model treats persona as flavor text instead of behavioral constraint",
+      "scenario": "Agent persona instructions are interpreted differently, producing generic instead of domain-specific analysis",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Look for prompt template variants per model family, output format validation before synthesis, and empirical testing results across models",
+  "task_context": "The current prompt template (references/prompt-template.md) was designed for Claude. No testing on other model families has been done."
+}

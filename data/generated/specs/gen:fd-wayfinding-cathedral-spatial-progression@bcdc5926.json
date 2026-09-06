@@ -1,0 +1,36 @@
+{
+  "anti_overlap": "fd-japanese-joinery-structural-trust covers element connections. fd-ottoman-calligraphy-visual-hierarchy covers visual proportion. fd-swiss-watchmaking-precision-tolerance covers timing precision.",
+  "decision_lens": "Does the page create a spatial-emotional sequence that moves the visitor through distinct psychological states toward a moment of commitment, or does it present all elements simultaneously?",
+  "distance_rationale": "Medieval sacred architecture was designed to produce spiritual experiences through physical space — a stone-and-light discipline with no concept of digital interfaces or conversion metrics.",
+  "expected_isomorphisms": "Both cathedrals and landing pages must move a person through psychological states toward commitment using spatial arrangement alone. The principle that the altar should not be visible from the doorway maps to whether a landing page reveals its ask too early.",
+  "focus": "Whether the page creates a spatial narrative that moves the visitor through a deliberate experiential sequence from threshold to commitment",
+  "name": "fd-wayfinding-cathedral-spatial-progression",
+  "persona": "An architectural historian specializing in medieval European cathedral design and liturgical spatial programming — specifically the choreography of processional movement from narthex through nave to crossing to sanctuary.",
+  "review_areas": [
+    "Whether the nav functions as a proper narthex (threshold) — establishing context and orientation before the visitor enters the page's interior.",
+    "Whether the headline-to-animation sequence creates the nave experience — sufficient 'approach' that builds anticipation before the conversion ask.",
+    "Whether the diff animation functions as the crossing — the pivot point where attention is redirected from observation to desire.",
+    "Whether the form placement creates altar intimacy — appropriate scale compression after the larger demonstration space.",
+    "Whether there is a labyrinth — an alternative path for visitors not ready for direct approach (secondary CTA, social link, bookmark-worthy element)."
+  ],
+  "severity_examples": [
+    {
+      "condition": "When the only interactive endpoint on the page is the waitlist form, and no mechanism exists to capture partial interest",
+      "scenario": "No alternative path for visitors who are interested but not ready to commit — no secondary CTA, no social link, no content to bookmark.",
+      "severity": "P1"
+    },
+    {
+      "condition": "When the waitlist form is visible in the initial viewport on standard desktop resolutions without scrolling",
+      "scenario": "The form appears within immediate scroll of the headline — the altar is visible from the narthex with insufficient spatial progression.",
+      "severity": "P2"
+    },
+    {
+      "condition": "When the post-submission state contains only a confirmation message with no onboarding content or next step",
+      "scenario": "The success state provides no post-commitment experience — no ambulatory behind the altar.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Medieval European cathedral architecture, specifically liturgical spatial programming from the Romanesque-Gothic tradition",
+  "success_hints": "The page creates a felt progression through distinct psychological states: orientation, demonstration, desire, and commitment — with each state occupying its correct spatial position. Visitors not ready to commit have an alternative path. The post-commitment space rewards the act of joining.",
+  "task_context": "Single-screen layout: LandingNav at top, then centered column (max-w-2xl) with pt-[12vh] containing headline → LandingHero → WaitlistForm, plus hidden ThemeSwitcher. On desktop, the entire page likely fits in a single viewport. No secondary CTA, no blog link, no social proof section. Success state replaces the form with confirmation text and a share button."
+}

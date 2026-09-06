@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "Leaves statistical methods to fd-statistical-process-control, leaves storage to fd-sqlite-rolling-window",
+  "decision_lens": "Data pipeline reliability: source availability contracts, partial data handling, degradation cascades",
+  "focus": "Reviews the external data sourcing chain for signal inputs and degradation behavior when sources are unavailable",
+  "name": "fd-data-pipeline-reliability",
+  "persona": "Platform reliability engineer who designs data ingestion pipelines with graceful degradation contracts",
+  "review_areas": [
+    "Whether each data source (bd for beads, cost-query.sh for cost, interspect for evidence) has an explicit degradation contract",
+    "Whether first_attempt_pass_rate sourced from agent-written interspect evidence violates Signal Independence invariant",
+    "Whether partial data (some sources available, some not) produces correct signals or silent failures",
+    "Whether the ingestion step in ockham check handles stale data (interspect hasn't updated in hours)",
+    "Whether cost-query.sh failure mode is understood (interstat DB missing, wrong schema, empty results)"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Agents can influence their own pass rate through evidence manipulation",
+      "scenario": "first_attempt_pass_rate violates Signal Independence",
+      "severity": "P0"
+    },
+    {
+      "condition": "bd unavailable → empty bead list → no drift detection → false all-clear",
+      "scenario": "Missing data source silently produces zero signals",
+      "severity": "P1"
+    },
+    {
+      "condition": "No staleness check on interspect confidence.json timestamp",
+      "scenario": "Stale interspect data causes spurious signals",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Each source has explicit degradation behavior matching vision doc contracts; at least one input is agent-unwritable",
+  "task_context": "Vision doc requires at least one agent-unwritable anomaly input. Git revert rate is the initial independent channel."
+}

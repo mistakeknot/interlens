@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Focuses on evidence chains, stable identity, and append-only provenance only",
+    "Does not address platform-vs-application boundary or transmission lineage",
+    "Surfaces meta-patterns (e.g., missing registrar primitive), not interaction shapes"
+  ],
+  "decision_lens": "Append-only provenance with stable identity — every action against an object generates a dated, attributable record that joins the chain; the chain itself, not curatorial assertion, is what licenses authority claims; loss or corruption of the chain destroys value even if the object is intact.",
+  "distance_rationale": "A two-century-old institutional documentation discipline whose entire purpose is unbroken provenance under custodial change — no agent-platform engineer would consult museum registrar manuals for memory-system design.",
+  "expected_isomorphisms": "Accession-number stability maps to a missing unified evidence ID across Sylveste's tracking systems; conservation report append-only discipline maps to whether durable memory preserves history through graduation; the catalog/registrar split maps to a missing platform primitive distinct from the proposed managed AGENTS.md surface.",
+  "focus": "Evaluate Claude Code's evidence, trust, and durable-memory primitives through the lens of museum accession and provenance practice — where each object carries an unbroken chain of accession numbers, condition reports, conservation interventions, and prior-owner records, and where the standardized accession format itself is the interoperability primitive that allows objects to move between institutions without losing their authority history.",
+  "name": "fd-museum-accession-provenance-evidence-chain",
+  "persona": "Apply the perspective of a senior registrar at a major collecting museum — they care about the unbroken chain from acquisition through every loan, conservation event, and re-attribution; they measure registrar work by whether an object's full history can be reconstructed from documentation alone (without curatorial memory), and flag any system where evidence is created without a stable identifier, where conservation notes overwrite rather than append, or where authority claims are made without provenance citations.",
+  "review_areas": [
+    "Does the Sylveste 'every action produces evidence' principle have a stable accession-number equivalent? Museum objects carry an immutable accession ID assigned at acquisition that travels through every subsequent record. Do beads, sessions, agent runs, or plugin invocations have the registrar-grade stable ID needed to reconstruct provenance, or are IDs fragmented across systems (intermem, intertrust, interspect, beads, cass) the way a museum without unified accession numbers fragments its collection?",
+    "What is the conservation-report equivalent for agent memory? Conservators write append-only condition reports — never overwriting prior reports, even when later work supersedes them. Is durable agent memory append-only with full prior-state retention, or does memory graduation (intermem, interknow, AGENTS.md) overwrite earlier states, destroying the equivalent of treatment history?",
+    "Does the trust-scoring system (intertrust, interspect) follow provenance citation discipline? Museum attributions cite their evidence base ('attributed to Rembrandt, Wetering 2014' vs. 'Rembrandt'); the citation, not the assertion, carries authority. Are agent trust scores citation-backed and re-derivable from underlying evidence, or are they consensus assertions that lose their evidentiary chain?",
+    "What is the deaccession protocol? Museums have explicit, board-approved processes for removing objects — never silent deletion. When agent memories age out, when plugins are deprecated, when sessions are pruned, is there a deaccession-grade process, or does evidence quietly disappear in ways that retrospective analysis cannot recover?",
+    "Is there a loan-record equivalent for cross-plugin / cross-session evidence sharing? When a museum loans an object, the receiving institution's records and the lender's records must reconcile on return. When interflux shares findings to intersynth, when cass exports to /reflect, when intermem graduates to AGENTS.md, do the source and destination provenance records reconcile, or does the evidence lose continuity at handoff?",
+    "What primitive is missing because Anthropic ships no registrar? The prior pass's 'managed AGENTS.md surface' is the catalog. But museums separate catalog (curatorial) from registrar (provenance/movement/legal). Is there a missing registrar primitive — a single source of truth for 'what evidence about this artifact exists, where, and under what authority' — that all 63 plugins reinvent badly?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "An action recorded by one plugin (e.g., a session annotation in cass) cannot be linked back to the bead, agent identity, or trust event that produced it because there is no shared accession-grade identifier — the equivalent of a museum object whose conservation file cannot be matched to its accession record",
+      "scenario": "Evidence chain broken at primitive boundary",
+      "severity": "P0"
+    },
+    {
+      "condition": "When intermem promotes an auto-memory fact to AGENTS.md or interknow updates a pattern's authority weight, the prior state is overwritten rather than appended — equivalent to a conservator erasing previous treatment notes when applying new ones, destroying the chain that licenses current claims",
+      "scenario": "Memory graduation overwrites prior state",
+      "severity": "P1"
+    },
+    {
+      "condition": "Agent trust scores or routing decisions surface as confidence numbers without the underlying evidence trail accessible from the score — like attributing a painting to Rembrandt without the cited evidence, leaving the attribution unfalsifiable and unrevisable",
+      "scenario": "Trust assertion without citation",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Museum collection management: accession numbering, condition reporting, conservation documentation, deaccession protocol, loan records (AAM and AAMG registrar standards, 19th-century origins through current ICOM practice)",
+  "success_hints": [
+    "Identify whether a registrar-grade unified evidence primitive is the meta-pattern behind multiple prior-pass targets",
+    "Specify whether durable memory should be append-only with conservation-report semantics",
+    "Name the missing primitive that would unify accession ID across beads / sessions / agents / plugins",
+    "Flag any place where evidence loses continuity at a handoff between systems"
+  ],
+  "task_context": "This review evaluates Claude Code's evidence, trust, and durable-memory primitives. The museum-registrar lens evaluates whether the evidence-and-authority chain is provenance-grade — stable IDs, append-only history, citation-backed authority, explicit deaccession — or whether it fragments across plugins in ways that destroy the chain that the prior pass's primitives all implicitly assume."
+}

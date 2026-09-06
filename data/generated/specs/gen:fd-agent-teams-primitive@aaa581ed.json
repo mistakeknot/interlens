@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "fd-experimental-flag-stability covers env var gating and version detection, not API semantics",
+    "fd-debate-coordination-patterns covers anchoring bias and mesh topology, not primitive API contracts",
+    "fd-interflux-synthesis-pipeline covers Step 4 pipeline integration, not primitive behavior"
+  ],
+  "decision_lens": "Every API assumption in the brainstorm must be traceable to a documented primitive. Flag any gap where the design assumes behavior the primitive does not guarantee — especially around TaskCompleted as a cap enforcement mechanism and TeammateIdle exit-code 2 semantics.",
+  "focus": "Audit the brainstorm's use of Claude Code agent-teams primitives against actual v2.1.32+ API semantics — mailbox, TeammateIdle, TaskCompleted, plan-approval, and subagent-as-teammate handoff",
+  "name": "fd-agent-teams-primitive",
+  "persona": "Apply the perspective of a Claude Code platform engineer who has shipped features on top of the experimental agent-teams primitive and knows exactly where the documented API diverges from runtime behavior — especially around mailbox ordering guarantees, hook exit-code semantics, and the specific ways in-process team state is not preserved across /resume.",
+  "review_areas": [
+    "TaskCompleted hook as debate-round cap: the brainstorm uses TaskCompleted to reject a 'debate continues' task creation past round 2 — does the hook have the authority to reject task creation, or does it only fire after a task is completed?",
+    "TeammateIdle exit-code 2 semantics: the brainstorm dismisses TeammateIdle as unnecessary, but verify the exit-code 2 'refuse idle' contract is correctly understood — does exit 2 block the teammate from going idle or terminate it?",
+    "Mailbox message ordering: when 3 domain debaters post challenge messages to the lead simultaneously, is mailbox delivery ordered or concurrent? Does the lead's context window see all three before it responds?",
+    "Plan-approval mode applicability: the brainstorm correctly dismisses plan-approval for debaters (they write no code), but verify the lead agent — which writes the synthesis doc — does or doesn't need plan-approval in any run configuration",
+    "Subagent-as-teammate handoff: the brainstorm spawns ad-hoc teammates rather than reusing fd-* files — verify that ad-hoc teammates initialized from generated prompts are a supported pattern vs only subagent-definition file handoff",
+    "/resume non-restoration impact: the brainstorm notes in-process teammates are lost on /resume and proposes re-entrancy from spec JSONs — verify the re-entrancy assumption is valid given that synthesis stage reads .claude/flux-gen-specs/ files which persist across /resume"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Brainstorm relies on hook to enforce 2-round cap but the primitive does not provide pre-creation veto; debate runs unbounded past round 2",
+      "scenario": "TaskCompleted hook cannot reject new task creation — it only fires post-completion",
+      "severity": "P0"
+    },
+    {
+      "condition": "Mailbox delivery is not atomic across concurrent posters; lead sees partial input and anchors on first message",
+      "scenario": "Lead agent receives only the first debater's mailbox message before writing synthesis",
+      "severity": "P1"
+    },
+    {
+      "condition": "Brainstorm's generated-prompt approach requires a capability the primitive doesn't expose; fallback to fd-* files reintroduces the reviewer-framing problem the design explicitly rejected",
+      "scenario": "Ad-hoc teammate initialization is not supported; only subagent-definition file handoff works",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Every hook name (TeammateIdle, TaskCompleted) is matched to its documented exit-code contract",
+    "Mailbox delivery ordering guarantee is explicitly stated or flagged as unspecified",
+    "Ad-hoc teammate initialization path is confirmed against v2.1.32+ changelog or docs",
+    "/resume non-restoration is documented as a known limit with re-entry path validated"
+  ],
+  "task_context": "The brainstorm designs a --teams flag for flux-explore synthesis (Step 4 only), using Claude Code v2.1.32+ agent-teams with a lead + 3 domain-debater teammates, a 2-round cap enforced via TaskCompleted, and fallback to the existing single-Sonnet synthesis path when the primitive is unavailable."
+}

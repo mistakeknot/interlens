@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Focuses on the approval/intermediary/petition architecture — not on model routing decisions (Polynesian), not on trust boundary negotiation between intermediary networks (Sogdian).",
+  "decision_lens": "Intermediary petition triage — every request passes through a classification gate (what category of divine attention does this need?), an urgency gate (does this warrant interrupting the current ritual cycle or can it batch with the next scheduled ceremony?), and a translation gate (rewriting the petitioner's words into the ritual register the goddess accepts).",
+  "distance_rationale": "A medieval Southeast Asian religious intermediary system from a civilization most software engineers have never heard of — Champa was destroyed by Dai Viet expansion and survives only in temple ruins and epigraphy. The petition-through-intermediary architecture maps to human-in-the-loop approval flow but from a completely alien cultural frame.",
+  "expected_isomorphisms": "Priestly intermediary hierarchy maps to the daemon-as-proxy between model and human. Petition categorization maps to tool-call classification. Ritual batching maps to approval request grouping. Translation between petitioner's vernacular and ritual register maps to edit-summary generation fidelity. Temple scheduling (ceremonies at fixed times) maps to approval availability windows. The closed-temple problem maps directly to human unavailability handling.",
+  "focus": "Evaluate Hassease's human approval flow and intermediary architecture through the Po Nagar temple petition system of medieval Champa — where worshippers could not address the goddess directly but operated through a layered hierarchy of priestly intermediaries who filtered, translated, and batched petitions based on ritual category and urgency.",
+  "name": "fd-cham-po-nagar-temple-intermediary-petition",
+  "persona": "A senior halau jia (ritual intermediary priest) of the Po Nagar temple complex at Nha Trang, Champa kingdom (11th century CE), trained in the Shaivite-Austronesian syncretic tradition — managing the flow of petitions between worshippers and the divine through category-specific approval gates, ritual batching, and urgency triage.",
+  "review_areas": [
+    "Does Hassease's approval flow classify tool calls by semantic category (read/search vs. edit vs. create vs. destroy) with different approval paths per category, or is it a flat approve/deny binary for all gated actions?",
+    "Is there a batching mechanism for approval requests — can multiple low-risk edits be grouped into a single human review rather than interrupting the builder for each individual change?",
+    "How does the system handle the 'translation fidelity' problem — when Hassease summarizes a proposed edit for Signal approval, does the summary faithfully represent what will actually happen, or can the translation lose critical details?",
+    "Is there an urgency triage mechanism — can the system distinguish between edits that need immediate human attention (touching auth code) vs. those that can queue until the next review batch?",
+    "Does the intermediary architecture preserve the petitioner's intent through the proxy chain — when GLM proposes an edit, Hassease translates it for Signal, human approves, and Hassease executes, does the executed action match what the human thought they were approving?",
+    "How does the system handle the 'closed temple' problem — when the human is unavailable for approval, does work queue gracefully or does the entire pipeline stall?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Hassease's Signal message says 'edit auth.py to add token refresh' but the actual proposed edit also removes an existing validation check — human approves based on incomplete translation, and the intermediary executes something the petitioner did not actually sanction",
+      "scenario": "Translation infidelity in approval summary",
+      "severity": "P0"
+    },
+    {
+      "condition": "Every single file edit sends a separate Signal message, even when 15 test file edits are part of one logical change — builder either rubber-stamps everything (defeating the approval purpose) or abandons the flow (like a worshipper who stops coming to temple because every minor request requires a full ritual)",
+      "scenario": "No approval batching — notification fatigue",
+      "severity": "P1"
+    },
+    {
+      "condition": "When the builder doesn't respond to Signal for 30 minutes, the daemon has no queue/timeout/fallback — approved reads continue but the edit pipeline freezes entirely, with no way to batch pending approvals for when the builder returns",
+      "scenario": "No unavailability handling",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Cham temple petition system (Po Nagar complex, Champa kingdom, 7th-15th century CE, Shaivite-Austronesian syncretic tradition)",
+  "success_hints": "The approval flow should have semantic categorization (not just tool-type gating), batching for related low-risk actions, faithful preview generation that a human can actually evaluate, urgency triage, and graceful degradation when the approver is unavailable.",
+  "task_context": "Hassease sends proposed edits to the builder via Signal for approval before execution. Auto-approve rules gate by tool type (reads always pass, edits require approval, bash always requires approval). The Po Nagar lens tests whether this intermediary layer is rich enough to handle real petition flow — batching, urgency, translation fidelity, and unavailability — or just a crude binary gate."
+}

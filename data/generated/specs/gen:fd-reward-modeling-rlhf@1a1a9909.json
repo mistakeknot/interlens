@@ -1,0 +1,26 @@
+{
+  "anti_overlap": [
+    "fd-finetuning-feasibility covers supervised fine-tuning (SFT/LoRA) without preference learning",
+    "fd-retrieval-augmented-editing covers inference-time retrieval, not parameter updates",
+    "fd-constitutional-ai-refinement covers principle-grounded critique loops, not reward model construction",
+    "fd-eval-benchmark-design covers measurement frameworks, not reward signal construction"
+  ],
+  "decision_lens": "Prioritizes findings where the reward signal is misspecified or gameable — a reward model that scores fluency rather than editorial intent will optimize for the wrong objective.",
+  "focus": "Preference learning, reward model construction, and RLHF/DPO applicability given Texturaize's 8,250 editorial pairs",
+  "name": "fd-reward-modeling-rlhf",
+  "persona": "An alignment researcher with hands-on experience training reward models and running DPO/PPO fine-tuning loops for language quality tasks. Skeptical of reward hacking and evaluation circularity in editorial domains.",
+  "review_areas": [
+    "Assess whether 8,250 before/after pairs constitute implicit preference data (before=rejected, after=chosen) and what quality filtering is needed before DPO training",
+    "Review 2024-2026 literature on DPO, IPO, SimPO, and ORPO for text quality tasks — identify which objective is most robust when preference gap is narrow",
+    "Evaluate reward model architecture options: Bradley-Terry classifier on top of a frozen LLM vs a generative critique model (PRM-style) for multi-pass editorial quality",
+    "Flag reward hacking risk: LLM-as-judge rubrics used to generate synthetic preference data can create circular optimization",
+    "Review the use of the 19-principle constitution as a structured reward signal: principle-weighted scoring vs learned reward vs rule-based filtering",
+    "Assess compute and stability requirements for PPO vs DPO vs offline RLHF given Vercel Serverless deployment constraints and no persistent GPU"
+  ],
+  "success_hints": [
+    "A credible RLHF/DPO recommendation must specify how preference pairs are constructed from editorial pairs and how reward hacking is detected",
+    "The existing LLM-as-judge eval framework is a potential reward proxy — document whether it correlates with human preference before using it as a training signal",
+    "DPO is more practical than PPO for this project given no dedicated GPU infra"
+  ],
+  "task_context": "Texturaize runs a multi-pass LLM editorial pipeline (developmental → line-edit → copy-edit) with a 19-principle editorial constitution derived via Inverse Constitutional AI from 1,000 professional pairs. The question is which training or inference-time approach beyond prompt engineering best leverages 8,250 curated pairs."
+}

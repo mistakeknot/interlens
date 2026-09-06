@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Covers data format and serialization; fd-go-python-subprocess-bridge covers transport; fd-mcp-tool-schema-discoverability covers MCP tool definitions",
+  "decision_lens": "Does the QueryResult survive the full serialization path (Python dataclass → JSON → Go struct → MCP response → agent) without data loss or type confusion?",
+  "focus": "QueryResult dataclass structure and serialization fidelity across Python to Go to MCP to agent",
+  "name": "fd-queryresult-serialization-contract",
+  "persona": "API contract specialist who has debugged serialization mismatches across language boundaries",
+  "review_areas": [
+    "CanonicalID objects serialize to strings, not nested objects",
+    "entity_relationships returns actual entity data, not just relationship type names",
+    "datetime fields use consistent ISO format across Python and Go",
+    "Properties dict[str, Any] round-trips through JSON without losing types (int vs float vs string)",
+    "Nested structures (list of entities, each with properties) have bounded depth",
+    "Go-side struct tags match Python field names exactly"
+  ],
+  "severity_examples": [
+    {
+      "condition": "CanonicalID dataclass not JSON-serializable, requires custom encoder",
+      "scenario": "CanonicalID breaks json.dumps",
+      "severity": "P1"
+    },
+    {
+      "condition": "Agent gets ['imports', 'depends-on'] instead of actual source→target pairs",
+      "scenario": "entity_relationships returns type names instead of edges",
+      "severity": "P2"
+    },
+    {
+      "condition": "dependency_count: 5 becomes 5.0 after round-trip, breaking Go integer assertions",
+      "scenario": "Properties int values become floats in JSON",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "QueryResult has a .to_dict() method producing clean JSON. Go-side has matching struct definitions. Round-trip tests exist.",
+  "task_context": "The serialization contract spans three languages (Python → JSON → Go). Any mismatch silently corrupts data for every downstream consumer."
+}

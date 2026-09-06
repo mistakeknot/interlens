@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "Leave whether the typed edges themselves (embodies/fused-from/variant-of) are structurally sufficient and correctly queryable to fd-knowledge-graph-edge-schema; review only whether the selection/ranking decisions made using those edges and their attached signals are good decisions.",
+    "Leave whether hit-rate and other signals can become inconsistent, lost, or duplicated across the two machines to fd-distributed-sync-data-integrity; assume the data arrives intact and review only whether the rules applied to it produce good outcomes.",
+    "Do not review harvest transport, dedupe hashing mechanics, or deletion timing — review only the reuse/ranking/selection logic that consumes the results of those processes."
+  ],
+  "decision_lens": "For every rule that picks one lens over another — canonical head, embodies-edge target, reuse-vs-regenerate — ask what it optimizes for under sparse or noisy data, and whether that is the same thing flux-melange's heat-seeking design is trying to optimize for.",
+  "focus": "Reuse-before-regenerate decision quality — hit-rate/ranking signal design, canonical-head selection, and the exploration/exploitation tension between lens reuse and flux-melange's novelty-seeking mandate.",
+  "name": "fd-recsys-reuse-relevance",
+  "persona": "Apply the perspective of a recommendation-systems and search-relevance engineer who has shipped, and later had to unwind, a 'serve the cached or popular result' feature that quietly made outputs worse over time — someone versed in cold-start problems, small-sample ranking noise, exploration-exploitation tradeoffs, and the specific way a reuse-first system can create a feedback loop that narrows a corpus's diversity long before anyone notices the quality drop, who evaluates every proposed ranking or selection rule by asking what population of items it will systematically favor and starve.",
+  "review_areas": [
+    "Hit-rate signal reliability under sparsity: upheld / (upheld + refuted) with raw excluded and null for nothing-adjudicated (Open Questions) — review small-sample noise (a 1/1 lens reading as 100% and outranking a 40/45 lens), whether null is actually treated as 'unknown, do not rank on this' everywhere it is consumed or silently coerced to a rankable value somewhere in flux-gen/melange's reuse logic, and whether surfaced-count/use-count being stored 'as separate signals, not folded in' (an explicit design choice) is actually respected by every consumer or reintroduced as an implicit tiebreak.",
+    "Canonical-head selection under Fork 3's tie-break (hit-rate, else recency): review whether 'else recency' as a fallback systematically favors newer, less-adjudicated variants over older ones with a real but not-yet-large-enough track record, and what happens when a demonstrably worse variant becomes canonical simply because it is newest.",
+    "Reuse-vs-regenerate as exploitation: flux-gen and flux-melange consult the registry reuse-before-regenerate through the existing combine/contrast seam — review whether this creates convergent pressure that fights flux-melange's explicitly adaptive, heat/novelty-seeking round design, i.e. whether a registry that always offers the highest-hit-rate prior lens for a given target reduces the fresh-generation diversity later melange rounds depend on to find novel angles.",
+    "The core prioritized failure mode — a reused lens worse than a fresh one: review the concrete mechanism by which the design could select and surface a reused lens that underperforms what fresh generation would produce for the specific target under review right now (stale relevance, target-drift since the lens was harvested, an embedding-match on the curated embodies target being close but not right for this session's actual review need) and whether any signal in the design would catch or flag this before it happens versus only being visible after the fact in a ledger.",
+    "Embedding-based embodies auto-suggestion precision as a relevance problem, not a schema problem: a plausible-but-wrong embodies match at harvest time does not just mistype an edge — it makes a lens discoverable as a match for the wrong curated pattern, actively surfacing it as a reuse candidate for reviews it does not actually fit."
+  ],
+  "severity_examples": [
+    {
+      "condition": "A high-hit-rate lens is offered for reuse against a target whose shape has materially changed since the lens was harvested, with no freshness or drift check gating the offer.",
+      "scenario": "Reuse-before-regenerate has no described mechanism to detect target-drift — a harvested lens embodies a curated pattern that matched the target it was generated against months ago; nothing in the design re-validates fit against the current review target before the registry offers it as a reuse candidate, so the system can confidently hand flux-gen a stale lens in place of a fresh one tailored to what is actually being reviewed today, which is exactly the task's named worst outcome.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Two lenses with wildly different sample sizes are compared by raw hit-rate alone during reuse selection.",
+      "scenario": "A lens with a single upheld finding and zero refuted reads as hit-rate 1.0 and would rank above a heavily-exercised lens with a 0.85 hit-rate over 40 findings under any naive top-hit-rate reuse rule; the design specifies the null-vs-0 distinction for zero-data lenses but no confidence-weighting or minimum-sample floor for sparse-but-nonzero lenses, leaving the exact ranking-noise failure mode recommendation systems are known for.",
+      "severity": "P1"
+    },
+    {
+      "condition": "A non-head variant in a cluster accumulates a materially better hit-rate than the recency-picked head, with no scheduled or triggered re-election.",
+      "scenario": "Canonical-head-by-recency (Fork 3's fallback tie-break) has no described re-evaluation trigger — once hit-rate data accumulates and would flip which cluster member should be canonical, nothing in the design says the head gets reconsidered, so an early recency-picked head can stay canonical indefinitely after evidence contradicts it.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Grounds at least one finding in the specific hit-rate formula and null-handling rule from Open Questions, not a generic 'ranking could be biased' observation.",
+    "Explicitly connects a finding to the tension between reuse-before-regenerate and flux-melange's own novelty/heat-seeking design goal, using melange's actual stated mechanism (adaptive rounds steered by novelty/risk/disagreement) rather than assuming reuse and novelty-seeking are compatible by default.",
+    "Distinguishes findings about decision quality (which lens gets chosen, and whether that is the right one) from findings about data integrity or schema shape, which belong to the other two lenses."
+  ],
+  "task_context": "Find what breaks the Linsenkasten registry design before it is built: the hybrid engine (local MCP store ported from graph.py + zklw harvest and embedding pass, git-synced in-repo data), the typed-edge schema (embodies / fused-from / variant-of), hash-plus-variant dedupe with canonical cluster heads, post-harvest deletion of repo-local .claude/agents piles, and the reuse-before-regenerate seam in flux-gen and melange. Prioritize failure modes where a reused lens is worse than a fresh one, silent data loss across harvest, dedupe, merge and prune, and split-brain between the two machines."
+}

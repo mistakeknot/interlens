@@ -1,0 +1,28 @@
+{
+  "anti_overlap": "Defers to fd-budget-integration on cost aspects; defers to fd-backward-compat on existing behavior preservation",
+  "decision_lens": "Does the signal carry enough information to justify different resource allocations?",
+  "focus": "Assess whether expansion scores (0-3) provide sufficient signal granularity for meaningful tier differentiation",
+  "name": "fd-expansion-signal-quality",
+  "persona": "Signal processing engineer evaluating information quality for decision-making",
+  "review_areas": [
+    "Score distribution — are expansion scores clustered (most agents get 2) or spread across 0-3?",
+    "Score composition — the score sums discrete +1/+2/+3 increments; a score of 3 could mean one P0 or three domain-injection matches. Should tier adjustment distinguish these?",
+    "Calibration data — do we have evidence that score=3 agents produce more valuable findings than score=1 agents?",
+    "False economy — could downgrading score=1 agents cause them to miss findings they would have caught at higher tier?",
+    "Trust multiplier interaction — should low-trust agents be downgraded more aggressively, or is trust already handled by AgentDropout?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Score distribution too narrow for meaningful differentiation",
+      "scenario": "All expansion candidates get score=2, making tier adjustment a no-op",
+      "severity": "P1"
+    },
+    {
+      "condition": "No validation that haiku-tier agents maintain acceptable recall",
+      "scenario": "Score=1 agent downgraded to haiku misses a P1 finding it would have caught on sonnet",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Either demonstrate that score distribution supports tier differentiation, or propose score refinement that would. Include fallback for when scores don't differentiate.",
+  "task_context": "Expansion scores: P0 adjacent +3, P1 adjacent +2, disagreement +2, domain injection +1. Threshold: >=3 recommend, ==2 offer, <=1 stop. The brainstorm maps these to model tiers."
+}

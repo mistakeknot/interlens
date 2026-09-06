@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does NOT cover graph algorithms (fd-graph-algorithm-determinism), embed data loading (fd-embed-data-integrity), LLM provider integration (fd-llm-provider-interface), or EMA evolution tracking (fd-evolution-tracking-semantics)",
+  "decision_lens": "A serializable state machine must round-trip through JSON without behavioral change — any state that affects NextPhase() output must be captured in the serialized form, and transition templates must be version-stable",
+  "focus": "Reviews the StackOrchestrator state machine design for serialization correctness, transition template completeness, and cross-package type coupling risks",
+  "name": "fd-stack-orchestration-state-machine",
+  "persona": "State machine architect who has designed serializable session orchestration systems for multi-turn conversational AI products",
+  "review_areas": [
+    "Phase transition completeness: deep_gold, shallow_gold, and wax are named transition templates — are their state transition tables fully specified in the brainstorm or left implicit, and does NextPhase() cover all terminal states and self-transitions without reaching an undefined state?",
+    "JSON serialization round-trip: StackOrchestrator must serialize to/from JSON for session persistence — are all fields that affect NextPhase() exported (capitalized) and tagged with json struct tags, or do private fields create silent deserialization gaps?",
+    "Problem-redefinition transitions: the brainstorm mentions 'sequential lens application with problem-redefinition transitions' — is problem-redefinition a first-class phase, a meta-event that resets the current template, or a separate orchestrator concern, and is it serializable?",
+    "No-LLM purity enforcement: the orchestrator is described as purely deterministic with no LLM dependency — does NextPhase() accept userInput as a string but use only structural features (length, punctuation, explicit signals) rather than semantic content, and is this boundary enforced by the type system?",
+    "Cross-package type exposure: if StackOrchestrator references Lens types from pkg/lens, it creates a direct import dependency — should orchestrator operate on lens IDs (strings) rather than Lens structs to remain decoupled from the graph package?",
+    "Transition template versioning: if templates are embedded as constants and a template changes in a future version, how are serialized StackOrchestrators from prior sessions migrated — is there a version field in the JSON, and what happens on deserialization of an unknown version?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Every session restart resets lens stack position, making sequential lens progression impossible across sessions",
+      "scenario": "StackOrchestrator has a private currentPhaseIndex field that is not serialized — restoring from JSON always starts at phase 0, causing the orchestrator to replay the entire stack from the beginning for returning users",
+      "severity": "P0"
+    },
+    {
+      "condition": "Agent enters a state where it offers no lenses and no transition, silently stalling the conversation",
+      "scenario": "NextPhase() reaches an unhandled state combination (e.g., wax template at its final phase with a non-terminal userInput signal) and returns an empty Phase struct rather than an error — caller silently receives a zero-value phase with no lenses",
+      "severity": "P1"
+    },
+    {
+      "condition": "Any package using stack orchestration transitively depends on the full lens graph and embed data",
+      "scenario": "StackOrchestrator imports Lens structs from pkg/lens to embed them in Phase — external packages using the orchestrator must also import pkg/lens even if they only need phase sequencing, creating unnecessary coupling",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "All fields affecting NextPhase() output are exported with json tags; a round-trip test serializes an orchestrator mid-stack and verifies NextPhase() returns identical output before and after; transition tables defined as named typed maps with exhaustive case coverage enforced by a linter or exhaustive switch; Phase uses lens IDs ([]string) not Lens structs",
+  "task_context": "lens_stacks.py implements sequential lens application with named transition templates (deep_gold, shallow_gold, wax). The Go StackOrchestrator is a pure state machine (no LLM) with a NextPhase(userInput string) Phase method. It must serialize to/from JSON for session persistence across Skaffen agent restarts. Transition templates are embedded as constants. The orchestrator is one of four modules in the flat pkg/lens/ package. The open question of whether Lens/Edge/Community types live in pkg/lens or a shared pkg/types is directly relevant to whether StackOrchestrator can remain decoupled."
+}

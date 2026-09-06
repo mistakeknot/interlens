@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "Pillar construct validity — covered by fd-eval-measurement-validity",
+    "Bootstrap math — covered by fd-statistical-implementation",
+    "RAG integration — covered by fd-rag-product-impact"
+  ],
+  "decision_lens": "Any change that causes the loop to optimize for the judge rather than genuine editorial quality is critical.",
+  "focus": "Whether the eval framework changes corrupt or destabilize the autoresearch feedback loop that drives constitution evolution",
+  "name": "fd-autoresearch-loop-integrity",
+  "persona": "A reinforcement learning systems engineer who has watched reward hacking destroy training pipelines.",
+  "review_areas": [
+    "Trace the path from eval scores to constitution promotion decisions — verify adding a 7th pillar does not silently change calibrated thresholds",
+    "Check whether cross-family judge rotation is deterministic or introduces non-reproducible variance",
+    "Verify overnight-runner.py handles the new judge pool without hanging when a model API is unavailable",
+    "Check evaluator matrix fingerprint includes judge family composition for cache invalidation",
+    "Assess whether failed significance tests are surfaced as errors or silently suppressed",
+    "Verify human-editor calibration row is re-scored when pillar definitions change"
+  ],
+  "success_hints": [
+    "Dry-run with --sample 10 on 7-pillar judge should produce different fingerprint from 6-pillar run",
+    "Autoresearch loop should fail loudly when fewer than 2 judge families respond"
+  ],
+  "task_context": "overnight-runner.py uses eval scores to decide whether constitution changes improve quality. Changes to pillar count, judge families, or significance thresholds ripple through every automated decision."
+}

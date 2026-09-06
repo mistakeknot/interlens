@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-upload-ingestion-ux covers pre-processing file handling",
+    "fd-chunk-progress-state covers in-progress UI",
+    "fd-editorial-continuity covers LLM prompt construction"
+  ],
+  "decision_lens": "Prioritizes output interfaces that map to manuscript structure (chapters, sections) rather than pipeline details (chunk indices).",
+  "focus": "Output display and navigation for reassembled chunked editorial results, including diff view and chapter-level navigation",
+  "name": "fd-result-assembly-display",
+  "persona": "A product designer with publishing and document UX background. Evaluates output against the mental model of an author reviewing editorial feedback on a 200-page manuscript.",
+  "review_areas": [
+    "Whether the OutputPane can navigate by structural unit rather than by chunk index",
+    "How TrackChangesView performs when the input is 200K words — virtualization or pagination needed?",
+    "How per-chunk analysis results are aggregated into a manuscript-level summary",
+    "Whether VersionSelector scales to a manuscript context",
+    "How editorial annotations are anchored across chunk boundaries in reassembled output",
+    "What the skeleton state looks like as chunks complete — progressive or wait-for-all?"
+  ],
+  "success_hints": [
+    "Author can jump to chapter 7 without scrolling 150 pages",
+    "Manuscript-level quality signals visible without per-chunk inspection",
+    "Diff view readable and performant for 100K+ words"
+  ],
+  "task_context": "Texturaize processes editorial text through a pipeline worker on slse. Current UI uses TiptapEditor for paste input. Task extends this for 50K-250K word manuscripts."
+}

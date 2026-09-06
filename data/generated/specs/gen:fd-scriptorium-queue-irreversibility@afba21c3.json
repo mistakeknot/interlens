@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Do not review calibration source independence — that is the qanat steward's lens",
+    "Do not duplicate fd-correctness on logic bugs — focus only on commit-ordering",
+    "Skip pure parallelism scheduling — only flag where parallelism crosses into shared irreversible material"
+  ],
+  "decision_lens": "Which operations in the roadmap commit irreversibly, what verification must complete before the gold leaf is laid, and where do parallel workbenches contend for the same vellum or gilding hand?",
+  "distance_rationale": "Pre-printing-press manuscript production is an artisan craft with multi-week curing cycles, single-use materials (gold leaf, lapis), and parallel workbench coordination governed by abbey rule — its vocabulary of commit-irreversibility predates any computing concept and does not borrow from transactional database thinking.",
+  "expected_isomorphisms": "Gold-leaf application as one-way commit maps to dispatch state mutation; ink-curing wait between copyist and rubricator maps to verification-before-state-write in C2; quire boundaries before binding map to per-agent state-log isolation.",
+  "focus": "Sequencing of irreversible operations across parallel workbenches with shared materials and gold-leaf one-shot steps",
+  "name": "fd-scriptorium-queue-irreversibility",
+  "persona": "Apply the perspective of a master illuminator running a medieval monastic scriptorium with parallel workbenches — gathering, ruling, copying, illuminating, gilding, binding — where gold leaf and lapis are committed in a one-way step that cannot be unwound, where the rubricator must wait for the copyist's ink to cure, and where the bindery's irreversible sewing depends on every quire being verified before assembly.",
+  "review_areas": [
+    "Dispatch state machine + VerificationStep primitive (C2) — what defines 'verified before commit'",
+    "Phase tracking left to caller (CLAUDE.md) — irreversibility boundary unclear at handoff",
+    "JSONL/Dolt persistence drift — bd push.sh as the irreversible commit step, 14 microrouter beads only in JSONL",
+    "Ordering of B6 → C2 + C4 prerequisites — which steps cure before the next applies",
+    "openrouter-dispatch persisted state — what happens if state is written before downstream verification",
+    "Sycophancy detection / reaction round (9lp.16) — must precede synthesis commit, not follow"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Open until VerificationStep precedes any state-mutation in C2 design",
+      "scenario": "Dispatch state machine commits resolver state before the no-op short-circuit path verifies, erasing audit trail (Sylveste-a5u)",
+      "severity": "P0"
+    },
+    {
+      "condition": "Block C4 scheduling until B6 closes",
+      "scenario": "C4 flux-review skill refactor begins before B6 phase-file accuracy is corrected, baking dead-branch instructions into the irreversible refactor",
+      "severity": "P1"
+    },
+    {
+      "condition": "Note when typed agent-state log (9lp.21) lacks per-agent isolation",
+      "scenario": "Multi-track parallel review writes findings to shared JSONL without per-workbench quire boundaries, causing finding interleave",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Medieval monastic scriptorium illumination workflow",
+  "success_hints": [
+    "Identify each one-shot 'gold leaf' step and the verification it requires upstream",
+    "Distinguish curing time (downstream wait) from contention (shared workbench)",
+    "Name the quire-boundary equivalent for each parallel-track artifact",
+    "Flag any step where the rubricator paints before the ink is dry"
+  ],
+  "task_context": "Reviewing the interflux v0.2.68 roadmap for sequencing of irreversible operations. Focus on C2 dispatch state machine, B6 → C2/C4 prerequisite chain, JSONL/Dolt persistence boundary, openrouter-dispatch persisted state, and any verification that must precede a one-shot commit."
+}

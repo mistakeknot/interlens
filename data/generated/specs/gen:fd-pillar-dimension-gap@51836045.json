@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-dimension-construct-validity covers whether individual dimensions are internally valid constructs",
+    "fd-llm-judge-reliability covers how LLMs interpret dimensions during scoring",
+    "fd-reference-relative-scoring covers whether comparing to a human reference is the right paradigm"
+  ],
+  "decision_lens": "Prioritizes gaps where a pillar that shapes the product's training data and constitution has zero corresponding signal in the eval rubric.",
+  "focus": "Mapping coverage gaps between the 7 editorial pillars and the 6 eval dimensions",
+  "name": "fd-pillar-dimension-gap",
+  "persona": "A product quality architect who specializes in ensuring evaluation frameworks stay aligned with product-defined quality criteria.",
+  "review_areas": [
+    "Map each of the 7 pillars to the closest eval dimension(s) and flag pillars with no coverage",
+    "Assess whether de_aiisms has any proxy in the eval dimensions",
+    "Check whether specificity (concrete language, evidence over assertion) maps to any dimension",
+    "Assess whether cadence (rhythm, sentence length variation) is captured",
+    "Examine whether preservation is meaningfully different from fidelity + tonal_match combined",
+    "Determine whether the eval would pass an edit that strips AI-isms and adds specificity but diverges from the reference"
+  ],
+  "success_hints": [
+    "Every product pillar should have at least one corresponding eval signal",
+    "The eval should not reward reference-similarity at the cost of pillar-relevant quality"
+  ],
+  "task_context": "The eval scoring module uses 6 dimensions to judge a model's line-edit against a human editor reference on a 1-10 scale. The product's editorial identity is defined by 7 pillars but these are not directly used as eval dimensions."
+}

@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does NOT cover graph algorithm correctness (fd-graph-algorithm-determinism), LLM integration (fd-llm-provider-interface), EMA tracking (fd-evolution-tracking-semantics), or stack sequencing (fd-stack-orchestration-state-machine)",
+  "decision_lens": "Embedded data is code — it must be validated at load time with actionable errors, versioned alongside the binary, and never silently fall back to partial state",
+  "focus": "Reviews the go:embed data pipeline — schema validation, load-once caching, test reset, and compile-time vs runtime update tradeoffs",
+  "name": "fd-embed-data-integrity",
+  "persona": "Go systems engineer who has shipped embedded binary data at scale, including versioned schema evolution and test isolation patterns",
+  "review_areas": [
+    "Schema validation at Load() time: does the JSON unmarshalling of lens_library_v2.json, lens_edges.json, and lens_communities.json validate required fields (id, name, description, edge source/target) or silently accept zero-value structs for malformed records?",
+    "sync.Once initialization safety: if Load() is called concurrently before initialization completes and returns an error, does the Once guarantee that subsequent calls retry or permanently cache the error?",
+    "Reset() for test isolation: the brainstorm mentions Reset() matching Python's reset_library() — does Reset() reinitialize the sync.Once (requiring a new sync.Once value) or just nil out the cached data, and is there a race if Reset() is called while other goroutines hold references to the old data?",
+    "Compile-time vs runtime data freshness: if lenses are embedded at build time, what is the documented update path — rebuild binary, or is there a filesystem override via an environment variable that takes precedence over the embed?",
+    "Cross-file referential integrity: lens_edges.json references lens IDs from lens_library_v2.json and community IDs from lens_communities.json — is cross-file consistency validated at load time, or can a stale edge file reference deleted lenses?",
+    "Data file location and embed directive: the brainstorm places files in pkg/lens/data/ — does the //go:embed directive need to be in the same package directory, and will the pattern //go:embed data/*.json work correctly if lens/ is imported by external packages?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "sync.Once does not retry on error; the error path returns without setting the done flag only if using a manual flag pattern, but the standard Once.Do pattern always marks done even if the function panics or the data is corrupt",
+      "scenario": "sync.Once caches an initialization error permanently because the embed path was wrong during a refactor — all subsequent calls return the cached nil graph with no error, causing silent empty lens selection for the lifetime of the process",
+      "severity": "P0"
+    },
+    {
+      "condition": "Test suite passes on first run, produces confusing failures on parallel or repeated test execution",
+      "scenario": "Reset() in tests nils out the package-level var but does not replace the sync.Once, so the second Load() call after Reset() is a no-op and tests run against stale data",
+      "severity": "P1"
+    },
+    {
+      "condition": "Broken lens presented to users without error; only caught if lens selection attempts to format the result",
+      "scenario": "lens_edges.json references a lens ID that was deleted from lens_library_v2.json in a data update — graph construction silently creates a dangling node with no lens metadata, and bridge lens lookup returns a node with empty name and description",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Load() returns a typed error on schema violations with the offending record's index; sync.Once paired with a separate error variable that is set atomically; Reset() replaces the Once pointer via atomic store; cross-file referential integrity check as a named validation step with a clear error message listing all dangling references",
+  "task_context": "Three JSON files (lens_library_v2.json: 291 lenses, lens_edges.json: 1,779 edges, lens_communities.json: 7 communities + 15 bridge lens IDs) are embedded via //go:embed into pkg/lens/data/. A package-level Load() function parses them once via sync.Once and returns the LensLibrary struct used by all other functions. Reset() is needed for testing. The open question of whether to support runtime reload from filesystem vs always embedding is unresolved."
+}

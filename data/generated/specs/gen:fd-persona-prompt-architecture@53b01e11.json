@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does NOT cover Go package design (fd-go-package-*) or analysis mode (fd-analysis-*)",
+  "decision_lens": "Prompt sections must be deterministically composable — the same inputs always produce the same system prompt, and each section's token budget is predictable",
+  "focus": "Evaluates the persona TOML config model and dynamic prompt injection architecture in Skaffen",
+  "name": "fd-persona-prompt-architecture",
+  "persona": "Prompt engineering architect who has designed multi-tenant LLM systems with per-user personality customization",
+  "review_areas": [
+    "Persona TOML schema completeness: does it capture all 8+ dynamic sections from Auraken's prompts.py?",
+    "Template variable injection ordering: does {{.LensContext}} before {{.ProfileContext}} create information leakage?",
+    "Token budget management: how do dynamic sections (lens context, profile, style) stay within context window limits?",
+    "Pre-turn hook latency: will synchronous Haiku calls for lens selection block the conversation loop?",
+    "Context provider interface design: can new providers (e.g., memory, calendar) be added without modifying the persona config schema?",
+    "Register matching fidelity: Auraken's style-matched mirroring is critical to user experience — how is it preserved?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Agent loses track of conversation mid-exchange",
+      "scenario": "Dynamic prompt sections exceed context window, silently truncating conversation history",
+      "severity": "P0"
+    },
+    {
+      "condition": "Agent reverts to generic assistant behavior",
+      "scenario": "Persona TOML cannot express Auraken's anti-pattern rules (no flattery, no AI-isms), losing personality guard rails",
+      "severity": "P1"
+    },
+    {
+      "condition": "Unnecessary latency and cost on routine exchanges",
+      "scenario": "Pre-turn hook calls Haiku for lens selection on every turn regardless of whether lenses changed",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Persona TOML validated against Auraken's prompts.py section-by-section; token budget per section with overflow strategy; async pre-turn hooks with caching",
+  "task_context": "Auraken's OODARC prompt builder assembles system prompts from 8+ dynamic sections. Migration target: Skaffen persona TOML config with template variables ({{.LensContext}}, etc.) populated by context provider hooks. Skaffen already has OODARC phase FSM."
+}

@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "Retrieval math — covered by fd-rag-retrieval-math",
+    "Bootstrap correctness — covered by fd-statistical-implementation",
+    "Deployment sequencing — covered by fd-deployment-risk-sequencing"
+  ],
+  "decision_lens": "Every field crossing the boundary is a potential silent breakage. Flags structural changes valid on one side but undefined on the other.",
+  "focus": "Type and schema consistency for eval scores and RAG index across Python/TypeScript monorepo boundary",
+  "name": "fd-schema-cross-boundary",
+  "persona": "A full-stack engineer who specializes in Python-produces-JSON-that-TypeScript-consumes failure modes.",
+  "review_areas": [
+    "Verify 7th pillar name in Python matches TypeScript EvalPillar union exactly",
+    "Check new RAG index metadata fields reflected in TypeScript loading code",
+    "Verify 1-5 eval scale not conflated with 1-10 pipeline analysis scale in cross-family judge output",
+    "Check JSONL format from cipher_evaluator_matrix.py matches schema expected by TypeScript reporter",
+    "Verify new optional fields don't break deserialization of old result files on disk",
+    "Check Python annotation schema and TypeScript Annotation interface define same allowed values"
+  ],
+  "success_hints": [
+    "TypeScript deserialize → re-serialize of Python fixture should be byte-identical",
+    "Adding 7th pillar should fail loudly in validateScores if name not in VALID_PILLARS"
+  ],
+  "task_context": "Eval pipeline spans Python scripts on slse and TypeScript in packages/eval/src. Results flow via JSONL files in git. 1-5 eval scale and 1-10 pipeline scale coexist."
+}

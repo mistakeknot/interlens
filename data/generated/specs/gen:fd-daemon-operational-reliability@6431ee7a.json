@@ -1,0 +1,39 @@
+{
+  "anti_overlap": [
+    "Goroutine panic recovery and channel backpressure inside adapter pools -- covered by fd-go-goroutine-isolation",
+    "Webhook signature verification and delivery deduplication -- covered by fd-webhook-delivery-semantics",
+    "Three-way merge and conflict resolution correctness -- covered by fd-bidirectional-sync-conflicts",
+    "Adapter interface behavioral contracts and identity mapping -- covered by fd-adapter-interface-contracts"
+  ],
+  "decision_lens": "Operational reliability is tested at the moments of failure, not success: startup, shutdown, crash, restart, and partial degradation. Evaluates every operational design decision against: what state is preserved across a restart, what does a health check actually verify, and can a human operator understand what the daemon is doing from its logs alone?",
+  "focus": "Evaluates interop's long-running daemon operations: graceful shutdown sequencing, health and readiness endpoints, MCP server lifecycle management, sync state recovery after crash or restart, and observability instrumentation.",
+  "name": "fd-daemon-operational-reliability",
+  "persona": "You are an SRE who has operated Go-based long-running daemons in production for years -- the person who wrote the post-mortem when a daemon's graceful shutdown lost 500 in-flight events because it killed worker goroutines before draining queues, and who has strong opinions about the difference between a health check (is the process alive) and a readiness check (is the process ready to accept work). You have debugged sync daemons that recovered incorrectly after a crash and spent hours reconciling diverged state by hand.",
+  "review_areas": [
+    "Verify that the shutdown sequence drains in-flight events before stopping adapter goroutines -- a SIGTERM that immediately kills goroutines will lose any events that were dispatched to the event bus but not yet processed by an adapter, causing permanent sync gaps if the events were webhooks that will not be replayed",
+    "Check that the health endpoint (for Docker Compose healthcheck or load balancer probes) distinguishes between process health (HTTP server is alive) and operational health (at least one adapter is running and connected) -- a health check that returns 200 when all four adapters have crashed is misleading and prevents automated restarts",
+    "Confirm that the MCP server and the webhook ingestion server share a lifecycle -- if the webhook server is healthy but the MCP server has crashed (or vice versa), Claude Code sessions will get inconsistent views of interop's state, and there is no recovery path without a full daemon restart",
+    "Validate that the daemon writes a recovery checkpoint (last-processed event ID per adapter, adapter connection state) to disk before shutdown and reads it on startup -- without a checkpoint, a crash during a sync run restarts the next sync from the beginning, potentially re-applying already-applied changes",
+    "Check that structured logs include a minimum set of operational fields on every log line: adapter name, event type, delivery ID, processing duration, and outcome (success/error/conflict) -- logs without these fields make it impossible to correlate a user report about a missed sync with a specific log entry",
+    "Ensure that interop's Docker Compose configuration on zklw includes resource limits (memory cap, CPU cap) -- an unbounded daemon that accumulates goroutines under a webhook burst will consume all available memory on zklw, affecting Auraken and other services running on the same host"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When the SIGTERM handler does not signal goroutines to stop accepting new events and does not wait for the event bus channel to drain before exiting",
+      "scenario": "interop receives a SIGTERM from Docker Compose during a deploy or restart. The shutdown handler calls os.Exit(0) immediately. Forty GitHub webhook events are sitting in the event bus channel, unprocessed. They are not replayed because GitHub already received 200 OK. The corresponding beads issues and Notion pages are never updated. The sync divergence is invisible until a human notices the discrepancy days later.",
+      "severity": "P0"
+    },
+    {
+      "condition": "When the /health endpoint checks only HTTP server liveness rather than adapter goroutine health or the event bus drain rate",
+      "scenario": "The Docker Compose healthcheck calls GET /health, which returns 200 as long as the HTTP server is listening. All four adapters have panic-crashed (but the HTTP server is still running). Docker Compose sees the service as healthy and does not restart it. GitHub and Notion webhooks are received and acknowledged (returning 200) but dispatched to dead goroutines, silently dropped. Sync stops entirely with no alert.",
+      "severity": "P1"
+    },
+    {
+      "condition": "When the per-adapter last-processed-event checkpoint is in-memory only and not flushed to disk before crash",
+      "scenario": "After an unclean interop crash during a Notion sync run, the daemon restarts with no recovery checkpoint. It re-fetches all changed Notion pages since the last known-good timestamp (which is now undefined, so it defaults to 24 hours ago). It re-applies 200 already-applied page syncs, generating 200 duplicate local file writes and 200 beads update events for issues that have not changed -- flooding beads event history with noise.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "The shutdown sequence is documented as a numbered drain-then-stop sequence with a configurable drain timeout. The /health and /ready endpoints are separate: /ready returns 503 until all adapters have completed Start() successfully. The recovery checkpoint is a small JSON or SQLite file written atomically on a flush interval and on shutdown. Structured log fields are documented and enforced by a shared logging middleware. Docker Compose config has explicit memory limits and a healthcheck that calls /ready, not /health.",
+  "task_context": "interop is a long-running daemon on zklw that must survive deploys, crashes, and restarts without losing sync state or producing duplicate events. It multiplexes a webhook ingestion server, an MCP server for Claude Code, and four adapter goroutine pools. The operational correctness of this daemon -- shutdown sequencing, health checking, crash recovery -- is as important as the functional correctness of the sync logic, because operational bugs cause permanent data divergence that users discover only after the fact."
+}

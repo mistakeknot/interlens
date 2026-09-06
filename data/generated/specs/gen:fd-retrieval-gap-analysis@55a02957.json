@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-information-loss-audit covers extraction pipeline fidelity",
+    "fd-edit-type-reconstructability covers error categorization",
+    "fd-eval-blind-spots covers scoring methodology"
+  ],
+  "decision_lens": "Prioritizes findings where retrieval signal is invalid — retrieving by surface similarity when editorial decision was driven by genre or argument structure would degrade performance.",
+  "focus": "Whether retrieval-augmented approach (injecting similar past before/after pairs at inference time) can close the gap from 6.6/10 to 7+/10",
+  "name": "fd-retrieval-gap-analysis",
+  "persona": "A retrieval systems engineer who has benchmarked RAG pipelines on structured editing tasks. Evaluates retrieval designs by asking whether retrieved examples generalize or confuse the model.",
+  "review_areas": [
+    "Audit existing RAG index to determine what embedding captures editorial-relevant similarity vs topical similarity",
+    "Check whether RAG index is built over before-texts, after-texts, or diffs — evaluate which retrieves most editorially similar pairs",
+    "Evaluate prompt budget cost of injecting 3-5 full before/after pairs relative to existing constitution plus CIPHER injection",
+    "Assess whether HyDE would better match rough drafts to editorially analogous past pairs than direct embedding",
+    "Check corpus density per CIPHER content type for meaningful within-type retrieval",
+    "Review whether retrieval precision can be measured with existing eval infrastructure"
+  ],
+  "success_hints": [
+    "RAG prototype must be benchmarked against prompt-only baseline using same curated evaluator panel",
+    "Wrong few-shot examples (mismatched genre) are worse than no examples — failure mode must be characterized",
+    "Retrieval precision at k=5 must be independently measurable"
+  ],
+  "task_context": "The system extracts constitution via Inverse CAI and CIPHER preferences from professional before/after pairs. GPT-5.4 scores 6.6/10 and prompt engineering hit a ceiling."
+}

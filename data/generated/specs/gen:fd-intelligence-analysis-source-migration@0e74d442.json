@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Does NOT cover schema migration mechanics (fd-archival-*) or transport concerns (fd-broadcast-*)",
+  "decision_lens": "Every analytical conclusion must trace back to its source evidence — if the evidence chain breaks during migration, the conclusion becomes unverifiable and must be re-derived",
+  "distance_rationale": "Intelligence analysis treats evidence provenance as mission-critical, revealing gaps in evidence chain preservation that engineering migrations often overlook",
+  "expected_isomorphisms": "Source collection management maps to preference extraction provenance; confidence grading maps to migrated-vs-native data quality; multi-INT fusion maps to multi-transport identity resolution",
+  "focus": "Reviews evidence chain traceability and confidence grading through the lens of all-source intelligence analysis",
+  "name": "fd-intelligence-analysis-source-migration",
+  "persona": "All-source intelligence analyst who maintains evidence chains across HUMINT, SIGINT, and OSINT collection systems during platform migrations",
+  "review_areas": [
+    "Evidence chain traceability: can working_profiles trace back to the preference_entities and profile_episodes that produced them?",
+    "Confidence grading: should migrated constructs carry lower confidence than natively-derived ones?",
+    "SPO triple sourcing: does each preference entity retain its extraction context (which message, which model, which prompt)?",
+    "Inspector reasoning chain: does analysis mode log WHY a lens was selected, not just WHICH lens?",
+    "Unified preference namespace: during concurrent operation, can preferences from both systems be queried together?",
+    "Re-derivation strategy: if evidence chain breaks, can profiles be regenerated from raw episodes?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Analysis mode cannot explain why the profile says what it says",
+      "scenario": "Working profiles migrated without links to source entities — profile claims are unverifiable",
+      "severity": "P1"
+    },
+    {
+      "condition": "Analysis mode (Westworld debugging) cannot replay decision reasoning",
+      "scenario": "Lens selection reasoning not captured in evidence — Inspector can show WHICH lens but not WHY",
+      "severity": "P1"
+    },
+    {
+      "condition": "Profile generation weights migrated preferences incorrectly",
+      "scenario": "Migrated and native preference entities use different confidence scales",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "All-source intelligence analysis and collection management",
+  "success_hints": "Every migrated entity carries source_system + original_id; working profiles regenerated from migrated entities as validation; Inspector captures decision reasoning at each step; confidence normalization between systems",
+  "task_context": "Auraken extracts preference SPO triples, generates profiles from accumulated evidence, and selects lenses per-turn. Migration to Skaffen/Intercom must preserve the evidence chain. Analysis mode (Westworld debugging) needs to inspect reasoning."
+}

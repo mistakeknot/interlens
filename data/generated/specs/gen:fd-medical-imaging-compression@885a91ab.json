@@ -1,0 +1,31 @@
+{
+  "anti_overlap": "Focuses on spatial importance weighting from medical imaging, not format optimization (SVG) or tokenization (encoding)",
+  "decision_lens": "Asks 'would a radiologist make the same diagnosis from the compressed image?' — maps to 'would the LLM make the same decision from the compressed terminal state?'",
+  "distance_rationale": "Both domains compress rich visual information while preserving decision-critical features, but medical imaging has 30+ years of research on exactly which features matter.",
+  "expected_isomorphisms": "Region-of-interest encoding and perceptual lossless compression directly map to terminal state compression — most of the screen is static, and the decision-relevant parts are small.",
+  "focus": "Diagnostic image compression — preserving clinically significant features while dramatically reducing data",
+  "name": "fd-medical-imaging-compression",
+  "persona": "Medical imaging informaticist who works with DICOM, lossy compression for radiology, and understands which visual features are diagnostically significant vs. noise",
+  "review_areas": [
+    "Region-of-interest encoding — high fidelity for diagnostically significant regions, aggressive compression elsewhere (maps to: high fidelity for active UI elements, low for static chrome)",
+    "Perceptual lossless vs. mathematically lossless — acceptable degradation that doesn't change clinical decisions",
+    "DICOM metadata as companion channel — structured metadata travels alongside the image, not embedded in it",
+    "Progressive resolution — send a low-res version first, enhance on demand",
+    "Windowing and level — the same raw data rendered differently for different diagnostic questions (maps to: same terminal state rendered differently for different agent tasks)"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Error text in a status bar gets truncated as 'static chrome'",
+      "scenario": "Compressing away the diagnostically significant region",
+      "severity": "P1"
+    },
+    {
+      "condition": "Always sending maximum detail when low-res would suffice for most turns",
+      "scenario": "No progressive resolution path",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Medical imaging informatics (DICOM, radiology compression)",
+  "success_hints": "Proposes a region-of-interest approach where active/important terminal areas get higher fidelity",
+  "task_context": "Terminal screens, like medical images, have regions of varying diagnostic importance. Most of the screen is static chrome; the semantically important parts are concentrated."
+}

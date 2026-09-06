@@ -1,0 +1,31 @@
+{
+  "anti_overlap": "Focuses on semantic role extraction from accessibility research, not compression (medical) or format (SVG)",
+  "decision_lens": "Evaluates whether the serialization preserves the user's ability to navigate and act — not to see, but to understand and decide",
+  "distance_rationale": "Both serialize visual interfaces for non-visual consumers, but accessibility has decades of research on what information enables action vs. what is decorative.",
+  "expected_isomorphisms": "ARIA roles, live regions, verbosity levels, and focus tracking directly map to terminal-state serialization for LLM consumption.",
+  "focus": "Screen reader technology — how accessibility tools serialize visual interfaces into non-visual channels",
+  "name": "fd-accessibility-screen-reader",
+  "persona": "Accessibility engineer who has built screen reader software and understands how to convey visual semantics through text, including ARIA roles, landmarks, and semantic hierarchy",
+  "review_areas": [
+    "ARIA role mapping — screen readers don't describe pixels, they announce semantic roles (button, heading, alert). Terminal elements could be similarly role-tagged.",
+    "Live regions — screen readers have 'polite' and 'assertive' change announcements. Maps to: only send terminal changes that are semantically important.",
+    "Spatial serialization order — how screen readers linearize 2D layouts into 1D text while preserving navigational meaning",
+    "Verbosity levels — screen readers have adjustable detail levels (character/word/line/paragraph). Maps to: adaptive terminal state detail.",
+    "Focus tracking — screen readers emphasize the focused element. Maps to: cursor/active-element prominence in terminal serialization."
+  ],
+  "severity_examples": [
+    {
+      "condition": "LLM can't distinguish a menu item from a status message because both are just text",
+      "scenario": "Serialization loses semantic role information",
+      "severity": "P1"
+    },
+    {
+      "condition": "LLM doesn't know which part of the TUI is interactive",
+      "scenario": "No focus/active-element signaling",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Accessibility engineering (screen readers, ARIA, assistive technology)",
+  "success_hints": "Proposes a semantic role annotation layer for terminal elements, inspired by ARIA",
+  "task_context": "Screen readers solve exactly this problem: conveying rich visual UI state through a text channel to enable navigation and action. Tuivision is a screen reader for LLMs."
+}

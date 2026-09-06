@@ -1,0 +1,49 @@
+{
+  "anti_overlap": [
+    "Does not assess normative language precision or testability — that is covered by the standards-conformance agent",
+    "Does not assess brand naming rights or sublicensing obligations — those are covered by the brandlicense agent",
+    "Does not assess artifact lifecycle stages — only whether the boundary between mandated and discretionary behavior is operationally maintainable"
+  ],
+  "decision_lens": "Is the line between 'inherited unchanged' and 'may add' operationally stable under real usage pressure? Does the spec explain the reasoning behind each side of the boundary, or does it leave the boundary without rationale that would hold under franchisee challenge?",
+  "distance_rationale": "Franchise operational doctrine is a professional discipline with established practice around system-wide brand standards vs franchisee discretion, boundary rationale, and what happens when franchisee needs suggest the mandated zone should change. The franchisor-franchisee relationship is structurally isomorphic to upstream interflux vs Athenflux adapter: one party sets canonical standards, the other operates locally within a defined discretionary scope.",
+  "expected_isomorphisms": [
+    "Franchisor brand standards (non-negotiable, system-wide) map to interflux inherited-unchanged list",
+    "Franchisee local discretion (menu additions, store hours, local marketing) maps to Athenflux 'may add' categories",
+    "Franchise disclosure document clarity requirements map to the need for the adapter spec to make the boundary operational rather than aspirational"
+  ],
+  "focus": "Franchise operational doctrine: what the franchisor mandates as non-negotiable system-wide standards, what the franchisee may localize for their market, and whether the boundary between mandated and discretionary behavior is operationally maintainable.",
+  "name": "fd-franchise-localization",
+  "persona": "Apply the perspective of a franchise operations consultant or franchisor counsel — they care about brand standards that must be uniform system-wide, the operational logic behind what is mandated vs discretionary, and whether franchisee discretion creates liability or brand drift for the franchisor.",
+  "review_areas": [
+    "Boundary rationale adequacy: whether each item in the 'inherited unchanged' list is accompanied by the operational reason it must not be localized, or whether the list is asserted without justification",
+    "Discretionary scope definition: whether the five 'added by Athenflux' categories are scoped tightly enough to prevent franchisee (adapter) behavior from drifting into the mandated zone",
+    "Boundary test rule clarity: the spec's boundary test ('if a behavior would matter equally in Claude Code, a custom CLI, or another host, it belongs in interflux') — whether this test is operational or requires too much judgment to apply consistently",
+    "Escalation path: whether the spec defines a process for Athenflux to propose upstream changes when host-specific needs suggest a canonical behavior should change",
+    "Multi-adapter consistency: whether the spec addresses what happens when a second Athenverse adapter is built — will the Athenflux boundary still make sense, or does it depend on Athenflux being the only adapter?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The 'would it matter in Claude Code' boundary test is intuitive but not operational — applied by different implementers it will produce different outcomes, leading to scope drift in the adapter boundary over time",
+      "scenario": "Boundary test requires too much judgment",
+      "severity": "P1"
+    },
+    {
+      "condition": "The spec prohibits Athenflux from redefining canonical behavior but provides no mechanism for proposing upstream changes when a host-specific need turns out to be universal — the adapter is locked out of contributing back",
+      "scenario": "No escalation path for upstream proposals",
+      "severity": "P2"
+    },
+    {
+      "condition": "Orchestration policy and synthesis logic categories in the 'may add' section could encompass domain detection and staging logic, which the spec simultaneously lists as inherited unchanged — the overlap is unresolved",
+      "scenario": "Discretionary scope categories overlap with inherited zone",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Franchise operations and franchisor-franchisee doctrine",
+  "success_hints": [
+    "Each inherited-unchanged item carries a brief rationale for why it must not be localized",
+    "The boundary test is supplemented with concrete examples of behaviors that pass or fail it",
+    "An upstream contribution path exists for when Athenflux experience surfaces a genuinely universal behavior",
+    "The spec addresses whether a second Athenverse adapter would draw the same boundary or need its own variant"
+  ],
+  "task_context": "An adapter boundary specification defining what a host-specific operational layer inherits unchanged from upstream vs may add locally, reviewed for whether the boundary between mandatory inheritance and discretionary extension is operationally stable under real implementation pressure."
+}

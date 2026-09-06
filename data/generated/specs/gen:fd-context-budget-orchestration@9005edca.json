@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "Does NOT cover hook firing frequency (fd-claude-code-hooks-economy)",
+    "Does NOT cover prompt cache TTL crossings (fd-prompt-cache-economics)",
+    "Does NOT cover MCP server instructions (fd-mcp-server-hygiene)"
+  ],
+  "decision_lens": "Does this preamble line earn its tokens on >50% of turns, or could it be moved to a referenced doc loaded on-demand?",
+  "focus": "Reviews orchestration preamble (MEMORY.md, skill listings, system reminders, frontmatter blocks) for compression and reference-vs-inline opportunities",
+  "name": "fd-context-budget-orchestration",
+  "persona": "Apply the perspective of a context-budget engineer — they care about the marginal token cost of each preamble line, whether the line earns its keep on most turns, whether information could be referenced rather than inlined, and whether redundancy exists across hooks/CLAUDE.md/MEMORY.md/skill listings",
+  "review_areas": [
+    "MEMORY.md structure: 132 lines over a 120 budget — which entries are stale, redundant, or could be in topic files instead of indexed lines?",
+    "Skill listing inflation: ~100 skills listed with descriptions — is the per-skill description load-bearing on most turns, or could descriptions be loaded only when the skill is invoked?",
+    "Frontmatter examples in skill prompts: many slash-command skills include verbose frontmatter examples — are they cited but never used?",
+    "Repeated boilerplate across hooks: do beads protocol, intermem budget, and the session-id reminder all repeat constraint setup?",
+    "Inline vs referenced docs: when CLAUDE.md says 'See AGENTS.md For ...' is the link followed at runtime or just informational?",
+    "Tool catalog repetition: deferred-tool listing appears alongside skill listings alongside MCP instructions — is there overlap"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Token cost duplicated for each variant; trimming saves 100s of tokens per session",
+      "scenario": "A skill listing repeats the same description across 5 plugin-namespace variants (e.g., interbrowse:browse appears twice with similar text)",
+      "severity": "P1"
+    },
+    {
+      "condition": "Memory budget warning persists; user must run /intermem:tidy manually",
+      "scenario": "MEMORY.md has memory entries for projects deferred or completed but never archived (e.g., projects shipped 2 months ago still in Active Projects)",
+      "severity": "P1"
+    },
+    {
+      "condition": "5kt of preamble across all skill descriptions could compress to 1kt with a unified short format",
+      "scenario": "Skill descriptions repeat 'Use when...' / 'Examples:' patterns that consume 50+ tokens per skill across 100 skills",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Token-budget engineering and context-window economics",
+  "success_hints": [
+    "Quote the actual MEMORY.md and skill listing content",
+    "Estimate per-session token savings for each compression",
+    "Distinguish 'compress in place' from 'move to deferred reference'",
+    "Identify the next sylveste-ynh7-style PR target"
+  ],
+  "task_context": "Following the sylveste-ynh7 preamble trim (-2,285 tok/session), find the next 2,000+ tok/session win. Sylveste's session preamble includes: CLAUDE.md, MEMORY.md (132 lines, over budget), 100+ skill listings, ~80 deferred tools, multiple SessionStart hooks, the beads protocol reminder. Identify what can be compressed, deferred, or referenced."
+}

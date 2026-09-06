@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Does NOT cover transport migration (fd-broadcast-*) or intelligence traceability (fd-intelligence-*)",
+  "decision_lens": "Provenance is sacred — every migrated record must carry its origin metadata, and the migration itself becomes part of the provenance chain",
+  "distance_rationale": "Archival migration operates on the same problem (moving structured records between systems) but with stricter provenance and long-term accessibility requirements",
+  "expected_isomorphisms": "Dublin Core metadata preservation maps to bi-temporal semantics; format migration risk maps to JSONB-to-column conversion; provenance chain maps to migration audit trail",
+  "focus": "Reviews data migration through the lens of digital archiving — provenance preservation, format migration, and long-term accessibility",
+  "name": "fd-archival-records-schema-migration",
+  "persona": "Digital preservation architect who has migrated institutional repository collections across storage systems while maintaining Dublin Core metadata integrity",
+  "review_areas": [
+    "Bi-temporal semantics preservation: are valid_from/valid_to/expired_at timestamps migrated with full precision?",
+    "EMA observation translation fidelity: do style fingerprint floating-point values survive schema change?",
+    "Migration provenance: can migrated records be distinguished from natively-created records in the target schema?",
+    "Concurrent-write arbitration: during dual-operation, which system is authoritative for which records?",
+    "Post-migration query equivalence: do existing queries against Auraken data produce identical results against Intercom schema?",
+    "Format migration risk: JSONB fields in Auraken vs structured columns in Intercom — lossy conversion?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Two preferences from the same day become unordered — profile generation produces nonsensical narratives",
+      "scenario": "Bi-temporal timestamps truncated to date precision during migration, destroying preference ordering",
+      "severity": "P0"
+    },
+    {
+      "condition": "Debugging profile issues impossible because data origin is unknown",
+      "scenario": "No provenance marker on migrated records — cannot distinguish pre-migration from post-migration data",
+      "severity": "P1"
+    },
+    {
+      "condition": "Per-mode EMA profiles flattened, losing mode-specific style tracking",
+      "scenario": "JSONB style fingerprint fields lose nested structure during column extraction",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Digital archiving and institutional repository management",
+  "success_hints": "Migration adds provenance columns (source_system, migrated_at); bi-temporal fields tested at nanosecond precision; JSONB round-trip test suite; query equivalence assertions",
+  "task_context": "Auraken has 8 Postgres tables with bi-temporal SPO triples, style fingerprints (JSONB with per-mode EMA), profile episodes (immutable), and vector embeddings. Target: Intercom's Postgres (pgx/v5). One-time migration with concurrent operation period."
+}

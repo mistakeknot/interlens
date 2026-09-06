@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "fd-audio-authorship-identity covers asset-level provenance and contractual trust mechanisms",
+    "fd-photography-catalog-economics covers asset ownership economics and pricing structure",
+    "fd-couture-style-scaling covers operational production scaling under style-identity constraints"
+  ],
+  "decision_lens": "Evaluates whether Undersketch's identity framing, trust narrative, and positioning would survive scrutiny from professional writers who have explicitly rejected AI tools that feel like 'contamination' — asking whether the product's self-description maps to how serious artists actually talk about authorship.",
+  "distance_rationale": "Professional writing tools occupy the same abstraction level — serious creator tools where authorship identity, voice preservation, and anti-AI-slop trust architecture are product-defining concerns — but operate in a domain where the AI contamination fear discourse is several years more developed and the positioning battle lines are more clearly drawn.",
+  "expected_isomorphisms": "How professional novelists evaluate whether an AI writing tool preserves or contaminates their voice maps almost exactly to how visual artists will evaluate whether Undersketch preserves their style identity — the emotional logic, the rejection triggers, and the trust-building requirements are structurally identical. The Scrivener lesson that serious creators want to feel in command of their creative process (not guided through a wizard) implies that Undersketch's flow should put the artist's intentionality at the center at every step, not just at the output selection stage.",
+  "focus": "How professional writing tools for novelists and screenwriters position around authorship identity, resist 'AI slop' contamination fears, and build trust with creators who define themselves by their unique voice",
+  "name": "fd-screenwriter-authorship-trust",
+  "persona": "A product analyst familiar with serious-creator tool positioning (Scrivener, Final Draft, Highland 2, Ulysses) and the emerging discourse in professional writing communities about AI tools that either threaten or assist authorial identity.",
+  "review_areas": [
+    "Whether the review doc's 'authorship preservation' framing uses language that resonates with how professional artists actually articulate their identity concerns — or whether it is product-team language that misses the emotional register of the target user",
+    "Whether the product's positioning addresses the 'AI contamination' reputational fear directly and specifically, or only generally asserts privacy — analogous to how serious writing tool makers distinguish 'AI that writes for you' from 'AI that assists your writing'",
+    "Whether the MLP flow preserves the artist's sense of creative agency at each decision point — the Scrivener lesson that serious creators want to feel in command of their process, not guided through it",
+    "Whether the risk of attracting the wrong enthusiasm (Risk 7 in the doc) is operationalized into a specific acquisition filter or onboarding gate, the way Final Draft's pricing and pro-focused feature set naturally filters out casual hobbyists",
+    "Whether the doc's 'What Undersketch is not' section is strong enough to function as actual positioning — or whether it reads as aspirational disclaimers that do not survive product decisions"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Serious artists pattern-match on language; if Undersketch sounds like Midjourney with extra steps, it triggers the same rejection response regardless of actual architecture",
+      "scenario": "Product copy and onboarding describe Undersketch using the same language as consumer AI art generators ('generate images in your style')",
+      "severity": "P1"
+    },
+    {
+      "condition": "Early false-positive validation from the wrong user segment is the most insidious failure mode in creative tool positioning",
+      "scenario": "The 'wrong enthusiasm' risk (Risk 7) has no mitigation strategy — product will attract hobbyists who validate superficial metrics while missing the professional target user",
+      "severity": "P1"
+    },
+    {
+      "condition": "The framing of choice sets can undermine artistic agency even when the intent is to accelerate — serious creators notice this and reject it",
+      "scenario": "The MLP's output presentation (a small set of foundations to pick from) inadvertently signals 'AI decides, you choose' rather than 'you direct, AI produces'",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Professional writing tools for novelists and screenwriters (Scrivener, Final Draft, Highland 2, serious-creator AI positioning)",
+  "success_hints": [
+    "Positioning language is tested against how professional artists in the target segment actually describe their concerns — not derived from product-team framing",
+    "The 'wrong enthusiasm' risk has a concrete acquisition or onboarding filter attached to it",
+    "The authorship-preservation claim is operationalized into specific product behaviors, not just narrative"
+  ],
+  "task_context": "Reviewing the first-principles product strategy document for Undersketch, a Tauri desktop app for professional visual artists to train private LoRA models on their own artwork and generate style-consistent production output. The document defines core user, core job, non-negotiable value, trust requirements, MLP, and existential risks."
+}
