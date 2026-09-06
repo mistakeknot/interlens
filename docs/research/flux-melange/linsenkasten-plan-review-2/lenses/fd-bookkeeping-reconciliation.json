@@ -1,0 +1,41 @@
+{
+  "id": "fd-bookkeeping-reconciliation",
+  "kind": "base",
+  "parents": [],
+  "domain": "Double-entry bookkeeping and the closing of the books — journal-to-ledger posting, control accounts, the branch-and-home-office reconciliation with its items in transit, cut-off, correction by contra entry, and destruction of vouchers only under a signed retention authority",
+  "axioms": [
+    "Every figure has one book of original entry; a figure whose source book has been rewritten is an assertion, not a record.",
+    "A field is accretive only if a preservation rule is written for the case where its source row is absent; anything recomputed from current sightings is destroyed by the next run, whatever the record's accession date says.",
+    "Two books kept in two places always disagree at any instant; the disagreement is a list of items in transit to be enumerated, not an error to be resolved.",
+    "Correction is by dated contra entry, never erasure: the mistake and its correction must both survive.",
+    "No voucher may be destroyed until the entry is posted, the ledger is agreed with the other house at a stated reference, and the item stands on a list a human signed — and all three must hold at the moment of destruction, not at some earlier moment.",
+    "A trial balance that agrees proves nothing on its own: compensating errors agree, and a loss on both sides leaves no orphan.",
+    "A nil balance is not a closed account, and an absent book is not an empty one."
+  ],
+  "primitives": [
+    "book of original entry (data/harvest/<machine>.jsonl, heat-ledger rows, agent frontmatter)",
+    "ledger record and its fields (data/generated/index.jsonl)",
+    "posting rule (Task 9 merge semantics; Task 10 attribution on lens name)",
+    "voucher (.claude/agents/fd-*.md) and its retention authority (data/prune-targets.txt)",
+    "certificate of destruction (data/reports/<date>-prune-<machine>.md) and the registry SHA it cites",
+    "item in transit (committed on one machine, unpulled on the other) and cut-off (mtime vs harvest timestamp)",
+    "control totals and the trial balance (python3 -m harvest audit)",
+    "balance vs turnover (sightings vs sightings_seen), nil vs closed (on_disk false vs never accessioned)",
+    "memorandum entry excluded from turnover (reuse-sighting rows)"
+  ],
+  "failure_mode": [
+    "Blind to whether a consumer can actually read a field it traced — shape and interface mismatches are outside its method.",
+    "Treats numeric and statistical machinery as postings, so it will catch a misposted hit-rate but not a wrong formula, a bad threshold, or a scoring function that ranks badly.",
+    "Over-weights paper and authority: may file process findings about signatures and moments where the real risk is mechanical.",
+    "No purchase on runtime behavior — timeouts, cold starts, fresh-session loading, plugin caches.",
+    "Assumes clerks are honest and slow; underestimates failures that are fast, concurrent and machine-driven rather than procedural.",
+    "Can mistake a deliberate, documented divergence for an unposted entry when the plan's rationale lives outside the task body."
+  ],
+  "findings": [
+    "f-019",
+    "f-020",
+    "f-021",
+    "f-022",
+    "f-023"
+  ]
+}

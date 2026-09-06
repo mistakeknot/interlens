@@ -1,0 +1,35 @@
+{
+  "id": "fd-harvestcore-recordintegrity",
+  "kind": "base",
+  "parents": [],
+  "domain": "Multi-writer, content-addressed data pipeline integrity — the Python harvest package's merge, stats, embed, and edges/audit modules",
+  "axioms": [
+    "A record's identity is its content hash, not its display name; any code that keys by name where it should key by hash conflates distinct things.",
+    "An accretive (append-only) store's core promise — nothing is lost except by an explicit, logged action — must hold under every interleaving of two machines' writes, not just the documented happy-path timeline.",
+    "A derived quantity (hit_rate, cluster head, embedding vector) is only as trustworthy as the identity of the thing it's computed over; a join on the wrong key silently launders bad evidence into a confident-looking number.",
+    "Regenerating a derived artifact 'wholesale on every run' is only safe if every downstream consumer of that artifact is proven to target something more stable than the artifact's own internal choices (e.g. edges targeting record ids, not cluster heads).",
+    "An audit step is only as good as the failure modes it was designed to catch; 'exits 0' is not evidence against a failure mode nobody wrote a check for.",
+    "Small-sample statistics (a handful of adjudicated findings) must be visibly distinguished from large-sample ones, or a ranking built on them will systematically favor luck over signal."
+  ],
+  "primitives": [
+    "content hash (body_hash)",
+    "record (index.jsonl row)",
+    "attribution row / ledger finding",
+    "cluster / cluster head",
+    "embedding vector + digest",
+    "on_disk flag",
+    "accession timestamp"
+  ],
+  "failure_mode": [
+    "Whether the JS-side store.js/api-local.js actually reads these Python-produced shapes correctly — that comparison belongs to a sibling lens's domain.",
+    "Node.js-specific concerns (Ollama client fallback labeling, HTTP timeout behavior) beyond the shared embedding_text/threshold contract.",
+    "Whether the prune sweep's git/filesystem mechanics are safe at real-corpus scale, or whether zklw's actual current host state matches the plan's assumptions.",
+    "Graph-algorithm correctness in graph.js."
+  ],
+  "findings": [
+    "f-001",
+    "f-005",
+    "f-006",
+    "f-008"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "fd-prunesweep-hostverification",
+  "kind": "base",
+  "parents": [],
+  "domain": "Destructive batch git operations at real scale, and live multi-host configuration/packaging state verified read-only over SSH",
+  "axioms": [
+    "A precondition checked once at the start of a long, multi-step destructive operation only protects the steps that run before anything could invalidate it; every later step needs either re-verification or an explicit argument for why nothing could have changed.",
+    "Git does not preserve meaningful mtimes across checkout/pull/rebase; any staleness check built on filesystem mtime for git-tracked files needs an explicit argument for why that doesn't produce false negatives, not just false positives.",
+    "'Checked live on <date>' is a claim about the past; a review of a plan that will execute later must re-verify anything the plan's safety argument depends on, not cite the same snapshot as if it were still true.",
+    "A deletion with no corresponding commit is invisible to every report and every verify step the plan writes — 'clean status' and 'untracked' are not the same thing, and a filter built for one can be silently defeated by the other.",
+    "Two machines' settings/cache state is not guaranteed identical just because the plan issues the same command on both; a step's precondition (a key existing to delete) can be true on one host and false on the other.",
+    "At 48 repos and roughly 2,900 files, a corner case with negligible probability per repo has a real expected count across the corpus; 'unlikely' is not the same evaluation at fixture scale (3 files) as at corpus scale."
+  ],
+  "primitives": [
+    "git repo state (branch, tracked/untracked, porcelain status)",
+    "precondition (checked once vs. per-step)",
+    "commit / push-per-repo",
+    "settings.json key",
+    "plugin cache directory",
+    "systemd unit / timer state",
+    "mtime vs. content-hash staleness"
+  ],
+  "failure_mode": [
+    "Whether the harvest package's own internal record-identity/accretion logic is correct — this lens takes Task 9/12's guarantees as given inputs and only checks whether Task 23 relies on more than they promise, not their internal correctness.",
+    "Node.js/api-local.js contract correctness.",
+    "Graph-algorithm correctness.",
+    "Anything not reachable via read-only inspection of the real corpus or a read-only SSH session to zklw — it does not evaluate code paths that only manifest once data/ and harvest/ exist and have actually run."
+  ],
+  "findings": [
+    "f-002",
+    "f-007",
+    "f-009",
+    "f-013"
+  ]
+}

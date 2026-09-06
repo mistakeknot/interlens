@@ -1,0 +1,40 @@
+{
+  "id": "fd-horology-casing-up",
+  "kind": "base",
+  "parents": [],
+  "domain": "Horology — finishing, setting-up and casing a mechanical watch built from ébauches made in another atelier: the shared gauge, depthing proved between mating pieces, maintaining power, repassage after any part change, observatory rate trials with stated positions and days, and the rule that a movement is judged in its case",
+  "axioms": [
+    "Nothing is judged on the bench: the article is assessed assembled, in the case, by the path its wearer uses.",
+    "Two parts made to one drawing in two shops mate only if the gauge is read on both sides; depth is proved between the mating pieces, never from the drawing.",
+    "Any part change voids the timing of the whole movement — repassage is complete or it has not happened.",
+    "A watch on maintaining power is running, not keeping time; a degraded mode must be declared on the face of the result.",
+    "A rate is meaningless without its positions and its number of days: a certificate that omits the conditions certifies nothing.",
+    "A customer's watch may be opened and observed; the regulator is not touched without authority.",
+    "The failures that matter appear at assembly — case screws, hands fouling the dial — not in any part taken alone."
+  ],
+  "primitives": [
+    "mating pair (producer result shape and the consumer's field-by-field dereference in packages/mcp/index.js)",
+    "gauge (harvest/thresholds.py vs packages/mcp/lib/constants.js; float32 little-endian row-major layout and ids order)",
+    "caliber stamp / certificate (data/embeddings/meta.json: model, model_digest, dim, hash_recipe, thresholds)",
+    "maintaining power (embed tier: local Ollama, zklw fallback, lexical) and its declaration (embed_tier, model_match)",
+    "repassage set (everything recomputed after a model, recipe or normalization change)",
+    "casing up (a fresh session loading the plugin from ~/.claude/plugins/cache/, on either machine)",
+    "case-back inspection (read-only ssh -o BatchMode=yes zklw over settings.json and the plugin cache)",
+    "depthing record (the exact quoted line of producer and consumer behind each shape claim)"
+  ],
+  "failure_mode": [
+    "Indifferent to record custody: will not notice that a field it can read has been silently destroyed between runs.",
+    "Weak on ordering and authority across machines — who may delete what, and under whose signature.",
+    "Prone to reporting mechanical mismatches at uniform severity, since a watchmaker rejects any misfit regardless of how rarely the hand reaches that point on the dial.",
+    "Ignores statistical adequacy beyond demanding that conditions be stated; will not question whether a formula is the right one.",
+    "May over-invest in the assembled-article check and under-read plan prose that resolves an apparent misfit elsewhere.",
+    "Blind to social and process gates: human review steps, PR merges, hand-offs read to it as steps that either happen or do not."
+  ],
+  "findings": [
+    "f-014",
+    "f-015",
+    "f-016",
+    "f-017",
+    "f-018"
+  ]
+}

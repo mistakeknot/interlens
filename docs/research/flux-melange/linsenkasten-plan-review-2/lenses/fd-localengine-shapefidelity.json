@@ -1,0 +1,40 @@
+{
+  "id": "fd-localengine-shapefidelity",
+  "kind": "base",
+  "parents": [],
+  "domain": "Node.js MCP adapter/shim layer correctness — local-first data-serving contracts that must reproduce a retired service's response shape field-for-field",
+  "axioms": [
+    "A retired remote API's response shape is a contract every existing caller already depends on; the local replacement must reproduce it field-for-field, not just 'equivalently.'",
+    "The only ground truth for 'what a caller reads' is the caller's own code (index.js/cli.js handlers), never a plan's prose description of it.",
+    "A lexical/embedding search or resolution function is judged by what it returns for adversarial inputs (name collisions, missing fields, corrupt records), not just its happy-path test.",
+    "An error path that returns undefined/null/throws where the caller expects `{success:false, error}` breaks the caller identically to a wrong success value — both are contract violations.",
+    "A fallback tier (embedding to lexical, local Ollama to remote) is only safe if the caller can tell which tier answered; an unlabeled fallback is a silent quality regression.",
+    "Counting claims in a spec (e.g. '17 names', '18 names') are themselves falsifiable against the actual source file and must be checked, not trusted."
+  ],
+  "primitives": [
+    "exported function",
+    "result shape / field",
+    "call site (handler, resource, CLI command)",
+    "tier label (embed_tier, layer)",
+    "name/id resolution",
+    "error path"
+  ],
+  "failure_mode": [
+    "Cross-language parity between embed.js and harvest/embed.py's Python semantics — that comparison belongs to a sibling lens's domain, not this one.",
+    "Whether the underlying graph algorithms (centrality, paths, bridges) in graph.js are correct — this lens treats graph.js as a black box the way api-local.js does.",
+    "Distributed/multi-machine record-identity questions (accretive index, dedupe across harvests) that live in the harvest package's own domain.",
+    "Filesystem/git-level execution risk in the prune sweep, or zklw's actual current host state."
+  ],
+  "findings": [
+    "f-003",
+    "f-004",
+    "f-010",
+    "f-011",
+    "f-012",
+    "f-024",
+    "f-025",
+    "f-026",
+    "f-027",
+    "f-028"
+  ]
+}
