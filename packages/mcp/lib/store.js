@@ -13,11 +13,50 @@ async function readJsonl(p) {
   catch (e) { if (e.code === 'ENOENT') return []; throw e; }
 }
 
+function normalizeGeneratedLens(record, index) {
+  const name = record.name || record.lens_name;
+  if (typeof name !== 'string' || name.trim() === '') {
+    throw new TypeError(`Generated lens ${record.id || `at index ${index}`} is missing a name`);
+  }
+  return {
+    ...record,
+    name: name.trim(),
+    layer: 'generated',
+    definition: record.summary,
+    examples: [],
+    related_concepts: (record.domains || []).filter(domain => domain !== 'uncategorized'),
+    episode: null,
+  };
+}
+
 function deepFreeze(value, seen = new WeakSet()) {
   if (value === null || typeof value !== 'object' || seen.has(value)) return value;
   seen.add(value);
   for (const child of Object.values(value)) deepFreeze(child, seen);
   return Object.freeze(value);
+}
+
+function readOnlyMap(map) {
+  let proxy;
+  proxy = new Proxy(map, {
+    get(target, property, receiver) {
+      if (property === 'set' || property === 'delete' || property === 'clear') {
+        return () => { throw new TypeError('Cannot modify read-only Map'); };
+      }
+      if (property === 'size') return target.size;
+      if (property === 'get' || property === 'has' || property === 'keys'
+          || property === 'values' || property === 'entries' || property === Symbol.iterator) {
+        return target[property].bind(target);
+      }
+      if (property === 'forEach') {
+        return (callback, thisArg) => target.forEach(
+          (value, key) => callback.call(thisArg, value, key, proxy),
+        );
+      }
+      return Reflect.get(target, property, receiver);
+    },
+  });
+  return Object.freeze(proxy);
 }
 
 export async function loadStore(force = false) {
@@ -27,27 +66,30 @@ export async function loadStore(force = false) {
   const connections = JSON.parse(await readFile(path.join(DATA_ROOT, 'curated', 'connections.json'), 'utf8')).connections;
   const frames = JSON.parse(await readFile(path.join(DATA_ROOT, 'curated', 'frames.json'), 'utf8')).frames;
   const generated = (await readJsonl(path.join(DATA_ROOT, 'generated', 'index.jsonl')))
-    .map(r => ({ ...r, layer: 'generated', definition: r.summary, examples: [], related_concepts: (r.domains || []).filter(d => d !== 'uncategorized'), episode: null }));
+    .map(normalizeGeneratedLens);
   const edges = await readJsonl(path.join(DATA_ROOT, 'generated', 'edges.jsonl'));
-  const byId = new Map(); const byName = new Map();
-  for (const l of curated) { byId.set(l.id, l); byName.set(l.name.toLowerCase(), l); }
+  const mutableById = new Map(); const mutableByName = new Map();
+  for (const l of curated) { mutableById.set(l.id, l); mutableByName.set(l.name.toLowerCase(), l); }
   for (const g of generated) {
-    byId.set(g.id, g);
+    mutableById.set(g.id, g);
     const key = g.name.toLowerCase();
     // cluster head wins name resolution; first-seen otherwise
-    if (!byName.has(key) || (g.cluster && g.cluster.head)) byName.set(key, g);
+    if (!mutableByName.has(key) || (g.cluster && g.cluster.head)) mutableByName.set(key, g);
   }
-  const frameOfLens = new Map();
-  for (const f of frames) for (const id of f.lens_ids || []) { if (!frameOfLens.has(id)) frameOfLens.set(id, []); frameOfLens.get(id).push(f.id); }
+  const mutableFrameOfLens = new Map();
+  for (const f of frames) for (const id of f.lens_ids || []) { if (!mutableFrameOfLens.has(id)) mutableFrameOfLens.set(id, []); mutableFrameOfLens.get(id).push(f.id); }
   for (const collection of [curated, generated, connections, frames, edges]) deepFreeze(collection);
-  for (const frameIds of frameOfLens.values()) deepFreeze(frameIds);
+  for (const frameIds of mutableFrameOfLens.values()) deepFreeze(frameIds);
+  const byId = readOnlyMap(mutableById);
+  const byName = readOnlyMap(mutableByName);
+  const frameOfLens = readOnlyMap(mutableFrameOfLens);
   _store = Object.freeze({ curated, generated, connections, frames, edges, byId, byName, frameOfLens });
   return _store;
 }
 
 export async function getAllLenses(layer = 'all') {
   const s = await loadStore();
-  return layer === 'curated' ? s.curated : layer === 'generated' ? s.generated : [...s.curated, ...s.generated];
+  return layer === 'curated' ? [...s.curated] : layer === 'generated' ? [...s.generated] : [...s.curated, ...s.generated];
 }
 
 export async function getLens(nameOrId) {
@@ -57,14 +99,14 @@ export async function getLens(nameOrId) {
 }
 
 function lexicalScore(q, lens) {
-  const qt = tokens(q); if (qt.length === 0) return 0;
+  const query = String(q ?? '').toLowerCase();
   const name = lens.name.toLowerCase();
-  if (name === q.toLowerCase()) return 100;
-  let score = 0;
+  if (name === query) return 100;
+  let score = query && name.includes(query) ? 20 : 0;
+  const qt = tokens(query); if (qt.length === 0) return score;
   const nt = new Set(tokens(lens.name));
   const dt = new Set(tokens([lens.definition, ...(lens.examples || []), ...(lens.related_concepts || [])].join(' ')));
   for (const t of qt) { if (nt.has(t)) score += 10; else if (dt.has(t)) score += 2; }
-  if (name.includes(q.toLowerCase())) score += 20;
   return score;
 }
 
@@ -74,7 +116,7 @@ export async function searchLenses(query, limit = 10, { layer = 'all' } = {}) {
     .sort((a, b) => b.s - a.s || a.l.name.localeCompare(b.l.name)).slice(0, limit);
   const items = scored.map(({ l, s }) => ({ ...l, score: s }));
   return { success: true, query, count: scored.length,
-    lenses: items, results: items };
+    lenses: items, results: items.map(item => ({ ...item })) };
 }
 
 export async function getLensesByEpisode(episode) {
