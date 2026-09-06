@@ -13,6 +13,13 @@ async function readJsonl(p) {
   catch (e) { if (e.code === 'ENOENT') return []; throw e; }
 }
 
+function deepFreeze(value, seen = new WeakSet()) {
+  if (value === null || typeof value !== 'object' || seen.has(value)) return value;
+  seen.add(value);
+  for (const child of Object.values(value)) deepFreeze(child, seen);
+  return Object.freeze(value);
+}
+
 export async function loadStore(force = false) {
   if (_store && !force) return _store;
   const curated = JSON.parse(await readFile(path.join(DATA_ROOT, 'curated', 'lenses.json'), 'utf8'))
@@ -32,7 +39,9 @@ export async function loadStore(force = false) {
   }
   const frameOfLens = new Map();
   for (const f of frames) for (const id of f.lens_ids || []) { if (!frameOfLens.has(id)) frameOfLens.set(id, []); frameOfLens.get(id).push(f.id); }
-  _store = { curated, generated, connections, frames, edges, byId, byName, frameOfLens };
+  for (const collection of [curated, generated, connections, frames, edges]) deepFreeze(collection);
+  for (const frameIds of frameOfLens.values()) deepFreeze(frameIds);
+  _store = Object.freeze({ curated, generated, connections, frames, edges, byId, byName, frameOfLens });
   return _store;
 }
 
@@ -63,8 +72,9 @@ export async function searchLenses(query, limit = 10, { layer = 'all' } = {}) {
   const all = await getAllLenses(layer);
   const scored = all.map(l => ({ l, s: lexicalScore(query, l) })).filter(x => x.s > 0)
     .sort((a, b) => b.s - a.s || a.l.name.localeCompare(b.l.name)).slice(0, limit);
+  const items = scored.map(({ l, s }) => ({ ...l, score: s }));
   return { success: true, query, count: scored.length,
-    lenses: scored.map(({ l, s }) => ({ ...l, score: s })), results: scored.map(({ l, s }) => ({ ...l, score: s })) };
+    lenses: items, results: items };
 }
 
 export async function getLensesByEpisode(episode) {

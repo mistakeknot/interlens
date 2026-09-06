@@ -40,10 +40,20 @@ test('related lenses include readable names when corpus edges only contain ids',
   assert.equal(rel.connections[0].source_name, 'Situation-Behavior-Impact');
   assert.equal(rel.connections[0].target_name, 'The Everything Bagel');
 });
-test('getFrames does not expose the cached frame array', async () => {
+test('store accessors do not expose mutable cached frame or lens data', async () => {
   const first = await getFrames();
   const originalCount = first.count;
   first.frames.pop();
+  const frame = first.frames[0];
+  assert.ok(Object.isFrozen(frame));
+  assert.ok(Object.isFrozen(frame.lens_ids));
+  assert.throws(() => frame.lens_ids.push('test-mutated-lens-id'), TypeError);
+
+  const lens = await getLens('Founder Mode');
+  assert.ok(Object.isFrozen(lens));
+  assert.ok(Object.isFrozen(lens.examples));
+  assert.throws(() => lens.examples.push('test-mutated-example'), TypeError);
+
   const second = await getFrames();
   assert.equal(second.frames.length, originalCount);
   assert.equal(second.count, originalCount);
