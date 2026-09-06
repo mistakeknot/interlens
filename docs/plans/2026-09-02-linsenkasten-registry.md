@@ -232,7 +232,7 @@ test('episode, frames, related, stats', async () => {
   assert.equal(st.total_lenses, 258);
 });
 ```
-Run: `node --test "packages/mcp/test/**/*.test.mjs"store.test.mjs`  Expected: FAIL (module missing).
+Run: `node --test "packages/mcp/test/**/*.test.mjs"`  Expected: FAIL (module missing).
 
 **Step 3: implementation** — `packages/mcp/lib/store.js`:
 ```js
@@ -340,12 +340,12 @@ export async function recordReuse(entry) {
 ```
 Note: `searchLenses` returns both `lenses` and `results` because `index.js` reads `results.lenses` in `search_lenses` and `results.results[0]` in `getLens` today (Task 6 keeps both readers working).
 
-**Step 4:** Run: `node --test "packages/mcp/test/**/*.test.mjs"store.test.mjs`  Expected: PASS (4 tests).
+**Step 4:** Run: `node --test "packages/mcp/test/**/*.test.mjs"`  Expected: PASS (4 tests).
 
 **Step 5: Commit** — `feat(store): local store over data/ with lexical search`
 
 <verify>
-- run: `node --test "packages/mcp/test/**/*.test.mjs"store.test.mjs`
+- run: `node --test "packages/mcp/test/**/*.test.mjs"`
   expect: exit 0
 </verify>
 
@@ -414,7 +414,7 @@ test('betweenness on a synthetic 2,000-node graph stays under 3 s', () => {
   assert.ok(Date.now() - t0 < 3000);
 });
 ```
-Run: `node --test "packages/mcp/test/**/*.test.mjs"graph.test.mjs` → FAIL (module missing).
+Run: `node --test "packages/mcp/test/**/*.test.mjs"` → FAIL (module missing).
 
 **Step 2:** implement `packages/mcp/lib/graph.js` per the semantics above (pure functions; no I/O; Brandes betweenness written out, not imported).
 
@@ -423,7 +423,7 @@ Run: `node --test "packages/mcp/test/**/*.test.mjs"graph.test.mjs` → FAIL (mod
 **Step 4: Commit** — `feat(graph): port lens graph and creative queries to JS`
 
 <verify>
-- run: `node --test "packages/mcp/test/**/*.test.mjs"graph.test.mjs`
+- run: `node --test "packages/mcp/test/**/*.test.mjs"`
   expect: exit 0
 </verify>
 
@@ -444,7 +444,7 @@ Run: `node --test "packages/mcp/test/**/*.test.mjs"graph.test.mjs` → FAIL (mod
 **Step 2:** implement; **Step 3:** test PASS; **Step 4: Commit** — `feat(embed): ollama embedding client with fallback and cosine top-k`
 
 <verify>
-- run: `node --test "packages/mcp/test/**/*.test.mjs"embed.test.mjs`
+- run: `node --test "packages/mcp/test/**/*.test.mjs"`
   expect: exit 0
 </verify>
 

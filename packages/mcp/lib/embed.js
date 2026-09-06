@@ -12,6 +12,8 @@ import {
 
 export { EMBED_DIM, EMBED_MODEL };
 
+export const MODEL_DIGEST_CACHE_TTL_MS = 60_000;
+
 export const embedCounters = {
   local: 0,
   fallback: 0,
@@ -21,6 +23,14 @@ export const embedCounters = {
 
 const loggedFailures = new Set();
 const modelDigestCache = new Map();
+let countedLexicalResults = new WeakSet();
+
+export function __resetEmbeddingStateForTests() {
+  loggedFailures.clear();
+  modelDigestCache.clear();
+  countedLexicalResults = new WeakSet();
+  for (const counter of Object.keys(embedCounters)) embedCounters[counter] = 0;
+}
 
 function endpoint(url, pathname) {
   return `${url.replace(/\/$/, '')}${pathname}`;
@@ -46,16 +56,26 @@ function logFailureOnce(url, error) {
 }
 
 export async function getModelDigest(url, timeoutMs = OLLAMA_TIMEOUT_MS) {
-  if (!modelDigestCache.has(url)) {
-    modelDigestCache.set(url, (async () => {
-      const payload = await fetchJson(endpoint(url, '/api/tags'), {}, timeoutMs);
-      const model = Array.isArray(payload.models)
-        ? payload.models.find(({ name }) => name === `${EMBED_MODEL}:latest`)
-        : null;
-      return model?.digest ?? null;
-    })());
+  const cached = modelDigestCache.get(url);
+  if (cached && cached.expiresAt > Date.now()) return cached.digest;
+  modelDigestCache.delete(url);
+
+  try {
+    const payload = await fetchJson(endpoint(url, '/api/tags'), {}, timeoutMs);
+    const model = Array.isArray(payload.models)
+      ? payload.models.find(({ name }) => name === `${EMBED_MODEL}:latest`)
+      : null;
+    const digest = model?.digest ?? null;
+    modelDigestCache.set(url, {
+      digest,
+      expiresAt: Date.now() + MODEL_DIGEST_CACHE_TTL_MS,
+    });
+    return digest;
+  } catch {
+    // A transient tags failure must remain retryable by the next request.
+    modelDigestCache.delete(url);
+    return null;
   }
-  return modelDigestCache.get(url);
 }
 
 function toVectors(payload, expectedCount) {
@@ -108,14 +128,25 @@ export async function embedTexts(
 }
 
 export function toolEmbeddingMetadata(embedding, meta) {
-  if (embedding === null) {
-    embedCounters.lexical += 1;
-    return { embed_tier: 'lexical' };
-  }
+  if (embedding == null) return { embed_tier: 'lexical' };
 
   const modelMatch = embedding.model_digest === meta?.model_digest;
   if (!modelMatch) embedCounters.mismatch += 1;
   return { embed_tier: embedding.tier, model_match: modelMatch };
+}
+
+// Task 13 lexical serving paths must pass the final tool result through here.
+// This is the serving/accounting transition; repeated calls for one result are idempotent.
+export function markLexicalFallback(result) {
+  if (result === null || typeof result !== 'object') {
+    throw new TypeError('lexical fallback result must be an object');
+  }
+  result.embed_tier = 'lexical';
+  if (!countedLexicalResults.has(result)) {
+    countedLexicalResults.add(result);
+    embedCounters.lexical += 1;
+  }
+  return result;
 }
 
 export async function loadMatrix(layer) {

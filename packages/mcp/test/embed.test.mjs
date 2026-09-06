@@ -1,4 +1,4 @@
-import test, { after } from 'node:test';
+import test, { after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
@@ -12,25 +12,31 @@ after(() => rm(dataRoot, { recursive: true, force: true }));
 
 const {
   EMBED_DIM,
+  MODEL_DIGEST_CACHE_TTL_MS,
+  __resetEmbeddingStateForTests,
   cosineTopK,
   embedCounters,
   embedTexts,
   getModelDigest,
   loadMatrix,
+  markLexicalFallback,
   toolEmbeddingMetadata,
 } = await import('../lib/embed.js');
+
+beforeEach(() => __resetEmbeddingStateForTests());
 
 async function startFakeOllama({
   models = [{ name: 'nomic-embed-text:latest', digest: 'sha256:fake' }],
   tagsStatus = 200,
 } = {}) {
   const requests = { embed: 0, tags: 0 };
+  const state = { models, tagsStatus };
   const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && req.url === '/api/tags') {
       requests.tags += 1;
-      res.statusCode = tagsStatus;
+      res.statusCode = state.tagsStatus;
       res.setHeader('content-type', 'application/json');
-      res.end(JSON.stringify({ models }));
+      res.end(JSON.stringify({ models: state.models }));
       return;
     }
 
@@ -55,7 +61,17 @@ async function startFakeOllama({
   server.listen(0, '127.0.0.1');
   await once(server, 'listening');
   const { port } = server.address();
-  return { requests, server, url: `http://127.0.0.1:${port}` };
+  return {
+    requests,
+    server,
+    setModels(value) {
+      state.models = value;
+    },
+    setTagsStatus(value) {
+      state.tagsStatus = value;
+    },
+    url: `http://127.0.0.1:${port}`,
+  };
 }
 
 test('embedTexts returns deterministic float32 vectors and model metadata', async (t) => {
@@ -78,20 +94,30 @@ test('embedTexts returns deterministic float32 vectors and model metadata', asyn
   assert.equal(result.vectors[1][1], 1);
 });
 
-test('embedTexts preserves successful vectors when model digest lookup fails', async (t) => {
-  const { requests, server, url } = await startFakeOllama({ tagsStatus: 500 });
+test('embedTexts preserves vectors and retries a failed model digest lookup', async (t) => {
+  const {
+    requests,
+    server,
+    setTagsStatus,
+    url,
+  } = await startFakeOllama({ tagsStatus: 500 });
   t.after(() => {
     server.closeAllConnections();
     server.close();
   });
 
-  const result = await embedTexts(['a'], { urls: [url] });
+  const first = await embedTexts(['a'], { urls: [url] });
 
-  assert.ok(result);
-  assert.equal(result.tier, 'local');
-  assert.equal(result.model_digest, null);
-  assert.equal(result.vectors.length, 1);
-  assert.deepEqual(requests, { embed: 1, tags: 1 });
+  assert.ok(first);
+  assert.equal(first.tier, 'local');
+  assert.equal(first.model_digest, null);
+  assert.equal(first.vectors.length, 1);
+
+  setTagsStatus(200);
+  const second = await embedTexts(['b'], { urls: [url] });
+
+  assert.equal(second.model_digest, 'sha256:fake');
+  assert.deepEqual(requests, { embed: 2, tags: 2 });
 });
 
 test('embedTexts caches the model digest lookup per URL', async (t) => {
@@ -105,6 +131,48 @@ test('embedTexts caches the model digest lookup per URL', async (t) => {
   await embedTexts(['b'], { urls: [url] });
 
   assert.deepEqual(requests, { embed: 2, tags: 1 });
+});
+
+test('getModelDigest refreshes a successful cache entry after its TTL', async (t) => {
+  const {
+    requests,
+    server,
+    setModels,
+    url,
+  } = await startFakeOllama({
+    models: [{ name: 'nomic-embed-text:latest', digest: 'sha256:first' }],
+  });
+  t.after(() => {
+    server.closeAllConnections();
+    server.close();
+  });
+
+  const originalNow = Date.now;
+  let now = originalNow();
+  Date.now = () => now;
+  try {
+    assert.equal(await getModelDigest(url), 'sha256:first');
+    setModels([{ name: 'nomic-embed-text:latest', digest: 'sha256:second' }]);
+    assert.equal(await getModelDigest(url), 'sha256:first');
+
+    now += MODEL_DIGEST_CACHE_TTL_MS + 1;
+    assert.equal(await getModelDigest(url), 'sha256:second');
+  } finally {
+    Date.now = originalNow;
+  }
+
+  assert.deepEqual(requests, { embed: 0, tags: 2 });
+});
+
+test('getModelDigest returns null instead of throwing when lookup fails', async (t) => {
+  const { requests, server, url } = await startFakeOllama({ tagsStatus: 500 });
+  t.after(() => {
+    server.closeAllConnections();
+    server.close();
+  });
+
+  assert.equal(await getModelDigest(url), null);
+  assert.deepEqual(requests, { embed: 0, tags: 1 });
 });
 
 test('getModelDigest returns null when the embedding model is absent', async (t) => {
@@ -148,11 +216,25 @@ test('embedTexts returns null when every Ollama URL fails', async () => {
   assert.equal(embedCounters.lexical, lexicalBefore);
 });
 
-test('toolEmbeddingMetadata labels and counts a served lexical fallback', () => {
+test('markLexicalFallback labels and counts each served result once', () => {
+  const lexicalBefore = embedCounters.lexical;
+  const result = { matched: false, method: 'lexical' };
+
+  assert.equal(markLexicalFallback(result), result);
+  assert.deepEqual(result, {
+    matched: false,
+    method: 'lexical',
+    embed_tier: 'lexical',
+  });
+  assert.equal(markLexicalFallback(result), result);
+  assert.equal(embedCounters.lexical, lexicalBefore + 1);
+});
+
+test('toolEmbeddingMetadata safely formats missing embedding metadata', () => {
   const lexicalBefore = embedCounters.lexical;
 
-  assert.deepEqual(toolEmbeddingMetadata(null, {}), { embed_tier: 'lexical' });
-  assert.equal(embedCounters.lexical, lexicalBefore + 1);
+  assert.deepEqual(toolEmbeddingMetadata(undefined, {}), { embed_tier: 'lexical' });
+  assert.equal(embedCounters.lexical, lexicalBefore);
 });
 
 test('toolEmbeddingMetadata reports model matches and counts mismatches', () => {
