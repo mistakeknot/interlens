@@ -1,0 +1,5 @@
+Apply the perspective of a recovery auditor [truncated — 431 chars omitted] before trusting the artifact.
+
+### 1. Detect truncation
+
+### 2. Refuse corrupt candidates

@@ -1,11 +1,35 @@
 import { readFile, appendFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
-import { DATA_ROOT } from './constants.js';
+import { DATA_ROOT, RESOLVE_MIN_COSINE } from './constants.js';
+import {
+  cosineTopK,
+  embedCounters,
+  embedTexts,
+  loadMatrix,
+  markLexicalFallback,
+  toolEmbeddingMetadata,
+} from './embed.js';
 
 let _store = null;
 
 function tokens(s) {
   return (s || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(t => t.length > 2);
+}
+
+export function embeddingText(spec, body = '') {
+  if (spec) {
+    const parts = [
+      spec.persona || '',
+      spec.focus || '',
+      spec.decision_lens || '',
+      ...(spec.review_areas || []),
+    ];
+    return parts.filter(Boolean).map(String).join('\n').trim();
+  }
+  const source = String(body || '');
+  const perspective = source.match(/^Apply the perspective.*?(?=\n\n)/ms)?.[0] || '';
+  const headings = [...source.matchAll(/^### \d+\. (.+)$/gm)].map(match => match[1]);
+  return [perspective, ...headings].join('\n').trim();
 }
 
 async function readJsonl(p) {
@@ -26,6 +50,10 @@ function normalizeGeneratedLens(record, index) {
     examples: [],
     related_concepts: (record.domains || []).filter(domain => domain !== 'uncategorized'),
     episode: null,
+    hit_rate: record.stats?.hit_rate ?? null,
+    smoothed_hit_rate: record.stats?.smoothed_hit_rate ?? null,
+    adjudicated: record.stats?.adjudicated ?? 0,
+    cohort_siblings: record.cohort?.siblings || record.cohort_siblings || [],
   };
 }
 
@@ -147,8 +175,30 @@ export async function getRelatedLenses(nameOrId, limit = 5) {
 export async function getStats() {
   const s = await loadStore();
   const byType = {}; for (const l of s.curated) byType[l.type] = (byType[l.type] || 0) + 1;
+  const edgeCounts = {};
+  for (const edge of s.edges) edgeCounts[edge.type] = (edgeCounts[edge.type] || 0) + 1;
+  const clusterIds = new Set();
+  const clustersByHeadSelectedBy = {};
+  let corrupt = 0;
+  for (const lens of s.generated) {
+    if (lens.corrupt) corrupt += 1;
+    if (!lens.cluster?.id) continue;
+    clusterIds.add(lens.cluster.id);
+    if (lens.cluster.head && lens.cluster.head_selected_by) {
+      const method = lens.cluster.head_selected_by;
+      clustersByHeadSelectedBy[method] = (clustersByHeadSelectedBy[method] || 0) + 1;
+    }
+  }
+  const reuseCounts = {};
+  for (const entry of await readJsonl(path.join(DATA_ROOT, 'generated', 'reuse-log.jsonl'))) {
+    const lensId = entry.registry_id || entry.lens_id;
+    if (lensId) reuseCounts[lensId] = (reuseCounts[lensId] || 0) + 1;
+  }
   return { success: true, total_lenses: s.curated.length, generated_lenses: s.generated.length,
-    connections: s.connections.length, frames: s.frames.length, by_type: byType };
+    connections: s.connections.length, frames: s.frames.length, by_type: byType,
+    edge_counts: edgeCounts, clusters: clusterIds.size,
+    clusters_by_head_selected_by: clustersByHeadSelectedBy, corrupt,
+    embed_counters: { ...embedCounters }, reuse_counts: reuseCounts };
 }
 
 export async function recordReuse(entry) {
@@ -158,4 +208,87 @@ export async function recordReuse(entry) {
   await appendFile(p, line);
   return { success: true };
 }
-// resolveLens is added in Task 13 (needs embed.js)
+
+function isGeneratedHead(lens) {
+  return lens?.layer === 'generated' && lens.cluster?.head === true && !lens.corrupt;
+}
+
+function resolutionMatch(lens, score) {
+  return {
+    id: lens.id,
+    name: lens.name,
+    score,
+    hit_rate: lens.hit_rate,
+    smoothed_hit_rate: lens.smoothed_hit_rate,
+    adjudicated: lens.adjudicated,
+    embodies: lens.embodies || [],
+    cluster: lens.cluster || null,
+    cohort_siblings: lens.cohort_siblings || [],
+  };
+}
+
+function jaccard(left, right) {
+  if (left.size === 0 || right.size === 0) return 0;
+  let intersection = 0;
+  for (const token of left) if (right.has(token)) intersection += 1;
+  return intersection / new Set([...left, ...right]).size;
+}
+
+function lexicalResolution(candidates, { text, spec, k }) {
+  const exactName = String(spec?.name || text || '').trim().toLowerCase();
+  const exact = exactName
+    ? candidates.find(lens => lens.name.toLowerCase() === exactName)
+    : null;
+  if (exact) {
+    return markLexicalFallback({
+      matched: true,
+      method: 'lexical',
+      matches: [resolutionMatch(exact, 1)],
+    });
+  }
+
+  const focusTokens = new Set(tokens(spec?.focus || ''));
+  const matches = candidates
+    .map(lens => ({ lens, score: jaccard(focusTokens, new Set(tokens(lens.summary))) }))
+    .filter(({ score }) => score >= 0.6)
+    .sort((a, b) => b.score - a.score || a.lens.id.localeCompare(b.lens.id))
+    .slice(0, k)
+    .map(({ lens, score }) => resolutionMatch(lens, score));
+  return markLexicalFallback({
+    matched: matches.length > 0,
+    method: 'lexical',
+    matches,
+  });
+}
+
+export async function resolveLens({ text = '', spec = null, k = 3 } = {}) {
+  const query = spec ? embeddingText(spec) : String(text || '');
+  const limit = Number.isFinite(k) ? Math.max(0, Math.floor(k)) : 3;
+  const s = await loadStore();
+  const candidates = s.generated.filter(isGeneratedHead);
+  const embedding = await embedTexts([query]);
+  if (!embedding) return lexicalResolution(candidates, { text, spec, k: limit });
+
+  const loaded = await loadMatrix('generated');
+  const metadata = toolEmbeddingMetadata(embedding, loaded?.meta);
+  if (!loaded || limit === 0) {
+    return { matched: false, method: 'embedding', matches: [], ...metadata };
+  }
+
+  const candidateIds = new Set(candidates.map(lens => lens.id));
+  const matches = cosineTopK(
+    embedding.vectors[0],
+    loaded.matrix,
+    loaded.ids,
+    loaded.ids.length,
+  )
+    .filter(({ id }) => candidateIds.has(id))
+    .slice(0, limit)
+    .map(({ id, score }) => resolutionMatch(s.byId.get(id), score));
+  return {
+    matched: Boolean(matches[0] && matches[0].score >= RESOLVE_MIN_COSINE),
+    method: 'embedding',
+    matches,
+    ...metadata,
+  };
+}

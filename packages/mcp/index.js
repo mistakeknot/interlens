@@ -10,6 +10,12 @@ import {
   ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import * as api from './lib/api-local.js';
+import {
+  getStats as getRegistryStats,
+  recordReuse,
+  resolveLens,
+  searchLenses as searchStoreLenses,
+} from './lib/store.js';
 
 // Phase 0 Modules: Enhanced thinking capabilities
 import { matchThinkingMode, getWorkflowForMode } from './lib/thinking-modes.js';
@@ -55,6 +61,12 @@ class InterlensMCP {
                 description: 'Maximum number of results to return (default: 10)',
                 default: 10,
               },
+              layer: {
+                type: 'string',
+                enum: ['all', 'curated', 'generated'],
+                description: 'Lens layer to search (default: all)',
+                default: 'all',
+              },
               problem_context: {
                 type: 'string',
                 description: 'Optional: Problem description to generate specific insights for each lens',
@@ -79,6 +91,50 @@ class InterlensMCP {
               },
             },
             required: ['name'],
+          },
+        },
+        {
+          name: 'resolve_lens',
+          description: 'Resolve text or a flux-gen spec to the closest reusable canonical generated lens.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              text: {
+                type: 'string',
+                description: 'Text to match when no spec is supplied',
+              },
+              spec: {
+                type: 'object',
+                description: 'Flux-gen lens specification to match',
+              },
+              k: {
+                type: 'number',
+                description: 'Maximum candidate matches to return (default: 3)',
+                default: 3,
+              },
+            },
+          },
+        },
+        {
+          name: 'record_reuse',
+          description: 'Record that a registry lens was materialized by a consumer.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              registry_id: { type: 'string' },
+              consumer: { type: 'string' },
+              target: { type: 'string' },
+              project: { type: 'string' },
+            },
+            required: ['registry_id', 'consumer', 'target', 'project'],
+          },
+        },
+        {
+          name: 'registry_stats',
+          description: 'Get curated and generated registry counts, graph health, embedding counters, and reuse counts.',
+          inputSchema: {
+            type: 'object',
+            properties: {},
           },
         },
         {
@@ -501,8 +557,8 @@ class InterlensMCP {
       try {
         switch (name) {
           case 'search_lenses': {
-            const { query, limit = 10, problem_context } = args;
-            const results = await api.searchLenses(query, limit);
+            const { query, limit = 10, layer = 'all', problem_context } = args;
+            const results = await searchStoreLenses(query, limit, { layer });
 
             // If problem context provided, enrich each result with beliefs
             if (problem_context && results.lenses) {
@@ -521,6 +577,11 @@ class InterlensMCP {
                 };
               });
             }
+            results.lenses = results.lenses.map(lens => ({
+              display_name: `[${lens.layer}] ${lens.name}`,
+              ...lens,
+            }));
+            results.results = results.lenses.map(lens => ({ ...lens }));
 
             return {
               content: [
@@ -568,6 +629,27 @@ class InterlensMCP {
                 ],
               };
             }
+          }
+
+          case 'resolve_lens': {
+            const results = await resolveLens(args);
+            return {
+              content: [{ type: 'text', text: JSON.stringify(results, null, 2) }],
+            };
+          }
+
+          case 'record_reuse': {
+            const results = await recordReuse(args);
+            return {
+              content: [{ type: 'text', text: JSON.stringify(results, null, 2) }],
+            };
+          }
+
+          case 'registry_stats': {
+            const results = await getRegistryStats();
+            return {
+              content: [{ type: 'text', text: JSON.stringify(results, null, 2) }],
+            };
           }
 
           case 'get_lenses_by_episode': {
