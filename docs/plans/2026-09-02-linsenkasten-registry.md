@@ -158,18 +158,20 @@ Single git-synced store read by `packages/mcp` on every machine. Nothing here is
 - `prune-targets.txt` — the explicit list of repos prune may touch. Reviewed by a human before `--apply`.
 ```
 
-**Step 3 (external consumer of the moved file — melange-2 f-002):** two sibling repos hardcode the old path: `~/projects/Sylveste/interverse/lattice/src/lattice/connectors/interlens.py:27` (`DEFAULT_LENSES_REL = Path("interverse/interlens/apps/api/all_lenses_for_analysis.json")`) and its copy `~/projects/Sylveste/core/interweave/src/lattice/connectors/interlens.py`. Change both to `Path("interverse/interlens/data/curated/lenses.json")` in the same session as the move (Task 20 changes the directory segment again), run `python3 -m pytest tests/test_connector_interlens.py -q` in each repo, and commit: lattice is its own repo (direct push), interweave lives under the Sylveste monorepo (`main` protected: branch + PR). Class and `SUBSYSTEM` identifiers stay `interlens` for now — a lattice-side key with stored observations behind it; renaming it is a lattice decision, listed under follow-ups in Task 25.
+**Step 3 (external consumer of the moved file — melange-2 f-002):** two sibling checkouts hardcode the old path: `~/projects/Sylveste/interverse/lattice/src/lattice/connectors/interlens.py:27` (`DEFAULT_LENSES_REL = Path("interverse/interlens/apps/api/all_lenses_for_analysis.json")`) and its copy `~/projects/Sylveste/core/interweave/src/lattice/connectors/interlens.py`. Both checkouts use `https://github.com/mistakeknot/interweave.git`; `lattice` is the canonical checkout and `core/interweave` is a legacy checkout of the same standalone repository. Change both working copies to `Path("interverse/interlens/data/curated/lenses.json")` in the same session as the move (Task 20 changes the directory segment again), run `PYTHONPATH=src python3 -m pytest tests/test_connector_interlens.py -q` in each checkout, then commit and push the change once from lattice. Confirm `origin/main` contains the connector change and sync the legacy checkout; do not open a redundant PR for the same repository. Class and `SUBSYSTEM` identifiers stay `interlens` for now — a lattice-side key with stored observations behind it; renaming it is a lattice decision, listed under follow-ups in Task 25.
 
-**Step 4:** Run: `node --test packages/mcp/test/`  Expected: PASS (Task 1's test now finds the file).
+**Step 4:** Run: `node --test "packages/mcp/test/**/*.test.mjs"`  Expected: PASS (Task 1's test now finds the file).
 
 **Step 5: Commit** (`git add -A data apps/api` then the commit idiom with pathspec `data apps/api`; message `data: move curated lens corpus to data/curated`)
 
 <verify>
-- run: `node --test packages/mcp/test/`
+- run: `node --test "packages/mcp/test/**/*.test.mjs"`
   expect: exit 0
 - run: `python3 -c "import json;print(len(json.load(open('data/curated/lenses.json'))), len(json.load(open('data/curated/connections.json'))['connections']), len(json.load(open('data/curated/frames.json'))['frames']))"`
   expect: contains "258 280 28"
-- run: `cd ~/projects/Sylveste/interverse/lattice && python3 -m pytest tests/test_connector_interlens.py -q`
+- run: `cd ~/projects/Sylveste/interverse/lattice && PYTHONPATH=src python3 -m pytest tests/test_connector_interlens.py -q`
+  expect: exit 0
+- run: `cd ~/projects/Sylveste/core/interweave && PYTHONPATH=src python3 -m pytest tests/test_connector_interlens.py -q`
   expect: exit 0
 </verify>
 
