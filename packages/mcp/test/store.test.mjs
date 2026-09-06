@@ -44,6 +44,15 @@ test('lexical search finds exact names made only of short words', async () => {
   assert.equal(r.lenses[0].name, 'To Be or to Do');
   assert.equal(r.lenses[0].score, 100);
 });
+test('token-less queries return nothing unless they are an exact name', async () => {
+  assert.equal((await searchLenses('a', 10)).count, 0);
+  assert.equal((await searchLenses(' ', 10)).count, 0);
+  assert.equal((await searchLenses('To Be or to Do', 5)).lenses[0].name, 'To Be or to Do');
+});
+test('getLens returns a decoratable copy, not the frozen cache entry', async () => {
+  const l = await getLens('Founder Mode'); l.score = 1; assert.equal(l.score, 1);
+  assert.equal((await getLens('Founder Mode')).score, undefined);
+});
 test('getLens by name and by id', async () => {
   assert.equal((await getLens('Founder Mode')).id, 'lens_161_headline_founder_mode');
   assert.equal((await getLens('lens_161_headline_founder_mode')).name, 'Founder Mode');

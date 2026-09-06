@@ -95,15 +95,16 @@ export async function getAllLenses(layer = 'all') {
 export async function getLens(nameOrId) {
   const s = await loadStore();
   if (!nameOrId) return null;
-  return s.byId.get(nameOrId) || s.byName.get(String(nameOrId).toLowerCase()) || null;
+  const hit = s.byId.get(nameOrId) || s.byName.get(String(nameOrId).toLowerCase());
+  return hit ? { ...hit } : null;   // shallow copy: the cache is frozen, callers decorate
 }
 
 function lexicalScore(q, lens) {
   const query = String(q ?? '').toLowerCase();
   const name = lens.name.toLowerCase();
   if (name === query) return 100;
-  let score = query && name.includes(query) ? 20 : 0;
-  const qt = tokens(query); if (qt.length === 0) return score;
+  const qt = tokens(query); if (qt.length === 0) return 0;   // no tokens → no result; the exact-name check above is the one exception
+  let score = name.includes(query) ? 20 : 0;
   const nt = new Set(tokens(lens.name));
   const dt = new Set(tokens([lens.definition, ...(lens.examples || []), ...(lens.related_concepts || [])].join(' ')));
   for (const t of qt) { if (nt.has(t)) score += 10; else if (dt.has(t)) score += 2; }
