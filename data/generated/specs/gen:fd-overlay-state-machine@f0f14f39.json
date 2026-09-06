@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-bevy-input-state-revisit covers which Bevy API primitives drive the transitions — this agent focuses on the state machine logic, not the input API",
+    "fd-game-ux-conventions covers whether Stack model + Direct Switch match player expectations — this agent focuses on logical correctness of the transition graph",
+    "fd-selection-polymorphism-revisit covers Selection enum consumers — this agent focuses on OverlayState consumers (SystemSet predicates, Resume handler)"
+  ],
+  "decision_lens": "Is the two-field OverlayState model sufficient to represent all reachable states implied by the 9 locked decisions, or are there ghost states (e.g. pause_menu=true with screen=None and prior_paused=false when game was already paused) that produce incorrect sim-pause behavior on Resume?",
+  "focus": "OverlayState two-field model correctness — prior_paused invariant across Stack model transitions, GatedInput/GatedCamera SystemSet predicate coverage, Direct Switch atomicity, and edge cases in the Esc/backtick/digit interaction matrix.",
+  "name": "fd-overlay-state-machine",
+  "persona": "Apply the perspective of a game-engine state machine architect who has implemented and debugged layered modal UI in shipped titles — they care about whether every reachable state in the (screen: Option<ScreenKind>, pause_menu: bool, prior_paused: bool) triple has a defined transition, measure correctness by exhaustive state-transition tabulation, and flag any path where prior_paused could be captured stale, where backtick could pop the wrong layer, or where Direct Switch leaves both overlays simultaneously active for a single frame.",
+  "review_areas": [
+    "prior_paused capture: when Esc opens the pause menu, prior_paused must snapshot SimState.paused at that exact moment — if Esc is handled in the same system that reads OverlayState, the read order matters; verify the spec declares this clearly",
+    "Stack model exhaustive table: enumerate all (screen, pause_menu) pairs and verify that every legal Esc/backtick/digit input has a defined output state — the spec shows three paths but omits 'Esc while pause_menu already open' (should be no-op per just_pressed) and 'backtick while screen=None and pause_menu=false' (should be no-op)",
+    "Direct Switch atomicity: pressing Digit3 while screen=Some(Settlement) must close Settlement and open Relationships in one frame — if two systems each handle one half, there's a one-frame window where screen=None; check if any rendering system observes screen=None as 'game running' and draws the wrong thing",
+    "is_input_modal() predicate coverage: the brainstorm lists Space, Tab, sim-speed, picking clicks, Esc-quit branch as gated — verify the predicate covers all six system categories from M4, especially that quit_on_escape (Esc/Ctrl+Q) is partially gated (Esc only, not Ctrl+Q)",
+    "GatedCamera run_if predicate: camera_pan and camera_zoom must check is_pause_menu() not is_input_modal() per Option C — verify the predicate split is implemented at SystemSet level, not duplicated per-system",
+    "Resume/Quit button handlers: clicking Resume must set pause_menu=false and restore SimState.paused from prior_paused, then release — check the spec describes this restoration path and doesn't accidentally set paused=false unconditionally (which would unpause a game that was already paused before opening the menu)"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Always reproducible when the player presses Esc while already paused",
+      "scenario": "prior_paused is captured after SimState.paused is modified by the same Esc handler — if the handler both reads and sets paused in one system, prior_paused captures the post-mutation value (false), so Resume always unpauses even if the game was paused before opening the menu",
+      "severity": "P0"
+    },
+    {
+      "condition": "Reproducible at 60fps; visible at normal play speed when switching overlays quickly",
+      "scenario": "Direct Switch: the 'close old overlay' and 'open new overlay' are handled in separate systems scheduled in the same Update stage — for one frame screen=None is broadcast, causing tiles.rs compose_tiles to render without any selection highlight, producing a visible flash",
+      "severity": "P1"
+    },
+    {
+      "condition": "Reproducible whenever backtick is pressed while no overlay is open (e.g. muscle memory from other apps)",
+      "scenario": "backtick while screen=None and pause_menu=false has no guard — triggers a default branch that sets screen=None again (no-op) but also calls info!() spam or resets an unrelated field, creating log noise or subtle state drift",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Draw the full (screen x pause_menu) state transition matrix: 4 ScreenKind values + None = 5, times bool = 10 states; for each of Esc/backtick/Digit1-6 inputs verify the target state is defined and matches the locked decisions",
+    "Check the Resume handler restores SimState.paused = overlay.prior_paused, not SimState.paused = false",
+    "Verify Direct Switch is handled in a single system or uses Commands with deferred application so screen never transiently equals None mid-frame"
+  ],
+  "task_context": "Reviewing the OverlayState design proposed in the Revel-14e locked-decisions document to verify the two-field model is logically complete, that the GatedInput/GatedCamera predicates are correctly split, and that the Stack model and Direct Switch transitions are free of ghost states or frame-boundary races before implementation begins."
+}

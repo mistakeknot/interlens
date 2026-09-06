@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Focuses on computation-on-encrypted-data patterns, tokenization, derived-data separation, audit log integrity, and the AI proxy as a computation boundary. fd-hospital handles access minimization and membership; fd-embassy handles network trust and key distribution; fd-film-studio handles content watermarking and leak tracing.",
+  "decision_lens": "The bank must detect fraud, comply with regulators, and run analytics — all without individual employees being able to see customer account details. The solution is never 'don't compute' — it's 'compute without seeing.' Tokenization, aggregation boundaries, and derived-data separation are the tools.",
+  "distance_rationale": "Banks solve the problem of running essential computations (fraud detection, compliance reporting, analytics) on data that individual operators must not see — structurally identical to Garden Salon's need to run governance and AI operations on encrypted content.",
+  "expected_isomorphisms": "Tokenization maps to content-hash-based governance. Derived data separation maps to metadata-only server operations. SOC 2 audit trails map to tamper-evident operator non-access proof. Homomorphic computation maps to the AI proxy operating on encrypted content. Regulatory receivership maps to the succession-under-encryption problem.",
+  "focus": "How financial systems run computation on sensitive data without exposing it — drawn from banking fraud detection, regulatory compliance, and privacy-preserving analytics.",
+  "name": "fd-banking-privacy-preserving-analytics",
+  "persona": "A head of financial data architecture with expertise in PCI-DSS compliance, tokenization systems, homomorphic encryption research, secure multi-party computation for inter-bank fraud detection, and regulatory data-sharing frameworks.",
+  "review_areas": [
+    "Can governance operations (content hashing, snapshots, staleness detection) work on tokenized or derived data instead of plaintext — analogous to how banks run fraud detection on tokenized transaction streams?",
+    "Is there a separation between 'content data' and 'operational metadata' — can the server perform its functions (relay, governance, succession) using only metadata without ever touching content, like a bank processing transactions by reference ID?",
+    "Does the design consider homomorphic or functional encryption approaches for the AI proxy — can the LLM operate on a transformed representation that preserves utility but not confidentiality, like a bank sharing anonymized transaction patterns?",
+    "Is there a 'tokenization vault' equivalent — a component that maps between encrypted content and operational tokens, and can that vault be client-side rather than server-side?",
+    "How does the succession mechanism (owner goes inactive) interact with encryption — in banking, regulatory receivership can access accounts through legal process, but what's the Garden Salon equivalent?",
+    "Does the 'Honest Operator' (Option 2) audit logging provide the same assurance as SOC 2 Type II — is it continuous, tamper-evident, and independently verifiable, or just a server-side log the operator controls?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Governance operations require server-side plaintext access",
+      "scenario": "Governance hashing requires plaintext server-side — the server must decrypt content to compute SHA-256 hashes for merge records, making E2E encryption fundamentally incompatible with the governance model",
+      "severity": "P0"
+    },
+    {
+      "condition": "Audit log is not tamper-evident or independently verifiable",
+      "scenario": "The 'Honest Operator' audit log is stored on the operator's own infrastructure with no tamper-evidence — the operator can edit the log to conceal access",
+      "severity": "P1"
+    },
+    {
+      "condition": "Derived-data alternatives not explored for server operations",
+      "scenario": "No investigation has been done into whether governance operations could work on content hashes, CRDT operation counts, or other derived data instead of plaintext",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Banking data architecture, PCI-DSS compliance, tokenization, and privacy-preserving computation",
+  "success_hints": "Server operations are redesigned to work on tokens, hashes, and metadata instead of plaintext wherever possible. The audit trail is tamper-evident and independently verifiable. The AI proxy boundary is honestly acknowledged as a computation-on-plaintext problem with a concrete mitigation path.",
+  "task_context": "Review the Garden Salon encryption design brainstorm through the lens of banking data architecture — can the server perform its operational functions (governance, succession, AI proxy) without accessing plaintext content, the way banks run fraud detection on tokenized data?"
+}

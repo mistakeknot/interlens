@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-cross-cuj-coherence checks whether friction acknowledged in one CUJ conflicts with assumptions in another.",
+    "fd-success-signal-integrity checks whether success signals are testable.",
+    "fd-trust-and-safety reviews whether the trust model's safety claims hold."
+  ],
+  "decision_lens": "Prioritize missing friction points that are highly likely to occur in practice, journey narratives that describe only the happy path with no mention of intermediate failure states, and friction points that are acknowledged but not given any mitigation strategy or workaround.",
+  "focus": "Whether the Known Friction Points sections accurately capture realistic pain, and whether the journey narratives paper over failure modes that should be acknowledged",
+  "name": "fd-friction-completeness",
+  "persona": "A developer advocate who has run autonomous agent systems in production and knows where the idealized narrative diverges from real-world use.",
+  "review_areas": [
+    "Quality-gates: the CUJ says 'Agents run in parallel, writing output to .clavain/quality-gates/' — what happens if two agents write conflicting findings to the same path? No friction point covers output collision.",
+    "Multi-agent-coordination: 'Coordination requires Intercore — multi-agent dispatch refuses to start if Intercore bus isn't running' is listed as friction, but there is no described path for starting Intercore or verifying it is running before dispatch.",
+    "Parallel-dispatch: the CUJ says 'Failed tasks are re-assigned, not abandoned' but does not describe what counts as failure, how many re-assignments are allowed, or what happens to dependent tasks during re-dispatch delay.",
+    "Skaffen-sovereign-session: 'Compound phase auto-writes' is flagged as a friction point needing calibration, but the journey narrative presents it as seamless.",
+    "Skaffen-tool-trust: pattern matching granularity is acknowledged as a friction point, but the journey narrative says 'the profile is stored in the session config, not hidden' without describing the actual editing UX.",
+    "Across all CUJs: check whether any friction point is listed without a known workaround, mitigation, or future plan."
+  ],
+  "success_hints": [
+    "Each friction point should have at least a workaround described, even if the long-term solution is future work.",
+    "Journey narratives should acknowledge at least one intermediate failure state rather than describing only the ideal sequence.",
+    "Friction points should be ranked or triaged — not all friction is equal."
+  ],
+  "task_context": "These are product specification CUJs for the Sylveste autonomous development platform. They describe target user experiences across quality gates, multi-agent coordination, parallel dispatch, and Skaffen agent runtime. Review is for specification quality, not implementation."
+}

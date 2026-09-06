@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-dual-database-state-divergence covers whether containerConfig reaches both databases.",
+    "fd-container-lifecycle-management covers container spawn after mount args are built.",
+    "fd-queue-delivery-reliability covers queue dispatch."
+  ],
+  "decision_lens": "Prioritizes findings where the allowlist is optional but its absence silently allows or blocks mounts without alerting the operator, where symlink resolution can be gamed, and where Node-side and Rust-side implementations diverge in security rules.",
+  "focus": "End-to-end wiring of the mount allowlist — from load at startup through validation to container argument construction",
+  "name": "fd-mount-security-wiring",
+  "persona": "A security engineer who audits filesystem isolation boundaries in containerized systems. Traces every code path from additionalMounts to the final docker run -v argument, asking whether the allowlist is always consulted.",
+  "review_areas": [
+    "Trace the allowlist load path in Node (mount-security.ts): loadMountAllowlist() uses module-level cache. If file does not exist at start, all mounts are blocked forever. Verify whether MOUNT_ALLOWLIST_PATH resolves correctly in systemd service context.",
+    "Compare Node vs Rust allowlist load paths: confirm both use the same file path. Does Rust load at spawn time or daemon startup?",
+    "Audit blocked-pattern matching in both implementations: Node uses substring match (part.includes(pattern)). Confirm this is intentional and does not over-block legitimate paths.",
+    "Check containerPath validation: both reject '..' and absolute paths. If containerPath defaults to basename(hostPath), verify basename cannot be empty or a dotfile bypassing blocked-pattern checks.",
+    "Examine the exclude/tmpfs overlay mechanism: for excluded subdirs, verify values are validated against path traversal before being passed as tmpfs destination arguments.",
+    "Verify Rust runner invokes validate_additional_mounts before building docker args, and that Postgres containerConfig flows from group registration through to the runner."
+  ],
+  "success_hints": [
+    "Allowlist file path resolves correctly under the systemd service user's HOME.",
+    "Exclude subdir values in additionalMounts are validated for path traversal.",
+    "Node and Rust mount validation apply the same rules in the same order."
+  ],
+  "task_context": "A known bug is that the mount allowlist was never loaded in main.rs (hardcoded to None), causing all additional mounts to be silently blocked."
+}

@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Covers material state transitions and irreversibility. Does NOT cover: spatial organization (see fd-japanese-joinery), cyclical refinement (see fd-persian-miniature), or navigational wayfinding (see fd-polynesian-navigation).",
+  "decision_lens": "Reversibility windows, material state transitions, the cost of re-heat versus starting over, and how the team coordinates handoffs when the glass is still plastic.",
+  "distance_rationale": "A pre-industrial craft governed by physical thermodynamics and irreversible material states has no conceptual overlap with software architecture or media production tooling.",
+  "expected_isomorphisms": "The episode pipeline (research -> script -> music -> video -> publish) has irreversible stages analogous to glass cooling — once a shot is rendered on a remote 4090, re-rendering is expensive; once published, feedback loops begin. The annealing step (slow controlled cooling to prevent stress fractures) maps to QA and the algo feedback loop.",
+  "focus": "How the Murano glassblowing tradition manages irreversible material transformations across a multi-stage pipeline where timing, temperature, and sequential dependencies determine whether the final piece succeeds or shatters.",
+  "name": "fd-venetian-glassblowing-material-states",
+  "persona": "A master glassblower (maestro) from the Murano tradition with forty years of experience managing a furnace team through gather-blow-shape-anneal sequences, where each stage has a shrinking window of workability and mistakes cannot be undone.",
+  "review_areas": [
+    "Does the pipeline make irreversibility explicit? Which transitions are cheap to undo (script edit) versus expensive (ComfyUI re-render on remote GPU)?",
+    "Is there an 'annealing' phase — a deliberate slow-down for quality stabilization before the final compose, or does the pipeline rush from render to publish?",
+    "How does the system handle a mid-pipeline failure? In glassblowing, a cracked piece during shaping means starting over. Does the app surface 'start over' versus 'patch' decisions clearly?",
+    "Are handoff points between workflow surfaces (research -> script, script -> shotlist, music -> video) as crisp as the handoff between gather and blow, or do they blur responsibility?",
+    "Does the system preserve 'heat' — the creative momentum of a session? Glassblowers cannot pause mid-gather. Does switching between the four surfaces lose context or state?",
+    "Is there a notion of 'batch' versus 'single piece'? Murano masters plan a session's worth of pieces. Does the episode template support planning multiple episodes as a production run?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No locking or dirty-state gating between the script/shotlist editing and render dispatch surfaces.",
+      "scenario": "The pipeline allows triggering a ComfyUI render dispatch while the shotlist.json is still being edited in the Video surface, leading to renders based on stale shot specifications.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Shot render granularity is episode-level rather than shot-level, making partial re-work as expensive as full re-work.",
+      "scenario": "Re-rendering a single flagged shot requires re-dispatching the entire episode render because shots lack independent render identities.",
+      "severity": "P2"
+    },
+    {
+      "condition": "Surfaces do not preserve transient playback/selection state when navigating away.",
+      "scenario": "No session continuity — switching from the Music surface to the Script surface loses the audio context (which stems were being previewed), forcing the user to re-navigate.",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Venetian glassblowing (Murano tradition, 13th century onward)",
+  "success_hints": "The pipeline should make the cost of reversal visible at each stage boundary, gate expensive operations behind confirmation that upstream artifacts are stable, and preserve creative momentum across surface switches the way a maestro keeps the glass at working temperature between shaping operations.",
+  "task_context": "The target is a four-surface production app where episodes flow through research -> script -> music -> video -> publish -> feedback. ComfyUI renders go to a remote 4090 over Tailscale (expensive, slow). Stem separation via Demucs is CPU-intensive. The filesystem is the source of truth. The algo feedback loop compounds learning across episodes."
+}

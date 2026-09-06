@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "fd-datamodel-format-durability covers the mechanics and durability of the six-field schema itself, not whether the card-and-gate apparatus is the right category of intervention for estate-wide overwhelm",
+    "fd-hci-ratification-cost covers the ergonomics and cost of the confirm step as a human task, not whether the resulting confirmed-card system addresses the overwhelm problem at the estate level"
+  ],
+  "decision_lens": "Prioritizes findings that test the goal's own framing — 'a request-shape failure, not a discipline failure' — against alternative explanations and cheaper instruments, and treats a proposal to add a seventh artifact type (docs/why.md, alongside plans/brainstorms/PRDs/CUJs/decisions/ADRs) to an estate already producing six unread ones as needing to justify why this one will be read when the others were not, rather than assuming structure alone solves attention.",
+  "focus": "Attack the premise: assess whether a per-project structured why-card, ratified one at a time, is the right instrument for cutting through overwhelm across 82 projects, or a seventh unread artifact type layered onto an estate that already produces 2,270 plans, 831 brainstorms, 388 PRDs and 126 CUJs largely unread",
+  "name": "fd-infoarch-ceremony-risk",
+  "persona": "Apply the perspective of an information-architecture and knowledge-management strategist who has diagnosed failed 'one more structured artifact' initiatives inside large documentation estates, and who treats an estate's history of unread artifacts as the first evidence to weigh against any new format, rather than as background color.",
+  "review_areas": [
+    "the brainstorm's diagnosis is that 82 projects yield '2,270 plans... 0 metrics documents' because 'agents were never asked for a why' — a request-shape failure — but the estate's 831 brainstorms and 388 PRDs already carry personas/CUJs/success-metrics at low but nonzero rates per the brainstorm's own PRD-content check (14% state a success metric, 5% a pain point, 2% a CUJ, 1% a persona); assess whether adding a seventh structured artifact type is diagnosed against 'why don't the existing six work as a why-source,' or whether that cheaper alternative (index the existing artifacts instead of authoring a new file) was considered and rejected, versus simply not raised",
+    "ruling 11's ranking (funded, then pins, then weakest-confirmed-card-first) plus ruling 12's on-first-touch backfill mean the unfunded tail's row order is driven entirely by how little of a brand-new artifact type exists yet — for 81 of 82 projects on day one that is 'score 0' — evaluate whether this reproduces, one layer up, the exact failure the brainstorm diagnoses in the current 2,270-plan estate: a signal dominated by an artifact nobody has gotten around to writing, rather than by anything about the project's actual state",
+    "the goal frames unc-rancher as the right first subject because 'its card is also the funding page's sales copy, which is the coupling this design rests on' — assess whether validating the confirm step on the one project with an unusually strong external incentive (real money, a stranger reading it) tells the reviewer anything about whether the format gets confirmed and kept current on the 79+ non-funded, non-slate projects that make up the actual overwhelm problem, or whether it validates an easier case than the one the goal is stated to target",
+    "the proposal puts 'backfilling cards beyond the one confirmed' OUT of scope, and DONE WHEN only requires one confirmed card among 82 projects plus a TUI that renders 'a stated coverage fraction' for sessions — evaluate whether '1 of 82 cards confirmed, TUI ships anyway' is a materially different estate-attention outcome than the diagnosed overwhelm problem, or whether it is process progress (a format exists, a gate fires) without yet being evidence the overwhelm itself is reduced for mk on any given day",
+    "compare this initiative's structure — a new required per-project file, a machine validator, a PreToolUse gate, ratification semantics — against the estate's stated pattern of prior unread structured artifacts (388 PRDs, 126 CUJs); identify what mechanism in this design, beyond 'it's shorter' and 'there's a gate,' is supposed to prevent docs/why.md from becoming the next artifact type that exists without being read, given the gate only fires on docs/plans/*.md writes and does not touch CUJs, PRDs, or brainstorms",
+    "the goal's own closing question ('is a per-project why-card the right instrument for overwhelm across 82 projects, or ceremony') is asked in the goal text but no DONE WHEN clause contains a falsification condition for it — no test, threshold, or observation in the DONE WHEN list would make the goal fail specifically because the why-card turned out to be ceremony; assess whether this question is structurally unanswerable by this goal as scoped, regardless of how the goal's other checks resolve"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Only visible weeks later when mk is still overwhelmed despite every DONE WHEN box being checked — the goal as scoped cannot fail on this axis even if the premise is wrong.",
+      "scenario": "The goal completes exactly as scoped — one confirmed card, a working gate, a phase-2 TUI — and the estate's actual overwhelm (mk cannot find, revisit, or remember why a project matters) is unchanged for 81 of 82 projects, because DONE WHEN never required more than one confirmation and contains no check that overwhelm itself moved.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Confirmed only after several months show why.md files going stale at similar rates to existing PRDs/CUJs, which this goal's scope has no way to observe yet.",
+      "scenario": "docs/why.md becomes the eighth artifact type in an estate where PRDs and CUJs already state most of the same information at low compliance rates, adding authoring and gate-maintenance burden without a mechanism that makes this file more likely to be kept current than the six artifact types that already went stale.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Only observable once the TUI ranks more than a couple of unfunded projects with genuinely different confirmed-field counts; not testable from the one-card pilot alone.",
+      "scenario": "Ruling 11's ranking surfaces the same handful of low-effort-to-draft projects at the top of the unfunded tail regardless of which project is actually most urgent, because rank is driven by card completeness rather than project state — a new staleness formula wearing ratification's clothes.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "A reviewer who names a concrete alternative instrument (e.g., surfacing existing PRD/CUJ content directly in the row instead of authoring a new file type) and explains specifically why the card format was or wasn't compared against it, rather than accepting 'we need a why' as self-evidently requiring a new artifact",
+    "A reviewer who checks whether the DONE WHEN list contains any condition under which the goal would be judged to have failed the premise question, and flags it explicitly if none exists",
+    "A reviewer who treats the choice of unc-rancher (funded, incentivized, comparatively well-documented) as a possible best-case selection bias for the pilot, and asks what the same measurement would show on a project more representative of the 79-project unfunded tail"
+  ],
+  "task_context": "Review docs/proposals/2026-08-13-goal-card-loop-phase2.md before any of it runs. Is the sequencing right — confirm one card, then TUI? Is unc-rancher the right first subject? Does the six-field format survive a real human confirming it, given success drafted 0/5? Are the DONE WHEN clauses checkable, and does any encode a false assumption? What would be expensive to discover only after the TUI reads the format? Attack the premise too: is a per-project why-card the right instrument for overwhelm across 82 projects, or ceremony added to an estate that already has 2270 plans nobody reads?"
+}

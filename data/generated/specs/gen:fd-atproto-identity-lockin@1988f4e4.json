@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Does not evaluate Yjs/Postgres data-model scale bounds — fd-crdt-canvas-scale-model owns that",
+    "Does not evaluate the propose-not-move governance mechanic — fd-agent-governance-launch-gate owns social/governance and v1-scope; this agent flags only identity-governance interactions",
+    "Does not weigh in on v1 feature scope broadly, only on identity- and auth-shaped scope risk"
+  ],
+  "decision_lens": "Is swapping Clerk for atproto OAuth actually the like-for-like schema swap the doc claims, or does atproto's operational model (per-user PDS, handle resolution, DPoP renewal, rate limits) introduce failure modes and lock-in Clerk never had, scoped against what the protocol actually guarantees today?",
+  "focus": "atproto OAuth + DID identity adoption risk, session lifecycle, and platform lock-in exposure",
+  "name": "fd-atproto-identity-lockin",
+  "persona": "Apply the perspective of a decentralized-identity and OAuth implementer who has shipped production 'Sign in with atproto/Bluesky' integrations and audited DID-based auth failure modes: PDS outages, handle/PDS migration, DPoP token lifecycle, account portability.",
+  "review_areas": [
+    "Whether 'DID as durable identity, schema intact' holds given DIDs can change handle and PDS — does garden-salon plan for a participant's PDS migration, or assume the DID is permanently stable",
+    "Whether atproto OAuth (DPoP-bound tokens, refresh against each user's own PDS, not one IdP) is scoped for the burden: per-user discovery, refresh against N PDSes, PDS downtime as a dependency",
+    "Whether depending on Bluesky/atproto for the cohort's identity creates unstated lock-in — what happens to identity or invite affordances if a PDS goes dark or hosting terms change",
+    "Whether 'social graph import for free' names an actual atproto API scope, or is asserted without checking whether follows data needs authenticated scope beyond basic OAuth login",
+    "Whether membership/moderation (open question 5 — block/report once atproto identities are involved) has real design, given atproto's own moderation primitives don't compose with an invite-only app",
+    "Whether the 'later, not v1' custom-lexicon persistence ambition is deferred cleanly, or early schema choices (DID-keyed tables, message shape) already foreclose it"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No DID resolution, caching, or refresh strategy is specified before the identity schema is cut.",
+      "scenario": "The design assumes 'swap Clerk id for DID, schema otherwise intact,' but a DID's associated handle and PDS can both change — a supported, expected atproto operation. If governance and attribution tables key on DID with no resolution-refresh path, a participant who migrates PDS could appear to lose attribution history, or collide with a stale cached identity record.",
+      "severity": "P0"
+    },
+    {
+      "condition": "No fallback or degraded-mode path exists for an unreachable PDS.",
+      "scenario": "OAuth against 'the user's PDS' means garden-salon's login and token-refresh path depends on N independent third-party services being reachable, not one IdP; for a 10-person invite-only cohort this creates a real single-participant-locked-out failure mode, with no fallback named for an unreachable PDS at digest-check or login time.",
+      "severity": "P1"
+    },
+    {
+      "condition": "No named API surface backs a claimed 'free' capability.",
+      "scenario": "'Social graph import for instant invite affordances' is stated as free, but no atproto API scope or endpoint is named; if the actual follows data requires an authenticated scope beyond basic OAuth login, this becomes a v1 scope surprise rather than the zero-cost feature the doc implies.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Grounds every finding in atproto's actual OAuth/DID mechanics (DPoP, PDS resolution, did:plc vs did:web), not a generic swappable OAuth provider",
+    "Distinguishes protocol-level constraints atproto genuinely imposes from garden-salon-specific gaps the doc simply has not addressed yet",
+    "Flags where a 'constrains nothing now' claim is already quietly constrained by an earlier, seemingly-unrelated schema decision"
+  ],
+  "task_context": "This review targets docs/brainstorms/2026-07-26-infinite-canvas-pivot.md, an adopted brainstorm (epic garden-salon-x9l) pivoting Garden Salon to an infinite-canvas chat space. Auth changes from Clerk to atproto OAuth: DID becomes the durable user key, with handle/avatar/social graph carried along, and governance/attribution tables key on DID in place of a Clerk id, schema otherwise unchanged. A later, out-of-v1 ambition is persisting salon content as atproto records under a custom lexicon. Goal: Stress the adopted pivot design before build phases start: (1) the propose-not-move resolution of agent-reorganization vs spatial memory — does it actually hold under real group-chat dynamics? (2) atproto OAuth + DID identity risks and lock-in; (3) canvas data-model split (Yjs vs Postgres) and scale bounds for a 10-human cohort; (4) v1 scope integrity — what's missing that would block the launch gate (X group chat cohort actually moving in), and what's included that shouldn't be."
+}

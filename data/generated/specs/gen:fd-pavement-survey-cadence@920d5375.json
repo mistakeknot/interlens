@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-agri-ndvi-aggregation: that agent covers aggregation method bias; this agent focuses solely on interval choice and its error consequences",
+    "fd-hydro-survey-coverage: that agent covers spatial gaps and nodata; this agent focuses on the cadence of valid samples",
+    "fd-mobile-airquality-calibration: that agent covers raster trustworthiness; this agent covers sampling density given an assumed-correct raster"
+  ],
+  "decision_lens": "Is the chosen sample interval sufficient to detect the smallest shadow feature that materially changes routing weight, and has the error bound been quantified?",
+  "distance_rationale": "PCI surveyors divide a road network into sample units and choose station intervals to balance labor cost against detection error — exactly the trade-off between 5 m vs 10 m shadow sample spacing.",
+  "expected_isomorphisms": "The PCI 'sample unit' maps to a GraphML edge; the distress observation at each station maps to a sun/shade pixel read. PCI literature quantifies how coarser station spacing increases variance and produces biased condition indices — the same math applies to shadow fraction estimation.",
+  "focus": "Sampling cadence and interval-versus-error trade-off for the fixed 5 m sample interval",
+  "name": "fd-pavement-survey-cadence",
+  "persona": "Apply the perspective of a pavement management engineer who conducts PCI surveys per ASTM D6433, designing station intervals to balance field effort against statistical detection of localized distress.",
+  "review_areas": [
+    "Whether a fixed 5 m interval is justified relative to the spatial autocorrelation of shadow patterns — building overhangs may cast shadows narrower than 5 m, making them systematically invisible",
+    "The 'min 2 samples per edge' rule for edges < 5 m — whether endpoint-only sampling on short edges introduces position-dependent bias when an edge straddles a shadow boundary",
+    "Absence of any variance or confidence metric on sun_fraction — PCI reports confidence intervals per sample unit; the brainstorm delivers only a point estimate with no uncertainty signal to Phase 1.6",
+    "Whether the 5 m interval was chosen empirically (sweep and compare) or assumed — PCI practice requires a sampling adequacy check (typically a pilot survey at 2x density to verify results converge)",
+    "The interaction between Shapely interpolate arc-length spacing and raster pixel boundaries — samples may cluster at pixel edges when interval aligns with pixel size multiples, introducing spatial aliasing",
+    "The missing sensitivity analysis: at what sample interval does mean sun_fraction change by more than 0.05 on a representative DTLA block? This threshold should be documented before the interval is locked."
+  ],
+  "severity_examples": [
+    {
+      "example": "No variance or standard error is stored per edge. Phase 1.6 has no signal for edges with high within-edge shadow variability (e.g., a 200 m boulevard that is 90% sun but has a 20 m solid-canopy midblock section). The routing weight formula treats a uniform sun_fraction=0.8 identically to a volatile one — a calibration gap that should at minimum be flagged with a data quality annotation.",
+      "severity": "P1"
+    },
+    {
+      "example": "The 5 m interval is stated but never validated. PCI procedure requires a 'sampling adequacy' check — run at 2.5 m and confirm sun_fraction values stabilize. Without this, the interval is an engineering guess, not a calibrated parameter. The --sample-interval-m flag exists but the brainstorm records no empirical basis for the default.",
+      "severity": "P2"
+    },
+    {
+      "example": "The --report histogram shows distribution shape but discards within-edge variability. A bimodal edge (half shade, half sun) and a uniform edge with sun_fraction=0.5 look identical in the aggregate. A secondary metric like 'shade run count' or 'max contiguous shade run length' would distinguish them for future calibration.",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Pavement Condition Index (PCI) road surface rating",
+  "success_hints": [
+    "Cite the spatial frequency of DTLA building shadows (from the Phase 1.3 raster) to justify 5 m vs. alternatives",
+    "Store a sun_sample_count attribute so Phase 1.6 can weight edges by sample density",
+    "Consider a --validate-interval flag that re-samples at half the interval and reports max deviation"
+  ],
+  "task_context": "Phase 1.5 brainstorm for Solwend edge shadow sampling — fixed 5 m interval, vectorized NumPy raster lookup, NaN for no-coverage edges, sun_fraction drives felt-minute routing weight."
+}

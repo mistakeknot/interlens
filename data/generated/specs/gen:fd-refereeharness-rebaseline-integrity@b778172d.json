@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "Does not adjudicate whether the register audit's classification of any specific country, aggregate, or historical/disputed code is factually correct — that is fd-geopolitical-entity-provenance's territory.",
+    "Does not evaluate whether individual task steps are unambiguous, executable prose for a weaker model, or whether the plan's f-NNN citations accurately restate what the brainstorm/melange source documents actually say — that is fd-planexec-authority-traceability's territory.",
+    "Does not assess sourcing/citation adequacy, staleness rules, or named-person risk-tiering for the issue or institution corpus content itself — flag only where evidence *about* that content (e.g. its hash coverage) is missing, not whether the content is well-sourced."
+  ],
+  "decision_lens": "A finding earns attention when the referee protocol could return PASS (or a green <verify> block, or a satisfied Acceptance Criterion check) while the underlying determinism or data-plane-visibility claim it is supposed to certify is actually false or has become untestable — trace what each PASS/FAIL signal in this plan actually proves versus what the plan's prose claims it proves, one signal at a time.",
+  "focus": "Whether the rung-0 referee protocol itself — the re-baselining move to strabo-r0-baseline, the R1 code-leg and new R1-data-leg (data_manifest hashing), and the multi-seed R2 replay statements per task — actually produces sound, non-gameable evidence that flag-off behavior is unchanged and flag-on behavior is deterministic, rather than a protocol whose PASS signal quietly stops meaning what the plan claims it means partway through the rung.",
+  "name": "fd-refereeharness-rebaseline-integrity",
+  "persona": "Apply the perspective of a reproducibility/determinism-testing engineer who has spent years building golden-master and replay-based regression harnesses for simulation and financial-modeling systems — someone who treats a referee protocol as a piece of software with its own correctness requirements, and who reflexively asks of any PASS/FAIL gate: what exactly does this certify, what would a false PASS look like, and where does this harness's own blind spot move when the ground truth it compares against is deliberately allowed to shift underneath it.",
+  "review_areas": [
+    "Whether the referee's discriminating power survives Wave B: Task 5 tags strabo-r0-baseline once, before Task 7 intentionally changes flag-off live data (register consolidation); verify whether Tasks 8-17's R1-data-leg comparisons against that single frozen baseline can still distinguish 'the disclosed Task-7 delta' from a genuinely new, accidental data-plane regression introduced by any later task, or whether the manifest-diff becomes permanently 'different, disclosed' and loses discriminating power for the rest of the rung.",
+    "Whether data_manifest (Task 2) actually gets extended to hash every file later waves make load-bearing — specifically roster-2025.yaml (Task 9) and the v1 issue-roster file (Tasks 13-14) — or whether those are introduced through a path that isn't embed-only / isn't in the hashed set, silently recreating the exact blindness class Task 2 exists to close.",
+    "Whether referee.sh's actual current CLI and output contract (it reportedly takes a mandatory <old-commit> positional with no default) matches every task's assumed invocation and matches Acceptance Criterion 9's `grep -q \"R1.*PASS\"` check closely enough that the check can't be satisfied by output that isn't actually a genuine pass.",
+    "Whether the InstitutionStore HashMap->FxHashMap fix (Task 3) is the only place in code the plan touches where iteration-order or other hash-based nondeterminism could recur, and whether any Wave A-C task risks perturbing the BenchOperative cadre's draw-order-fragile determinism lock (procgen_cast_golden_pin) without the plan ever re-asserting that regression pin.",
+    "Whether each task's per-task R2 statement (seeds 1000/2000, or 'no new keyed state') is calibrated to the actual amount of new keyed state the task introduces, and whether the FINDINGS-GATE: PASS|FAIL line Task 3 introduces is consistently wired into every later task and Acceptance Criterion that needs it, rather than only appearing once.",
+    "Whether Task 4's ts-rs fix verification (`test ! -d crates/packages`) is strong enough to prove regeneration lands correctly from both invocation contexts the task's own Steps describe, or whether it only proves the stray tree was deleted once."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Trace what strabo-r0-baseline's R1-data-leg comparison actually proves for any task after Task 7, given Task 7's own disclosed manifest delta.",
+      "scenario": "strabo-r0-baseline is tagged once in Task 5, and Task 7's live-data consolidation is an intended, disclosed divergence from it; but Tasks 8-17's R1-data-leg still diffs unconditionally against that same frozen manifest with no accounting for the already-disclosed Task-7 delta, so the referee's FAIL signal for a genuinely new accidental data regression introduced in, say, Task 13's situation feed becomes indistinguishable from the already-known Task-7 diff — the rung's central 'referee sees the data plane' claim (f-031's whole reason for existing) silently stops discriminating starting at Wave B, and no <verify> block or Acceptance Criterion in the plan catches that.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Check whether every file made load-bearing by Waves C and D is named in Task 2's data_manifest population step, or only the files that existed when Task 2 was written.",
+      "scenario": "Task 2 hashes include_str!-embedded bytes for baseline GDP, country-map, and issue registry ('when it exists'), but Task 9's roster-2025.yaml and the v1 issue-roster file from Tasks 13-14 are introduced without an explicit instruction to add them to the hashed data_manifest set, so a post-ship edit to the roster file could be as invisible to the R1-data leg as the pre-Task-2 GDP baseline was.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Confirm whether Task 1 or Task 3's changes could plausibly alter draw order consumed by generate_cadre, and whether the plan's suite run would actually execute the golden-pin test.",
+      "scenario": "No task in Waves A-C re-runs or even names procgen_cast_golden_pin, despite Task 1 and Task 3 touching the same institution-store/GDP code paths the melange synthesis flags as adjacent to generate_cadre's draw-order-fragile contract (f-033/f-036) — a scope-blind reflow there is explicitly undetectable by either R1 or R2, yet nothing in this plan's referee protocol adds a check for it.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "deterministic-simulation reproducibility engineering / golden-master and replay-based regression harness design",
+  "success_hints": [
+    "Named the exact task pair or wave boundary where the re-baselining protocol's discriminating power degrades, with the specific mechanism (frozen single-tag baseline vs. an intentionally-diverging data plane).",
+    "Traced whether every file a later wave makes load-bearing is actually inside Task 2's hashed data_manifest set, file by file, rather than asserting the general claim once.",
+    "Checked referee.sh's actual current CLI/output contract against the plan's assumed invocations and verify-block greps, ideally by reading the script rather than trusting the plan's paraphrase of it.",
+    "Found at least one concrete class of iteration-order/determinism risk the plan's instrument repairs don't cover, naming the specific code path.",
+    "Distinguished 'R1 passes and R2 passes' from 'the artifact actually proved what the acceptance criterion claims' at least once, with a concrete counter-scenario."
+  ],
+  "task_context": "Find what makes this rung-0 plan fail and what it's missing: as an execution-grade plan for a weaker executor, do its tasks, verify blocks, and referee protocol actually deliver refereed real-world grounding, and where does it silently contradict the brainstorm Amendments, the melange prescriptions it claims to encode, or the codebase as it exists? Ground findings specifically in the referee-protocol mechanics: the single strabo-r0-baseline tag (Task 5) frozen before Wave B's intentionally-diverging data change (Task 7), the data_manifest hash's actual coverage of files introduced by later waves (roster-2025.yaml in Task 9, the v1 issue roster in Tasks 13-14), the referee.sh CLI/output contract assumed by every task and Acceptance Criterion 9's grep check, the FxHashMap/iteration-order determinism fix's scope versus the same defect family elsewhere in code the plan touches (including whether procgen_cast_golden_pin or an equivalent cadre-determinism check is ever re-asserted), and whether each task's stated R2 statement is strong enough given what 'a single-seed certificate certifies' (f-046)."
+}

@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-rl-training-pipeline covers training loop and environment config",
+    "fd-gateway-messaging covers platform routing, not memory architecture",
+    "fd-security-patterns covers credential handling, not user modeling"
+  ],
+  "decision_lens": "Prioritizes patterns addressing gaps in Sylveste's current session/memory model. De-prioritizes Honcho-specific API details in favor of architectural concepts.",
+  "focus": "Honcho cross-session user modeling architecture as pattern for Autarch's agent identity and memory layer",
+  "name": "fd-honcho-user-modeling",
+  "persona": "An AI systems architect specializing in long-term agent memory, user representation, and cross-session context continuity.",
+  "review_areas": [
+    "Peer/session/workspace primitive model — how user_peer_id and assistant_peer_id separate identity from session, asymmetric observe_me/observe_others",
+    "context() call for semantic prefetch — single API returning peer_representation, peer_card, message history with semantic search",
+    "new_session() vs. delete() behavior — preserving old session for continued modeling vs. clearing local cache",
+    "migrate_local_history() and migrate_memory_files() — XML-wrapped transcript upload for bootstrapping from local MEMORY.md",
+    "HonchoClientConfig resolution chain — host-block > flat global > defaults, auto-enable-when-key-present",
+    "Linked workspaces pattern — single config spanning multiple agent hosts sharing user modeling data"
+  ],
+  "success_hints": [
+    "Determine if Honcho's peer+session model fits Sylveste better than current session-keyed approach",
+    "Assess if migrate_local_history() XML approach bridges Sylveste's existing conversation history",
+    "Identify session_strategy assumptions about single-project vs. multi-project deployments"
+  ],
+  "task_context": "Analyzing Hermes Agent to find patterns adaptable for Sylveste's Autarch (L3 agent orchestration) and intercom (messaging/gateway)."
+}

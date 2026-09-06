@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "fd-research-spike-methodology covers whether the plan's task structure would reliably execute its defined scope — this agent covers whether the defined scope is complete relative to downstream feature needs",
+    "fd-source-archaeology-patterns covers search strategy accuracy for the surfaces the plan does target — this agent covers the surfaces the plan does not target",
+    "fd-citation-hygiene-downstream covers how discovered surfaces are documented — this agent covers whether the right surfaces are in the discovery list at all"
+  ],
+  "decision_lens": "After the spike closes, will F2/F3/F5 plan-writers be blocked by an undiscovered runtime surface item — something the spike did not target because the PRD did not name it — or does the plan's surface inventory capture every Hermes-imposed constraint that affects those features?",
+  "focus": "Audits whether the five decisions the plan targets (SkillContext shape, lifecycle hooks, subprocess/IPC, provider-key access, persistent memory, skill repo location, gateway emit-API) constitute the complete runtime surface a Hermes skill needs, or whether the plan's scope is missing surfaces that will block F2/F3/F5 plan steps even after the spike closes.",
+  "name": "fd-sdk-surface-completeness",
+  "persona": "Apply the perspective of a plugin-SDK integration architect who has instrumented runtime surfaces for 4-5 SDK plugin systems (VS Code extensions, Slack apps, Discord bots, LangChain tools) — they care about identifying implicit runtime dependencies that appear only at integration time, measure whether the surface inventory covers both the happy path and the error/fallback paths that drive 80% of implementation complexity, and flag any surface item that is listed in the plan as secondary when it is actually load-bearing for a stated downstream AC.",
+  "review_areas": [
+    "Error surface omission: the plan documents the happy-path subprocess, lifecycle, and key-access surfaces but does not target the error-return surface. If Hermes skills are expected to return typed errors (not just raise exceptions), and if the gateway emits errors differently from normal output, F4's chat-gateway play-mode error handling will be designed against an unknown contract.",
+    "Skill versioning and upgrade surface: the plan targets skill repo location (OQ6) but not the skill versioning and upgrade protocol. If Hermes skills are versioned and Hermes manages upgrade notifications, F2's binary bootstrap hook may conflict with Hermes's own upgrade mechanism — an undiscovered interaction the spike would miss.",
+    "Concurrent invocation semantics: the plan does not target whether Hermes serializes skill invocations or allows concurrent calls. If a user runs `/shadow-work bench` while a play session is active, and Hermes allows concurrent skill calls, F4's session state model must handle concurrent writes to `sessions/<id>.jsonl` — a constraint the spike does not address.",
+    "Gateway-type detection API: Task 7 targets the gateway emit-API but the plan asks whether 'gateway type is exposed to the skill.' If Hermes does not expose gateway type, F4's Discord-vs-Slack-vs-CLI formatting decision must use a heuristic — the spike should document the heuristic, not leave it as an open design question for F4.",
+    "Skill dependency declaration surface: the plan does not check whether Hermes skills can declare Python/npm/system dependencies, and whether Hermes resolves them at install time. F2's binary bootstrap assumes it can download its own binary — but if Hermes manages skill dependencies, there may be a declaration mechanism that F2 should use instead.",
+    "Invocation argument / structured-input surface: the plan extracts the invoke-hook return shape (Task 3) but not the invoke-hook input shape. If Hermes passes structured arguments to the skill invoke handler beyond the raw user message (message ID, timestamp, thread context), F3's scorecard rendering and F4's session threading depend on those fields."
+  ],
+  "severity_examples": [
+    {
+      "condition": "F2 implements a manual binary bootstrap that duplicates Hermes's own dependency resolution; results in double-download on reinstall and conflict with Hermes upgrade path",
+      "scenario": "Spike closes without discovering that Hermes exposes a skill-dependency declaration mechanism (e.g., `requirements.txt` or `hermes.toml` `[dependencies]` block)",
+      "severity": "P1"
+    },
+    {
+      "condition": "F4 plan-step must design gateway-type detection independently; if Hermes exposes it trivially, F4 wastes a week on heuristics; if Hermes does not expose it, F4 needs an entirely different architecture",
+      "scenario": "Spike documents gateway emit-API but does not determine whether Hermes exposes gateway type to the skill",
+      "severity": "P1"
+    },
+    {
+      "condition": "F4 session-state model assumes serialized calls; concurrent Discord users trigger race conditions on `sessions/<id>.jsonl` that only appear under load",
+      "scenario": "Spike does not document Hermes's concurrent invocation semantics",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Add a Task 2.5 (or extend Task 2) to extract the invoke-hook input shape alongside the return shape — what fields does Hermes pass to the handler beyond the user message text",
+    "Add an explicit 'error surface' sub-step to Task 7: search for `SkillError`, `SkillException`, error return types, and how the gateway renders skill errors — this closes F4's error-handling unknowns",
+    "Add a Task 3.5 to check for skill-dependency declaration conventions: search for `requirements`, `hermes.toml`, `skill.json` dependency blocks in example skills",
+    "Mark concurrent-invocation semantics as an explicit target in Task 4's IPC surface section — even 'Hermes serializes all skill calls' is a useful finding that simplifies F4's design"
+  ],
+  "task_context": "The plan defines 7 decision areas (D1-D7) targeting the Hermes skill runtime surface. The review goal is to identify runtime surface items that fall outside the plan's scope but will block F2/F3/F5 plan steps — surfaces that the spike would complete without discovering, leaving downstream feature teams to encounter them during implementation."
+}

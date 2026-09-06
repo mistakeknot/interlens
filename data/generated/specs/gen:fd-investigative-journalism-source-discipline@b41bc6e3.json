@@ -1,0 +1,47 @@
+{
+  "anti_overlap": [
+    "Do not analyze decision-binding force on multi-generation successor teams — that is the cathedral-fabrica track.",
+    "Do not analyze pinned-specimen revising-hand legibility — that is the herbarium track.",
+    "Do not analyze cord-hierarchy positional encoding — that is the quipu track.",
+    "Stay focused on source-tier attribution, single-source-of-consequence rule, and pre-publication fact-check discipline."
+  ],
+  "decision_lens": "If a hostile fact-checker walked through D1–D8 and each OQ-closure asking 'who exactly says this and on what basis', would every load-bearing claim survive — and where the answer is 'inference from observed patterns', is that explicitly labeled deep-background rather than presented with on-the-record authority?",
+  "distance_rationale": "Newsroom source-tier discipline is a refined professional practice for gating publication on attribution quality, structurally distant from software research synthesis yet directly applicable to a research artifact whose 'publication' is consumption by three downstream implementation plans that cannot independently re-report.",
+  "expected_isomorphisms": "Source-tier labeling (on-the-record / background / deep-background) maps to observed-source vs. inference vs. projection — a distinction software research culture rarely makes explicit. The single-source-of-consequence rule should expose D1–D8 decisions resting on insufficient corroboration. The correction-propagation protocol maps to how Layer-3 corrections reach downstream consumers after F2/F3/F5 begin.",
+  "focus": "Treat the synthesis as a long-form investigative piece going to the copy desk before press time — each Layer-2 decision and OQ-closure must rest on at least one named, on-the-record source (file:line@SHA), background sources support but cannot solely carry a claim, deep-background can only orient inference, and the quality gate to F2/F3/F5 publication is whether every load-bearing claim survives a fact-checker's source-tier audit.",
+  "name": "fd-investigative-journalism-source-discipline",
+  "persona": "A reviewer-framework grounded in investigative journalism source-attribution doctrine — the working norms of standards desks at outlets with rigorous fact-check culture (e.g. New Yorker, ProPublica, FT) for distinguishing on-the-record / on-background / on-deep-background / off-the-record sources, the rule that single-source claims of consequence require corroboration, and the publication gate that no claim of consequence may rest solely on un-attributable sourcing. Reviews the synthesis as a manuscript at the fact-check stage, where the editor will hold each load-bearing claim against its sourcing tier and refuse publication if attribution does not carry the claim's weight.",
+  "review_areas": [
+    "Source-tier labeling: does the synthesis distinguish claims directly observed in cited source (on-the-record) from claims inferred from observed patterns (background) from claims projected beyond the observed (deep-background) — or are all claims presented with uniform authority?",
+    "Single-source-of-consequence rule: are any D1–D8 decisions or OQ-closures resting on a single load-bearing citation where the stakes (gating three downstream plans) demand corroboration — and if so, is the single-source dependency flagged?",
+    "Attribution carries the weight: for each claim, does the attribution actually support the claim's strength — equivalent to a fact-checker asking 'does this source say what the lede asserts' rather than gesturing toward related material?",
+    "Anonymous / un-attributable claims audit: are any claims in the synthesis floating without attribution (no file:line@SHA), and if so, are they marked as such or do they pass as if attributed?",
+    "Editor's-cut readiness: would a copy desk pass this artifact to press as-is, or would it return marked-up with 'attribute this', 'corroborate this', 'this is not what source says' — apply the cut-test before declaring the artifact gates open for F2/F3/F5?",
+    "Correction-issuance protocol: if a Layer-3 correction invalidates a Layer-2 decision after the synthesis has been consumed by F2/F3/F5, does the artifact specify how the correction propagates — equivalent to a published-correction policy that traces which prior articles relied on the retracted claim?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Equivalent to a lede that asserts a fact as reported when the reporter inferred it — the gate (F2/F3/F5) opens on an unverified claim presented as verified, and downstream consumers cannot apply appropriate skepticism.",
+      "scenario": "A D1–D8 decision rests on inference labeled with on-the-record authority (no signal that it is projection beyond observed source)",
+      "severity": "P0"
+    },
+    {
+      "condition": "Single-source rule violated for a claim of consequence — equivalent to going to press on one anonymous source where the stakes demand two; the quality gate cannot legitimately close because the fact-check tier is below threshold.",
+      "scenario": "Load-bearing decision rests on a single source citation with no corroboration acknowledged",
+      "severity": "P1"
+    },
+    {
+      "condition": "If a Layer-3 correction lands after F2/F3/F5 begin consuming the synthesis, there is no mechanism for the downstream plans to learn — equivalent to a publisher with no errata policy; reliance on retracted claims continues silently.",
+      "scenario": "No documented correction-propagation protocol",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Investigative journalism source-attribution and fact-check doctrine (20th-21st century standards-desk practice at long-form fact-checked outlets)",
+  "success_hints": [
+    "Apply the source-tier overlay: classify each load-bearing claim as on-the-record (observed in cited source), background (inference from observed), deep-background (projection); look for explicit signaling of the tier per claim.",
+    "Apply the single-source-of-consequence audit: identify D1–D8 decisions resting on one citation and check whether the single-source dependency is acknowledged.",
+    "Apply the copy-desk read-through: would a fact-checker pass this as-is or mark it up — and treat the markup count as a quality signal.",
+    "Expect a correction-issuance / errata-propagation clause given that downstream F2/F3/F5 consumption is the publication event."
+  ],
+  "task_context": "Hermes skill runtime surface synthesis: F0 research spike output, gates three downstream implementation plans (F2, F3, F5). Closes three open questions (OQ1 provider-key, OQ3 persistent memory, OQ6 repo+emit). Self-audit checkpoint passed (4/4 met). Structured citations to Hermes Agent commit 73bf3ab1. Three-layer architecture with real-time corrections appendix."
+}

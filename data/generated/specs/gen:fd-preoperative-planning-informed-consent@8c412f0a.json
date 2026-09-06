@@ -1,0 +1,78 @@
+{
+  "anti_overlap": [
+    "Preoperative-planning focuses on consent specificity and the paperwork-vs-decision distinction at the document level; differs from ALMA-cycle which focuses on proposal-review institutional norms across features",
+    "Preoperative-planning examines counter-signature and time-out craft; differs from theatre-rehearsal which examines staging-phase deliverables and freeze conventions",
+    "Preoperative-planning cares about consent enumeration vs selection; fermentation-milestone cares about threshold-as-measurement vs threshold-as-aspiration — related but operating at different artifact layers"
+  ],
+  "decision_lens": "Reading each of the four PRD features as a pre-op plan and consent document: at the moment the migration epic opens (the moment of incision), are the decisions specific enough that the executing team is not making them in the moment? Or has paperwork been confused for decision?",
+  "distance_rationale": "Pre-operative planning is a 150-year-refined medical discipline for deciding, in advance and on paper, every reversible decision so that the irreversible decisions made under anaesthesia have a written substrate. The discipline distinguishes sharply between decisions formalised pre-op (load-bearing on consent), decisions deferred to at-the-table (legitimately intra-op), and ceremonial paperwork that produces signatures without producing decisions. Surgeons have an extensive vocabulary for the failure mode where pre-op planning becomes consent-theatre — exactly the failure mode the PRD must avoid for its four gating artifacts. The domain is far from software/strategy but maps point-for-point onto a 'decision document gates an irreversible operation' structure.",
+  "expected_isomorphisms": [
+    "Pre-op decision document ↔ PRD decision document at docs/decisions/2026-05-25-{extraction-shape,continuity-contract}.md",
+    "Informed-consent specificity ('left total knee, cemented') ↔ acceptance-criterion specificity (yangsi vs trülku vs hybrid)",
+    "Decisions at the table (intra-op contingencies) ↔ PRD's explicit out-of-scope items: honest vs silently punted",
+    "Pre-op marking (signing the operative site) ↔ acceptance criterion 'brainstorm Decisions table updated' — counter-signature that closes the loop",
+    "Late-breaking imaging requires re-consent ↔ F1's freeze protocol propagation rule for shadow-work changes during migration",
+    "Surgical time-out (final go/no-go) ↔ PRD-level acceptance — named participants and binary outcome",
+    "Bail-out plan in the op-note ↔ documented response if interim extraction shape proves wrong mid-migration"
+  ],
+  "focus": "Whether each decision document carries decision-content at the specificity an executing migration engineer needs, distinguishing pre-op decisions (load-bearing on consent) from at-the-table decisions (legitimately deferred) from ceremonial paperwork (signatures without decisions)",
+  "name": "fd-preoperative-planning-informed-consent",
+  "persona": "Apply the perspective of an attending surgeon and clinical governance reviewer with deep experience in both operating-theatre craft and M&M (morbidity-and-mortality) review. They are calm, direct, and fluent in distinguishing 'paperwork done' from 'decision made.' They use the surgeon's framing: 'what is the operative plan?' 'where is the time-out?' 'what does the consent specifically authorise?' 'what is the bail-out if we encounter X intra-op?' They are highly suspicious of acceptance criteria that produce signatures without producing decisions — the consent-theatre failure mode, well-known in surgical safety literature.",
+  "review_areas": [
+    "Whether F1's freeze-protocol acceptance criterion ('how shadow-work's AgentPersonality changes propagate to Palettice during the migration — auto? proposal? requires signoff?') names the mechanism or only enumerates options the way a consent form might list 'we may use the appropriate anaesthetic'",
+    "Whether F2's playtest-card test is a pre-op simulation (rehearsing the operation on a model) or ceremonial (the card 'passes' but the design still fails under the conditions it was meant to test)",
+    "Whether F3's permission of a 'hybrid' yangsi/trülku option violates the consent-specificity rule (consent must authorise the specific procedure, not a menu)",
+    "Whether F4b's at-write-time tagging of identity-constitutive events is decided in F4's design or deferred to the migration epic (at-the-table)",
+    "Whether each decision document has a counter-signature (who reviews and approves before it gates the migration?) or is self-certified",
+    "Whether the PRD-level acceptance check is a surgical time-out (final go/no-go with named participants) or a project-management close-out",
+    "Whether the four documents collectively constitute an operative plan — i.e. an engineer migrating the code could execute without further consent-level decisions",
+    "Where the bail-outs are documented (what happens if F1's chosen extraction shape proves wrong mid-migration?)"
+  ],
+  "severity_examples": [
+    {
+      "condition": "F1's freeze-protocol acceptance criterion lists three plausible mechanisms ('auto? proposal? requires Palettice-maintainer signoff?') without locking one. This is consent-theatre at its purest: the form is signed, the question is documented as 'considered,' but no decision is made. The migration engineer is left to decide intra-op.",
+      "scenario": "Consent enumerates options without specifying the procedure",
+      "severity": "P0"
+    },
+    {
+      "condition": "F3 permits 'a hybrid (e.g. trülku for institutional agents, yangsi for the Prometheus Crisis scenario's lead operatives)' — in pre-op terms this is consent for 'left total knee OR right total knee depending on what we find.' Surgeons would refuse to sign. Either the rule that picks per-agent is itself the decision (and must be in the document), or the hybrid option must be removed.",
+      "scenario": "Disjunctive procedure permitted without explicit selection rule",
+      "severity": "P0"
+    },
+    {
+      "condition": "F4b's identity-constitutive event class tagging happens 'at write time' but the PRD's open question 4 names this as unresolved: 'does a routine deployment becoming a PersonalityScar count?' If the tagging decision is at-write-time but the rule for tagging is at-planning-time, the operative plan is missing its consent specificity.",
+      "scenario": "Pre-op decision deferred to 'at the table' when information is already available",
+      "severity": "P1"
+    },
+    {
+      "condition": "The PRD's acceptance criterion for F1 and F3 requires that the decision document exists and that the brainstorm Decisions table is updated. No criterion names who reviews and approves the document before it gates the migration. In surgical terms: no attending counter-sign on the pre-op plan.",
+      "scenario": "No counter-signature on decision documents",
+      "severity": "P1"
+    },
+    {
+      "condition": "The 'Acceptance for the PRD as a whole' section names four conditions but does not name the participants in the final review or the go/no-go criteria for the migration epic opening. A surgical time-out has named attendees and a binary outcome; the PRD's close-out reads as administrative.",
+      "scenario": "PRD-level acceptance is project-management close-out, not surgical time-out",
+      "severity": "P2"
+    },
+    {
+      "condition": "F1's chosen extraction shape is treated as 'interim' (shape B or C, with A as eventual destination), but no acceptance criterion names what the response is if shape B is chosen and proves wrong mid-migration. The 'cutover trigger for the deferred shape' is named but not the rollback condition.",
+      "scenario": "Bail-out plan missing for an irreversible commitment",
+      "severity": "P2"
+    },
+    {
+      "condition": "F2's playtest-card test is intended to gate concreteness ('if the test can't be written, the provisional design is not concrete enough'). The acceptance criterion does not name what makes a card pass — is reading it aloud enough? Is exercising it with the design author enough? Without a passing condition, the test is itself ceremonial.",
+      "scenario": "Ceremonial concreteness — playtest card passes without exercising the design",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "surgical pre-operative planning and informed-consent practice (orthopaedic + neurosurgical traditions)",
+  "success_hints": [
+    "Read each acceptance criterion as a consent-form clause: would a careful patient know exactly what they were authorising?",
+    "Mark every enumeration in an acceptance criterion ('auto? proposal? signoff?') — these are open questions in pre-op disguise",
+    "Identify the attending: who counter-signs each decision document?",
+    "Find the time-out: where does the four-document set get reviewed as a coherent operative plan?",
+    "Name the bail-outs: for each irreversible commitment, where is the documented response when intra-op findings invalidate the pre-op decision?",
+    "Distinguish 'considered X' from 'decided X' in the prose"
+  ],
+  "task_context": "This PRD produces four decision documents (and one engine-code feature) that gate the shadow-work migration epic. Each document is expected to record a decision specific enough that a migration engineer can execute without re-litigating it. Reviewing whether the documents are pre-op plans at consent specificity or briefing notes at consideration-level."
+}

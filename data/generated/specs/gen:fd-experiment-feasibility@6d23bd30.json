@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-dependency-ordering covers sequencing",
+    "fd-scope-containment covers scope boundaries",
+    "fd-composition-architecture covers F10 shell"
+  ],
+  "decision_lens": "Prioritizes findings where the spec makes implicit assumptions that break in file:// or CDN context (module resolution, CORS, SharedArrayBuffer).",
+  "focus": "Implementation feasibility of each experiment's technical spec within standalone HTML/JS constraint",
+  "name": "fd-experiment-feasibility",
+  "persona": "A frontend engineer evaluating whether each spec is achievable without a build system, bundler, or framework — just index.html and CDN imports.",
+  "review_areas": [
+    "F3 Hydra: hydra-synth CDN availability, ES module import without bundler, full-screen WebGL standalone",
+    "F4 Cytoscape fCoSE: CDN path for extension, constraint API for outer-ring layout, registration via cytoscape.use()",
+    "F7 PM4JS: browser-compatible ES module build existence — if absent, D3 fallback realism",
+    "F6 Loopy: SVG particle animation with D3 at throughput-proportional rates, frame budget at 20+ particles",
+    "F5 Raster: Canvas with hover tooltip pixel-to-cell mapping, ring buffer accumulation matching 24-column grid",
+    "F2 Split-Flap: CSS-only animation with ::before/::after per-character, 20 agents x 60 chars concurrent animation"
+  ],
+  "success_hints": [
+    "Each experiment opens from file:// without local server (except F9)",
+    "CDN URLs for every library are pinned and discoverable",
+    "No experiment requires a build step"
+  ],
+  "task_context": "10 standalone experiments for Cybersyn-inspired AI factory dashboard, each independently runnable index.html with no build toolchain."
+}

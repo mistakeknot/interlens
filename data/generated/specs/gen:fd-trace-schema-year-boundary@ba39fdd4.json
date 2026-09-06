@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-cli-arg-plumbing-correctness covers whether --attention-budget is forwarded to the sim binary — this agent covers whether the sim's internal budget state is observable in the trace after the binary runs.",
+    "fd-null-baseline-semantic-validity covers whether NullPlayer actually spends attention — this agent covers whether any spending (or non-spending) is recorded in a form the analyzer can read.",
+    "fd-statistical-calibration-procedure covers the decision tree logic — this agent covers whether the inputs to that tree are available in the trace schema."
+  ],
+  "decision_lens": "Prioritizes findings where the calibration analysis must resort to live HTTP polling (sw-agent raw /bench/attention-budget) rather than reading the offline JSONL trace, because live polling requires the sim process to be alive during analysis, breaks reproducibility, and cannot be re-run against archived tarballs. Secondary priority is schema gaps where attention_remaining is embedded in other events (DecisionCompleted, RawStateSnapshot) but not at year boundaries.",
+  "focus": "Whether the sim trace schema emits AttentionBudget.remaining at year boundaries in a form that the calibration analyzer can reliably extract, and whether the absence of a dedicated year-end budget event forces a polling workaround that undermines offline reproducibility",
+  "name": "fd-trace-schema-year-boundary",
+  "persona": "Apply the perspective of a distributed systems engineer who has designed event-sourced audit logs for financial systems — they care about whether the log is self-describing (no out-of-band state required to reconstruct what happened), measure whether year-boundary budget state can be reconstructed from the trace alone without polling the live HTTP endpoint, and flag any event that is emitted in-band but whose payload omits fields needed for offline analysis.",
+  "review_areas": [
+    "Missing YearEnd trace event: trace.rs's TraceEvent enum (line 56) contains BenchStarted, BenchFinished, GateActivated, DecisionCompleted, PhaseTransition, ObservationBudgetSpend, ActionBudgetSpend, and others — but no YearEnd or AttentionBudgetSnapshot event; advance_year() in decision_gate.rs (line 376) mutates state but emits nothing to trace, meaning year-boundary remaining is unobservable offline.",
+    "DecisionCompleted payload coverage: verify whether CompletedDecision (returned in DecisionCompleted events) includes attention_remaining and attention_per_year fields; if it does, the analyzer can approximate year-end state by finding the last DecisionCompleted per calendar year, but this is fragile if a year passes with no decisions.",
+    "RawStateSnapshot as a proxy: trace.rs line 141 shows RawStateSnapshot includes 'year' but not 'attention_remaining'; confirm whether adding attention_remaining to RawStateSnapshot (emitted at each gate activation) would be sufficient for the calibration analysis, or whether years with no gate activations are still blind spots.",
+    "Offline reproducibility requirement: PROTOCOL.md §11 requires that scores be re-derivable from the raw-trace tarball alone (rescore.ipynb); a calibration analysis that requires live polling violates this invariant — flag this as a protocol compliance issue, not just an implementation convenience concern.",
+    "Year boundary detection from existing events: if a dedicated YearEnd event is not added, the analyzer must infer year transitions from the 'year' field on RawStateSnapshot or GateActivated events; assess whether this inference is reliable (does every year transition produce at least one gate activation?) or whether a null-player run might pass an entire year with no gate activations, creating an undetectable blind spot.",
+    "BenchStarted observation_budget_per_year vs. attention_budget: BenchStarted includes observation_budget_per_year and action_budget_per_year (trace.rs lines 63–64) but not attention_budget_per_year — the trace header does not record the --attention-budget value that was passed, making it impossible to verify from the tarball alone what budget level a trace was produced at."
+  ],
+  "severity_examples": [
+    {
+      "condition": "The calibration analyzer cannot determine whether the null baseline exhausted its budget in those years; it silently treats missing data as non-binding; the pick decision is based on incomplete evidence; PROTOCOL.md §7a is locked to an unverified value",
+      "scenario": "No TraceEvent variant records AttentionBudget.remaining at year boundaries, and null-player runs produce no gate activations in some years",
+      "severity": "P0"
+    },
+    {
+      "condition": "Archived calibration tarballs at B=5, B=10, B=20 are indistinguishable by trace content alone; a reviewer re-running rescore.ipynb cannot verify which tarball corresponds to which budget level without relying on directory naming conventions that may not survive archival",
+      "scenario": "BenchStarted event does not include the attention_budget_per_year value",
+      "severity": "P1"
+    },
+    {
+      "condition": "The calibration cannot be re-run against archived tarballs; any attempt to verify the picked budget value post-hoc requires re-running the sim, defeating the reproducibility commitment in §11",
+      "scenario": "The calibration analyzer is written to poll /bench/attention-budget via HTTP rather than reading the JSONL trace",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "A dedicated TraceEvent::YearBoundary (or equivalent) variant is emitted by advance_year() carrying tick, new_year, attention_remaining, attention_per_year, so year-end state is directly readable from the JSONL without inference.",
+    "BenchStarted event includes attention_budget_per_year alongside observation_budget_per_year and action_budget_per_year.",
+    "The calibration Python analyzer reads only the JSONL trace files and makes no HTTP calls to the running sim process."
+  ],
+  "task_context": "The brainstorm specifies that calibration checks AttentionBudget.remaining > 0 at every sim-year boundary across N=10 runs. This review checks whether the trace schema actually emits year-boundary budget state in the JSONL, and whether offline reproducibility is preserved by the calibration analysis design."
+}

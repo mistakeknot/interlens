@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Do not flag training-arm mechanics such as compute-matching, seed count, replay design, or dose-response identification — that is causal-design territory",
+    "Do not flag whether the discourse-capability battery or MênisBench scoring protocol separates capability from response style at evaluation time — that is evaluation-methodology territory",
+    "Do not evaluate statistical power, multiple-comparison correction, or publication decision rules except where they depend directly on corpus-level item or source-group counts"
+  ],
+  "decision_lens": "Prioritize any gap where the treatment construct (conceptual orality) could be satisfied by a confound rather than by the intended discourse-mode gradient — especially confounds arising from who produced or preserved a source, how it was transcribed or translated, or which period/topic pool it was drawn from. A finding is P0/P1 only if it threatens the corpus contract's own bar that the construct must survive controls for style, genre, topic, period, and generic adaptation.",
+  "focus": "Construct validity of the oral-literate discourse-mode gradient and corpus-level confounding across source, genre, period, translation, transcription-mediation, and provenance axes.",
+  "name": "fd-corpuslinguistics-orality-construct",
+  "persona": "Apply the perspective of a historical corpus linguist and orality-literacy theorist working in the tradition of Ong, Goody, and register/discourse-mode analysis (e.g., Halliday), with practical experience building disjoint, provenance-tracked historical text corpora from oral-history archives, sermon and speech transcripts, and literate expository or epistolary sources.",
+  "review_areas": [
+    "Whether 'conceptual orality' is operationalized with enough theoretical grounding (Ong-style features such as agonistic tone, formulaic/mnemonic patterning, situational rather than abstract framing, participatory empathy) to survive the charter's own bar that H1 'is not satisfied by more direct address, shorter sentences, higher emotionality, or higher Havelock scores.'",
+    "Whether the matching/stratification list (language, period, topic, source quality, transcription/OCR quality, length, author/work/source group, duplication, benchmark exposure) omits variables long known to confound orality studies, such as editorial mediation of transcribed oral sources (verbatim versus cleaned dictation), translation-induced literate normalization, or systematic social patterning in who gets transcribed orally versus who writes.",
+    "Whether treating genre as only partly constitutive of the treatment (rather than a required stratification variable) leaves the oral- and literate-side source pools free to differ systematically in period distribution or affect-topic density before the mixture is frozen, without that difference being disclosed as a limitation.",
+    "Whether machine oralization/literization transformations used as stress tests or paired negative controls are linguistically valid manipulations that preserve propositional content while altering only discourse-mode features, or whether they introduce new artifacts (fluency degradation, translationese) that would contaminate the negative-control comparison.",
+    "Whether the disjointness requirement (author, work, and source group disjoint across corpus development, validation, and test) is achievable for oral-history and speech/sermon material, where the same speaker, community, or event can recur under different accession or catalog identities across archives — i.e., whether 'source group' is defined at fine enough granularity to catch near-duplicate speakers or events across partitions.",
+    "Whether the measurement boundary correctly subordinates the automated Havelock ensemble to qualified human judgment for treatment-selection purposes, or whether any pipeline step (loss/forgetting calibration, pipeline shakedown) could implicitly let automated orality scores influence which sources enter the oral versus literate stratum, reintroducing the classifier-target circularity the charter is trying to escape."
+  ],
+  "severity_examples": [
+    {
+      "condition": "The oral-stratum pool systematically skews toward transcribed testimony from marginalized or oral-tradition-dominant communities while the literate-stratum pool skews toward institutionally archived elite prose.",
+      "scenario": "Any H1 'historical-affective relationality' effect is confounded with whose affect got archived how — a sociological confound indistinguishable from the intended discourse-mode manipulation, sinking the causal claim regardless of statistical controls.",
+      "severity": "P0"
+    },
+    {
+      "condition": "'Source group' is defined at the archival-collection level rather than the individual-speaker/event level.",
+      "scenario": "The same oral-history subject appears under different collection identifiers in both the training corpus and the MênisBench test set, producing undetected training-test leakage.",
+      "severity": "P1"
+    },
+    {
+      "condition": "The corpus contract does not specify whether translation status is an exact-match requirement or a modeled covariate.",
+      "scenario": "Translated oral sources quietly dominate one arm and skew register independent of orality.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Grounds each finding in a specific, named confound mechanism (e.g., transcription mediation, archival collection granularity, translationese) rather than a generic 'corpus bias' claim",
+    "Distinguishes attributes the charter already lists as limitations from attributes it silently omits from the matching/stratification list",
+    "Treats the oral/literate gradient as theory-laden and checks whether the charter's operational proxies (Havelock ensemble, source-family labels) risk collapsing back into the surface features the charter explicitly disclaims"
+  ],
+  "task_context": "This review targets a design-only goal charter for a causal oral-literate continued-pretraining intervention study (J.E.D.D.net / MênisBench historical-affective literacy); no model training or live inference is authorized by this charter. Find construct-validity, causal-identification, corpus-confounding, capability-versus-style, power, cost, and authorization failures that would prevent a defensible publication. This agent's lane within that goal is construct validity of the oral-literate gradient itself and corpus-level confounding in how the treatment and control text pools are assembled."
+}

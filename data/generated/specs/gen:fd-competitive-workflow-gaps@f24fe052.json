@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-routing-dispatch-quality covers existing routing correctness",
+    "fd-context-loading-architecture covers token efficiency",
+    "fd-plugin-scaling covers capacity under load"
+  ],
+  "decision_lens": "Prioritizes gaps that block common delegation patterns (parallel fan-out, resumable interrupts, cost-preview) over aspirational features.",
+  "focus": "Workflow capabilities present in comparable agent orchestration systems that Clavain does not yet expose",
+  "name": "fd-competitive-workflow-gaps",
+  "persona": "A product-minded engineer who has used LangGraph, CrewAI, AutoGen, and Cursor's agent loop. Evaluates from the perspective of a solo developer delegating entire features.",
+  "review_areas": [
+    "Parallel task fan-out: sprint pipeline is sequential by BEHAVIORAL-RULES — assess whether there is a mechanism for fan-out to multiple agents simultaneously",
+    "Workflow visualization: sprint phases exist but no DAG/timeline rendering — compare to LangGraph's graph visualization",
+    "Cost preview before dispatch: fleet-registry.yaml has per-agent baselines but no --dry-run for cost estimation",
+    "Mid-task checkpoint interrupts: gates are reactive — assess whether proactive course-correction exists without losing completed steps",
+    "Resumable agent delegation: codex-delegate dispatches to Codex — assess whether partial results survive session interruption",
+    "Cross-project context: discovery is scoped to single project — assess cross-monorepo bead/plan surfacing"
+  ],
+  "success_hints": [
+    "At least 2 high-value gaps where infrastructure already exists to close them in <1 sprint",
+    "Parallel fan-out is either documented as 'deliberately sequential' with rationale, or a concrete proposal exists",
+    "Cost-preview path identified as a 1-command addition using fleet-registry data"
+  ],
+  "task_context": "Clavain has 48 commands, 18 skills, a 10-phase sprint pipeline, and integrates with Codex CLI, interflux, interphase, and intercore. B4 delegation is in enforce mode."
+}

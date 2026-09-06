@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-ecs-determinism-epithets covers float safety and save equivalence — this agent covers whether the numbers produce correct game behavior, not implementation correctness",
+    "fd-save-schema-stability covers serialization of the salience field — this agent covers whether the salience schedule is well-designed, not how it is stored",
+    "fd-narrative-procgen-taxonomy covers the rarity hierarchy as a naming concern — this agent covers how rarity should be encoded numerically in prestige_score"
+  ],
+  "decision_lens": "The brainstorm chooses linear decay at -0.5/day with no floor above zero and a gossip-exclusion threshold at salience <= 2.0 — the trade-off is simplicity vs. meaningful differentiation. If epithets decay out of gossip in 16 days without any reference, but no gossip system exists yet to generate +2 bumps, all epithets will be below threshold within weeks of game time.",
+  "focus": "Numerical calibration of the +10/+2/-0.5 salience schedule, edge cases for never-referenced epithets, negative salience saturation, and multi-epithet prestige ordering stability",
+  "name": "fd-salience-decay-tuning",
+  "persona": "Apply the perspective of a simulation balance designer who has tuned decay schedules in colony sim economy systems — they care about whether the decay rate produces meaningful differentiation over realistic play horizons; they measure by constructing timeline scenarios (earn at day 0, never referenced, how long until salience = 0?) and asking whether the resulting gossip exclusion timing matches design intent; they flag rates that decay too fast to matter or too slow to differentiate.",
+  "review_areas": [
+    "Model the decay timeline for a never-referenced epithet: starts at 10.0, reaches gossip-exclusion threshold (2.0) at day 16, reaches 0.0 at day 20 — evaluate whether 16 days is the intended gossip window; for a colony where days are represented by N ticks, how many real-time minutes does this represent?",
+    "Assess the cold-start problem: the brainstorm acknowledges no gossip system exists yet to generate +2 bumps, so all earned epithets will decay toward 0 without any usage — evaluate whether the salience floor at 0.0 (not negative) is sufficient to preserve ordering stability, or whether all old epithets will cluster at 0.0 making sort_by salience meaningless",
+    "Evaluate multi-epithet prestige ordering: the brainstorm sorts by salience desc then earned_tick asc (older = more prestigious on tie) — check whether an elf who earns Stormborn early and Heartmender late will correctly display Stormborn first if Stormborn has decayed more, or whether the tie-break on earned_tick reverses the intended order",
+    "Check whether the +10 initial salience is the right value relative to +2 per reference — an epithet referenced 5 times matches a freshly-earned epithet; is that the intended prestige equivalence, or should earn be larger (e.g., +20) to establish a meaningful head-start?",
+    "Audit the daily decay tick-scan for performance: iterating all lexemes in ColonyLexicon every day to apply -0.5 is O(lexemes) — estimate lexeme count at late-game (7 epithets x N elves + future Sayings) and verify this is within budget, or flag that the scan should be gated to 'salience > 0.0' entries only",
+    "Evaluate whether salience going negative before saturation to 0.0 creates any window where partial_cmp on f32 returns unexpected ordering — specifically, if decay runs in multiple sub-steps before saturation is applied, intermediate negative values could corrupt a sort that runs between sub-steps"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No gossip consumer exists at sprint ship time; salience reaches 0.0 floor within the first month of game time",
+      "scenario": "All earned epithets decay to 0.0 salience within 20 days because no gossip system exists to generate +2 bumps — after day 20, all lexemes cluster at salience = 0.0 and sort order falls entirely to earned_tick, making the prestige display static and the salience field meaningless until a gossip consumer is implemented",
+      "severity": "P1"
+    },
+    {
+      "condition": "prestige_score field on LexemeKind::Epithet is defined but not used in sort — sort is salience-only, ignoring rarity weight",
+      "scenario": "An elf earns Stormborn at tick 100 (salience 10.0) and Heartmender at tick 600 (salience 10.0) — after 20 days of decay, Stormborn is at 0.0 and Heartmender is still at 7.0, so Heartmender displays first despite Stormborn being the culturally rarer achievement; the prestige sort correctly reflects salience but incorrectly reflects rarity intent",
+      "severity": "P2"
+    },
+    {
+      "condition": "Decay scan does not skip lexemes where salience is already at floor; no guard clause added",
+      "scenario": "Late-game colony with 30 elves each earning 3 epithets produces 90 lexemes plus future Sayings — the daily decay scan iterates all 90+ entries including those already at 0.0, wasting budget on no-op subtractions",
+      "severity": "P3"
+    }
+  ],
+  "success_hints": [
+    "The decay timeline is explicitly documented in a code comment at the ColonyLexicon decay scan with the gossip-exclusion day calculation",
+    "A test asserts that two epithets earned at different ticks with different reference counts sort correctly under all combinations of decay state",
+    "The prestige_score field is assigned a concrete value per epithet in the implementation, with a comment explaining the rarity rationale"
+  ],
+  "task_context": "The brainstorm specifies a +10/+2/-0.5 salience schedule with a 2.0 gossip-exclusion threshold but does not model the decay timeline, analyze the cold-start problem (no gossip consumer at launch), or verify the prestige ordering produces intended results across all decay states. This agent reviews the numerical design before implementation."
+}

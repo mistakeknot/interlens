@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Does not audit event-sourcing replay correctness (that is the ledger agent's domain)",
+    "Does not review scoring formula or response-matching semantics (not a records-interop concern)",
+    "Does not evaluate async/sync interop patterns (not a FHIR concern)"
+  ],
+  "decision_lens": "Vocabulary is a contract. Once published, breaking it silently corrupts downstream consumers. Every resource type needs a canonical URL and a version. Federation boundary conditions are where correctness breaks down — test them first.",
+  "distance_rationale": "FHIR is a federated, vocabulary-driven, ACL-gated patient record API — structurally parallel to Palettice's Soul vocabulary + ScopedStore + federation model — but in a regulated domain where vocabulary version mismatches have clinical consequences and federation boundary conditions must be tested exhaustively before any production use.",
+  "expected_isomorphisms": "FHIR's StructureDefinition / profile version URL is the direct isomorphism for Palettice's Vocabulary — both are schemas that must carry a canonical identifier and version so federated consumers can detect drift. FHIR's SMART-on-FHIR scope model, which places token-claim validation in the authorization server rather than in each resource server, maps onto the recommendation that GrantToken validation semantics be defined by Palettice core rather than delegated entirely to consumers.",
+  "focus": "HL7 FHIR healthcare records API patterns applied to Palettice's vocabulary registration, federation, and access-control model",
+  "name": "fd-fhir-vocabulary-federation",
+  "persona": "A health informatics engineer who has implemented FHIR R4 servers and knows from experience how vocabulary profile mismatches silently corrupt patient records, how federated queries fail at boundary conditions, and why versioned canonical URLs on every schema element are non-negotiable once you have two systems talking",
+  "review_areas": [
+    "Vocabulary immutability vs. evolution: §3 states 'the vocabulary is immutable once registered (versioned migration is a Phase 2+ concern)' — a FHIR reviewer notes that immutability without a canonical version URL means consumers cannot detect when they are loading a stale vocabulary vs. a new one; `Vocabulary` has a `version: u32` but no canonical URL or namespace, which means two independently-registered vocabularies with the same `VocabularyId` string can silently collide in a multi-app federation scenario",
+    "Tag group validation gap: `FacetShape::Tag { group: String }` requires a declared `tag_group`, but `FacetValue::Tag(String)` carries a raw string — at append time, `VocabularyRegistry::validate_event` must look up the facet, find its group, and check the value; if the facet is not declared (or the tag group is missing), which error variant fires is not specified clearly; FHIR binding validation has this exact same failure mode and documents it explicitly",
+    "Federation snapshot completeness: the `FederatedFrom` lifecycle event and `FederationOrigin` type are referenced but not defined in §4 — a FHIR reviewer recognizes this as the 'provenance resource' gap; federated Souls arrive without a machine-readable record of which vocabularies and versions were in effect at export time, making replay at the importing app unreliable if vocabularies have drifted",
+    "Cross-scope read safety: §2 `ScopedStore` is a wrapper with `load_within_scope` / `load_with_grant` but the grant token validation is 'consumer-supplied' — FHIR's SMART-on-FHIR experience shows that delegating token validation to consumers produces inconsistent scope enforcement; the spec should define what claims a valid GrantToken must carry",
+    "Vocabulary validation on load vs. on append: `VocabularyRegistry::validate_event` is called on append, but there is no specified validation pass on `Soul::replay` — if the vocabulary has evolved between original recording and replay, replay silently produces wrong derived state (FHIR calls this a 'terminology binding failure')",
+    "The `SoulSnapshot` includes `vocabulary: VocabularyId` but not `version: u32` — federation exporters and FHIR-style snapshot consumers cannot determine whether the exported snapshot was produced under vocabulary v1 or v2"
+  ],
+  "severity_examples": [
+    {
+      "condition": "A federated Soul is exported at vocabulary v1 and imported into an app running vocabulary v2 with a renamed facet; `SoulSnapshot.vocabulary` identifies the vocab name but not the version; the importing app replays with v2 semantics against v1 events, producing silently wrong derived state with no error",
+      "scenario": "Vocabulary version not included in SoulSnapshot",
+      "severity": "P0"
+    },
+    {
+      "condition": "Phase 1 acceptance criterion requires replay to produce identical state to live computation, but the test suite validates only happy-path (vocabulary unchanged); no test validates behavior when vocabulary version at record time differs from version at replay time",
+      "scenario": "No vocabulary version validation on replay",
+      "severity": "P1"
+    },
+    {
+      "condition": "Two apps independently register vocabularies with VocabularyId('characters'); no canonical URL or namespace prevents collision; a federation import that touches both apps merges incompatible facet spaces under the same ID",
+      "scenario": "VocabularyId namespace collision in multi-app federation",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Healthcare records APIs (HL7 FHIR)",
+  "success_hints": [
+    "SoulSnapshot gains a `vocabulary_version: u32` field alongside `vocabulary: VocabularyId` so federation exporters carry version provenance",
+    "The spec defines `FederationOrigin` concretely, including which vocabulary version was in effect at export",
+    "VocabularyId gets a canonical form (e.g. reverse-domain namespacing: `com.palettice.elf-revel`) to prevent cross-app collision",
+    "The Phase 1 test suite includes at least one replay-under-mismatched-vocabulary test that verifies the error path rather than silently succeeding"
+  ],
+  "task_context": "Review /Users/sma/projects/Palettice/docs/canon/phase-1-api-spec.md, /Users/sma/projects/Palettice/docs/canon/access-control-model.md, and /Users/sma/projects/Palettice/docs/canon/cross-game-convergence.md. Focus on §3 Vocabulary registration, §4 FederatedFrom / SeededFrom lifecycle events, §2 ScopedStore access control, §10 acceptance criteria. Apply an HL7 FHIR lens: vocabulary profiles are contracts; versioning and provenance are blocking; federation boundary conditions are where correctness breaks down."
+}

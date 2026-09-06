@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-experiment-feasibility covers implementation approach achievability",
+    "fd-acceptance-criteria-quality covers test coverage",
+    "fd-composition-architecture covers shell plugin loading"
+  ],
+  "decision_lens": "Prioritizes findings where a library's design assumptions conflict with experiment constraints — Node.js-first in browser, bundler required, or API mismatch.",
+  "focus": "Practical viability of specific library choices for standalone browser prototypes",
+  "name": "fd-tech-stack-viability",
+  "persona": "A browser technology specialist evaluating CDN availability, browser compatibility, bundle size, and API fit for each library.",
+  "review_areas": [
+    "hydra-synth: CDN availability, AudioContext gesture unlock, programmatic API vs REPL-first design",
+    "cytoscape-fcose: CDN path, constraint API for positioned layout, license compatibility",
+    "PM4JS: browser-compatible build existence — if absent, D3 swim-lane token animation fallback",
+    "D3 version: v6 vs v7 event handling API differences affecting SVG particle animation",
+    "file:// CORS for ES module imports across sibling directories",
+    "TradingView Lightweight Charts: CDN availability and standalone embedding without React wrapper"
+  ],
+  "success_hints": [
+    "Every library has verified CDN URL serving ES module or UMD build",
+    "No library requires user gesture, special HTTP header, or server feature to initialize",
+    "PM4JS has confirmed browser build or explicit D3 fallback path"
+  ],
+  "task_context": "Experiment suite relies on specific third-party libraries from research. Each must work CDN-only, no-bundler, standalone HTML."
+}

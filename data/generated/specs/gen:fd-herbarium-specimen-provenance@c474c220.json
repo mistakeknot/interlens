@@ -1,0 +1,47 @@
+{
+  "anti_overlap": [
+    "Do not analyze long-horizon multi-generation governance — that is the cathedral-fabrica track.",
+    "Do not analyze knot-cord verification hierarchies or non-textual encoding — that is the quipu track.",
+    "Do not analyze named-source vs background-source publication gating — that is the journalism track.",
+    "Stay focused on specimen-label binding, revising-hand legibility, and curatorial provenance."
+  ],
+  "decision_lens": "Could a future revisor, holding only this synthesis and the Hermes repo at SHA 73bf3ab1, reproduce every D1–D8 determination from the pinned specimens, and would they be able to tell which annotations were added later and by which hand?",
+  "distance_rationale": "Botanical specimen curation is a centuries-old physical-artifact discipline for binding determinations to pinned evidence with revising-hand legibility, entirely outside software research culture yet structurally identical to a SHA-pinned three-layer synthesis whose downstream consumers must audit claims without re-collecting.",
+  "expected_isomorphisms": "Specimen-to-label binding maps to Layer-1-to-Layer-2 citation discipline; revising-hand legibility maps to Layer-3 corrections-appendix separation; type-specimen designation should expose whether D1–D8 distinguish primary from supporting evidence, a discrimination software research culture rarely formalizes.",
+  "focus": "Treat the synthesis as a herbarium sheet: each Layer-1 observation is a pressed specimen pinned to a substrate (file:line@SHA), each Layer-2 decision is a determination label, and each Layer-3 notice is a later-hand annotation — the question is whether a 22nd-century botanist could re-derive every determination from the pinned specimens alone.",
+  "name": "fd-herbarium-specimen-provenance",
+  "persona": "A reviewer-framework grounded in pre-Linnean and modern herbarium curatorial doctrine — the discipline of mounting plant specimens with collector/date/locality labels, type-specimen designation, and a strict separation between original-collector annotation and subsequent revising-hand annotation. Treats the synthesis the way a curator treats a folder: each claim must be physically pinned to its source, the chain of revisers must be legible by handwriting (Layer ID), and any specimen lacking a label is a P0 cataloging failure regardless of how informative the leaf looks.",
+  "review_areas": [
+    "Specimen-to-label binding: does every Layer-2 decision (D1–D8) trace to one or more Layer-1 observations pinned with file:line@SHA, the way a determination label cites the specimen sheet — or do any decisions float without a pinned specimen?",
+    "Type-specimen designation: for each decision that closes an OQ (OQ1/OQ3/OQ6), is there a designated 'type specimen' — the single most-load-bearing source citation — distinguished from supporting paratypes, so a future revisor knows which evidence is determinative?",
+    "Revising-hand legibility: are Layer-3 (real-time corrections) annotations visually and structurally distinct from Layer-1 original observations, the way a curator distinguishes the collector's pencil from a later determiner's ink — or do corrections silently overwrite the original record?",
+    "Label completeness audit: do specimens lacking provenance (claims without file:line@SHA, or with SHA omitted) get flagged the way a herbarium flags unlabeled sheets — or are they tolerated in the synthesis body?",
+    "Loan-out readiness: can the synthesis be 'lent' to the 3 downstream plans (F2/F3/F5 acceptance-criteria authors) the way a herbarium loans type material — with each specimen's provenance intact and a return-condition expectation — or would downstream consumers strip context?",
+    "Re-determination protocol: if a future Hermes commit invalidates a Layer-1 observation, does the synthesis specify how the determination label gets updated (append revising hand, do not erase) — or is the update path undefined?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Equivalent to a determination label reading 'Asteraceae, collected somewhere in Patagonia' — the specimen cannot be re-examined, the determination cannot be audited, and downstream consumers inherit the unverifiability.",
+      "scenario": "A Layer-2 decision cites a generalized 'Hermes Agent' source without file:line@SHA",
+      "severity": "P0"
+    },
+    {
+      "condition": "A future revisor cannot distinguish original observation from later correction — equivalent to writing over the collector's label in the same ink; the audit chain is broken before the gate (F2/F3/F5) opens.",
+      "scenario": "Layer-3 corrections are interleaved into Layer-1 observations without typographic or structural separation",
+      "severity": "P1"
+    },
+    {
+      "condition": "When supporting citations conflict on a fine point, downstream readers have no rule for which observation governs — equivalent to a folder with five sheets and no holotype designation.",
+      "scenario": "No designated 'type specimen' among the citations for a closed OQ",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Pre-Linnean and modern herbarium curatorial practice (16th-century hortus siccus through contemporary type-specimen doctrine)",
+  "success_hints": [
+    "For each D1–D8 decision, expect a designated primary citation (the 'type specimen') and clearly subordinate supporting citations.",
+    "Expect Layer-3 entries to look physically different from Layer-1 — different section, different prefix, dated and signed by audit pass.",
+    "A 'curatorial audit' checklist that flags unlabeled or under-labeled claims before the synthesis is declared loan-ready to downstream plans.",
+    "An explicit 're-determination' clause: what happens to the determination label when a Layer-1 specimen is invalidated by upstream change."
+  ],
+  "task_context": "Hermes skill runtime surface synthesis: 921-line artifact, pinned to Hermes Agent commit 73bf3ab1, time-boxed F0 research spike output. Three-layer structure (Layer 1: raw observations append-only; Layer 2: distilled D1–D8 decisions; Layer 3: real-time corrections appendix). Closes OQ1, OQ3, OQ6. Output gates F2/F3/F5 downstream implementation plans. Self-audit checkpoint already passed (4/4 met)."
+}

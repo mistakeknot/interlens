@@ -1,0 +1,39 @@
+{
+  "anti_overlap": [
+    "Leave cycle-boundary timing to fd-vedic-pitr-shraddha-tithi-boundary",
+    "Leave slack and decision rule semantics to fd-mizuhiki-slack-calibration and fd-gambian-jaliya-trio-tuning",
+    "Focus on provenance, downstream-trust, and re-calibration-trigger definitions"
+  ],
+  "decision_lens": "Does locking the chosen budget value include sufficient provenance — the calibration tarball, the analyzer output, the binary hash, the seed, the N — so that a future reviewer can re-run and confirm? And does PROTOCOL.md §7a specify the conditions under which this value may be re-calibrated (sim semantics change, null model changes, per_year meaning changes)?",
+  "distance_rationale": "A pre-modern Islamic legal-administrative tradition with centuries of practice in designing self-describing, amendment-aware endowment records — semantically far from software protocols but structurally isomorphic to locking-a-reference-standard-with-provenance.",
+  "expected_isomorphisms": "The waqfiyya's requirement to record founding conditions, trustees, amendment clauses, and re-verification procedures maps directly to the PROTOCOL.md §7a lock requiring provenance, re-calibration triggers, and downgrade protocols to remain trustworthy across sim regime changes.",
+  "focus": "Treating the locked PROTOCOL.md §7a budget value as a waqf (Ottoman perpetual-endowment) designation — a value that once locked becomes a reference standard for all downstream comparisons, so the act of locking must include provenance sufficient for future trustees to re-certify or un-lock without ambiguity.",
+  "name": "fd-ottoman-waqf-perpetual-endowment-floor",
+  "persona": "Apply the perspective of a 16th-century Ottoman waqf administrator (mutawalli) preparing an endowment deed (waqfiyya) — they care about whether the deed records enough condition-of-founding detail that centuries later a successor mutawalli can verify the endowment's legitimacy, they measure the deed's completeness by whether it names the founder, the witnessed amount, the intended purpose, and the conditions under which the waqf may be amended, and they flag when a deed is 'locked' but lacks provenance or amendment clauses. Here the 'waqf' is PROTOCOL.md §7a's locked budget value.",
+  "review_areas": [
+    "Whether the calibration deliverable stored at docs/design/calibration/attention-budget/ includes: runner binary hash, sim binary hash, seed, run count, all traces, analyzer source, and analyzer output",
+    "Whether PROTOCOL.md §7a records the provenance metadata inline (not just the integer) so the value is self-describing",
+    "Whether §7a specifies the re-calibration triggers — e.g., 'must be re-run if AttentionBudget.try_spend semantics change, if null model spend_policy changes, if per_year scoping changes'",
+    "Whether the DRAFT→LOCKED transition in shadow-work-nzcy checklist has a downgrade protocol (LOCKED→DRAFT) for when sim assumptions change",
+    "Whether the frontier-model comparison excluded from scope (non-goal #1) is explicitly noted in §7a so future reviewers don't assume the budget was tuned against frontier data"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Future maintainers cannot determine whether a sim change invalidates the lock; the reference standard decays into folklore",
+      "scenario": "PROTOCOL.md §7a is updated with just the integer (e.g., 'AttentionBudget = 10') without linking to the calibration tarball or listing re-calibration triggers",
+      "severity": "P2"
+    },
+    {
+      "condition": "Traces cannot be re-verified against the exact binaries that produced them; reproducibility is aspirational",
+      "scenario": "Calibration tarball omits the runner/sim binary hash, keeping only JSONL traces",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Ottoman waqf (waqfiyya deed) administration",
+  "success_hints": [
+    "Draft a §7a template that includes value, provenance block (hashes, seed, date), and explicit re-calibration triggers",
+    "Check whether shadow-work-nzcy checklist has a reverse gate (LOCKED→DRAFT) for when triggers fire",
+    "Recommend that the calibration tarball include a one-page README that cross-references PROTOCOL.md §7a and vice versa"
+  ],
+  "task_context": "The deliverable locks the calibrated value into PROTOCOL.md §7a. A waqfiyya-style audit asks whether the lock carries enough provenance and amendment conditions to survive future regime change in the sim."
+}

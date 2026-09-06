@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-repomap-build-vs-integrate covers the build/integrate decision for the Aider-style approach — this agent evaluates whether Aider's approach should be the approach at all",
+    "fd-repomap-graph-model covers PageRank algorithm variants assuming the graph approach is chosen — this agent questions whether a graph is needed",
+    "fd-repomap-priompt-integration covers how any ranked output plugs into priompt — this agent is upstream of that, focused on what produces the ranking"
+  ],
+  "decision_lens": "Prioritizes approaches that can be implemented incrementally and degrade to the current go/ast naive map rather than requiring a full rewrite. Flags approaches that introduce heavyweight dependencies or require a persistent index daemon incompatible with Skaffen's zero-infrastructure philosophy.",
+  "focus": "Research and evaluate non-Aider approaches to conversation-aware code context retrieval: embedding-based, LSP-based, git-signal-based, and hybrid ranking alternatives",
+  "name": "fd-repomap-alternatives",
+  "persona": "A retrieval systems researcher with practical experience implementing code search, semantic indexing, and context-aware file selection for AI coding tools. Approaches alternatives comparisons empirically — what has shipped and worked in production, not just what sounds elegant.",
+  "review_areas": [
+    "Evaluate LSP workspace/symbol as an alternative tag source: many projects already have a language server running; assess whether Skaffen could query gopls (for Go repos) via JSON-RPC to get symbol definitions and references without any tree-sitter or regex parsing, and whether this is practical across languages",
+    "Assess embedding-based file retrieval (e.g. intersearch plugin's embedding_query) as an alternative to PageRank: embed conversation text, retrieve top-K semantically similar files — evaluate precision/recall vs graph rank for typical agentic tasks, latency, and the cold-start problem for new repos",
+    "Examine git-signal heuristics as a lightweight alternative or complement: recently modified files, files co-changed with conversation-mentioned files (git log --follow), files with high churn correlated with current task type — evaluate as a PageRank personalization seed or as a standalone fallback",
+    "Survey what Cursor, Copilot Workspace, and Continue.dev use for repo-context retrieval beyond Aider's approach — identify whether any open-source implementations exist in Go or with clean FFI boundaries",
+    "Evaluate the CASS session intelligence backend (already assessed as 'adopt' in Sylveste) as a source of file relevance signal: cass context <path> returns sessions that touched a file — assess whether cross-session file access patterns are a useful PageRank seed or prior",
+    "Assess the 'no graph at all' baseline: a BM25 or TF-IDF keyword index over symbol names and file paths, queried with conversation text — what is the quality ceiling and implementation cost vs a full PageRank approach for Skaffen's primary use cases"
+  ],
+  "success_hints": [
+    "A ranked shortlist of 2-3 alternative approaches with explicit quality/complexity/latency tradeoffs that could be adopted as the primary strategy or as fallback layers",
+    "Identification of any approach that could be layered on top of the Aider-style graph (e.g. git signal as personalization seed) rather than replacing it",
+    "A verdict on whether the intersearch embedding_query tool already available in Interverse is good enough to serve as a viable alternative, and what would need to change in intermap or Skaffen to use it"
+  ],
+  "task_context": "Skaffen is a pure-Go (CGO_ENABLED=0) sovereign agent runtime that needs a conversation-aware, token-budgeted repo map for LLM context. The Aider approach (tree-sitter tags → identifier reference graph → personalized PageRank → binary-search token fitting) is the primary candidate but alternatives should be evaluated on their merits."
+}

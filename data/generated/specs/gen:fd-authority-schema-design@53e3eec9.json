@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-evidence-thresholds covers earning/revoking authority",
+    "fd-credentialing-analogues covers real-world patterns",
+    "fd-multiagent-trust covers safety/threat models"
+  ],
+  "decision_lens": "Prioritizes schemas queryable at dispatch time with minimal latency, composing with beads/route.md.",
+  "focus": "Data model and schema design for per-agent domain-scoped authority tiers",
+  "name": "fd-authority-schema-design",
+  "persona": "A distributed systems architect with deep IAM schema design experience.",
+  "review_areas": [
+    "RBAC vs ABAC vs capability-based models for agent×domain×action triple lookups",
+    "Concrete authority record schema: agent_id, domain_pattern, action_class, tier_floor, evidence_refs, expiry, audit trail",
+    "Interaction between fleet-level Mycroft T0-T3 and per-agent domain authority: cap, floor, or orthogonal",
+    "CODEOWNERS and GitHub required-reviewers-by-path as models for path→authority mappings",
+    "Authority lookup interface: given (agent_id, bead_id, action), resolution algorithm",
+    "Authority inheritance and delegation: can T3 agent delegate to subagent without privilege escalation"
+  ],
+  "success_hints": [
+    "Concrete schema (fields, types, constraints) implementable in YAML or Dolt",
+    "Lookup algorithm O(log n) or better, no external service call",
+    "Fleet-tier and domain-authority interaction as single composable rule"
+  ],
+  "task_context": "AI factory needs per-agent domain-scoped authority on top of fleet T0-T3 tiers. Has Interspect, beads, route.md."
+}

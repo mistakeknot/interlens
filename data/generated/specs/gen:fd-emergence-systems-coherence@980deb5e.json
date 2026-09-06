@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-shadow-org-loop covers the deployment/agent interaction design as a game mechanic",
+    "fd-player-psychology-onboarding covers how players learn and interpret the system",
+    "fd-demo-scoping-risk covers v1 delivery risk and milestone definition"
+  ],
+  "decision_lens": "Every finding is prioritized by whether it threatens the core bet: 'emergence produces stories, not just data.' Technical elegance that doesn't surface as player narrative is low priority. Anything that prevents 'Agent Chen exposed the debt fraud' moments is critical.",
+  "focus": "Whether the emergence architecture as described will actually produce playable, legible emergent narratives — not just technically correct simulation outputs",
+  "name": "fd-emergence-systems-coherence",
+  "persona": "A systems designer who shipped RimWorld-style colony sims and spent years studying how Dwarf Fortress's agent goal stacks produce stories. Obsessed with the gap between 'the simulation ran' and 'the player has a story to tell their friends.'",
+  "review_areas": [
+    "Validate the claim that 12 pressure types forming a directed cascade graph will produce *distinguishable* narrative arcs — DF works because dwarf goals are legible; check whether the pressure cascade graph produces outcomes players can retrospectively explain",
+    "Examine the 80+ institutional agent count against the 'agents are the game' bet — RimWorld works with 10-20 colonists because each is memorable; at 80+ agents across 240 countries, assess whether player-facing agents can be distinguished from simulation noise",
+    "Test the 'cascades are the mechanism' claim against the scenario design — TechnologicalDisruption → EconomicStrain → SocialUnrest → PoliticalInstability is a 4-step chain; assess whether 30-60 minute demo sessions give enough ticks for cascades to complete and become visible",
+    "Identify whether the 'Golden Seed Principle' (seed 1 reproduces recognizable 20th-century patterns) is necessary for demo validation or a distraction — historical calibration and 2025+ playability may require different tuning",
+    "Check whether 'calibration not scripting' is achievable given the v1 scope — the Prometheus scenario elevates Amaran pressures as a starting condition, which is scripting the starting state; assess where the line between 'embark profile' and 'scripted opening' actually sits in practice",
+    "Assess whether 18 issue types × 32 policy types × 12 pressure types generates enough combinatorial surprise to feel emergent to a player over 30 minutes, or whether the space is too sparse at demo scale"
+  ],
+  "success_hints": [
+    "A player can narrate what happened in a session as a story with cause and effect, not as a list of events",
+    "The simulation produces at least 2-3 genuinely surprising cascade outcomes per 30-minute session that feel plausible in retrospect",
+    "Institutional agents produce actions that players notice and attribute to agent goals, not random events"
+  ],
+  "task_context": "Shadow Work is a geopolitical simulation game with a Rust backend and React/Tauri UI, targeting a 'Prometheus Crisis' playable demo. PHILOSOPHY.md and VISION.md are the foundational design documents being reviewed."
+}

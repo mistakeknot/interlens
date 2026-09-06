@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-issue-comprehension covers issue interpretation",
+    "fd-test-validation-loop covers post-patch evaluation",
+    "fd-model-routing-calibration covers model selection"
+  ],
+  "decision_lens": "Structural tool gaps (no AST search, no call-graph traversal) rank P0; efficiency gaps rank P1.",
+  "focus": "Whether Skaffen's 7 built-in tools provide sufficient code navigation to localize bugs in unfamiliar repos within token budget",
+  "name": "fd-localization-toolchain",
+  "persona": "A tool infrastructure engineer who benchmarks code search strategies. Treats each tool call as a budget expenditure that must return maximum localization signal per token.",
+  "review_areas": [
+    "Assess whether read tool supports line ranges without reading entire file",
+    "Check for Python import graph or call chain understanding mechanisms",
+    "Evaluate bash stdout+stderr interleaving for pytest diagnostic quality",
+    "Assess 10KB output cap truncation behavior (head vs tail preservation)",
+    "Evaluate glob for repo structure mapping and whether system prompt teaches it",
+    "Check grep context line support and whether agent uses contextual grep"
+  ],
+  "success_hints": [
+    "Agent localizes relevant files in under 5 tool calls for 80% of tasks",
+    "Bash test output preserves diagnostic lines even when exceeding cap"
+  ],
+  "task_context": "Skaffen Go agent with OODARC phases in headless print mode for SWE-bench Lite. Goal: #1 (~60% baseline) through genuine improvements."
+}

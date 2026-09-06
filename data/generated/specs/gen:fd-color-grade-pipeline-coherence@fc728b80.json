@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Does not review the audition protocol's falsifiability (see fd-perceptual-audio-falsifiability)",
+    "Does not review Hindustani ornament fidelity (see fd-hindustani-ornament-fidelity)",
+    "Does not review the two-PRD contract boundary or caller coordination (see fd-surgical-handoff-contract)"
+  ],
+  "decision_lens": "If you ran the passes in a different order, would the output change? Is Pass 0 (reset) truly a universal precondition, or does it interact with downstream passes? Is the 'straight-12-tet' patch a true no-op or a pseudo-no-op that still modifies the clip?",
+  "distance_rationale": "Color grading pipelines share the mutation-chain structure with the MIDI mutation pipeline: ordered transforms, a reset-to-log precondition, named 'looks' as patch analogs, and inspectable intermediate states — but operate on image data in a different industry with different failure modes.",
+  "expected_isomorphisms": "A color grade's 'reset to log' step maps to Pass 0's reset-all-controllers: both establish a known baseline state before any look is applied. A LUT's non-commutativity with a CDL maps to the pass-ordering question: applying forbidden-note enforcement before or after ascent/descent substitution produces different outputs, just as applying a creative LUT before or after a CDL produces different images.",
+  "focus": "Pipeline integrity — does the six-pass mutation chain have the same structural properties that make film color-grading chains reliable: ordered, non-commutative, inspectable at each stage, and reversible to a known state?",
+  "name": "fd-color-grade-pipeline-coherence",
+  "persona": "Apply the perspective of a film/video color grading pipeline architect — they care about LUT chain ordering (a CDL before a creative LUT is not the same as after), the difference between destructive and non-destructive transforms, the role of a 'reset to log' step before applying a look, and the requirement that every stage's output be inspectable in isolation. They measure whether a pipeline's stages interact in unexpected ways when composed, and whether the 'straight' patch (identity transform) is actually an identity. They flag when pass ordering is justified by assumption rather than by commutativity proof or empirical test.",
+  "review_areas": [
+    "Pass ordering (reset → forbidden-note → ascent/descent → cent-offset → ornament → velocity) is stated but not justified. Do any pairs of passes commute? For example, if ascent/descent substitution runs before forbidden-note enforcement, a substituted note might itself be forbidden — but if it runs after, the forbidden note is already replaced and substitution acts on a different note. Which ordering is musically correct?",
+    "The 'straight-12-tet' patch is described as the identity transform — 'straight' means no mutations. But Pass 0 (reset controllers) runs unconditionally, and Pass 1 (forbidden-note, warn mode) runs and populates flagged_pitches_used. Is the 'straight' render truly byte-identical to loading the MIDI directly, or does it differ by the reset events and warning annotations?",
+    "The clip-replace mechanism (§ 3.8) has two paths: direct set_clip_data or delete_clip + import_midi_file. These two paths have different atomicity properties. If the session crashes between delete_clip and import_midi_file, the clip is lost. Is the fallback path's failure mode documented and does the PRD require a pre-deletion backup?",
+    "The inspectable artifact (§ 3.8, .mutated.mid written to disk) is written after all passes. Is there a provision for per-pass inspection — e.g., writing intermediate MIDI after each pass — to support debugging when the audition fails?",
+    "Pass 3 (cent offsets) emits pitch-bend events that are channel-global. If Pass 4 (ornament insertion) adds grace notes on the same channel, those grace notes inherit the previous note's pitch bend unless a reset is emitted. Does the grace-note insertion logic emit its own bend context, or does it rely on the post-note-off reset already in place?",
+    "The seeded RNG is initialized once per call (§ 3.7), then sampled in iteration order across passes. If the note iteration order changes (e.g., due to a MIDI sort step in a future pass), the RNG sequence shifts, breaking determinism for all downstream passes. Is the iteration order canonicalized and frozen in the spec?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The PRD does not require writing the mutated MIDI to a temp file before calling delete_clip, nor does it specify whether the original clip is backed up before deletion.",
+      "scenario": "The clip-replace fallback path (delete_clip + import_midi_file) deletes the original clip, then import_midi_file fails due to a disk/API error. The track now has no clip, the session is in a corrupted state, and realize_ensemble fails fast — but the clip is permanently lost from the track.",
+      "severity": "P0"
+    },
+    {
+      "condition": "The PRD does not specify whether ornament grace notes inherit the parent note's pitch bend, or whether Pass 4 is required to emit a bend=0 context around grace note events.",
+      "scenario": "Pass 4 inserts gamak grace notes (alternating ±1 semitone) on the same MIDI channel as a note that received a non-zero pitch bend in Pass 3. The grace notes play at the bent pitch, not at the intended ±1 semitone — the gamak oscillation is microtonally displaced for the entire ornament duration.",
+      "severity": "P1"
+    },
+    {
+      "condition": "The PRD does not clarify that 'straight-12-tet' is a logical identity (no musical mutation) rather than a byte-identical identity. The reset events are always emitted.",
+      "scenario": "The 'straight-12-tet' render includes reset controller events at tick 0 that the raw MIDI does not have. A consumer comparing raw vs straight-12-tet MIDI at the byte level finds differences and incorrectly concludes the patch is not an identity — flagging a false positive in automated diff checks.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Film and video color grading pipeline architecture (CDL/LUT chains, ACES pipelines, DaVinci Resolve node graph design)",
+  "success_hints": [
+    "The PRD documents which pass pairs are non-commutative and why the chosen ordering is musically correct",
+    "Ornament grace notes are specified to emit a bend=0 context or inherit parent bend explicitly — no ambiguity about which pitch the grace note sounds at",
+    "The clip-replace fallback documents the backup step before delete_clip and the recovery path if import_midi_file fails",
+    "The spec explicitly states that 'straight-12-tet' is a logical no-op but not a byte-identical no-op due to mandatory Pass 0 events"
+  ],
+  "task_context": "Reviewing the PRD for apply_tonal_grammar, specifically the six-pass mutation pipeline (§ 3). This review evaluates pipeline coherence: whether pass ordering is justified, whether passes interact correctly, and whether the pipeline's inspectability and reversibility match the PRD's audit-friendliness goals."
+}

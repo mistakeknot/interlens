@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-gating-model-typology covers gate enforcement modes",
+    "fd-false-block-cost-modeling covers threshold tuning for false positives",
+    "fd-progressive-autonomy-gates covers who evaluates gates"
+  ],
+  "decision_lens": "Findings preventing gate gaming and gate pollution rank highest. Findings reducing gate scope to the change's actual blast radius especially valuable.",
+  "focus": "How to structure the causal link between a bead and its CUJ signals so gate verification is scoped, falsifiable, and not trivially satisfied",
+  "name": "fd-cuj-bead-linkage-patterns",
+  "persona": "A requirements traceability engineer who understands failure modes of vague traceability: gates that pass because the system worked before, and gates that fail from unrelated regressions.",
+  "review_areas": [
+    "Survey requirements traceability matrix practices from DO-178C, ISO 26262 for linking work items to specific verification artifacts",
+    "Examine BDD/Gherkin scenario scoping for rules preventing scope inflation that reduces gate sensitivity",
+    "Research change impact analysis (call graph coverage, blast radius estimation) for computing which CUJ signals a bead plausibly affects",
+    "Assess mutation testing frameworks as models for CUJ gate validation: verifying gates catch introduced regressions",
+    "Survey feature flag experimentation for isolating treatment effects and attributing signal changes to specific beads",
+    "Examine program slicing literature for computing CUJ signal relevance per changed file set"
+  ],
+  "success_hints": [
+    "Algorithm for computing CUJ gate relevance per bead based on changed files and signal dependencies",
+    "Technique for distinguishing signal improvement from this bead vs. unrelated concurrent changes",
+    "Scoping rule for full vs. partial vs. no CUJ gate evaluation per bead"
+  ],
+  "task_context": "AI agent factory uses CUJs with typed success signals to gate work item completion. Challenge: prevent quality regression without wasting tokens on false blocks as human withdraws from review."
+}

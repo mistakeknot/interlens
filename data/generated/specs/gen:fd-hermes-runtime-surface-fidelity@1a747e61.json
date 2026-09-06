@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "fd-skill-design-convention-fit covers external ecosystem comparison (Anthropic Skills, agentskills.io); this agent covers internal fidelity of Hermes-specific claims",
+    "fd-subprocess-credential-boundary focuses narrowly on the CVE mechanism and credential-flow correctness; this agent covers the broader claim-attribution discipline across all surfaces",
+    "fd-decision-downstream-traceability covers how D1-D8 map to F2/F3/F5 ACs; this agent covers whether the upstream observations those decisions rest on are correctly characterized"
+  ],
+  "decision_lens": "For each runtime-surface claim in the doc, is the citation pointing at code Hermes runs on the skill's behalf, or at text Hermes injects into the model's context expecting the model to act on it — and does the doc label the distinction explicitly so F2/F3/F5 plan-writers don't design Python lifecycle hooks against what is really a markdown convention?",
+  "focus": "Audits whether the synthesis's claims about the Hermes Agent skill runtime (SkillContext shape, lifecycle, terminal() subprocess pattern, gateway emit, persistent memory absence) accurately reflect how Hermes actually exposes a skill to a model — specifically distinguishing declarative SKILL.md instructions that an LLM is supposed to follow from callable Python hooks the runtime invokes.",
+  "name": "fd-hermes-runtime-surface-fidelity",
+  "persona": "Apply the perspective of an LLM-agent runtime engineer who has built three or more skill/tool plugin systems (Claude Code skills, OpenAI Assistants tools, LangChain agents) and has read the Hermes Agent source firsthand — they care about whether the doc correctly classifies each surface as runtime-invoked vs. LLM-interpreted, measure whether the cited def-site is the actual production code path (not an example, not a test fixture, not a deprecated branch), and flag any place the doc describes a 'hook' or 'callback' that is in fact prose inside a SKILL.md file that the agent is merely instructed to honor.",
+  "review_areas": [
+    "Lifecycle hooks framing (§2, lines ~156-255): the doc must state clearly whether Hermes has callable install/invoke/teardown methods OR only the convention of agents reading SKILL.md and calling terminal() — these have very different reliability properties. A misclassification here cascades into F2 binary bootstrap design.",
+    "terminal() pattern (§4, lines ~349-445 incl. the SKILL.md fragment around line 422-433): the embedded fragment shows the agent calling terminal() from prose. Verify the doc labels this as [COMMENT]/[EXTDOC] convention rather than [IMPL] — the agent's compliance is probabilistic, not deterministic, and downstream features need to know.",
+    "SkillContext shape (§1, lines ~78-155): the doc claims a SkillContext object exists with certain fields. Verify each named field has an [IMPL] citation to a class/struct attribute, not just a parameter name in an example SKILL.md, and that the def-site vs. echo-site distinction is preserved in the field table.",
+    "Gateway emit API (§8, lines ~699-763): verify the doc distinguishes between a Python API the skill calls (e.g. context.emit) and stdout text Hermes interprets and re-emits — F4 chat-gateway design changes radically depending on which.",
+    "CVE GHSA-rhgp-j443-p4rf treatment (§5, lines ~446-553): the _HERMES_PROVIDER_ENV_BLOCKLIST mechanism is the security boundary. Verify the doc cites the exact env-var list as it exists at the pinned SHA (not as patched in main), names the CVE-fix version, and states whether terminal() subprocess inheritance bypasses or honors the blocklist.",
+    "Persistent memory absence (§6, lines ~554-634, closes OQ3): an ABSENT citation is a load-bearing claim. Verify the doc shows what was searched (symbol patterns, file globs), not just the conclusion — an [ABSENT] without falsification protocol is indistinguishable from 'we didn't look hard enough'."
+  ],
+  "severity_examples": [
+    {
+      "condition": "F2 plan-writer designs a deterministic install hook against what is really an LLM-honored markdown convention; binary bootstrap fails ~5-15% of the time when the model skips the install instruction; data corruption when partially-installed binary runs",
+      "scenario": "Doc describes a 'lifecycle install hook' citing a SKILL.md fragment that instructs the LLM to run terminal() on first invocation, but labels the citation [IMPL] instead of [COMMENT]/[EXTDOC]",
+      "severity": "P0"
+    },
+    {
+      "condition": "F3 cost-preview gate assumes ANTHROPIC_API_KEY is blocked from terminal() subprocesses; in the pinned version it isn't; user provider keys leak into shadowbench subprocess env on every run",
+      "scenario": "_HERMES_PROVIDER_ENV_BLOCKLIST is documented as the security boundary, but the cited list is from main branch (post-CVE-fix) rather than the pinned SHA 73bf3ab1",
+      "severity": "P1"
+    },
+    {
+      "condition": "F5 designs own JSONL store; later discovery that Hermes has a SkillStore class under hermes/storage/ that the spike's grep missed means F5 ships duplicate state, breaks 'self-decoding without source repo' AC, requires F5 v2 migration",
+      "scenario": "OQ3 closure (persistent memory) is marked [ABSENT] without showing the search patterns used and which subdirectories of Hermes were enumerated",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "For every [IMPL] citation, require the file path to live under the package's exported public-API path (typically `hermes/skills/`, `hermes/runtime/`) rather than `examples/`, `tests/`, or `docs/` — flag any citation rooted in those directories as suspect",
+    "Add a 'binding mechanism' column to the SkillContext field table: [runtime-attribute] vs. [SKILL.md-prose] vs. [env-var] — F2/F3/F5 plan-writers need this distinction to design correct integration code",
+    "For each [ABSENT] claim, require the section to list the exact ripgrep patterns and tldr-code queries that returned empty, so a future maintainer can re-verify the absence at a new Hermes SHA without re-deriving the search strategy",
+    "Cross-check the SKILL.md fragment at lines ~422-433 against any real shipped skill in Hermes's examples/ directory or in awesome-hermes-agent — if no shipped skill uses this exact terminal() pattern, the fragment is speculative and should be labeled as such"
+  ],
+  "task_context": "The synthesis documents the Hermes Agent skill runtime surface using a 3-layer structure (raw observations / decision layer / notices appendix) with structured citations ([IMPL]/[COMMENT]/[EXTDOC]/[ABSENT]) at a pinned SHA 73bf3ab1. The review goal is to verify each runtime-surface claim is correctly attributed and correctly classified — specifically that declarative SKILL.md content is not mistaken for runtime-invoked Python hooks, and that the def-site vs. echo-site distinction holds."
+}

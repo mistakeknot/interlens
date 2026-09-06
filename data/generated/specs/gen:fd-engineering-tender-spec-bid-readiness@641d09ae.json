@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "Tender-spec focuses on interface precision and boundary explicitness; pharma DD focuses on evidentiary chain quality — do not duplicate citation-quality findings.",
+    "Tender-spec focuses on bidder-readiness; legal-opinion-memo focuses on conclusion structure and reliance — do not duplicate self-audit-gate findings."
+  ],
+  "decision_lens": "If F2/F3/F5 plan-writers were external bidders pricing a fixed-bid contract against this synthesis, would they have enough specification to bind their bid without an RFI cycle? Where would they file clarification requests?",
+  "distance_rationale": "Engineering tender specs operate on the same 'research/specification gates implementation work' abstraction but in a domain where contractual liability mandates interface unambiguity and explicit scope boundaries.",
+  "expected_isomorphisms": "The MUST/MUST NOT discipline of tender requirements maps to the gating-decision discipline of D1-D8; the bidder-RFI pattern is precisely the failure mode that downstream plan-writers should not have to invoke when reading the synthesis.",
+  "focus": "Whether the synthesis specifies the Hermes runtime surface with the precision and unambiguity an engineering tender document must provide to receive bindable bids — every interface, dependency, and constraint named in a form bidders can quote against without RFI rounds.",
+  "name": "fd-engineering-tender-spec-bid-readiness",
+  "persona": "Apply the perspective of a senior engineering tender writer producing the technical specification volume that will be issued to bidders for a major infrastructure procurement. Such tender writers know that every ambiguity in the spec becomes either an RFI cycle (delay) or a contractor change-order (cost overrun); they therefore enforce numbered, citable requirements, explicit interface boundaries, and named acceptance criteria for every surface that bidders will price.",
+  "review_areas": [
+    "Each decision D1-D8 is stated with explicit interface boundaries — what is in scope, what is out of scope, what is the boundary condition between Hermes and Shadow Work code.",
+    "Acceptance criteria for each downstream feature plan (F2, F3, F5) are derivable from the synthesis without requiring re-investigation of the Hermes corpus.",
+    "All dependencies on Hermes are version-pinned (SHA + tag) and the synthesis names the failure mode if a downstream consumer pins to a different SHA.",
+    "Interface contracts (the SKILL.md frontmatter schema, the dict shape consumed by _build_skill_message, etc.) are quoted from def-site with file:line@SHA precision sufficient to write a type stub.",
+    "Provider-key handoff (OQ1) constraints from CVE GHSA-rhgp-j443-p4rf are expressed as binding requirements with explicit acceptable/unacceptable behaviors, not as advisory commentary.",
+    "The boundary between 'Hermes provides' and 'Shadow Work must implement' is explicit for skill scaffolding, bench mode, and run storage/telemetry surfaces."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Any D-row does not specify the in-scope/out-of-scope boundary between Hermes-supplied and downstream-supplied responsibility.",
+      "scenario": "A decision D1-D8 lacks a stated interface boundary, allowing F2/F3/F5 plan-writers to legitimately disagree on what Hermes provides vs. what they must implement.",
+      "severity": "P0"
+    },
+    {
+      "condition": "A surface named as a contract (e.g. SKILL.md frontmatter) lacks a def-site quotation with file:line@SHA.",
+      "scenario": "An interface contract is described in prose but not quoted at def-site with sufficient precision to write a type stub or schema validator.",
+      "severity": "P1"
+    },
+    {
+      "condition": "F2/F3/F5 success conditions can be derived from the synthesis only by inference, not by direct quotation of a stated criterion.",
+      "scenario": "An acceptance criterion implied by the synthesis is not made explicit, requiring downstream plan-writers to interpret intent.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Pre-tendering technical specification documents gating engineering bids",
+  "success_hints": [
+    "For each D-row, ask: could a third-party engineer implement the Shadow Work side against this spec without requesting clarification?",
+    "Verify interface contracts (SKILL.md frontmatter, loaded_skill dict shape, _build_skill_message inputs) are quoted with file:line@SHA precision suitable for code-generation.",
+    "Check that the CVE constraint on provider-key handoff is rendered as binding requirements (MUST/MUST NOT) with explicit behaviors, not as background context.",
+    "Look for the 'who implements this' boundary on every surface the synthesis describes — Hermes side, Shadow Work side, or shared."
+  ],
+  "task_context": "Review the F0 research synthesis as if it were a technical tender volume being issued to engineering bidders. Three downstream plans (F2, F3, F5) are the bidders; their plans will be priced against the spec. The review goal is to find every ambiguity that would become a clarification request or a change order if the bidders treated the synthesis as binding."
+}

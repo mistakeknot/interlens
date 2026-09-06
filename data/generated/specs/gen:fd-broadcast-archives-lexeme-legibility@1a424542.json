@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Does not review earning-condition precision or conferral-authority questions (see fd-heraldic-registry-epithet-conferral)",
+    "Does not review identifier stability, disambiguation, or authority-record completeness (see fd-library-authority-control-lexeme-disambiguation)",
+    "Does not review farewell narrative content or lifecycle-event ordering (see fd-military-decorations-epithet-lifecycle)"
+  ],
+  "decision_lens": "Broadcast archives track the 'airtime' of on-air identities — high airplay = high recall, no airplay = rapid fade — which is structurally identical to the ColonyLexicon's salience model. Radio nickname persistence (call-signs that outlive a broadcaster's tenure) maps to the 'owner's display name never loses the epithet' exception.",
+  "distance_rationale": "Radio broadcast archive management is a media-operations discipline entirely outside game simulation, but it has formalized the same decay-vs-reference tension — how frequently must an identity be aired to remain in active recall vs. archived — with practical retention policies.",
+  "expected_isomorphisms": "Broadcast airplay frequency maps to gossip-reference rate; audience recall decay maps to linear salience decay; the 'currently airing' vs. 'historical record' distinction maps to the active-gossip vs. display-override bifurcation; archive retention/compaction policy maps to the unbounded HashMap growth risk.",
+  "focus": "Apply broadcast-archive and radio-tradition practice to evaluate salience decay rates, gossip-reference mechanics, and the legibility of ColonyLexicon for downstream consumers",
+  "name": "fd-broadcast-archives-lexeme-legibility",
+  "persona": "Apply the perspective of a broadcast archivist and radio station identity manager — they care about how quickly a call-sign or on-air nickname fades from listener memory when it stops being broadcast, what the minimum reference frequency is to keep a name alive in audience recall, and how archives index identities that were once prominent but are now rarely aired. They flag salience parameters that cause useful names to decay before any consumer system can reference them, and decay rates so slow that the lexicon fills with zombie entries.",
+  "review_areas": [
+    "Decay rate calibration against consumer absence: the brainstorm sets -0.5/day decay and notes that no gossip-consumer exists yet, so salience is 'mostly decay-driven until a consumer exists.' At -0.5/day from a starting value of 10.0, an epithet hits the gossip-suppression threshold of <=2.0 after 16 in-game days with zero references — flag whether this timeline is calibrated against expected game-day length and colony activity, or is an arbitrary placeholder",
+    "Reference bump magnitude vs. decay rate: +2.0 per gossip reference and -0.5/day means a single reference buys 4 days of gossip-visibility. If gossip fires roughly once per week of game time, a single reference barely maintains salience — flag whether the +2.0 bump is enough to sustain an active epithet's visibility in normal play",
+    "Zombie entry accumulation: radio archives prune entries that have had no airplay for a defined retention window. The brainstorm explicitly says lexemes 'can go negative but saturate to 0.0' and never vanish — flag whether the HashMap will grow unboundedly as elves earn epithets over a long colony lifetime, and whether a low-salience compaction pass is needed",
+    "Consumer bootstrap problem: the brainstorm honestly flags that salience's +2 usage bump is inert until a gossip/rivalry/departure system references lexemes. Broadcast archives solve this by requiring at least one scheduled broadcast before launch. Flag that the epithet system should emit at least one usage bump (e.g., on initial earn) to give a non-arbitrary starting salience, and verify that FulfilledDeparture's epithet injection counts as a usage event that bumps salience",
+    "Legibility ceiling: broadcast archives cap on-air identity complexity to maintain audience clarity. The brainstorm caps display at 2 epithets — verify that the display_with_epithets helper enforces this cap consistently and does not allow edge cases (e.g., a display-formatting call that iterates all earned epithets) to leak extra text",
+    "Archive access patterns: broadcast archives distinguish 'currently airing' from 'historical record' queries. The brainstorm's design conflates these — any system reading ColonyLexicon must filter by salience threshold itself. Flag whether a convenience query API (e.g., active_epithets() vs. all_epithets()) should be provided to prevent consumers from accidentally using stale low-salience entries."
+  ],
+  "severity_examples": [
+    {
+      "condition": "With -0.5/day and no +2 bumps, salience reaches 2.0 in 16 days; if gossip-consumption is a follow-up sprint, the lexicon is functionally empty during the entire first shipped version",
+      "scenario": "All epithets decay below gossip threshold within 20 days in a colony with no active gossip consumer, making the salience feature inert for the entire initial feature lifetime",
+      "severity": "P1"
+    },
+    {
+      "condition": "A 1000-tick colony with 50 elves each earning 2 epithets accumulates 100 permanent Lexeme entries; over a multi-century sim this becomes a memory and iteration concern",
+      "scenario": "ColonyLexicon HashMap grows without bound over a long colony lifetime as each earned epithet adds a permanent entry with no eviction policy",
+      "severity": "P2"
+    },
+    {
+      "condition": "Farewell narrative construction is a high-salience cultural moment; if it does not call lexicon.record_usage(lexeme_id), the salience accounting is incomplete from day one",
+      "scenario": "FulfilledDeparture reads the top epithet for farewell text but does not emit a usage bump, missing the most natural 'reference' event for the epithet",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Broadcast archives / radio tradition",
+  "success_hints": [
+    "Calibrate the initial salience of 10.0 and decay of -0.5/day against an estimated game-day-to-real-second ratio and expected colony event frequency — do not leave these as arbitrary numbers",
+    "Define a minimum salience floor behavior: consider whether entries below 0.5 can be compacted to a cold-storage Vec to keep the active HashMap lean for query-hot systems",
+    "Treat FulfilledDeparture and ElfDeparted as first-class lexeme-usage events: each departure that injects an epithet into farewell text should call record_usage on that LexemeId",
+    "Provide two read APIs on ColonyLexicon: active_lexemes(threshold) for gossip consumers and all_lexemes_for_elf(elf_id) for name-display, to prevent consumers from accidentally using the wrong view"
+  ],
+  "task_context": "Review the ColonyLexicon salience decay model, usage-bump mechanics, and consumer-readiness decisions in the brainstorm, applying broadcast-archive standards for content lifecycle, airplay calibration, and archive legibility."
+}

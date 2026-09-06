@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-networkx-multigraph-routing owns the parallel-edge weight-callable contract and MultiDiGraph traversal semantics — focus here on whether the heuristic preserves optimality given that contract, not on the contract itself",
+    "fd-geospatial-crs-precision owns lat/lon precision and CRS issues inside haversine — focus here on the algorithmic property (admissibility), not the geodesy implementation"
+  ],
+  "decision_lens": "Does the A* implementation provably return an optimal path under every (k, graph) configuration, or could the heuristic / weight contract silently break optimality?",
+  "focus": "A* algorithm correctness — heuristic admissibility, consistency, and optimality on a MultiDiGraph with shade-weighted edges.",
+  "name": "fd-astar-correctness",
+  "persona": "Apply the perspective of a classical-pathfinding algorithmist who has implemented A* on weighted road networks — they care about provable optimality, measure heuristic tightness vs admissibility margins, and flag any place where the chosen heuristic, weight callable, or graph topology could let A* return a suboptimal or non-deterministic path.",
+  "review_areas": [
+    "Admissibility proof for haversine_minutes vs felt_minutes (does h ≤ true cost hold for ALL k ≥ 0, including parallel edges and one-ways?)",
+    "Consistency/monotonicity check — closed-set safety on NetworkX astar_path (does it require consistency, or just admissibility?)",
+    "Tie-breaking behavior on null-shade graph and whether non-determinism risks flaky tests",
+    "Heuristic tightness at k=0 (haversine_minutes severely under-estimates → A* degenerates to Dijkstra-like expansion; document the speedup expectation)",
+    "Goal-node disconnection / unreachable-island handling vs A*'s infinite-loop or NetworkX NodeNotFound semantics",
+    "Comparison-to-Dijkstra test design — is 'matches Dijkstra on null-shade' a real correctness gate or just a sanity check?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "h > true cost on at least one edge → A* returns suboptimal path; Epic DoD #1 evidence becomes invalid",
+      "scenario": "haversine_minutes uses a pace_mps that exceeds the per-edge effective pace under any k or surface multiplier",
+      "severity": "P0"
+    },
+    {
+      "condition": "Three-arg weight signature interacts with multi-edges such that the heuristic's endpoint-only estimate ignores which parallel edge was chosen → admissibility holds but expansion order is brittle and tests are flaky",
+      "scenario": "NetworkX astar_path uses heuristic but reduces parallel edges via min() before passing to weight callable",
+      "severity": "P1"
+    },
+    {
+      "condition": "Smoke test asserts a specific path on null-shade graph → fails intermittently across Python/networkx versions",
+      "scenario": "Tie-breaking left to heap-order with no secondary key",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Admissibility shown algebraically in the docstring and pinned by a test that fuzzes k over [0, 2] and asserts h ≤ true edge cost on every edge",
+    "Explicit acknowledgment that the heuristic is admissible but not consistent, with a citation to NetworkX's astar_path requirements",
+    "Null-shade smoke test asserts cost-equality with Dijkstra, not path-equality",
+    "Unreachable-OD case has a defined failure mode (raises a typed exception, not a hang)"
+  ],
+  "task_context": "A brainstorm document is being reviewed before strategy/plan phases for Phase 1.7 of the Solwend routing platform. The doc proposes a new spatial.routing module exposing astar(graph, src, dst, *, weight) with a haversine-minutes heuristic over a NetworkX MultiDiGraph carrying felt_minutes = walking_minutes × (1 + k × sun_fraction). Review goal: surface any algorithmic correctness or optimality-preservation risks specialist knowledge of A* would catch."
+}

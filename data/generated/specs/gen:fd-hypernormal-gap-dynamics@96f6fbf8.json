@@ -1,0 +1,37 @@
+{
+  "anti_overlap": [
+    "fd-epistemic-regime-derivation covers regime blend derivation",
+    "fd-satisfaction-quintile-model covers satisfaction channel",
+    "fd-pressure-emission-contract covers LegitimacyCrisis burst write triggered by large gap values"
+  ],
+  "decision_lens": "A gap that initializes to 0.0 for all countries is P1 (eliminates archetype starting conditions). A gap that exceeds ±0.5 corrupts the ShadowBench scoring surface — P0.",
+  "focus": "Correctness of the performed_trust / actual_trust split, convergence rate derivation from regime blend, and gap range enforcement",
+  "name": "fd-hypernormal-gap-dynamics",
+  "persona": "A control-systems engineer who models lag dynamics in feedback systems. Looks for initialization states that skip lag, convergence rates that are too fast, and range violations in the [-0.5, 0.5] gap.",
+  "review_areas": [
+    "performed_trust initialization: verify archetype seed carries performed_trust_baseline and init_countries sets it independently from institutional_trust",
+    "Convergence rate blend: must be weighted sum of per-regime coefficients dotted against epistemic_regime_blend each tick, not cached at seed time",
+    "Gap range clamp: explicit clamp to [-0.5, 0.5] after subtraction",
+    "Regime-dependent convergence: NETWORKED countries collapse gap quickly, verify measurable reduction in 10-20 ticks",
+    "Enforcement capacity interaction: D3 enforcement_capacity should sustain performed_trust even when actual_trust falls",
+    "Trigger event burst: +0.10 LegitimacyCrisis burst when gap > 0.3 AND trigger event — verify status"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Occurs if init_countries uses wrong seed field",
+      "scenario": "performed_trust initialized from institutional_trust_baseline instead of performed_trust_baseline, so hypernormal_gap starts at 0.0 for all countries including Rentier states",
+      "severity": "P0"
+    },
+    {
+      "condition": "Occurs if implementer caches convergence_rate in PublicOpinionCountrySeed",
+      "scenario": "convergence_rate computed once at seed time and cached, never updating when regime shifts",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "After 30 ticks with no shocks, SAU/RUS hypernormal_gap > 0.1; USA/DEU hypernormal_gap < 0.05",
+    "A country with networked_weight 0.6 converges gap roughly 4x faster than broadcast-dominant",
+    "hypernormal_gap strictly within [-0.5, 0.5] for all countries under all pressure combinations"
+  ],
+  "task_context": "The implementation separates hypernormal_gap into performed_trust and actual_trust channels. Convergence rate is a weighted dot product of regime blend with per-regime coefficients."
+}

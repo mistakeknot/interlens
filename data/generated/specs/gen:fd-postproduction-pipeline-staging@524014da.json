@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "fd-payments-schema-governance covers enum closedness and version governance of the schema, not tier-routing/scheduling semantics",
+    "fd-labmed-chain-of-custody covers provenance lineage and destruction-gating, not tier-capability enforcement",
+    "fd-aviation-mro-compliance-record covers regulatory certification gating of stage sign-off, which is a different kind of gate than capability-based tier routing"
+  ],
+  "distance_rationale": "Post-production pipelines are a parallel discipline: they route the same source material through a staged sequence of tools of increasing cost/capability (on-set proxy -> editorial -> color/VFX -> DCP delivery) built by different teams in different software stacks, but the domain is creative-media delivery rather than privacy compliance and the constraint is throughput/deadline rather than legal risk.",
+  "expected_isomorphisms": "Proxy-first workflows (cut low-res proxies now, conform to camera-original later), stage-declared minimum capability requirements (an online color grade cannot run on a laptop that can run an offline edit), and content-addressed media identity via EDLs/reels map directly onto tiered stage routing (device_realtime -> cloud_burst), per-stage minimum_tier declarations, and content-addressed session artifacts.",
+  "focus": "Staged tier-routing correctness and multi-runtime handoff mechanics for a pipeline that must degrade gracefully under resource constraints.",
+  "name": "fd-postproduction-pipeline-staging",
+  "persona": "Apply the perspective of a post-production pipeline supervisor (DIT/pipeline TD managing dailies-to-delivery workflow across edit, VFX, and color facilities) — they care about whether every stage's minimum-capability requirement is declared and enforced before work is routed to it; they measure the pipeline by whether a shot silently routed to the wrong facility/tier is caught before the wrong output ships; they flag any point where the contract doesn't make it impossible to send finishing-tier work through a proxy-tier stage by accident.",
+  "review_areas": [
+    "Whether minimum_tier is enforced as a hard contract precondition (the scheduler cannot route below-tier work) versus an advisory field a stage implementation could ignore, mirroring the difference between a hard capability gate and a suggested workflow step in post pipelines",
+    "Whether the stage interface models graceful degradation/partial-completion (a stage that starts on one tier and must hand off mid-work to another) at all, given the brief's later frame-selective-capture and thermal-degradation requirements will need this",
+    "Whether the no-op stage skeleton in each language actually proves the *routing* contract (declares real inputs/outputs/tier/privacy_class metadata) or merely proves the languages can compile a stub, leaving tier-routing semantics unvalidated until M1",
+    "Whether the contract distinguishes a stage's declared minimum_tier from the artifact's required destination trust level, since post-pipelines learned the hard way that 'which facility can do this work' and 'where is this asset allowed to live' are separate axes that get conflated and cause leaks",
+    "Whether session manifests can express a session whose stages ran across multiple tiers/machines over time (device now, node later) without ambiguity about ordering or partial state, the way an EDL must survive assembly across multiple facilities",
+    "Whether the fixtures directory's conformance vectors include a case of a stage declaration requesting a tier/privacy_class combination that should be rejected by the scheduler, not just schema-invalid documents"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Without this as an enforced contract property from M0, tier-routing bugs (e.g., garment segmentation attempted on-device under thermal throttle) become a runtime behavior bug discovered at M1-M4 instead of a contract violation caught by shared conformance tests.",
+      "scenario": "The pipeline contract's minimum_tier field is documented as informational metadata with no accompanying schema rule or conformance vector proving a scheduler must refuse to run a stage below its declared tier.",
+      "severity": "P1"
+    },
+    {
+      "condition": "The brief's own storage-ceiling policy (raw reclaimed only once every routed stage confirms) requires exactly this kind of partial/pending state; if M0's schema can't express 'stage X pending on tier Y' cleanly, M1's storage/reclaim logic will bolt on an ad hoc side-channel instead of using the contract.",
+      "scenario": "The stage interface and manifest schema have no representation for a stage that is declared but has not yet run, or has run on one tier and awaits confirmation from a stage on another tier.",
+      "severity": "P1"
+    },
+    {
+      "condition": "This is the same gap post-pipelines hit when an EDL is technically well-formed XML but references a reel that violates delivery-spec rules — schema validity alone doesn't catch domain-rule violations, and the brainstorm's own flow-rule table needs its own semantic fixture class.",
+      "scenario": "Fixture conformance vectors validate schema shape only (well-formed vs malformed JSON against the schema) with no vector representing a semantically-invalid but schema-valid combination, e.g., a stage claiming minimum_tier: device_realtime while privacy_class: raw_quarantined targets a destination the flow rules forbid.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Film/broadcast post-production pipeline engineering (dailies -> editorial -> VFX/color -> delivery, multi-vendor tool handoffs)",
+  "success_hints": [
+    "Confirms minimum_tier is a schema-enforceable precondition with at least one conformance vector proving rejection of an under-tier routing attempt, not just documented as descriptive metadata",
+    "Confirms the manifest/stage-interface schema can express a stage in a pending/partial state across a tier handoff, anticipating the storage-ceiling and dead-letter requirements coming in M1-M3",
+    "Confirms fixtures include semantically-invalid-but-schema-valid vectors (rule violations), not only structurally-invalid JSON",
+    "Distinguishes stage minimum_tier (capability requirement) from privacy_class destination rules (trust requirement) as two separate, non-conflated schema axes"
+  ],
+  "task_context": "Reviewing an M0 brainstorm for a JSON-Schema-first, dual-language (Swift/Python) pipeline contract defining a stage interface with (inputs, outputs, minimum_tier, privacy_class), a tiered scheduler contract, and content-addressed session manifests, ahead of later milestones that add real tiered/thermal/storage-driven routing behavior."
+}

@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Focuses on raw wgpu pipeline design, macroquad tradeoffs, and the build-vs-use decision for a custom 2D renderer — not Bevy's specific sprite batching system (fd-bevy-sprite-instancing-glyph-atlas), cross-project trait bridge portability (fd-bevy-ecs-trait-bridge-portability), GPU glyph rasterization algorithms (fd-gpu-glyph-rendering-text-pipeline), or WASM browser deployment (fd-wasm-webgpu-browser-target)",
+  "decision_lens": "For a 200x200 top-down glyph grid with 100K+ render objects, does the overhead of Bevy's ECS-integrated rendering (entity extraction, phase sorting, batching) actually hurt performance enough to justify owning a raw wgpu pipeline? Does macroquad's simplicity come at a cost that matters for this game's needs? What is the true maintenance cost of a custom renderer for a solo/small team?",
+  "focus": "Raw wgpu rendering pipeline design for a 2D colony sim without a framework: evaluating when bypassing Bevy in favor of direct wgpu (or macroquad as a thin abstraction) is the right choice, pipeline architecture for instanced glyph quads, render pass design, and the maintenance cost of owning a custom 2D renderer in Rust",
+  "name": "fd-wgpu-raw-pipeline-control",
+  "persona": "Systems graphics programmer who has shipped production games in raw wgpu and can articulate precisely when the added control justifies the added complexity; has benchmarked Bevy 0.18 rendering overhead against equivalent raw wgpu for 2D tile workloads, knows wgpu's BindGroup caching, buffer reuse patterns, and the actual ergonomics of writing a custom sprite batcher that outperforms Bevy's for specific use cases like dense uniform-sized glyph grids",
+  "review_areas": [
+    "Bevy rendering overhead at 100K glyph scale: Bevy 0.18's render pipeline runs entity extraction (copying Transform+Sprite data from the main world to the render world), prepare (binding groups), and queue (sorting by key) every frame; at 100K entities these phases take measurable time; estimate whether a hand-written instanced quad renderer (single InstanceBuffer update, single draw call) could save 3-5ms per frame that Bevy cannot recover",
+    "Raw wgpu instanced quad renderer design: the minimal viable glyph renderer is one wgpu::Buffer with per-instance data (world_xy: vec2, atlas_uv: vec4, fg_color: u32, bg_color: u32) uploaded via queue.write_buffer() each frame, one wgpu::RenderPipeline with a vertex shader that reads instance data, one bind group for the atlas texture — evaluate whether this design correctly handles the 100K glyph case and what the GPU memory footprint is",
+    "macroquad evaluation: macroquad provides Rust 2D rendering with a simple draw_texture_ex API and handles wgpu/OpenGL abstraction; its WASM support is mature but has known issues with texture atlas memory on mobile; evaluate whether macroquad's glyph drawing API is expressive enough for per-glyph foreground/background color, depth layering, and custom fragment shader effects, or whether it requires dropping to macroquad's low-level API anyway",
+    "Frame-to-frame buffer update strategy: for a colony sim, most tiles do not change each frame; evaluate a dirty-tile tracking strategy where the InstanceBuffer is only partially updated (via write_buffer with byte offset) for changed tiles, versus a full re-upload of all 100K instances — at what change rate does full re-upload become cheaper than partial update bookkeeping?",
+    "WGSL shader complexity for multi-layer glyph compositing: the fragment shader must composite terrain glyph + entity overlay + weather effect with correct alpha blending; in Bevy this is handled by the render graph; in raw wgpu it requires a manual multi-pass render setup or a single-pass shader with layer selection logic — evaluate the shader complexity and whether it remains maintainable",
+    "Long-term maintenance cost assessment: a custom wgpu renderer is a significant codebase investment; estimate LOC to implement (vertex buffers, index buffers, texture management, render pass, depth/stencil if needed, resize handling, HiDPI support) and compare against Bevy's amortized maintenance cost; identify which rendering features Elf Revel actually needs that Bevy cannot provide"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Architecture decision made without a Bevy 2D benchmark at colony scale; raw wgpu chosen based on theoretical overhead rather than measured frame time",
+      "scenario": "The raw wgpu renderer is chosen to save 3ms vs Bevy, but the 6-month implementation timeline delays the game's first playable milestone — the performance optimization was premature given that Bevy's overhead was never profiled on the actual target hardware",
+      "severity": "P0"
+    },
+    {
+      "condition": "No dirty-tile tracking; full InstanceBuffer re-upload per frame regardless of how many tiles changed; bandwidth cost not profiled on target hardware",
+      "scenario": "The custom InstanceBuffer approach re-uploads all 100K glyph instances every frame via queue.write_buffer(), consuming 800KB of CPU→GPU bandwidth per frame (8 bytes × 100K instances at 60fps = ~48MB/s) and causing PCIe contention on integrated Apple Silicon that degrades performance below Bevy",
+      "severity": "P1"
+    },
+    {
+      "condition": "macroquad selected without verifying per-glyph dual-color rendering capability; API limitations discovered after prototype is built",
+      "scenario": "macroquad is chosen for prototyping speed but its draw_texture_ex API does not support per-quad custom fragment shader parameters — foreground and background color tinting requires calling draw_texture_ex twice per glyph (once for bg, once for fg with alpha), doubling draw calls and breaking the original performance rationale",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "The decision tool: write a 200x200 instanced quad benchmark in raw wgpu (no Bevy) and a matching benchmark using Bevy's instanced mesh rendering. Run both with Instruments (Metal GPU timeline) on the target Mac. If the Bevy version is within 2ms of raw wgpu per frame, the raw wgpu path is not worth the maintenance cost. If Bevy is 5ms+ slower, the custom pipeline is justified for this project's lifespan.",
+  "task_context": "Elf Revel native full-screen Rust colony sim evaluating 6 rendering options including raw wgpu, macroquad, and Bevy 0.18. Needs 100K+ glyphs at 60fps in a top-down ASCII-aesthetic grid. Target hardware: Apple Silicon native (primary), WASM browser (secondary). Team size: solo/small. The raw wgpu and macroquad options compete against Bevy on performance vs ergonomics."
+}

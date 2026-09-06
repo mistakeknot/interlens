@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-claiming-protocol-atomicity covers per-claim correctness",
+    "fd-failure-recovery-and-zombies covers per-bead failure recovery",
+    "fd-backlog-priority-and-matching covers individual selection"
+  ],
+  "decision_lens": "Prioritizes feedback computable from existing data (interstat, bd stats, intermux). Downgrades ML or complex tuning for Phase 1.",
+  "focus": "Closed-loop signals for factory self-regulation — throughput metrics, backlog health, dynamic concurrency",
+  "name": "fd-feedback-loops",
+  "persona": "A control systems engineer who thinks in feedback loops. Looks for minimum observable signals to close the loop.",
+  "review_areas": [
+    "Celery autoscaling PI controller over worker count based on queue depth",
+    "Toyota TPS takt time computation for software factory WIP limits",
+    "Temporal workflow metrics: schedule-to-start latency, completion rate, failure rate from bd stats + interstat",
+    "Game AI utility scoring feedback for route.md complexity classification improvement",
+    "Fleet utilization metrics: detecting idle surplus vs starvation",
+    "Per-bead signals (time-to-claim, claim-attempt count, retry rate) for detecting systemic problems"
+  ],
+  "success_hints": [
+    "3-5 specific metrics from existing bd + interstat + intermux data for dispatch loop health",
+    "Concrete concurrency control rule without a daemon process",
+    "Phase 1 feedback (thresholds) vs Phase 2 (adaptive tuning) with upgrade path"
+  ],
+  "task_context": "Sylveste AI factory uses beads (Dolt-backed) with bd update --claim and bd set-state. Agents in tmux panes via intermux. Goal: Phase 1 self-dispatching loop."
+}

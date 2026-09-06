@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-plugin-scaffold-correctness covers interlore's own scaffold — this covers upstream plugin-standard.md changes",
+    "fd-scan-skill-executability covers skill mechanics — this covers doc hierarchy migration",
+    "fd-exec-yaml-orchestration covers wave sequencing — this covers Task 1 content completeness"
+  ],
+  "decision_lens": "Changes to plugin-standard.md that propagate silently to 48+ plugins causing confusion are P0. Structural test breakage is P0. Semantic overlap between MISSION.md and PHILOSOPHY.md is P1.",
+  "focus": "Reviews Task 1's MISSION.md creation and doc hierarchy changes for migration completeness and ecosystem-wide impact",
+  "name": "fd-doc-hierarchy-blast-radius",
+  "persona": "A codebase archaeologist who specializes in finding hidden coupling in documentation systems. Knows how 48 plugin AGENTS.md boilerplates and 47 structural test suites will be affected.",
+  "review_areas": [
+    "Task 1 Step 4 adds MISSION.md to plugin-standard.md boilerplate — but plugins don't have their own MISSION.md; the ../../MISSION.md reference would be broken for plugins not in the monorepo",
+    "Verify block doesn't check PHILOSOPHY.md was actually trimmed — risking duplication between MISSION.md and PHILOSOPHY.md",
+    "Task 1 Step 3 replaces lines 76-87 of doc-structure.md — verify these are correct line numbers in current file",
+    "VISION.md hierarchy diagram references 'existing: docs/sylveste-vision.md' but no aliasing step exists — is this a dangling reference?",
+    "Plugin-standard.md referencing MISSION.md while no plugin has one makes every plugin technically non-conformant to updated standard",
+    "interlore's own AGENTS.md references MISSION.md directly — verify this follows the new boilerplate or old"
+  ],
+  "success_hints": [
+    "After Task 1, PHILOSOPHY.md opening and MISSION.md are semantically non-overlapping",
+    "doc-structure.md conflict resolution rule is explicit and unambiguous",
+    "Plugin AGENTS.md boilerplate change is additive, not breaking"
+  ],
+  "task_context": "Task 1 creates MISSION.md and updates doc-structure.md and plugin-standard.md — canonical documents that 48 plugins reference. Any change propagates across the ecosystem."
+}

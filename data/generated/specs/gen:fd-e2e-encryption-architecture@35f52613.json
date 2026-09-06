@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does not review key management protocols in detail (fd-key-management-protocol), CRDT-specific encryption techniques (fd-crdt-encryption-compat), privacy engineering compliance (fd-privacy-engineering), or AI proxy trust architecture (fd-ai-proxy-trust-boundary). Focuses on the overall E2E architecture, trust boundaries, and the consistency of the named options.",
+  "decision_lens": "Every encryption architecture decision is evaluated against: does the trust boundary actually exclude the actors it claims to exclude, are there plaintext leakage paths the design does not acknowledge, and does the system degrade to a known-safe state when a component is compromised?",
+  "focus": "Reviews the end-to-end encryption architecture for completeness, correctness of trust boundaries, and whether the threat model is internally consistent across all named options",
+  "name": "fd-e2e-encryption-architecture",
+  "persona": "Applied cryptography engineer who has built E2E encryption into collaborative systems (Signal protocol, Matrix/Element, Keybase). Deep experience with the gap between theoretical crypto properties and what actually ships in production multi-user products.",
+  "review_areas": [
+    "Trust boundary consistency — Option 3 ('Blind Relay') claims the server never sees plaintext, but the server still routes Yjs binary updates. Are Yjs update metadata (document IDs, update sizes, timing) sufficient to leak information about content structure even when payloads are encrypted?",
+    "Encryption layer placement relative to Yjs — encrypting before Yjs encoding means the CRDT operates on ciphertext, which breaks merge semantics. Encrypting after Yjs encoding preserves CRDT properties but means the Yjs library operates on plaintext in the client. The design acknowledges this tension but does not resolve it — the choice is architecturally load-bearing.",
+    "Sealed Rooms hybrid model coherence — Option 5 creates two classes of garden with different security properties. The boundary between 'open' and 'sealed' must be enforced at every layer (relay, database, AI proxy, governance). A single layer that fails to check the encryption policy creates a full bypass.",
+    "Content hash integrity under encryption — the design uses SHA-256 of plaintext for merge records and attribution. In E2E-encrypted gardens, plaintext is not available server-side. Client-computed hashes are unverifiable by the server unless the server is given a zero-knowledge proof or the hash itself is considered non-sensitive. This is an unresolved contradiction.",
+    "Key lifecycle across the full stack — the design discusses who holds keys but not key rotation, key revocation on participant removal, or forward secrecy. A participant removed from a garden retains the ability to decrypt all historical content unless re-encryption is performed.",
+    "Downgrade attack surface — if per-garden encryption policy is a configuration flag, a compromised server could silently downgrade a 'sealed' garden to 'open' and begin reading content. The client must independently verify the encryption policy is active, not trust the server's claim."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If encryption is applied before Yjs encoding, the CRDT cannot merge updates because ciphertext is not a valid Yjs data type. This is not a design flaw that can be patched — it requires a fundamental architectural decision about where in the stack encryption occurs. The brainstorm identifies the constraint but every named option depends on this being resolved.",
+      "scenario": "Yjs CRDT merge breaks on encrypted payloads",
+      "severity": "P0"
+    },
+    {
+      "condition": "In the Sealed Rooms model, the server tells the client whether a garden is sealed or open. If the server is compromised (the threat model Option 5 partially addresses), the attacker can flip the flag and the client begins sending plaintext. Without client-side policy pinning or out-of-band verification, the E2E guarantee is only as strong as the server's honesty.",
+      "scenario": "Server-side downgrade of encryption policy",
+      "severity": "P1"
+    },
+    {
+      "condition": "Client-managed keys (Dimension 2B) mean participants hold the garden key. When a participant is removed, they retain the key and can decrypt all content encrypted under it. The design does not address key rotation on membership change, which is the single hardest problem in group E2E encryption.",
+      "scenario": "Removed participant retains decryption capability",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": "A sound E2E architecture resolves the Yjs encryption layer placement explicitly, specifies how content hashes work when the server cannot see plaintext, includes key rotation on membership change, provides client-side verification of encryption policy (not server-asserted), and names the metadata leakage that encryption does not prevent.",
+  "task_context": "Garden Salon encryption brainstorm presenting 5 named options ranging from at-rest encryption to full E2E with client-side AI. The platform uses Yjs CRDTs for real-time collaboration, Postgres for governance state, git repos for persistence, and an AI proxy that must see plaintext. Per-garden encryption policy (Sealed Rooms) is the leading hybrid option."
+}

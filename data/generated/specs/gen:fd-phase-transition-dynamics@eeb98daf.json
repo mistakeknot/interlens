@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-control-theoretic covers PID/MPC stability of individual controllers — this agent covers system-level phase transitions and tipping points across the whole factory",
+    "fd-feedback-loops covers loop identification for dispatch — this agent covers phase transitions caused by those loops reaching critical parameters",
+    "fd-failure-recovery covers individual failure recovery — this agent covers cascading failures that emerge from critical thresholds"
+  ],
+  "decision_lens": "Prioritizes findings where the system has an uncontrolled phase boundary — a threshold that, once crossed, causes rapid qualitative change in behavior that is difficult to reverse. The most critical finding is any positive feedback loop that can drive the system toward a phase transition without any governor intervention.",
+  "focus": "Identifies critical phase transitions in Sylveste's operational state space — points where small perturbations cause qualitative changes in system behavior, analogous to physical phase transitions, percolation thresholds, and tipping points",
+  "name": "fd-phase-transition-dynamics",
+  "persona": "A statistical physicist and complex systems researcher who has studied critical phenomena in distributed systems. Looks for order parameters, susceptibility peaks, and correlation length divergences in how the agent factory transitions between operational regimes.",
+  "review_areas": [
+    "Identify the 'percolation threshold' of the bead dependency graph: at what fraction of beads in-progress does the graph become so connected that a single failure cascades through the majority of open work? Examine if Ockham's governor has any awareness of this threshold",
+    "Find all positive feedback loops in the routing/dispatch system: does a high-quality agent getting routed more work → producing more quality signal → getting routed even more work, with no saturation mechanism? Superstar effects indicate a winner-takes-all phase transition",
+    "Examine the Skaffen/Clavain handoff under load: is there a threshold number of concurrent agents where the coordination overhead (interlock contentions, heartbeat frequency, bead state polling) grows superlinearly and causes a phase transition from 'efficient factory' to 'coordination bottleneck'?",
+    "Look for hysteresis in the progressive autonomy gate system: if the system crosses a trust threshold and gains autonomy, does returning below the threshold automatically revoke autonomy, or is there a hysteresis band? Hysteresis without explicit design is a dangerous hidden state",
+    "Audit the interlock reservation system for finite-resource percolation: as the number of parallel agents grows, is there a critical density where every new agent reservation creates a conflict with an existing reservation, causing system-wide deadlock?",
+    "Identify whether the Interspect event pipeline has a 'nucleation site' — a single high-volume event type whose failure to be consumed causes backpressure that propagates to unrelated event types, triggering a pipeline freeze"
+  ],
+  "success_hints": [
+    "Quantifies at least one phase boundary with a specific threshold value (e.g., 'at >N concurrent agents, coordination cost exceeds useful work cost') derived from the code's actual constants and timeouts",
+    "Identifies at least one feedback loop with no saturation mechanism that can drive the system to a degenerate attractor state",
+    "Finds at least one uncontrolled hysteresis band in the autonomy or trust system and proposes the explicit hysteresis boundary that should be designed in"
+  ],
+  "task_context": "Sylveste is a monorepo for an autonomous software development agency platform with 6 pillars across 3 layers — L1 kernel (Intercore, Intermute), L2 OS (Clavain, Skaffen, Zaka, Alwe, Ockham), L3 apps (Autarch, Intercom, Meadowsyn), and 54 Interverse plugins. The review targets cross-cutting concerns invisible to standard code review."
+}

@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-rl-training-pipeline covers Atropos environments, reward functions, two-phase training",
+    "fd-security-patterns covers pairing system security properties in depth",
+    "fd-honcho-user-modeling covers session identity and user modeling"
+  ],
+  "decision_lens": "Prioritizes architectural boundaries — platform-specific vs. platform-agnostic — and delivery reliability. Flags designs intercom could adopt wholesale vs. patterns needing rethinking for Rust/tokio-postgres.",
+  "focus": "Gateway and messaging architecture patterns in Hermes for intercom's multi-platform delivery design",
+  "name": "fd-gateway-messaging",
+  "persona": "A systems engineer with expertise in multi-platform messaging infrastructure, webhook routing, and async delivery pipelines.",
+  "review_areas": [
+    "DeliveryTarget/DeliveryRouter design — origin/local/platform:chat_id address scheme and three-tier delivery model",
+    "Channel directory as lazy-built capability registry: startup enumeration for Discord/Slack vs. session-history inference for Telegram/WhatsApp",
+    "Platform adapter base class — minimal contract and portability to intercom's plugin model",
+    "HookRegistry event system — HOOK.yaml + handler.py discovery, wildcard matching, error isolation",
+    "Session mirroring and pairing system — code-based approval, rate limiting, lockout, secure permissions",
+    "Cron job delivery routing — how scheduled agent outputs route to messaging targets"
+  ],
+  "success_hints": [
+    "Determine if platform:chat_id address scheme is compatible with intercom's channel model",
+    "Assess if gateway hook system could serve as lightweight plugin protocol for intercom",
+    "Identify platform-specific assumptions that won't generalize to intercom's multi-tenant model"
+  ],
+  "task_context": "Analyzing Hermes Agent to find patterns adaptable for Sylveste's Autarch (L3 agent orchestration) and intercom (messaging/gateway)."
+}

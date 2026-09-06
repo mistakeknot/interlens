@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-viz-layer-contracts covers how joined vs. unjoined data is consumed by the 6 visual experiments",
+    "fd-source-emission-design covers changes to factory-status.go to emit new fields",
+    "fd-staleness-and-refresh covers data freshness and polling cadence mismatches"
+  ],
+  "decision_lens": "Prioritizes join correctness and failure modes over elegance. A join that silently drops 20% of sessions is worse than no join at all.",
+  "focus": "Whether and how bead IDs, tmux session names, and hex session IDs can be durably joined without a dedicated mapping table",
+  "name": "fd-identity-resolution",
+  "persona": "A distributed-systems engineer who has spent years debugging ID mismatch bugs in event pipelines. They treat every identifier as opaque until proven otherwise and distrust any join that relies on human-readable naming conventions.",
+  "review_areas": [
+    "Verify whether clavain-cli WIP output already exposes any field (pid, window title, start timestamp) that could serve as a foreign key back to the Notion roster",
+    "Check whether the Sylveste- prefix on bead IDs is a stable convention or could vary by project, and whether that prefix alone is sufficient to infer project context",
+    "Evaluate tmux session name patterns (e.g., warp-sylveste-claude) for parseable structure: can project and agent-type be reliably extracted with a regex, or are names ad-hoc?",
+    "Assess whether a mapping table approach is operationally viable: who writes to it, what is the write latency, and what happens when clavain-cli restarts?",
+    "Check if hex session IDs appear anywhere in tmux environment variables (CLAUDE_SESSION_ID, etc.) that would make tmux a reliable bridge",
+    "Determine whether the Notion roster's 85-session snapshot is a point-in-time export or a live-polled feed, and whether its freshness is compatible with live ops join"
+  ],
+  "success_hints": [
+    "A join strategy is only valid if it covers >=95% of active sessions without manual reconciliation",
+    "Any bridge field used for joining must survive a clavain-cli restart without losing the mapping"
+  ],
+  "task_context": "Two data sources must be combined for a visualization pipeline: a Notion-sourced IdeaGUI roster (85 agent sessions with project/terminal/agent-type/sync-mode) and clavain-cli live ops (fleet counts, queue by priority, WIP agent-to-bead mappings). The core challenge is that bead IDs encode the DB prefix (Sylveste-), not the sub-project, and tmux session names are human-readable but not linked to hex session IDs in WIP output."
+}

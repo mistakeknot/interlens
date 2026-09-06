@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "Legal opinion focuses on conclusion-vs-evidence scoping and reliance discipline; pharma DD focuses on primary-source evidentiary chain quality — do not duplicate citation-quality findings.",
+    "Legal opinion focuses on the structural relationship between layers (raw/decisions/notices); tender-spec focuses on interface precision; M&A DD focuses on handoff inheritance — do not duplicate their findings."
+  ],
+  "decision_lens": "If F2/F3/F5 plan-writers cited a D1-D8 decision in their plan and the decision later turned out wrong, would the synthesis's structure make clear which assumption failed and which party (synthesis author vs. plan-writer) bore the verification responsibility? Is the notices appendix structured so it cannot be inadvertently overlooked?",
+  "distance_rationale": "Legal opinion memos operate on the same 'analytical synthesis gates downstream drafting work' abstraction but in a domain where formal reliance doctrine mandates explicit scoping, qualifications, and addressee-bounded reliance.",
+  "expected_isomorphisms": "The 3-layer architecture (raw observations / decisions / notices appendix) maps directly to the opinion-memo structure (statement of facts / opinion / qualifications and assumptions); the self-audit gate maps to the firm's internal opinion-review process before delivery to the addressee.",
+  "focus": "Whether the synthesis's 3-layer architecture (raw observations / decisions / notices appendix) functions with the reliance discipline of a legal opinion memo — specifically that conclusions in the decisions layer are properly scoped, that assumptions and limitations are surfaced in a notices/qualifications section that downstream readers cannot legitimately ignore, and that the addressee (downstream plan-writer) is named with the scope of permitted reliance.",
+  "name": "fd-legal-opinion-memo-reliance-discipline",
+  "persona": "Apply the perspective of a senior transactional lawyer writing a formal legal opinion that another party will rely on in a closing. Such opinion-writers know that every unqualified conclusion is a representation the firm stands behind; they therefore enforce strict scoping ('we have assumed X without independent verification'), explicit reliance limitations ('this opinion is addressed to Y for purpose Z'), and a qualifications/notices section that the addressee must read together with the conclusions. They are intolerant of conclusions that float free of the assumptions that support them.",
+  "review_areas": [
+    "Each decision D1-D8 has its scoping assumptions explicitly named (what was assumed without independent verification, what was verified at def-site, what is conditional on the Hermes pin holding).",
+    "The notices appendix functions as binding qualifications on the decisions, not as supplementary commentary — i.e. a reader who skips the notices misreads the decisions.",
+    "Reliance is scoped: the synthesis names its intended downstream consumers (F2, F3, F5) and the purpose of reliance (gating those plans), with limitations on use beyond that purpose.",
+    "Conclusions in the decisions layer do not exceed the evidence in the raw-observations layer — over-conclusion (claiming more than the evidence supports) is flagged.",
+    "The self-audit gate functions as the analog of an opinion-firm's internal review process before the opinion is delivered — its stop conditions are real, not pro forma.",
+    "Where the synthesis closes an open question by inference rather than direct evidence, the inference chain is exposed (not buried) and the addressee is on notice that they are relying on an inference."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Any D-row's stated conclusion cannot be reconstructed from the cited raw-observations evidence without additional inference that is not surfaced.",
+      "scenario": "A D-row decision states a conclusion that exceeds the evidence in the raw-observations layer, and the over-conclusion is not flagged in the notices appendix.",
+      "severity": "P0"
+    },
+    {
+      "condition": "A notice in the appendix qualifies a D-row decision, but the D-row does not point to the notice.",
+      "scenario": "The notices appendix contains material qualifications that a reader of only the decisions layer would miss, with no cross-reference from the decisions to the notices.",
+      "severity": "P1"
+    },
+    {
+      "condition": "The synthesis lacks an explicit 'addressed to / for the purpose of' statement scoping downstream reliance.",
+      "scenario": "The synthesis does not name its intended downstream consumers and the scope of permitted reliance, leaving open the risk of misuse beyond F2/F3/F5.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Legal opinion memos gating contract drafting",
+  "success_hints": [
+    "Walk each D-row decision back to the raw-observations evidence and ask: does the conclusion exceed what the evidence supports? If so, is the gap surfaced?",
+    "Test the notices appendix by reading the decisions layer alone — would any material qualification be missed? Verify decisions cross-reference their notices.",
+    "Check for an explicit reliance/scope statement: who is this synthesis addressed to, and for what purpose may they rely on it?",
+    "Verify the self-audit gate has real stop conditions (i.e., conditions under which the synthesis should not be released to downstream plan-writers) rather than being a retrospective summary."
+  ],
+  "task_context": "Review the F0 research synthesis as if it were a formal legal opinion memo addressed to downstream plan-writers (F2, F3, F5) who will rely on its conclusions in drafting their plans. The 3-layer architecture (raw / decisions / notices) maps to the opinion-memo structure (facts / opinion / qualifications). The review goal is to ensure conclusions are properly scoped, qualifications are non-overlookable, and reliance is bounded."
+}

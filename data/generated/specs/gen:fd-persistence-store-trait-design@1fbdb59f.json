@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Do not cover ECS tick-loop performance or pollster::block_on in game loop context — those belong to the ECS integration agent",
+    "Do not cover ACL enforcement, scope grants, or ScopedStore semantics — those belong to the access-control agent",
+    "Do not cover Rust trait bound design or derive macro correctness — those belong to the Rust ergonomics agent"
+  ],
+  "decision_lens": "A storage trait is correct when every implementation can satisfy every method's contract. A storage trait is ergonomic when the hot-path operations are the cheapest to implement correctly. A storage trait is safe when the failure modes are explicit and recoverable. Traits that leave contract details to implementations produce implementations that silently disagree.",
+  "focus": "SoulStore trait shape and completeness, MemSoulStore and SqliteSoulStore implementation contract, transaction semantics, hot-path read latency, replay-from-cursor performance, schema migration story, optimistic concurrency",
+  "name": "fd-persistence-store-trait-design",
+  "persona": "Apply the perspective of a database systems engineer who has designed pluggable storage abstractions for distributed systems, with specific experience in SQLite-backed mobile applications and event-sourced log compaction.",
+  "review_areas": [
+    "SoulStore has no transaction primitive. The §14 Heartbreak port writes 12 events across 2 Souls with no atomicity guarantee — the spec acknowledges this as 'same as today.' But append_events (the batch method, used in Pattern B) is documented as 'atomic per Soul' — meaning all events for one Soul are written atomically, but not across Souls. This is a correct and explicit design choice, but the spec should document the failure mode: if the process crashes after Soul A's 6 events are persisted but before Soul B's 6 events, what does the store return on next load? Is the partial Heartbreak detectable (e.g. via correlation_id query)?",
+    "read_events returns Vec<TimestampedEvent> (fully-buffered, not streaming). For a Soul with 100,000 events (possible for a long-running Solwend User-Soul), this is a 100k-element heap allocation on every load. The spec mentions 'stream_events_paged (Phase 2+)' as the solution. For Phase 1 with elf-revel (small event volumes) this is fine. But the acceptance criteria (§10) require SqliteSoulStore to pass the full test suite — if those tests exercise large event logs, the unbuffered read could be a test-time problem even in Phase 1.",
+    "metadata() is described as 'no event log read' — a cheap existence check. But SoulMetadata.archetype is 'consumer-set via vocabulary' — meaning the store must either derive it (expensive) or cache it (needs invalidation). The spec does not specify whether archetype in SoulMetadata is kept in sync with Soul state on every append_event, or is stale until explicitly refreshed. For query_by_archetype to be correct, archetype must be current. This is a hidden consistency requirement with no specified maintenance path.",
+    "The Conflict error variant (optimistic concurrency) carries expected/actual SeqNo but SoulStore::append_event does not take a SeqNo parameter — the store assigns SeqNos. So when does a Conflict error arise? The spec §12 defers optimistic concurrency policy to code time, but the error type is already drafted. If the error type is in the locked §6 and the mechanism that triggers it is deferred, the error type definition will be locked before it is understood. The spec should either remove Conflict from the draft error type or specify the mechanism that produces it.",
+    "The MemSoulStore reference impl will use a mutex for thread-safety (the spec hints at 'blocking mutex per Soul' in §12). A HashMap<SoulId, Mutex<SoulData>> pattern means concurrent reads of different Souls are fine but concurrent reads of the same Soul block. For elf-revel (single-threaded) this is irrelevant. For Solwend (async, concurrent requests for the same User-Soul) this becomes a hot-lock if the Soul is popular. The spec should document the locking model for MemSoulStore explicitly so Solwend doesn't accidentally use it in production.",
+    "SqliteSoulStore uses sqlx with the sqlite+runtime-tokio-rustls feature, which requires a tokio runtime. The core crate explicitly avoids tokio ('No tokio. No DB. No HTTP. Verified by cargo tree.'). But if a consumer uses SqliteSoulStore with pollster::block_on wrapping, the inner sqlx future will panic because there is no tokio runtime. The spec should document that SqliteSoulStore requires a tokio runtime at the call site — and advise elf-revel to either use tokio or use MemSoulStore for Phase 1."
+  ],
+  "severity_examples": [
+    {
+      "condition": "elf-revel uses pollster::block_on to wrap async store calls in its synchronous tick loop. If SqliteSoulStore internally uses sqlx with the tokio runtime, block_on over a sqlx future will panic at runtime ('no current thread runtime'). This is a deployment-time blocker that needs resolution before Phase 1 code starts: either elf-revel adopts tokio, or SqliteSoulStore uses sqlx's async-std feature, or elf-revel uses MemSoulStore for Phase 1 persistence.",
+      "scenario": "SqliteSoulStore requires tokio runtime, elf-revel is sync",
+      "severity": "P0"
+    },
+    {
+      "condition": "StoreError::Conflict is in the draft §6 error types but no SoulStore method accepts an expected SeqNo to trigger it. The error is logically dead code in the draft API. If §6 is locked before the optimistic concurrency mechanism is designed, a Phase 1 implementation will either never emit Conflict (making it useless) or emit it via an undocumented side-channel.",
+      "scenario": "Conflict error type without specified trigger mechanism",
+      "severity": "P1"
+    },
+    {
+      "condition": "query_by_archetype returns Soul IDs based on archetype, but archetype in SoulMetadata is 'consumer-set via vocabulary' with no specified update trigger. If archetype is stale at query time, query_by_archetype returns wrong results. This is a silent correctness bug that only manifests in production, not in unit tests of individual methods.",
+      "scenario": "SoulMetadata.archetype consistency with Soul state",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Trace the full write path for a Heartbreak event: Soul::append × 6 → pending_by_soul queue → store.append_events — verify that 'atomic per Soul' is a sufficient contract for this use case",
+    "Check whether the Conflict error variant in §6 has a triggering mechanism in the SoulStore trait as locked in §2, or if it is a dead code path",
+    "Verify that SqliteSoulStore's tokio dependency is compatible with elf-revel's pollster::block_on tick loop, and document the result",
+    "Check whether query_by_archetype has a defined consistency model relative to Soul state, or whether it can return stale results"
+  ],
+  "task_context": "The SoulStore trait (§2) is locked. The Cargo workspace (§7) specifies palettice-sqlite with sqlx+tokio. The error types (§6) are draft. The Phase 1 acceptance criteria (§10) require both MemSoulStore and SqliteSoulStore to pass shared tests. The reviewer should check that the locked SoulStore contract is implementable correctly by both reference impls, with particular attention to the ECS consumer (elf-revel) and the multi-user async consumer (Solwend)."
+}

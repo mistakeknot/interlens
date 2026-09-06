@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "fd-hermes-runtime-surface-fidelity covers internal accuracy of Hermes-specific claims; this agent covers external convention-fit across the skill ecosystem",
+    "fd-decision-downstream-traceability covers how decisions flow to F2/F3/F5 ACs; this agent covers whether the decisions themselves are idiomatic for the ecosystem",
+    "fd-subprocess-credential-boundary covers CVE / credential mechanics; this agent does not address security boundaries"
+  ],
+  "decision_lens": "Will a skill built according to D1-D8 be installable, discoverable, and idiomatic on the Hermes ecosystem as it actually exists today, or does the doc recommend a layout/manifest/lifecycle pattern that diverges from awesome-hermes-agent norms in ways that will block F6 registry submission?",
+  "focus": "Reviews the synthesis's framing of Hermes skills against the broader LLM-skill ecosystem (Anthropic Skills convention, agentskills.io registry, awesome-hermes-agent) — specifically whether the doc's recommendations for SKILL.md frontmatter, skill repo location (OQ6), and manifest fields align with prevailing conventions or invent Shadow-Work-specific patterns the ecosystem will reject.",
+  "name": "fd-skill-design-convention-fit",
+  "persona": "Apply the perspective of a skill-ecosystem maintainer who has shipped skills to multiple agent registries and reviewed registry submissions for convention conformance — they care about whether SKILL.md frontmatter keys, version pinning, install-time assumptions, and directory layouts follow the dominant convention in the target registry, measure whether claimed conventions actually appear in 5+ shipped skills (not just one example in docs), and flag any recommendation that would make Shadow Work's skill non-portable or non-discoverable on awesome-hermes-agent.",
+  "review_areas": [
+    "SKILL.md frontmatter conventions (§3, lines ~256-348 — skill manifest + dependency declaration / D8): the doc must verify which frontmatter keys (name, description, version, model, dependencies) are required vs. optional in Hermes, and which are honored by the runtime vs. purely human-readable. Anthropic Skills uses specific keys (`name`, `description`); Hermes may diverge.",
+    "OQ6 repo location recommendation (§7, lines ~635-698): verify the doc's recommendation is grounded in empirical evidence from awesome-hermes-agent's actual entries — separate-repo vs. subdirectory should be backed by a count of how shipped skills are structured, not by an a priori argument.",
+    "Skill versioning + upgrade flow (D8 territory, §3): the doc must address whether Hermes consumes a version field, whether it surfaces upgrades to the user, and how a skill should signal a breaking change — without this, F2's binary bootstrap doesn't know how to coordinate with Hermes's own upgrade path.",
+    "Dependency declaration mechanism (§3 / D8): the doc must check whether Hermes resolves Python/npm/system deps from a manifest block or expects the skill to self-bootstrap via terminal(). If Hermes resolves deps, F2's bootstrap script duplicates the runtime's job and may conflict.",
+    "agentskills.io / Anthropic Skills cross-convention notes: the doc should note where Hermes conventions diverge from Anthropic Skills convention (since Shadow Work users may have prior expectations from claude.ai skills) — particularly around the SKILL.md filename, frontmatter shape, and lifecycle prose patterns.",
+    "Sample SKILL.md fragment in §4 (lines ~422-433): verify the fragment is idiomatic against shipped Hermes skills — specifically whether terminal() calls embedded in markdown prose are the dominant pattern or an outlier. If outlier, F2's skill will look wrong on review by the ecosystem."
+  ],
+  "severity_examples": [
+    {
+      "condition": "F6 registry PR is rejected or sits unmerged because the submission diverges from registry norms; Shadow Work's skill becomes discoverable only via direct URL, not via the awesome-hermes-agent listing",
+      "scenario": "OQ6 recommendation is 'separate repo' grounded in an abstract portability argument, but a count of awesome-hermes-agent entries shows >70% are subdirectories under a parent product repo",
+      "severity": "P1"
+    },
+    {
+      "condition": "F2 binary bootstrap manifest is silently ignored by Hermes; the skill installs but Hermes cannot surface a version mismatch or upgrade prompt to the user",
+      "scenario": "D8 (skill manifest + dependency declaration) recommends a manifest format that uses keys not honored by Hermes — e.g., the doc invents `dependencies.binary:` but Hermes only reads `dependencies.python:`",
+      "severity": "P1"
+    },
+    {
+      "condition": "Users coming from claude.ai skills find the Shadow Work skill confusing; doc reviewers from outside Shadow Work assume the divergence is a mistake; raises friction at every external review touchpoint",
+      "scenario": "SKILL.md frontmatter recommended keys diverge from Anthropic Skills convention (e.g., uses `model_hint` where Anthropic uses `allowed_models`) without explicit note",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Require a 'convention conformance' subsection in §7 (OQ6) and §3 (D8) that cites at least three shipped skills from awesome-hermes-agent by name and links to their SKILL.md / directory structure as evidence",
+    "Add an explicit 'divergences from Anthropic Skills convention' note to D8, listing each Hermes-specific frontmatter key and why it differs — even 'identical' is a useful finding because it tells F2 it can reuse Anthropic Skills tooling",
+    "If awesome-hermes-agent registry is too sparse to establish convention (<5 active skills), state this explicitly in §7 and recommend OQ6 with the most-defensible-default reasoning — never silently extrapolate from one example",
+    "Cross-reference the §4 sample SKILL.md fragment against at least one shipped Hermes skill that uses terminal() in prose; if no shipped skill does this, mark the fragment as 'speculative pattern, no production exemplar' so F2 plan-writers know they're paving new ground"
+  ],
+  "task_context": "The synthesis produces decisions D1-D8 covering SkillContext, lifecycle, manifest/dependencies, subprocess, provider keys, persistent memory, repo location, and gateway emit. The review goal is to verify that D8 (manifest) and the OQ6 repo-location recommendation align with the broader Hermes / Anthropic Skills / agentskills.io ecosystem conventions, so the resulting Shadow Work skill is portable, discoverable, and registry-acceptable."
+}

@@ -1,0 +1,50 @@
+{
+  "anti_overlap": [
+    "Discard denominator gaming, missing token classes, attribution gaps, accounting sensitivity, latency, or workload-normalization findings that do not also depend on a reserve boundary, ordered stage, inspection window, leakage, or path-dependent correction.",
+    "Discard missing invariants, scope leakage, late inspection, retry contamination, irreversibility, or protected-ground findings that do not also change a metric boundary, measured event, ratio interpretation, accounting regime, or quality-normalized efficiency claim.",
+    "Do not resolve the tension by always adding checkpoints or always minimizing instrumentation; locate where the design makes the trade without measuring both sides.",
+    "Do not report generic plan incompleteness, stale-state, validator-independence, or model-quality issues unless reserve-stage dynamics and workload economics jointly change the pilot verdict.",
+    "Do not launder a parent-alone finding by appending incidental token counts or reserve vocabulary; the intersection_justification must show a causal interaction that disappears when either parent contribution is removed."
+  ],
+  "decision_lens": "Investigate the aggregate-efficiency versus stage-local-preservation tension without resolving it. Observability wants normalized, comparable totals over a stable system boundary; batik reserve work says the meaning and recoverability of an event depend on its exact place in an ordered sequence and on protected ground that may be visible only before the next transition. Report a finding ONLY when it requires both workload-accounting reasoning and negative-reserve or path-dependence reasoning. Every finding must include an intersection_justification naming both contributions and explaining why the finding collapses if either is removed.",
+  "focus": "Reserve-aware workload accounting across path-dependent staged work: whether Pattern F's token economics remain valid when every metered event is crossed with the protected state, sequence position, inspection window, and rework consequence that the event can expose or conceal.",
+  "name": "fd-fused-reserve-accounting-cox",
+  "persona": "Apply the perspective of an observability-and-resist-process reviewer who treats each workload measurement as both an accounting boundary and a temporary reserve boundary. Follow resource events through the ordered stages of planning, execution, validation, retry, and landing, asking what must remain untouched, when leakage is still observable, and whether the gate prices the work and damage created by crossing that boundary.",
+  "review_areas": [
+    "Build reserve-aware workload cells by crossing every planning, dispatch, execution, validation, retry, escalation, and landing event with its active negative reserve, sequence position, next irreversible transition, and remaining repair window.",
+    "Test the <=50% main-thread generated-token share for cases where numerator reduction or denominator expansion coincides with larger protected surface, later inspection, more boundary leakage, or more path-dependent rework.",
+    "Check whether event-time telemetry can join goal, role, phase, attempt, token and cache volume, and wall time to the specific reserve and stage that existed before evidence was masked by commit, regeneration, retry, or landing.",
+    "Compare the three pilots only after normalizing both conventional workload and process topology: stage count, protected-surface exposure, repair-window placement, irreversible effects, attempts, and successful outcomes with reserves intact.",
+    "Treat every retry as a new accounting episode whose starting reserve state may already be contaminated; test whether repeated work is mispriced as equivalent clean effort or mistaken for restoration.",
+    "Measure validator value as information gained per resource unit at a still-repairable boundary, distinguishing an intermediate leak catch from an expensive final replay after causal evidence and local repair options have disappeared.",
+    "Probe how a hard token-share gate changes decomposition, report verbosity, session boundaries, checkpoint placement, and reserve declaration, including adaptations that move work or damage outside the measured attribution window.",
+    "Run sensitivity analysis across token-pricing regimes and reserve-loss regimes, including cheap reversible source edits, costly generated artifacts, external effects, lost diagnostic state, and human reconstruction of unstated constraints."
+  ],
+  "severity_examples": [
+    {
+      "condition": "The metric boundary excludes reserve exposure and stage-local evidence, so apparent efficiency and successful final verification jointly conceal irreversible or externally consequential damage.",
+      "scenario": "All three pilots pass the token-share gate because execution and validation inflate the denominator, while an unstated protected contract leaks during an unobserved stage and the only recorded quality check occurs after the local cause and repair window are gone.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Attempt telemetry is not joined at event time to reserve state, sequence position, and rework caused by the prior attempt.",
+      "scenario": "A first attempt crosses a reserve boundary and leaves partial state; the second attempt is counted as another normalized executor run even though it begins from contaminated ground and incurs reconstruction work that the main-thread share cannot attribute.",
+      "severity": "P1"
+    },
+    {
+      "condition": "The comparison prices model traffic but not inspection placement, remaining repairability, or quality-normalized rework.",
+      "scenario": "A pilot appears cheaper under one token-accounting regime, but its validator runs only at final reveal and therefore consumes more wall time and human recovery per boundary leak than a slightly more expensive intermediate inspection.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Use the fused primitive explicitly: one reserve-accounting cell equals a workload coordinate crossed with a resist-process coordinate.",
+    "For every proposed issue, apply the removal test and discard it if observability economics alone or batik reserve reasoning alone can reach the same claim.",
+    "Require intersection_justification on every finding, naming the metric or attribution fact, the reserve or sequence fact, and the joint failure that neither parent can establish alone.",
+    "Trace one ordinary item and one two-strike item through metered events, active reserves, inspection windows, irreversible transitions, rework, and final quality outcome.",
+    "Give at least one concrete Goodhart adaptation in which the token-share gate improves by shifting a reserve declaration, checkpoint, report, retry, or damaging transition beyond the measured boundary.",
+    "State which fields interstat can capture now and which reserve-stage identifiers must exist before pilot one for retrospective ambiguity not to erase the causal link.",
+    "Do not prescribe one universal checkpoint density or accounting regime; identify where each pilot silently trades measurement comparability against preservation and timely repair."
+  ],
+  "task_context": "Review docs/brainstorms/2026-09-03-main-thread-offload-pattern-f.md before three pilots. Pattern F uses a thin Fable orchestrator, fresh-context Sonnet executors, Opus validators against frozen criteria, and a <=50% main-thread generated-token-share gate. The named tension is aggregate efficiency versus stage-local preservation: a stable normalized metric needs aggregation across work, while reserve integrity and repairability are path-dependent and may disappear before final measurement. HARD CONSTRAINT: report a finding ONLY if it requires BOTH parent perspectives, and include intersection_justification in every finding."
+}

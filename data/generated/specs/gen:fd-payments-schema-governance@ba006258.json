@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "fd-labmed-chain-of-custody covers provenance/lineage and specimen-integrity concerns, not schema/enum governance",
+    "fd-postproduction-pipeline-staging covers the staged tier-routing and multi-tool handoff mechanics, not the contract-versioning discipline",
+    "fd-aviation-mro-compliance-record covers regulatory record retention and audit-trail sign-off, not schema conformance testing methodology"
+  ],
+  "distance_rationale": "Payments messaging is a parallel discipline because it solves the identical structural problem — a single schema-of-record consumed by independently-implemented, differently-languaged systems across a trust boundary — but the compliance stakes are regulatory-financial rather than privacy, and the 'runtimes' are banks/networks rather than Swift/Python processes.",
+  "expected_isomorphisms": "ISO 20022's practice of versioned closed enums for regulated fields (e.g., purpose codes, charge-bearer codes) with machine-checkable field-combination rules, plus its message-validation conformance suites shared across vendor implementations, map directly onto privacy_class as a closed enum with a data-driven flow-rule table validated by shared fixture vectors.",
+  "focus": "Cross-system schema-as-contract governance: versioning, closed-enum discipline, and conformance-vector parity across independently maintained implementations.",
+  "name": "fd-payments-schema-governance",
+  "persona": "Apply the perspective of a payments-messaging standards architect (ISO 20022/SWIFT migration lead) — they care about whether every regulated field has an unambiguous, closed, machine-validated domain; they measure schema conformance by whether two independently built message parsers classify the exact same corpus of test messages identically; they flag any place where 'the spec says X' is not backed by a shared, versioned test vector both implementations run.",
+  "review_areas": [
+    "Whether privacy_class and tier are true closed enums with no implementation-specific escape hatch, versus open/registry-style identifiers (stage/sink names) that are correctly left extensible",
+    "Whether the (tier x privacy_class) flow-rule table is itself schema-validated data with a defined update/versioning process, or an implicit convention duplicated in two codebases",
+    "Whether schema_version semantics (bump triggers, compatibility guarantees, migration path) are decided now or deferred in a way that will silently fork Swift/Python behavior later",
+    "Whether the shared conformance vectors cover the adversarial cases standards bodies always regret skipping: boundary values, deprecated-but-still-valid enum members, and malformed-but-plausible documents",
+    "Whether there is a single canonical source file for the flow-rule data (not a schema copy-pasted or hand-transcribed into each language)",
+    "Whether conformance vector failures are reported with enough context (which rule, which field) to be actionable in code review, mirroring how message-validation reports cite the offending ISO field tag"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Any drift between the two implementations of the flow-rule table would silently permit a §8 invariant violation (e.g., raw_quarantined reaching cloud_burst) in one language but not the other — exactly the 'undefined control is not a control' failure the M0 amendment was written to prevent.",
+      "scenario": "The privacy_class -> allowed (tier, destination) flow rules are implemented as parallel if/else logic in Swift and Python rather than loaded from the single shared data file described in the brainstorm.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Vector coverage this thin will pass CI while leaving real classification disagreements between Swift and Python undetected until a field incident.",
+      "scenario": "Conformance vectors only include obviously-valid and obviously-invalid manifests, with no boundary/edge vectors (e.g., a manifest at exactly the tier boundary, a privacy_class value that existed in a prior draft).",
+      "severity": "P1"
+    },
+    {
+      "condition": "Left open past M0, this becomes an undocumented convention negotiated ad hoc at M1-M4, the same way un-versioned ISO 20022 extensions caused years of interop pain across banks.",
+      "scenario": "schema_version is present in the schema but M0 does not define what changing it obligates (must old manifests remain readable, must both languages reject unknown versions, etc.).",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Payments/financial-messaging standards engineering (ISO 20022 / SWIFT MT-to-MX migration practice)",
+  "success_hints": [
+    "Confirms privacy_class, tier, and any other compliance-relevant field are declared as closed enums in the schema, with the schema itself (not prose) as the enforcement point",
+    "Confirms flow rules live in one versioned data file loaded identically by both runtimes, not re-implemented as parallel logic",
+    "Confirms the conformance vector set includes boundary and adversarial cases, not just clearly-valid/clearly-invalid examples",
+    "Leaves stage/sink identifier extensibility (the registry pattern) alone since that is correctly open, not closed"
+  ],
+  "task_context": "Reviewing an M0 brainstorm for a JSON-Schema-first, dual-language (Swift/Python) pipeline contract where a privacy_class enum and (tier x privacy_class) flow rules are enforced as shared, schema-validated data and tested via cross-language conformance vectors."
+}

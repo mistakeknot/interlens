@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "Does not cover raster CRS or affine transform correctness — that is fd-geospatial-raster-correctness.",
+    "Does not cover GraphML type serialization — that is fd-graph-data-engineering.",
+    "Does not cover routing formula invariants — that is fd-routing-contract."
+  ],
+  "decision_lens": "What arithmetic edge cases does the brainstorm's chosen approach (fixed interval, vectorized lookup, exclude-nodata) leave unspecified or handle incorrectly?",
+  "focus": "Vectorized NumPy sampling arithmetic: NaN propagation, off-by-one in linspace/interpolate, division-by-zero, integer overflow, sample count edge cases",
+  "name": "fd-numerical-sampling-correctness",
+  "persona": "Apply the perspective of a numerical computing engineer who reviews vectorized pipelines for silent precision and counting errors — they care about whether sample counts, NaN masking, and integer pixel indexing produce the claimed result, measure correctness by checking boundary conditions (zero-length edge, single-sample edge, all-nodata block), and flag anywhere that Python int() truncation, np.linspace endpoint semantics, or boolean sum casting could introduce systematic bias.",
+  "review_areas": [
+    "The sample count formula `n = max(2, int(np.ceil(geom.length / interval_m)) + 1)` — the `+1` makes this a fence-post count (N intervals → N+1 points), which combined with `np.linspace(0.0, geom.length, n)` is correct, but the brainstorm's decision table says 'min 2 samples per edge' while the formula gives n=2 only when geom.length < interval_m; a zero-length degenerate edge (length=0.0) gives ceil(0/5)+1=1, hitting max(2,...) = 2 samples both at t=0.0, which are the same point — the brainstorm should acknowledge this.",
+    "The pseudocode computes `in_sun = int((vals == 0).sum())` and `in_shade = int((vals == 1).sum())` as Python ints; if vals is a uint8 numpy array with ~40k entries, `.sum()` on a boolean array returns numpy.int64 which is fine, but casting to Python int before division `in_sun / total` yields Python float — this is correct but the brainstorm does not document the type pathway, leaving risk of someone replacing with `//` or numpy integer division.",
+    "The `cols, rows = inv * (pts[:, 0], pts[:, 1])` step produces float pixel coordinates; `rows.astype(int)` uses numpy's default truncation (floor for positive, ceiling for negative) rather than nearest-neighbor rounding — for a pixel center at 0.5, a sample at exactly that world coordinate rounds down to pixel 0 rather than the nearest pixel, introducing a systematic half-pixel bias at building edges.",
+    "The nodata exclusion `total = in_sun + in_shade` (where nodata pixels contribute 0 to both) is correct, but if `vals` contains values other than 0, 1, and 255 (e.g., due to a corrupt raster or wrong band), those values are silently dropped from total without warning — the brainstorm should specify whether unknown values are treated as nodata or trigger an error.",
+    "The vectorized `pts` array is built as `np.array([geom.interpolate(t).coords[0] for t in ts])` — this is a Python list comprehension, not vectorized; for edges with many samples (a 200m boulevard at 5m interval = 41 samples) this is acceptable, but the brainstorm claims 'vectorized NumPy raster lookup' which is only true for the pixel-lookup step, not the point-generation step; this distinction matters for the < 5s performance claim."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If the OSM graph contains collapsed edges (length=0.0 from node deduplication), both samples land at the same pixel — this is a tautological measurement, not representative of the edge. If that pixel happens to be nodata, the edge gets NaN; if it's shade, sun_fraction=0.0. The brainstorm does not flag this as a known artifact.",
+      "scenario": "Zero-length degenerate edge gets 2 identical samples",
+      "severity": "P1"
+    },
+    {
+      "condition": "Systematic floor truncation means samples just inside a shaded building footprint round to the sun pixel, biasing sun_fraction upward by up to one pixel width (1m) at every building edge. For short edges (8m alley, 2 samples) this can flip the majority vote.",
+      "scenario": "Truncation vs rounding at pixel boundaries",
+      "severity": "P2"
+    },
+    {
+      "condition": "A raster with a third value (e.g., 128 for 'partial shade' added by a future build_shadow version) would be silently excluded from total, making sun_fraction look higher than it is with no warning.",
+      "scenario": "Silent drop of unexpected raster values",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Document the degenerate edge behavior (length=0, or length < interval_m) explicitly and specify whether it is treated as a warning or is acceptable given short-edge rarity.",
+    "Use `np.round(cols).astype(int)` rather than `.astype(int)` for pixel coordinate conversion to avoid systematic half-pixel bias.",
+    "Add a validation step that checks `np.any((vals != 0) & (vals != 1) & (vals != nodata))` and logs a warning if unexpected values appear."
+  ],
+  "task_context": "Reviewing the brainstorm's numerical sampling design for arithmetic correctness, boundary conditions, and silent bias sources that would affect sun_fraction accuracy."
+}

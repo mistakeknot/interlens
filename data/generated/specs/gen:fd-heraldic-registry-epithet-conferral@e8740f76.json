@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Does not review salience decay mathematics or the gossip-consumer mechanism (see fd-broadcast-archives-lexeme-legibility)",
+    "Does not review ECS storage split or component boundary decisions (those are implementation concerns, not conferral-governance concerns)",
+    "Does not review farewell narrative prose quality, only that the farewell system has access to the correct epithet record"
+  ],
+  "decision_lens": "Heraldic registries codify exactly what act earns an augmentation and who adjudicates boundary cases — the same problem as defining 'rivalry peak' for the Defiant or 'legendary via music' for Silverstring. Cadency rules (how junior members of a house differentiate their display) map directly to the max-2-displayed, most-prestigious-first question.",
+  "distance_rationale": "Heraldry is a medieval identity-labeling institution, not a software system, but it has solved the same problem — earned, displayable, precedence-ordered identity markers — for centuries, with formal rules for disambiguation and conflict resolution.",
+  "expected_isomorphisms": "Heraldic blazon precision maps to trigger-condition specification; cadency rules for display in constrained space map to the max-2-display and sort-key decisions; the permanent-grant principle maps to the requirement that earned epithets never vanish from the internal record.",
+  "focus": "Apply heraldic registry practice to evaluate the conferral conditions, precedence ordering, and display rules for earned epithets",
+  "name": "fd-heraldic-registry-epithet-conferral",
+  "persona": "Apply the perspective of a herald at a medieval armorial registry — they care about the precision of earning conditions (blazon rules), the governance of display order (rule of tincture, cadency), and whether a bearer's granted arms are distinguishable and non-colliding. They flag ambiguous grant conditions that could produce disputes, and they scrutinize whether prestige ordering is coherent when an elf earns multiple arms.",
+  "review_areas": [
+    "Blazon precision for 'the Defiant': heraldic practice demands that earning conditions be unambiguous enough that a third party can adjudicate a disputed claim — is 'rivalry intensity >= 0.8 at composition tick' specific enough, or does it leave a dispute window analogous to contested arms?",
+    "Collision detection for Silverstring: if prestige is global rather than domain-scoped, every Legendary elf earns Silverstring — a heraldic 'conflict' where multiple bearers carry identical arms, which registries reject. Flag that domain-scoped prestige is a prerequisite for Silverstring to carry meaning.",
+    "Cadency logic for max-2-display: heraldic cadency determines which variant is shown when space is constrained. The brainstorm resolves this as 'sort by salience desc, earned_tick asc' — evaluate whether salience (cultural recency) is the right cadency key, or whether prestige_score (earned rank) should take precedence over temporal decay for the owner's own display.",
+    "Posthumous and permanent-grant semantics: in heraldry, arms persist after death and are never revoked. The brainstorm says epithets persist internally even when off the 2-slot display — verify that the implementation never drops an EarnedEpithet from the Vec, and that farewell narrative always has access to the full earned record, not just the display cache.",
+    "Augmentation of honour vs. ordinary arms: heraldry distinguishes epithets granted by an authority from those self-assumed. The brainstorm's event-reactor pattern is authority-granted (the system confers on trigger); flag whether there is any guard against an elf 'self-earning' an epithet via a replayed or fabricated event.",
+    "Multi-epithet display order legibility: a coat that is too complex is considered unreadable at a distance ('tincture rule'). With two epithets displayed simultaneously, evaluate whether 'Lirael the Defiant Silverstring' reads clearly, and whether the display helper should insert punctuation or conjunctions to keep legibility."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If PrestigeTier::Legendary has no domain field, every elf who reaches Legendary earns Silverstring — heraldic conflict, the epithet loses distinguishing function",
+      "scenario": "Silverstring is awarded to all Legendary elves because prestige is global, not music-domain-scoped",
+      "severity": "P1"
+    },
+    {
+      "condition": "An epithet bumped by gossip references (+2 salience) overtakes an elder epithet with lower residual salience — display ordering does not reflect actual earned standing",
+      "scenario": "Salience-based cadency causes a recently-gossiped minor epithet to displace an older, more prestigious one in the display slot",
+      "severity": "P2"
+    },
+    {
+      "condition": "Event bus drains multiple ArtCompleted events for the same elf in one pass — earned Vec grows duplicate entries; display and farewell text repeat the same epithet",
+      "scenario": "No guard against duplicate epithet conferral if the triggering event fires twice in one tick",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Heraldic registry practice",
+  "success_hints": [
+    "Require domain-scoped prestige before Silverstring can fire; treat global-prestige as a blocking P1",
+    "Separate 'display prestige order' (for the elf's own rendered name) from 'colony salience order' (for gossip system consumption) — they may warrant different sort keys",
+    "Add a dedup guard in the epithet-conferral path: check earned Vec before inserting, keyed on epithet variant (not on LexemeId)",
+    "Verify that farewell narrative reads from the full earned Vec, not the 2-slot display cache, so elders with 3+ epithets get the most historically significant one in their sendoff"
+  ],
+  "task_context": "Review the earned-epithet conferral system and display ordering decisions in the brainstorm, applying heraldic registry standards for earning-condition precision, display hierarchy, and collision-free grant semantics."
+}

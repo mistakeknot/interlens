@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Focuses on agent communication and discovery; fd-nav-presence-legibility handles basic participant visibility; fd-nav-annotation-flow handles review mechanics.",
+  "decision_lens": "Agent communication should be layered: plain-language summary for Ryan, detailed reasoning available for sma, without requiring mode switching.",
+  "focus": "How agent status, reasoning, and adaptability are communicated to both technical and non-technical users.",
+  "name": "fd-nav-agent-status-ux",
+  "persona": "A human-agent teaming researcher specializing in explainable AI and progressive disclosure of agent reasoning for mixed-expertise audiences.",
+  "review_areas": [
+    "Is agent activity described in vocabulary both Ryan and sma understand?",
+    "Is agent reasoning progressively disclosed — summary visible by default, detail on demand?",
+    "When an agent adapts to feedback, is the adaptation visible ('I stopped suggesting X because you rejected it twice')?",
+    "Can sma redirect an agent mid-session, and is the redirection visible to Ryan?",
+    "With multiple agents, can users distinguish which agent proposed which change?",
+    "Is there an agent discovery/launch mechanism, or must agents be started from terminal?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Agent launch is developer-only",
+      "scenario": "There is no way to start or discover agents from the UI — requires terminal access",
+      "severity": "P0"
+    },
+    {
+      "condition": "No progressive disclosure of reasoning",
+      "scenario": "Agent reasoning is either hidden entirely or shown as raw LLM output — no useful middle ground",
+      "severity": "P1"
+    },
+    {
+      "condition": "No multi-agent attribution in review flow",
+      "scenario": "When multiple agents are active, their proposals are indistinguishable in the suggestion list",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Ryan sees what agents are doing in plain English. sma can go deeper when needed. Agent adaptation is transparent. Starting an agent doesn't require leaving the browser.",
+  "task_context": "Review the Garden Salon agent UX for status communication, reasoning disclosure, and discoverability — can both personas understand and direct agents?"
+}

@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-gating-model-typology covers gate selection given signal type",
+    "fd-false-block-cost-modeling covers threshold tuning",
+    "fd-progressive-autonomy-gates covers autonomy progression"
+  ],
+  "decision_lens": "Findings that convert qualitative signals to measurable without human judgment rank highest. Findings identifying irreducibly qualitative signals also valuable.",
+  "focus": "How property-based testing, formal verification, and LLM-as-judge can upgrade qualitative CUJ signals toward measurability",
+  "name": "fd-signal-verifiability-engineering",
+  "persona": "A verification engineer at the intersection of formal methods and practical test engineering who knows which properties can be made machine-checkable.",
+  "review_areas": [
+    "Survey property-based testing frameworks (Hypothesis, QuickCheck) for CUJ signal validation techniques",
+    "Assess runtime contract frameworks (Design by Contract) for operationalizing observable CUJ signals as invariants",
+    "Review LLM-as-judge literature (MT-Bench, Alpaca Eval) for converting qualitative assertions into structured rubric-scored evaluations",
+    "Examine chaos engineering frameworks for signal verification patterns confirming observable signals fire correctly",
+    "Survey automated test oracle literature (differential testing, metamorphic testing) for CUJ signal comparison techniques",
+    "Research irreducible qualitative signal classes in formal verification that cannot be formally specified"
+  ],
+  "success_hints": [
+    "3+ techniques to convert observable signals to automatable checks",
+    "Clear taxonomy of irreducibly qualitative properties",
+    "One LLM-as-judge pattern assessed for feasibility as lightweight qualitative gate"
+  ],
+  "task_context": "AI agent factory uses CUJs with typed success signals to gate work item completion. Challenge: prevent quality regression without wasting tokens on false blocks as human withdraws from review."
+}

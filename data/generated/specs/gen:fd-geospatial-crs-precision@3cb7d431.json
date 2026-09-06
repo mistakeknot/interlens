@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-networkx-multigraph-routing owns the graph-attribute access pattern (G.nodes[u]['y']/['x']) — focus here on whether the value semantics are correct, not the attribute name",
+    "fd-matplotlib-raster-basemap owns the visual rendering of the reprojected raster — focus here on the geodetic correctness of the reprojection, not how the result is plotted"
+  ],
+  "decision_lens": "Does every coordinate in the pipeline carry an unambiguous CRS, and does every geodetic computation use the right metric for its CRS?",
+  "focus": "Coordinate reference systems, lat/lon precision, haversine geodesy, and KDTree-on-coordinates correctness across EPSG:32611 ↔ WGS84.",
+  "name": "fd-geospatial-crs-precision",
+  "persona": "Apply the perspective of a geospatial engineer who has been bitten by CRS mismatches in production routing — they care about meter-vs-degree confusion, measure error in haversine vs Vincenty at urban scales, and flag any place where building a KDTree on raw lat/lon, mixing UTM-meters with WGS84-degrees, or reprojecting a raster without resampling will silently corrupt results.",
+  "review_areas": [
+    "haversine_minutes formula correctness (great-circle vs equirectangular approximation; floor at the equator vs at 34° N for DTLA)",
+    "KDTree on (lat, lon) vs projected (x, y) — Euclidean distance on raw degrees mis-ranks nearest neighbors at non-zero latitude",
+    "EPSG:32611 (UTM 11N) ↔ WGS84 reprojection for the shadow raster basemap (rasterio.warp.reproject with appropriate resampling — nearest for categorical shade mask, bilinear for continuous)",
+    "Coordinate-axis ordering hazards: rasterio (row, col → y, x), shapely (x, y), GeoJSON (lon, lat), OSMnx node attrs (y=lat, x=lon)",
+    "lat/lon precision and float32 vs float64 for KDTree leaf storage (DTLA bbox needs ~1e-6° resolution ≈ 0.1 m)",
+    "GeoJSON output ordering — RFC 7946 requires [lon, lat] coordinate pairs; a swap here propagates to every downstream consumer (Phase 1.8 GMaps comparator)"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Phase 1.8 (solwend-e7e) GMaps comparison harness consumes the file → routes plot in Africa; brainstorm explicitly calls out 'directly consumable by solwend-e7e' so this is on-spec to catch",
+      "scenario": "GeoJSON LineString written as [lat, lon] instead of RFC 7946 [lon, lat]",
+      "severity": "P0"
+    },
+    {
+      "condition": "Longitude degrees ≈ 0.83 × latitude degrees in meters → nearest_node returns wrong node when src is closer in longitude than latitude; snap budget claim (<50 ms, correctness implicit) is false",
+      "scenario": "KDTree built on (lat, lon) and queried with Euclidean metric at DTLA latitude (~34° N)",
+      "severity": "P1"
+    },
+    {
+      "condition": "Edge shade fractions in the PNG are smeared along reprojected pixel boundaries → PNG visually misleads reviewers about where shadows actually are",
+      "scenario": "Shadow raster reprojected EPSG:32611 → WGS84 with bilinear resampling on a binary/categorical shade mask",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "KDTree built on a locally-projected metric CRS (EPSG:32611 or a TM centered on DTLA), not raw lat/lon",
+    "Haversine implementation tagged with its expected error budget (urban scale: <0.5% vs Vincenty)",
+    "Shadow raster reprojected with rasterio.warp.reproject using nearest-neighbor resampling, and the script comments name the resampling choice",
+    "GeoJSON writer cites RFC 7946 and the test asserts coordinate ordering on a known-axis fixture"
+  ],
+  "task_context": "Reviewing a Phase 1.7 brainstorm that introduces lat/lon → node snapping via KDTree, a haversine-minutes A* heuristic, and an EPSG:32611-to-WGS84 raster reprojection for a matplotlib PNG basemap. Review goal: catch CRS, precision, and geodesy mistakes a non-geospatial reviewer would not see."
+}

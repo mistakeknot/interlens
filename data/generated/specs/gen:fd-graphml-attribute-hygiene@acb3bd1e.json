@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "Does not cover Dijkstra/A* mathematical preconditions — that is fd-routing-algorithm-correctness.",
+    "Does not cover Protocol/dataclass type-system design — that is fd-python-type-system.",
+    "Does not cover felt-minute formula UX semantics or calibration — that is fd-pedestrian-routing-formula."
+  ],
+  "decision_lens": "Where does the brainstorm's approach to GraphML type recovery, apply_weight mutation, and SHADED_GRAPH_EDGE_DTYPES usage leave Phase 1.7 vulnerable to silent type errors or attribute corruption?",
+  "focus": "NetworkX/OSMnx edge attribute lifecycle: SHADED_GRAPH_EDGE_DTYPES import contract, GraphML type recovery, MultiDiGraph dict mutation, attribute name collisions, apply_weight correctness",
+  "name": "fd-graphml-attribute-hygiene",
+  "persona": "Apply the perspective of a graph data pipeline engineer who has maintained OSMnx-based graphs across multiple pipeline stages — they care about whether edge attributes survive GraphML round-trips with correct Python types, measure correctness by loading a saved graph and asserting all numeric attributes are float (not string), and flag anywhere that string-typed GraphML attributes, missing SHADED_GRAPH_EDGE_DTYPES keys, or apply_weight mutation patterns could corrupt edge data or produce silent type mismatches.",
+  "review_areas": [
+    "The brainstorm cites 'import SHADED_GRAPH_EDGE_DTYPES from scripts/sample_edge_shadow.py' as the Phase 1.6 load contract (Decision 5, settled Q1). However, SHADED_GRAPH_EDGE_DTYPES is defined in a scripts/ module, not in the new spatial/ package — Phase 1.7 would import a production library that depends on a scripts-layer implementation detail. The brainstorm does not resolve this: either SHADED_GRAPH_EDGE_DTYPES moves to spatial/ or it gets duplicated, with the risk of the two definitions drifting.",
+    "The apply_weight helper iterates graph.edges(keys=True, data=True) and mutates d[attr] = weight(d) — this is a live-dict mutation (d is a reference to the edge's attribute dict), which is correct in NetworkX but not guaranteed to be stable across versions. The brainstorm should verify this is documented NetworkX API behavior, not an implementation detail that could change.",
+    "The defensive float(edge_attrs['sun_fraction']) cast is placed in apply_weight (Decision 5) — but apply_weight passes d directly to weight(d) after iterating, so the cast must occur before the call. The brainstorm's pseudocode does not show where in apply_weight the cast happens: if it is inside weight(d) (i.e., inside __call__), Decision 5's stated 'cast in apply_weight, not __call__' is contradicted by the implementation sketch.",
+    "The attr parameter on apply_weight defaults to 'felt_minutes' — if Phase 1.7 already loaded a graph with a felt_minutes attribute from a previous run (e.g., a persisted GraphML), apply_weight silently overwrites it. If Phase 1.7 A/B-tests two weights with attr='felt_minutes_a' and attr='felt_minutes_b', the graph will carry both attributes after two apply_weight calls — there is no mechanism to remove stale computed attributes.",
+    "OSMnx edges frequently have list-valued attributes (e.g., osmid can be a list of integers for merged edges). The brainstorm's apply_weight iterates all edges without filtering by attribute type — if a future weight function calls edge_attrs.get('length', 0.0) on an edge where length is a list (merged parallel edges), float([12.5, 8.3]) raises TypeError. The brainstorm should document whether OSMnx DTLA graphs have list-valued length attributes and how FeltMinutesV0 handles them."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Phase 1.7 imports from solwend_spatial.weights import apply_weight and calls ox.load_graphml(path, edge_dtypes=SHADED_GRAPH_EDGE_DTYPES) but needs to also import SHADED_GRAPH_EDGE_DTYPES from scripts/ — this creates a cross-layer import that breaks if scripts/ is refactored. If the constant is not re-exported from spatial/, Phase 1.7 has no clean import path.",
+      "scenario": "SHADED_GRAPH_EDGE_DTYPES import from scripts/ breaks package hygiene",
+      "severity": "P1"
+    },
+    {
+      "condition": "If the implementation puts the cast inside __call__ (for defense-in-depth), then the lazy A* calling path (no apply_weight) also gets the cast — but Decision 5 says __call__ is 'branch-free' and the cast is in apply_weight. If __call__ is branch-free and apply_weight does the cast before calling weight(d), then raw edge dicts without apply_weight will hit uncast strings and raise TypeError.",
+      "scenario": "float() cast happens inside __call__, not apply_weight, contradicting Decision 5",
+      "severity": "P1"
+    },
+    {
+      "condition": "OSMnx sometimes stores length as a list (e.g., [45.2, 12.1]) for simplified edges. float(edge_attrs.get('length', 0.0)) on a list raises TypeError — apply_weight crashes on the first such edge, leaving the rest of the graph without felt_minutes attributes.",
+      "scenario": "List-valued length attribute on merged OSM edges raises TypeError",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Move SHADED_GRAPH_EDGE_DTYPES to spatial/weights.py or spatial/__init__.py as part of Phase 1.6's package introduction, so it is importable from the library layer without touching scripts/.",
+    "Clarify in the brainstorm exactly where the float() cast occurs: if it is in apply_weight (before calling weight(d)), show the pseudocode; if it is in __call__, revise Decision 5's 'branch-free __call__' claim.",
+    "Add a test case for list-valued length attribute: either assert FeltMinutesV0 handles it gracefully (e.g., takes first element) or assert apply_weight raises a clear ValueError with the edge key."
+  ],
+  "task_context": "Reviewing the brainstorm's GraphML attribute lifecycle, apply_weight mutation design, and SHADED_GRAPH_EDGE_DTYPES import contract for type-recovery correctness and package hygiene issues that would affect Phase 1.7."
+}

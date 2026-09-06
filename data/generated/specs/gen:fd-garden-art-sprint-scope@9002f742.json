@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "Focuses on garden-art timing and scope — not species generation (fd-botanical-procgen), terrain migration (fd-terrain-migration), beauty computation (fd-observer-beauty), or entity density (fd-ecs-flora-entity-budget)",
+  "decision_lens": "What is the minimum hook needed now to enable garden-as-art later without creating save migration debt or scope creep?",
+  "focus": "Garden-as-art timing: save migration debt, spatial intersection scope, revel state machine changes, minimum viable hook",
+  "name": "fd-garden-art-sprint-scope",
+  "persona": "Game systems designer specializing in feature staging, minimum viable hooks, and incremental complexity rollout in simulation games",
+  "review_areas": [
+    "Q6 Option A save migration: if gardens ship without species palettes, adding them later requires save-file migration for every existing garden entity",
+    "Q6 Option B hidden scope: 'gardens track which species are planted' sounds simple but requires spatial intersection (which flora entities are within garden radius?) or explicit planting events",
+    "Q6 Option C revel integration: Garden Walk requires revel state machine changes (new phase type) — is the revel system extensible enough?",
+    "Minimum viable hook: one Vec<SpeciesId> field on the Garden/Building component — costs nothing now, enables everything later",
+    "Q2 × Q6 interaction: if Q2 ships core flora only (Option A) and Q6 defers gardens (Option A), there's no flora-art connection at all — is that acceptable?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Q6 Option A chosen without forward-compatible data structure",
+      "scenario": "Gardens ship in Sprint 1 without species palette field, requiring save migration when garden-art ships later",
+      "severity": "P2"
+    },
+    {
+      "condition": "Q6 Option C chosen without checking revel system extensibility",
+      "scenario": "Garden Walk revel event requires new revel phase type, but revel system enum is not extensible",
+      "severity": "P2"
+    },
+    {
+      "condition": "Q6 Option B chosen without planting mechanic",
+      "scenario": "Species palette on gardens but no way to populate it — gardens always have empty palette",
+      "severity": "P3"
+    }
+  ],
+  "success_hints": "The best Sprint 1 outcome is: gardens have a species palette field (Vec<SpeciesId>) that defaults to empty, so existing save files work and future sprints can populate it without migration.",
+  "task_context": "Flora design for Elf Revel — gardens currently are BuildingType::Garden, clear creative blocks, provide beauty/erosion benefits"
+}

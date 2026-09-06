@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-llm-pipeline-cost focuses on subprocess count per run",
+    "fd-cache-dynamics focuses on prompt caching within a run",
+    "fd-synthesis-batching focuses on merging calls within a run"
+  ],
+  "decision_lens": "Findings ranked by cost-avoidance impact per re-run. A book with good existing artifacts should re-run only synthesis, not the full pipeline.",
+  "focus": "Artifact caching and conditional execution: which pipeline phases can be skipped based on existing artifacts",
+  "name": "fd-skip-and-cache-strategy",
+  "persona": "A pipeline reliability engineer who focuses on idempotency and incremental execution. Understands --reuse-source-run skips chunk extraction, and wants to know whether other phases are also skipped correctly.",
+  "review_areas": [
+    "Verify --reuse-source-run skips outline and keyword extraction in addition to chunk extraction",
+    "Check whether chunk_cache_base hash invalidates correctly when extraction prompt changes but source text doesn't",
+    "Identify whether there's a skip mechanism for self-check when synthesis results are reused unchanged",
+    "Assess whether --score-only correctly bypasses all 17 non-QS framework calls",
+    "Flag proposals for parallel book-level runs and verify artifact path prevents cross-book cache collisions",
+    "Check whether failed synthesis calls are persisted to disk, enabling partial re-runs"
+  ],
+  "success_hints": [
+    "A --skip-synthesis-check flag would save 1 call per re-score run",
+    "Per-framework artifact persistence would enable targeted re-runs of failed frameworks"
+  ],
+  "task_context": "The NTSMR pipeline uses claude -p as a subprocess backend. Each invocation carries ~$0.18 overhead from a 66K system prompt. Pipeline: outline (1) → keywords (1) → chunk extractions (N) → 18 framework syntheses → self-check (1), plus repair retries."
+}

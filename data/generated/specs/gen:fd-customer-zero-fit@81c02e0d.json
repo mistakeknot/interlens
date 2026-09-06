@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-borg-to-kubernetes-dynamics covers open-source transition timing and community dynamics",
+    "fd-agent-orchestration-competitive covers competitor positioning and gaps",
+    "fd-architecture-vertical-coupling covers whether L1/L2 separation is real at the code level"
+  ],
+  "decision_lens": "Prioritizes findings that expose hidden coupling between customer choice and irreversible architectural or contractual decisions. Any customer archetype that would require Sylveste to own outcomes rather than infrastructure is a P0 risk.",
+  "focus": "Evaluates which primary customer archetype (Anthropic, enterprise, power individual, open-source community) best matches the platform's current capabilities and the 'datacenter of geniuses' vision",
+  "name": "fd-customer-zero-fit",
+  "persona": "A B2B go-to-market strategist who has worked across developer tools, infrastructure, and AI platforms, with direct experience positioning products that started as internal tools before external launch. Approaches customer selection as a constraint-satisfaction problem: the wrong first customer locks in architectural decisions that are expensive to reverse.",
+  "review_areas": [
+    "Assess whether the Intercore/Intermute domain-agnostic core is genuinely separable from the software-dev vertical today, or whether Clavain assumptions have leaked into L1",
+    "Evaluate whether Anthropic-as-first-customer creates a monoculture dependency: if Anthropic's internal needs diverge from general agent orchestration, does the architecture fork or does the product stagnate?",
+    "Compare the sales motion required for each customer archetype against the team's current go-to-market capacity",
+    "Check whether 'power individuals scaling up' requires a fundamentally different trust and isolation model than enterprise multi-tenancy",
+    "Identify which customer archetype produces the fastest feedback loop on the 'genius coordination' hypothesis",
+    "Examine the Borg-to-Kubernetes analogy: what was the organizational pressure that triggered open-sourcing — does that pressure exist here?"
+  ],
+  "success_hints": [
+    "Produces a 2x4 matrix: each customer archetype vs. (architectural fit, sales motion fit, feedback loop speed, lock-in risk)",
+    "Names at least one concrete Sylveste module that would need to change for each non-recommended archetype",
+    "Identifies whether the Anthropic-first option is a genuine strategic bet or a delayed GTM decision masquerading as strategy"
+  ],
+  "task_context": "Sylveste is pivoting from 'autonomous software development agency platform' to 'infrastructure for running a datacenter of geniuses' (Dario Amodei's vision). The layered architecture has domain-agnostic Intercore/Intermute at L1, with software dev as the first vertical via Clavain at L2."
+}

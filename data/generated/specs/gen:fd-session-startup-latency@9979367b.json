@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-context-loading-architecture covers what tokens are loaded",
+    "fd-routing-dispatch-quality covers correctness of routing decisions",
+    "fd-plugin-scaling covers latency as plugin count grows"
+  ],
+  "decision_lens": "Ranks findings by position on the critical path: blocking serial calls before additionalContext assembly rank highest, followed by calls that scale with project size.",
+  "focus": "Wall-clock latency contributors in session-start.sh and the developer experience of the first 5 seconds",
+  "name": "fd-session-startup-latency",
+  "persona": "A developer experience engineer who has profiled Claude Code plugin startup paths and treats every blocking subprocess in a session hook as a user-visible delay.",
+  "review_areas": [
+    "session-start.sh: Intermute health check (curl --connect-timeout 1 --max-time 2) is on the critical path — if unreachable, adds 2-second stall",
+    "session-start.sh: bd doctor --json called synchronously on every startup when .beads exists — profile latency on >100 beads projects",
+    "session-start.sh: sprint_brief_scan performs filesystem walks on docs/ directories — measure latency as directories grow",
+    "session-start.sh: count distinct ic subprocess invocations in full startup and identify consolidation opportunities",
+    "session-start.sh stale cache cleanup: four separate find calls on /tmp — assess whether a single OR'd find would reduce overhead",
+    "First-run setup verification: verify PyYAML and yq soft checks are gated behind .clavain/setup-verified"
+  ],
+  "success_hints": [
+    "Intermute curl check moved off critical path or timeout reduced to ≤200ms",
+    "Total blocking subprocess count ≤5 for a project with no active sprints",
+    "bd doctor either backgrounded or file-cached between sessions"
+  ],
+  "task_context": "Session-start.sh is 524 lines assembling additionalContext. Several paths require network calls (Intermute) or subprocess execution (bd, ic, clavain-cli) before context can be presented."
+}

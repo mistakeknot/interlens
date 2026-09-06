@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-emergence-fidelity covers simulation philosophy compliance",
+    "fd-ontological-mapping covers mapping accuracy",
+    "fd-computational-tractability covers execution cost"
+  ],
+  "decision_lens": "Findings are ranked by coupling — stages that bake in Shadow Work domain knowledge where generic logic would do are the highest-severity findings.",
+  "focus": "Whether the approach decomposes into independently useful, reusable pipeline stages that fit Demarch's composition-over-consolidation architecture",
+  "name": "fd-composability-architecture",
+  "persona": "A software architect who has internalized Demarch's plugin/app composition philosophy and Khouri's intended product boundary as a generic agentic scenario-planning engine with project-specific adapters.",
+  "review_areas": [
+    "Does the approach separate NL-parsing from domain-ontology-mapping so the parser can be reused?",
+    "Are simulation-specific stages isolated behind a project adapter interface?",
+    "Does each stage produce a documented, schema-typed intermediate artifact?",
+    "Can the gap-detection stage run independently against any formal model schema?",
+    "Does the approach define clear ownership boundaries between Khouri (generic) vs. shadow-work (adapter) vs. Demarch (infra)?",
+    "Are there stages that combine too much in a single LLM prompt that should be split?"
+  ],
+  "success_hints": [
+    "Pipeline diagram with typed input/output schemas per stage",
+    "At least one stage is explicitly domain-agnostic",
+    "The Shadow Work adapter is thin — primarily ontology schema and calibration heuristics"
+  ],
+  "task_context": "The intended home for this capability is the Khouri app under Demarch, not shadow-work itself."
+}

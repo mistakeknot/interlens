@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does not cover DB schema (fd-sqlalchemy), subprocess calls (fd-claude-cli), or async patterns (fd-asyncio)",
+  "decision_lens": "Every heuristic classification is a noisy label — what is the noise structure and does the downstream model amplify it?",
+  "focus": "Statistical validity of engagement classification heuristic and EMA effectiveness scoring",
+  "name": "fd-lens-evolution-scoring-validity",
+  "persona": "ML engineer who specializes in implicit feedback signals and recommender systems",
+  "review_areas": [
+    "Short-reply users systematically miscategorized as 'ignored' (low engagement heuristic bias)",
+    "Exploration bonus never decaying: permanent score inflation for new lenses",
+    "Effectiveness scores lost on container restart if not loaded from LensUsage DB on startup",
+    "EMA alpha implicit in delta values — is the effective window appropriate?",
+    "Confidence floor at 0.1 means almost nothing gets suppressed — is this intentional?",
+    "No per-user scoring: global effectiveness scores may not reflect individual preferences"
+  ],
+  "severity_examples": [
+    {
+      "condition": "classify_engagement checks for concept references in short replies, misses intent",
+      "scenario": "Terse users never get lens engagement credit",
+      "severity": "P1"
+    },
+    {
+      "condition": "Exploration bonus of 0.15 applied at usage_count < 3, never subtracted",
+      "scenario": "New lenses permanently score higher than established ones",
+      "severity": "P2"
+    },
+    {
+      "condition": "lens_evolution.py loads library but not LensUsage history",
+      "scenario": "Container restart resets all in-memory scores to 0.5",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Focus on lens_evolution.py classify_engagement and apply_effectiveness_update",
+  "task_context": "F7 (lens gating) depends on these scores for suppression thresholds"
+}

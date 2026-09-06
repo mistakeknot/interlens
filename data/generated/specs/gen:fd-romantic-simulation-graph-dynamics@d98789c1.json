@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "fd-romantic-driver-balance covers per-driver weights; fd-romantic-ecs-data-model covers storage implementation; this agent covers emergent population dynamics and graph-level properties",
+  "decision_lens": "Network quality — the attraction system must produce colony-wide relationship graphs with diversity of structure (chains, triangles, isolated pairs, unrequited arcs) that create ongoing dramatic tension",
+  "focus": "Whether the attraction system produces stable, interesting population-level relationship graphs or degenerates into love triangles, isolated pairs, or attraction monopolies",
+  "name": "fd-romantic-simulation-graph-dynamics",
+  "persona": "Computational social scientist who models relationship network formation in agent-based simulations — specialist in how local interaction rules produce macro-level social structure",
+  "review_areas": [
+    "Evaluate whether the proposed drivers naturally produce a mix of mutual and unrequited attractions or whether asymmetry requires explicit mechanics to emerge at the population level",
+    "Check whether high-prestige elves acting as 'attraction sinks' (everyone is drawn to them) disrupts the colony's relationship diversity and concentrates drama unproductively",
+    "Assess whether shared emotional experience (crisis together, same revel) creates cliques — elves who all attended the same transcendent revel becoming a mutually-attractive cluster",
+    "Verify that the system handles the romantic rivalry case: two elves attracted to the same third elf — does this produce rivalry mechanics or is it silently unresolved?",
+    "Review the 'skill gap admiration' driver for the apprenticeship-to-romance pipeline — does this create a systematic power asymmetry in romantic relationships that the colony sim should acknowledge?",
+    "Check whether the brainstorm's 'absence makes the heart grow fonder' mechanic might cause pathological separation-reunion cycles that players exploit as a satisfaction farming technique"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Prestige driver lacks diminishing returns or per-elf variety mechanism",
+      "scenario": "High-prestige prestige-attraction driver causes all elves to converge romantic attention on the colony's most acclaimed composer, creating a celebrity monopoly where most elves are permanently in unrequited attraction to the same target",
+      "severity": "P1"
+    },
+    {
+      "condition": "Shared experience driver applies uniformly to all co-attendees rather than requiring specific emotional reaction pairing",
+      "scenario": "Shared revel experience driver causes all revel attendees to become mutually attracted, producing a 'revel orgy' pattern where every revel generates a dense clique of new attractions rather than individual sparks",
+      "severity": "P2"
+    },
+    {
+      "condition": "System has no concept of competing attractions or jealousy modifiers",
+      "scenario": "No romantic rivalry mechanic means two elves attracted to the same third elf never interact as rivals — missing the most dramatically productive triangle pattern from fiction and DF-style emergent narrative",
+      "severity": "P3"
+    }
+  ],
+  "success_hints": "After 500 ticks, the colony's attraction graph contains a mix of mutual bonds, unrequited arcs, and at least one triangle — with no single elf holding more than 30% of colony romantic attention.",
+  "task_context": "The brainstorm focuses on individual-level driver design but doesn't analyze how those drivers aggregate into colony-wide relationship graphs — this agent fills that gap."
+}

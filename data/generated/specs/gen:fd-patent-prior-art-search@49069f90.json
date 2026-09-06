@@ -1,0 +1,50 @@
+{
+  "anti_overlap": [
+    "fd-forensic-accounting covers reproducibility of the evidence chain per finding — this agent covers whether the search strategy is exhaustive enough to surface all relevant evidence, not whether individual findings are reproducible",
+    "fd-ma-technical-due-diligence covers option exhaustiveness in the decision matrices — this agent covers search-term and file-type exhaustiveness in the evidence-gathering phase, before the decision matrices are constructed",
+    "fd-investigative-journalism-source-discipline covers scope discipline and citation format — this agent covers whether the investigation covered the full in-scope surface, not whether it avoided out-of-scope material"
+  ],
+  "decision_lens": "A prior-art search that misses a relevant reference because the searcher only looked for the term the client used — not the synonyms and related terms used by others in the field — produces an opinion of freedom-to-operate that will not survive a litigation challenge; the same principle applies to a codebase investigation that searches for anticipated symbol names rather than all patterns that could implement the target behavior.",
+  "distance_rationale": "Patent prior-art searchers face the same exhaustiveness challenge as this spike: they must cover a defined technical surface completely using search strategies that anticipate how different implementors name the same concept, using multiple search corpora (source code, documentation, test files, configuration manifests), and must produce a coverage claim that would survive adversarial challenge by a reviewer who claims a material reference was missed. The field has developed rigorous synonym-expansion practice and multi-corpus search discipline that directly addresses the spike's risk of missing API surfaces due to narrow search-term selection.",
+  "expected_isomorphisms": [
+    "Patent claim scope → five-decision scope that must be covered exhaustively within the Hermes surface",
+    "Synonym expansion for search terms → broadened ripgrep patterns covering all plausible naming conventions for credential injection, state persistence, lifecycle hooks",
+    "Prior-art corpus selection (patents, publications, products) → search corpus selection (implementation files, test files, configuration manifests, examples)",
+    "Freedom-to-operate opinion that survives adversarial challenge → research doc whose findings would survive a downstream plan-writer claiming a material Hermes API was missed"
+  ],
+  "focus": "Whether the spike's surface-coverage of the Hermes skill API is exhaustive within each of the five decision areas — meaning no relevant API entry point, configuration mechanism, or lifecycle path is missed because the search strategy was too narrow — and whether the resulting research doc would survive a challenge from a downstream reader who claims a material API surface was not investigated",
+  "name": "fd-patent-prior-art-search",
+  "persona": "Apply the perspective of a patent attorney conducting a freedom-to-operate analysis who must achieve exhaustive prior-art coverage within a defined claim scope — they care about whether the search strategy systematically covers the entire relevant surface (not just the obvious entry points), measure whether a claim of 'we searched exhaustively' would survive adversarial scrutiny, and flag any investigation where the search strategy has systematic blind spots that could cause a material missed finding.",
+  "review_areas": [
+    "Search-term completeness per decision area: the plan's ripgrep patterns are specific symbol names and string literals — for provider-key access (Task 5), it searches for 'ANTHROPIC_API_KEY', 'OPENAI_API_KEY', 'provider_key', 'api_key', 'hermes_config.*'; but a Hermes implementation might use 'credentials', 'token', 'secret', 'auth_key', or a config struct field name that none of these patterns match; a missed implementation of key injection via a SkillContext field with a non-obvious name would invalidate OQ1's closure",
+    "File-type and directory coverage: the search commands use -tpy, -trust, -tts, -tjs type flags — but Hermes might implement skill interfaces in YAML configuration, TOML manifests, or a compiled DSL that isn't caught by source-file type filters; the plan does not include a file-extension inventory step that confirms the Hermes repo's language distribution before the search strategy is fixed",
+    "Public-re-export surface vs. internal implementation divergence: Task 2 instructs the investigator to find the canonical SkillContext type 'in the package's public re-exports' — but a public re-export may be a thin wrapper over an internal type with additional fields not visible in the re-export; a freedom-to-operate attorney would require that the full type chain be traced from re-export back to the concrete implementation, not just the re-export surface",
+    "Example and test file coverage: Tasks 3-7 search primarily in source files; the plan mentions 'examples/' and 'templates/' as fallbacks for lifecycle hooks but does not systematically include test files in the search strategy — test files in a codebase frequently contain the authoritative usage patterns for APIs, and test coverage of an API surface that source-code grep misses is a systematic blind spot",
+    "Multi-language codebase handling: the plan notes that Hermes may be in TypeScript and instructs the investigator to pass '--language' flags — but does not specify what to do if the Hermes repo is a multi-language monorepo (Python CLI, Rust core, TypeScript UI) where the skill interface is split across language boundaries; a patent searcher would identify the full claim surface before deciding which search corpora to include",
+    "Cross-reference completeness for OQ6 (skill repo location): Task 7 requires cross-referencing 'awesome-hermes-agent registry conventions' — but the plan does not specify how to determine that the awesome-hermes-agent CONTRIBUTING.md is exhaustive of all accepted submission patterns; a subset of skills may be registered via a different path (e.g., direct Nous Discord announcement without a registry PR) that the CONTRIBUTING.md doesn't document"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When the search strategy is anchored to anticipated symbol names rather than a systematic synonym expansion that covers all plausible naming conventions for credential injection",
+      "scenario": "The Hermes SkillContext implementation exposes provider credentials via a field named 'auth_tokens: dict[str, str]' rather than any of the pattern names in Task 5's search ('provider_key', 'api_key', 'ANTHROPIC_API_KEY') — the search returns 0 results for all patterns, the investigator concludes 'Hermes does not expose provider keys via SkillContext' and documents option (ii) as the correct mechanism (skill reads env vars directly); F3 plan-writers implement env-var reading and miss the native SkillContext.auth_tokens mechanism entirely",
+      "severity": "P1"
+    },
+    {
+      "condition": "When the file-type search filters exclude configuration manifests that may contain the primary specification of the skill lifecycle interface",
+      "scenario": "The install-hook lifecycle is fully specified in a YAML configuration file (hermes-skill.yaml) that defines 'on_install', 'on_invoke', and 'on_teardown' keys — but the search commands use -tpy and -trust file-type filters that exclude YAML files; the investigator concludes that the install hook is implemented as a Python/Rust function and documents a code-based interface; F2 plan-writers implement a function-based hook and discover Hermes expects a YAML-declared hook path",
+      "severity": "P1"
+    },
+    {
+      "condition": "When test files are not included in the search corpus and the idiomatic API usage pattern appears only in test and example code rather than the implementation itself",
+      "scenario": "The gateway emit API is searched via 'send_message', 'emit', 'reply', 'gateway', 'dispatch_message' — but the Hermes test suite contains 16 integration tests that call a 'ctx.output()' method to emit messages; ctx.output() is the authoritative emit pattern but is not in the search terms; the investigator cites a lower-level 'gateway.post()' found in the source instead; F4 plan-writers use 'gateway.post()' and produce a non-idiomatic implementation that breaks on the next Hermes refactor",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Patent prior-art search and freedom-to-operate analysis",
+  "success_hints": [
+    "Each decision area's search section begins with a synonym expansion step: before running the primary ripgrep commands, the investigator lists all plausible naming conventions for the target concept (e.g., for credential injection: 'provider_key', 'api_key', 'auth_token', 'credentials', 'secret', 'keyring', 'vault') and runs at least one broadened search to confirm no additional patterns match",
+    "Task 1 includes a file-extension inventory step: 'rg --type-list' against the Hermes clone identifies all file types present, and the search strategy for Tasks 2-7 is adjusted to include any file types not covered by the default -tpy/-trust/-tts flags — YAML, TOML, JSONC configuration files are explicitly included or explicitly excluded with justification",
+    "Tasks 2-7 each include a test-and-example file search as a parallel step to the implementation search: the result set from tests and examples is compared to the result set from implementation files, and any API surface found only in tests (suggesting it is the intended public usage pattern) is prioritized over internal implementation details in the findings"
+  ],
+  "task_context": "The F0 spike must close five decisions by reading the Hermes source at a pinned SHA. Each decision is answered by locating the relevant API surface in the codebase. The spike's findings become the basis for F2/F3/F5 implementation decisions — a missed API surface can cause an entire downstream feature to be built against the wrong interface."
+}

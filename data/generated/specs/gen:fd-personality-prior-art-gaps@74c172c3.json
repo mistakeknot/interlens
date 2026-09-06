@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "fd-personality-axis-orthogonality covers mathematical properties; this covers design precedent and proven patterns",
+  "decision_lens": "Design maturity — learn from what worked and failed in comparable games rather than designing in a vacuum",
+  "focus": "How the proposed system compares to proven personality systems in colony sims and what lessons are being missed",
+  "name": "fd-personality-prior-art-gaps",
+  "persona": "Game design historian specializing in emergent narrative systems — deep knowledge of DF, RimWorld, Crusader Kings, Sims personality implementations",
+  "review_areas": [
+    "Compare proposed 3-axis model against DF's 50-facet system (most invisible), RimWorld's discrete traits (3 per pawn, high impact), CK3's personality system (5 traits from events), and The Sims (trait slots)",
+    "Evaluate whether continuous axes (0.0-1.0) or discrete traits (Bold/Cautious/Neutral) produce better emergent stories in colony sims",
+    "Assess the 'personality as modifier vs personality as behavior driver' tradeoff — modifiers are safer but less interesting",
+    "Check whether the proposed system handles personality conflict resolution (what happens when pride says 'demand revel slot' but introversion says 'avoid spotlight'?)",
+    "Evaluate RimWorld's lesson: fewer high-impact traits beat many low-impact ones for player legibility"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Normal distribution clusters 68% of elves in the 0.35-0.65 range on each axis",
+      "scenario": "Continuous axes produce 'mush' — most elves feel similar because extreme values are rare and moderate values are indistinguishable",
+      "severity": "P1"
+    },
+    {
+      "condition": "Two axes recommend opposite actions with no tiebreaker mechanism",
+      "scenario": "No intra-personality conflict resolution — contradictory impulses from different axes produce undefined behavior",
+      "severity": "P2"
+    },
+    {
+      "condition": "Personality is only visible through explicit UI display, never through emergent behavior",
+      "scenario": "Missing the 'trait discovery' moment that makes RimWorld compelling — you learn a pawn is a pyromaniac through their actions, not a stats screen",
+      "severity": "P3"
+    }
+  ],
+  "success_hints": "The system learns from prior art failures (DF's invisible facets, Sims' shallow traits) while capturing what works (RimWorld's high-impact discrete traits, CK3's event-driven personality).",
+  "task_context": "This is the most foundational personality decision for the game. Getting the model wrong early creates technical debt that affects every system built on top of it."
+}

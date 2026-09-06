@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "Does not cover MIDI event-level correctness or pitch-bend channel semantics — that is fd-midi-pitch-bend-channel-semantics's domain",
+    "Does not assess RNG determinism or seed derivation — that is fd-determinism-rng-seed-propagation's domain",
+    "Does not evaluate whether the 25 host-side tests are sufficient to falsify each pass — that is fd-test-falsifiability-coverage's domain"
+  ],
+  "decision_lens": "The PRD's contract boundary is §1.3: 'DO NOT REDEFINE the companion-PRD §2.4 TrackMutationResult.' Any field added, any type changed, any key renamed in this PRD's representation of that struct is a contract violation — regardless of whether the PRD calls it an 'addition' or a 'proposal.' The companion PRD's owner gets a vote; until they sign off, the field is unratified.",
+  "focus": "Boundary integrity between this PRD and prd-ensemble-realization.md — reserved-field conflicts, TrackMutationResult redefinition, and forward-compatibility promises that one PRD makes on behalf of the other",
+  "name": "fd-two-prd-contract-interlock",
+  "persona": "Apply the perspective of an API contract reviewer who specializes in multi-team interface versioning — they track every field, every schema claim, and every 'DO NOT REDEFINE' annotation, and measure contract health by asking 'what breaks if this PRD ships without the other side being updated?' They flag silent extension conflicts and asymmetric ownership claims with the same severity as data-loss bugs.",
+  "review_areas": [
+    "§1.3 reserves forbidden_note_replacements: int under mutations and proposes it as a 'non-breaking addition' — but the companion PRD §2.4 explicitly enumerates four mutation counters and does not list this field. The PRD's claim that 'consumers should ignore unknown keys' is a forward-compat assertion made unilaterally about a struct the companion PRD owns. This is a contract violation until the companion PRD's owner explicitly adds an 'additional counters allowed' clause",
+    "§1.2 step 3 says the tool 'still attempts to load the preset' even when manual_program=true, and 'instrument_loaded reflects only the preset-load outcome' — but companion PRD §2.4's TrackMutationResult has instrument_loaded: bool with no documentation of the manual_program=true edge case. Callers (realize_ensemble) may interpret instrument_loaded=false as a failure requiring fail-fast, when the PRD intends it to be informational. The semantics need reconciliation",
+    "§1.1 adds seed_salt: str = '' and dry_run: bool = False as keyword-only parameters — companion PRD §2.4 specifies the call signature as apply_tonal_grammar(grammar_path, track_index, patch_name, instrument_spec) with no additional parameters. The two PRDs present different call signatures. The companion PRD's realize_ensemble (§2.8) does not pass seed_salt or dry_run, meaning those parameters are either silently defaulted or the companion PRD's calling code is incomplete",
+    "§1.3 'Failure semantics: any status:error causes realize_ensemble to fail fast' — this statement is imported from companion-PRD §2.4 but this PRD also adds a new error type: forbidden_note_violation. The companion PRD's failure-mode table (§2.4) lists only preset_not_found, schema_error, live_api_error. forbidden_note_violation is new here — realize_ensemble's fail-fast handler must be updated to handle it, but the companion PRD is closed (medset-nr3.1). Who owns the update?",
+    "§2.3 instruments capability table cross-check: this PRD can return schema_error when roster/grammar contradict — but the companion PRD's §2.1 roster YAML schema says accepts_microtonal_mutation defaults to true if absent. If the grammar table says an instrument is fixed-tuned but the roster omits the field (defaulting to true), this PRD fires schema_error while the companion PRD's parsing would silently default to true. The two PRDs have different default-value semantics for the same field."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If realize_ensemble's per-track error handling (companion PRD §2.8 step 5d) only checks for the three error types it was designed around (preset_not_found, schema_error, live_api_error), a forbidden_note_violation from apply_tonal_grammar may fall through as an unrecognized error type — either silently ignored or raising an uncaught exception, rather than triggering fail-fast. The session build continues with a corrupted mutation result.",
+      "scenario": "forbidden_note_violation error type not in companion PRD's fail-fast handler",
+      "severity": "P0"
+    },
+    {
+      "condition": "The companion PRD §2.8 calling sequence does not pass seed_salt. If the implementation of realize_ensemble is written strictly from the companion PRD, seed_salt is never passed — and the operator has no way to re-seed a render without modifying realize_ensemble directly. The seed_salt escape valve (the operator's safety valve for bad-sounding RNG outcomes) is unreachable from the production workflow.",
+      "scenario": "seed_salt and dry_run parameters absent from companion PRD's call site",
+      "severity": "P1"
+    },
+    {
+      "condition": "If the companion PRD's mutation_summary aggregation (§2.4) sums counters by name, forbidden_note_replacements will appear in the session-level summary as an unexpected field. Downstream tooling (e.g., the review.md pre-audition diagnostic) may display it misleadingly or omit it from total_mutations, creating a silent discrepancy between the tool's internal count and the operator-visible summary.",
+      "scenario": "forbidden_note_replacements counter emitted unilaterally without companion PRD sign-off",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "The PRD correctly identifies the contract boundary in §1.3 and uses 'DO NOT REDEFINE' language — the intent is right even where the execution needs reconciliation",
+    "The forbidden_note_replacements proposal includes a rollback plan (roll into cent_offsets_applied) — this is pragmatic and reduces the blast radius of the disagreement",
+    "§7 open questions explicitly names the forbidden_note_replacements field as needing companion PRD sign-off — the uncertainty is surfaced, not buried"
+  ],
+  "task_context": "Reviewing the apply_tonal_grammar PRD for contract boundary violations with prd-ensemble-realization.md — specifically: unilateral additions to the TrackMutationResult struct, call-signature divergence, new error types the companion PRD's fail-fast handler was not designed for, and default-value semantic conflicts for shared fields like accepts_microtonal_mutation."
+}

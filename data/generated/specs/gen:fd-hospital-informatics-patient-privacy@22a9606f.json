@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Focuses on access minimization, key lifecycle for team membership changes, break-the-glass emergency access, and audit provability. fd-embassy handles classified compartmentalization and network-level trust; fd-banking handles computation-on-encrypted-data and fraud detection; fd-film-studio handles watermarking and leak tracing.",
+  "decision_lens": "Patient data must be accessible to the care team but invisible to the hospital's IT department. The system operator runs the infrastructure but must not be able to read the charts. Every access is logged, every exception justified, and the patient can audit who saw what.",
+  "distance_rationale": "Hospitals solve the exact structural problem of an operator who runs infrastructure but must not read the content flowing through it — IT admins maintain the EHR but cannot read patient charts. The care-team collaboration model maps directly to garden participants.",
+  "expected_isomorphisms": "Minimum necessary access maps to component-level decryption scoping. Break-the-glass maps to emergency operator access with consent and audit. Care team rotation maps to participant join/leave key management. Patient audit rights map to participant verification of operator non-access.",
+  "focus": "How clinical systems protect patient data while enabling multi-provider collaboration — drawn from health informatics and HIPAA-compliant system architecture.",
+  "name": "fd-hospital-informatics-patient-privacy",
+  "persona": "A chief health information officer with 20 years designing EHR systems for large hospital networks, expert in HIPAA technical safeguards, role-based access, break-the-glass protocols, and audit trails for multi-provider care teams.",
+  "review_areas": [
+    "Is there a 'minimum necessary' principle — does each component (relay, AI proxy, governance engine) access only the content fields it strictly needs, or does it decrypt the entire garden?",
+    "Is there a 'break-the-glass' protocol — a documented, auditable, consent-gated emergency path for when the operator MUST access encrypted content (e.g., abuse reports, legal subpoena)?",
+    "Does the key management model support care-team rotation — when a participant leaves or a new one joins, can keys be re-shared without re-encrypting the entire history?",
+    "Is there an audit trail that proves the operator never accessed plaintext — not just a promise of E2E, but a verifiable log that the server only handled ciphertext?",
+    "Does the 'Sealed Rooms' (Option 5) model account for the informed consent problem — do users understand exactly which features they lose when choosing encryption, like a patient choosing which data to share?",
+    "How does the design handle the 'consulting physician' pattern — a temporary participant who needs access to a subset of garden content without getting the master key?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Missing emergency access protocol or missing access audit",
+      "scenario": "No break-the-glass protocol exists — in a legal subpoena or abuse case, the operator has no way to access content, OR the operator can access content routinely with no audit trail",
+      "severity": "P0"
+    },
+    {
+      "condition": "No key rotation on membership change",
+      "scenario": "When a participant is removed from a garden, the encryption key is not rotated — the removed participant can still decrypt new content using the old key",
+      "severity": "P1"
+    },
+    {
+      "condition": "Over-broad decryption scope",
+      "scenario": "The AI proxy decrypts the entire garden state to extract one field — violates minimum necessary access",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Health informatics, HIPAA technical safeguards, and EHR system architecture",
+  "success_hints": "The encryption design follows the HIPAA 'minimum necessary' principle — each server component touches only what it must. Key lifecycle handles membership changes. There is a documented, auditable emergency access path. Users can verify operator non-access.",
+  "task_context": "Review the Garden Salon encryption design brainstorm through the lens of health informatics — does the proposed architecture protect participant content from the operator with the same rigor hospitals protect patient data from IT staff?"
+}

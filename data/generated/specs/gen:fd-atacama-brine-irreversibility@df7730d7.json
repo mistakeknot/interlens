@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "Do not review identifier binding or rename safety",
+    "Do not review reference-frame stationarity",
+    "Focus only on irreversibility, dry-run discipline, and staleness-vs-destination-state gaps"
+  ],
+  "decision_lens": "For every state-changing operation in the design, is the irreversibility budget explicit, is the dry-run path load-bearing rather than ceremonial, and does any cached or sampled state correctly represent its position in the stratification?",
+  "distance_rationale": "Software reviewers reach for 'transactions' and 'idempotency' when irreversibility comes up; brine-pond operations have neither, and their discipline — staged ponds, months-long observation, no rollback ever — surfaces the irreversibility questions that 'just make it idempotent' actually obscures.",
+  "expected_isomorphisms": "Brine in pond 3 cannot be returned to pond 1; the operator's only tools are pre-flight chemistry and patience. ideagui's Notion provisioning, schema lock-in, and archive promotion are structurally identical — there is no rollback API for 'I created the wrong DB shape and 42 rows are now seeded against it.' The dry-run-by-default convention in CONVENTIONS.md is the architectural equivalent of pre-flight brine chemistry, and its discipline must be real, not ceremonial.",
+  "focus": "Irreversible state transitions and the discipline required when a process cannot be unwound: provisioning that cannot be undone, evaporation-style slow concentration, and the gap between sample freshness and destination state.",
+  "name": "fd-atacama-brine-irreversibility",
+  "persona": "A reviewer-framework derived from Atacama lithium-brine pond operations, in which brine is pumped into vast shallow ponds and concentrated by solar evaporation over 12-24 months across multiple staged ponds. Reviews any operation whose effects are slow, stratified, and not undoable, asking: is the irreversibility named, is the dry-run discipline real, and does the freshness of a measurement actually predict the destination state?",
+  "review_areas": [
+    "Provisioning operations (Notion DB creation, schema commits) flagged as irreversible-in-practice with corresponding pre-flight discipline",
+    "Dry-run defaults across all bridge scripts: is dry-run a real validation or a no-op wrapper?",
+    "Whether schema migrations have a documented rollback story or are explicitly declared one-way",
+    "Last_synced and cache freshness: does the timestamp represent the read sample or the destination concentration the reader cares about?",
+    "Stratification of the Sessions DB decision (F4) — is the deferred state actually concentrating toward a decision, or is the pond just sitting?",
+    "Whether the archive/2026-03-snapshot is treated as bedrock (immutable, referenced) or accidentally as live (read-write, drift-prone)"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Provisioning is irreversible-in-practice — a malformed DB cannot be cleanly rolled back, only abandoned; the brine has been pumped and the pond cannot be un-filled",
+      "scenario": "Notion DB provisioning script lacks a dry-run path that validates the full schema shape before any API write",
+      "severity": "P0"
+    },
+    {
+      "condition": "Operators will read pond-surface salinity and assume destination concentration; the stratification is invisible to the consumer",
+      "scenario": "last_synced is exposed but no doc explains that a fresh sync timestamp does not imply fresh underlying truth (beads itself may have been stale at sync time)",
+      "severity": "P1"
+    },
+    {
+      "condition": "Deferred decisions evaporate context rather than concentrate insight; the pond becomes a stagnant artifact",
+      "scenario": "F4 (Sessions DB strategy) is deferred indefinitely with no concentration-toward-decision discipline",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Atacama Desert lithium-brine evaporation pond operations (Salar de Atacama, Chile), at the intersection of Andean geology and 21st-c. extractive industry — a planetary-scale, deep-time, slow-process domain",
+  "success_hints": [
+    "Mark every irreversible-in-practice operation with an explicit IRREVERSIBLE tag in docs and code",
+    "Dry-run paths must exercise the full validation pipeline, not just early-exit before the API call",
+    "Distinguish 'fresh read of upstream' from 'upstream is fresh' in every staleness affordance"
+  ],
+  "task_context": "Reviewing the ideagui foundation: PRD, Philosophy, Conventions, CUJs for a three-DB portfolio meta-layer. The system has explicit irreversibility surfaces (Notion DB provisioning per F2, schema lock-in per F1) and explicit dry-run discipline in Conventions, plus a deferred Sessions DB decision (F4) and a preserved historical archive."
+}

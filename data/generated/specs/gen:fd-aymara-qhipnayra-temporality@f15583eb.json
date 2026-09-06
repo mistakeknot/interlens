@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "Do NOT review the 5 m sampling interval or sample placement",
+    "Do NOT review the aggregation step (sun_fraction scalar)",
+    "Do NOT review NaN propagation or shade_data_quality flag",
+    "Stay focused on the temporal-snapshot framing and what it claims, hides, or forecloses"
+  ],
+  "decision_lens": "Does the output schema and the surrounding documentation honestly disclose what sun_timestamp means and what it doesn't? Is the v1 simplification (one timestamp = the whole walk) a deferred problem with a clear path forward, or a hidden assumption that will be hard to unwind later?",
+  "distance_rationale": "An indigenous epistemology where the past is in front (visible, walked-through) and the future is behind (unseen, approaching from behind the walker) is as far from raster-timestamp-attribute design as it is possible to get.",
+  "expected_isomorphisms": "In qhipnayra reasoning, what you can see and verify is what has already happened; what is coming you cannot see, only infer from the patterns of what you have walked through. Mapped: a single-timestamp shadow raster freezes a moment that the pedestrian will have ALREADY WALKED PAST by the time they reach the far end of a long edge — a 200 m boulevard at walking pace takes ~2.4 minutes, during which the sun moves measurably. The 'snapshot' is a past the walker is moving away from; the brainstorm treats it as the present, which is a category error the domain can name.",
+  "expected_isomorphisms_alt": "Useful pressure: a sun_timestamp attribute claims 'this is the shade state at T', but for any walker traversing the network the relevant question is 'what will the shade state be at T + travel_time_to_this_edge?' — the brainstorm defers this to 'multiple timestamps later' but doesn't acknowledge that even within a single route the snapshot is wrong.",
+  "focus": "Whether freezing shade at a single timestamp is a defensible simplification for v1, or whether the temporal-snapshot framing has structural problems (sun moves during traversal, route latency, time-of-query vs time-of-walk) that should be acknowledged in the output schema even if not solved.",
+  "name": "fd-aymara-qhipnayra-temporality",
+  "persona": "Apply the perspective of an Aymara walker for whom temporality is woven into spatial reasoning — the path ahead is unseen, the path behind is known, and the sun is always moving relative to where the walker is now. The framework treats a single-timestamp attribute as a claim about a dynamic phenomenon, and asks whether the claim's failure modes are honestly disclosed.",
+  "review_areas": [
+    "Sun motion during traversal: a 200 m boulevard at 1.4 m/s walking speed takes ~2.4 min; sun azimuth moves ~0.6° in that time, enough to shift building shadows by meters — does the brainstorm acknowledge this is the floor of its accuracy?",
+    "Time-of-query vs time-of-walk: the system as designed answers 'show me a route assuming the shade is exactly what the raster says at timestamp T' — what does it tell a user querying at 2:50 PM for a walk starting at 3:15 PM?",
+    "Route-integral vs edge-snapshot: even with multiple timestamps later, the natural unit is route-time-integral of shade, not per-edge snapshot — does the per-edge attribute shape lock the architecture into a path that resists the time-integrated formulation?",
+    "Edge-of-day handling claim: brainstorm says 'sun_fraction ≈ 0 at dawn/dusk is correct because felt-minute degenerates to time' — but at dawn the shadow IS moving fastest in absolute terms; the snapshot is least representative there, not most",
+    "sun_timestamp string format from filename: an ISO 8601 derived from filename parsing is fragile; is the timestamp authoritative (stored in raster metadata) or derived (parsed from filename string)? The brainstorm uses the latter",
+    "Documentation of the snapshot assumption: open-question #4 mentions dawn/dusk briefly but the broader 'this is a frozen moment' assumption is not surfaced in the output schema or README — consumers may not know"
+  ],
+  "severity_examples": [
+    {
+      "example": "Single-timestamp framing is treated as a routing-engine-side problem (Phase 1.6's job), but the per-edge data shape itself encodes the assumption — if Phase 1.6 wants time-integrated shade, the data layer must change too; this lock-in is not disclosed.",
+      "severity": "P1"
+    },
+    {
+      "example": "sun_timestamp is parsed from filename rather than read from raster metadata; a filename rename silently changes the claimed timestamp without any verification against the actual raster's solar-position parameters.",
+      "severity": "P2"
+    },
+    {
+      "example": "Dawn/dusk edge-case reasoning in open-question #4 inverts the actual sensitivity — at dawn the shadow moves fastest, so the snapshot is LEAST representative; the brainstorm should either correct the reasoning or remove the reassurance.",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Aymara qhipnayra time-spatial reasoning (Andean highlands, pre-Columbian to present)",
+  "success_hints": [
+    "Pressure-test whether the per-edge attribute shape forecloses time-integrated routing, not just whether the current single-timestamp choice is reasonable",
+    "Use concrete sun-motion numbers (degrees per minute, meter-scale shadow drift) to ground the critique",
+    "Frame critique as 'what is the schema's honest contract about temporality?' — this is acceptable v1 simplification if disclosed, hidden bug if not",
+    "Do not demand multi-timestamp implementation now — that is explicitly out of scope; demand only that the deferral is structurally clean"
+  ],
+  "task_context": "Review the Phase 1.5 brainstorm focusing exclusively on the temporality assumption: a single-timestamp shadow raster, a sun_timestamp attribute, and the framing that one frozen moment represents 'the shade'. Examine whether v1 simplifications are honestly disclosed, whether the data shape forecloses future time-integrated routing, and whether the dawn/dusk reasoning in open-question #4 is sound. Do not address sampling cadence, aggregation, or NaN handling — other reviewers cover those."
+}

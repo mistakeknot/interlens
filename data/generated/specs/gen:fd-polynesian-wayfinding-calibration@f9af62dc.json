@@ -1,0 +1,48 @@
+{
+  "anti_overlap": [
+    "Do NOT review the multiplicative formula shape or the +inf wall-off",
+    "Do NOT review the four-policy NaN fallback enum or its dispatch logic",
+    "Do NOT review the Protocol-vs-ABC choice, the frozen-dataclass shape, or the package layout",
+    "Stay focused on parameter defaults, calibration instrumentation, smoke-test sensitivity coverage, and the persona-pace handoff"
+  ],
+  "decision_lens": "Are the v0 defaults visible, overridable, and instrumented in a way that Phase 1.7's calibration work will be cheap rather than expensive? Does the smoke test exercise the parameter axes that matter for calibration (sun_coefficient sensitivity, pace_mps variation), or only the formula's correctness at a single point? Is the persona-pace deferral (StepsDaddy stroll_mode = pace_mps=1.1) a clean handoff to a downstream phase, or a hidden assumption that the architecture can grow into?",
+  "distance_rationale": "An oral-tradition navigation system that costs each tack and leg against star paths, swell patterns, and accumulated experience is several disciplines and modalities removed from Python parameter defaults and smoke-test design, yet shares the deep structure of calibrating a per-segment cost against ground-truth observations one accumulates over time.",
+  "expected_isomorphisms": "A Polynesian wayfinder costs a leg as length-along-star-path plus a tack-penalty against the wind, with a default pace inherited from training (la'au — known canoe-speeds against known swell states) and refined through every voyage that survives. The pace number is not a parameter to argue about in the abstract — it is a calibration against the ground-truth of arrivals. Mapped: `pace_mps=1.4` is the wayfinder's la'au — a defensible default inherited from a tradition (here, public-health walking-speed literature), to be refined when Phase 1.7 has ground-truth (real OD pairs and route comparisons). The framework asks whether the calibration plan is structurally clean (parameter visible, replace()-able, smoke-test-instrumented), whether the smoke test is the right calibration instrument, and whether the persona-aware pace deferral is a clean handoff or a hidden assumption.",
+  "focus": "Whether the v0 parameter defaults (pace_mps=1.4, sun_coefficient=0.5, nan_fallback_value=0.5), the calibration plan deferred to Phase 1.7, the smoke-test design (test_smoke_apply_to_dtla and its wall-clock < 2 s budget), and the persona-pace deferral are structurally sound — does the v0 ship with parameters visible to tuning, instrumented against ground-truth, and honestly disclosed as defaults-pending-calibration?",
+  "name": "fd-polynesian-wayfinding-calibration",
+  "persona": "Apply the perspective of a Polynesian wayfinder for whom every pace estimate is an inheritance from training that survives only as long as the voyage arrives where it intended — for whom the default is sacred only until ground-truth says otherwise. The framework treats v0 parameter defaults as la'au-style inheritances, the smoke test as a navigation log, and the deferral to Phase 1.7 calibration as a planned port-of-call where the route is checked against arrival.",
+  "review_areas": [
+    "pace_mps=1.4 provenance: SOLWEND_HANDOFF.md §7 is cited; the public-health literature on adult walking speed ranges from 1.2 to 1.5 m/s depending on age, gender, gradient, and observation methodology. Is 1.4 'typical adult' or 'typical young adult on flat sidewalk'? DTLA pedestrians span a wide demographic; the default should disclose its population assumption, not just cite a section",
+    "sun_coefficient=0.5 calibration path: brainstorm acknowledges Phase 1.5 synthesis finding 65 — 'may not discriminate in DTLA regular grid, needs empirical calibration in Phase 1.6 against actual DTLA OD distribution.' Phase 1.6 then defers calibration to Phase 1.7. This is a TWO-phase deferral chain; is the deferral chain instrumented (smoke test surfaces sensitivity, parameter exposed via replace(), TODO(phase-1.7) comment landed)? The brainstorm says yes to the comment; what about the sensitivity instrument?",
+    "Smoke-test parameter coverage: test_smoke_apply_to_dtla exercises one FeltMinutesV0() instance (defaults) against one graph (DTLA shaded). It asserts correctness, not sensitivity. A sensitivity asssertion (e.g., 'with sun_coefficient=0 vs 0.5, route ranking on a known OD pair shifts measurably or not') would surface the calibration question in v0's own test suite — at the cost of borrowing Phase 1.7's OD pairs. Is this borrow worth it for calibration affordance?",
+    "Wall-clock < 2 s budget on 12,880-edge graph: this is ~150 μs/edge for a function that does one dict lookup, one float cast, one conditional, one arithmetic expression. The budget is loose by ~2 orders of magnitude. A tighter budget (e.g., 200 ms) would surface accidental hot-loop regressions (a future weight adding a per-edge log lookup, a stray hasattr check). Is the loose budget defensible as 'this is a smoke test not a benchmark', or is it leaving observability on the table?",
+    "Persona-pace deferral cleanliness: 'StepsDaddy stroll_mode = FeltMinutesV0(pace_mps=1.1)' is the entire architecture for persona-aware pace. This is clean — but does Phase 1.7's A* know HOW to pick the right instance per query? The brainstorm says the persona-pace is 'designed for but out-of-scope', but the routing-engine handoff for 'which weight to use per query' is not named. A wayfinder would say: la'au is one number per voyage; the wayfinder picks it before departing, not during",
+    "nan_fallback_value=0.5 default: when policy='constant', the value defaults to 0.5 — same as 'neutral'. Two defaults are aligned (good for substitutability) but the alignment is implicit. Is the relationship 'constant(0.5) == neutral' documented as an invariant or accidental?",
+    "Coefficient-tuning notebook affordance: Phase 1.7 is supposed to tune sun_coefficient against real OD pairs. What is the tuning instrument? A notebook that loops over a sweep, applies each FeltMinutesV0(sun_coefficient=k) to the graph, runs A* on a fixture OD set, and scores? The brainstorm names `replace()` as the mechanism, but the methodology is not sketched — calibration without a methodology is calibration in name only"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Phase 1.5 deferred calibration to Phase 1.6; Phase 1.6 defers to Phase 1.7. A # TODO(phase-1.7) comment is named but no sensitivity-surface instrument lands in v0 — the smoke test asserts correctness, not parameter sensitivity. When Phase 1.7 starts, the calibration work begins from scratch rather than from instrumented baselines. Recommend adding a parameter-sweep affordance (a notebook stub or a parametrized test that runs at slow-test markers) before declaring v0 done.",
+      "scenario": "Calibration deferral chain is not instrumented",
+      "severity": "P1"
+    },
+    {
+      "condition": "SOLWEND_HANDOFF.md §7 is cited but the population assumption (adult, flat, dry, no-load) is not documented in the dataclass docstring. Persona-aware pace will need to override this and the override semantics (what is being overridden — typical-population midpoint or a specific persona's pace) are unclear without the population statement.",
+      "scenario": "pace_mps=1.4 provenance is a citation, not a population statement",
+      "severity": "P2"
+    },
+    {
+      "condition": "2 s for 12,880 edges = 155 μs/edge; the function does ~5 dict-lookups-and-arithmetic. A 100 ms budget would catch accidental regressions; the current budget leaves observability on the table for a smoke-level cost.",
+      "scenario": "Wall-clock budget is loose by 100x",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Polynesian wayfinding cost-of-tack accounting (traditional Pacific navigation, pre-contact to present revival)",
+  "success_hints": [
+    "Treat v0 defaults as la'au — inherited from tradition, defensible until ground-truth says otherwise, and instrumented for the calibration voyage to come",
+    "Pressure-test the deferral chain (Phase 1.5 → 1.6 → 1.7) for whether the calibration work compounds or starts fresh each phase",
+    "The persona-pace pattern is elegant; demand only that the routing-engine-side selection contract is named",
+    "Acknowledge that v0 defaults are fine as defaults; flag P1 only when an instrument is missing that a downstream phase will pay to rebuild"
+  ],
+  "task_context": "Review the Phase 1.6 felt-minute edge weight brainstorm focusing exclusively on parameter defaults, calibration affordance, smoke-test design, and persona-pace deferral: pace_mps=1.4, sun_coefficient=0.5, nan_fallback_value=0.5, the test_smoke_apply_to_dtla wall-clock budget and parameter coverage, the # TODO(phase-1.7) calibration deferral, and the StepsDaddy stroll-mode pace handoff. Do not address the multiplicative formula shape, the NaN fallback policy taxonomy itself, the Protocol/dataclass architecture, or the apply_weight in-place mutation pattern — other reviewers cover those."
+}

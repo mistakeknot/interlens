@@ -1,0 +1,29 @@
+{
+  "anti_overlap": "Focuses purely on type choices and readability, not CSS implementation or color palette",
+  "decision_lens": "Readability at documentation scale — readers spend hours in these pages, not seconds",
+  "focus": "Typography choices for fantasy-themed documentation — balancing aesthetic character with long-form readability",
+  "name": "fd-fantasy-typography-readability",
+  "persona": "Typography specialist who designs for fantasy publishing houses and game manuals",
+  "review_areas": [
+    "Heading font (Cinzel/Cormorant) legibility at various sizes and weights",
+    "Body font pairing — does the serif heading + sans body create harmony or tension?",
+    "Dark mode contrast ratios — WCAG AA compliance with forest-dark backgrounds",
+    "Table readability with the chosen font stack (the wiki is table-heavy)",
+    "Code block font and contrast against themed backgrounds",
+    "Mobile typography scaling — do the chosen fonts work at 14px on phones?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Contrast ratio below 4.5:1 for body text",
+      "scenario": "Body text fails WCAG AA contrast on dark green background",
+      "severity": "P1"
+    },
+    {
+      "condition": "Heading font used below 16px without weight adjustment",
+      "scenario": "Cinzel headings are illegible at small sizes (h4, h5)",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Typography creates fantasy atmosphere in headings while maintaining perfect readability in body text, tables, and code blocks",
+  "task_context": "The wiki has 31 pages of dense mechanics documentation — typography must serve 2-hour reading sessions, not just first impressions"
+}

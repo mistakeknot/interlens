@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "fd-ikebana-iemoto-succession covers school formation, aesthetic preservation across generations, and the institutional tension between lineage fidelity and innovation",
+    "fd-alchemy-chrysopoeia-transformation covers graduation as phase-change versus threshold-crossing and what it means for the student's interior state to be transformed rather than merely advanced"
+  ],
+  "decision_lens": "Prioritize findings where the bond formation process treats all elf pairs as structurally identical once the Revel spark fires, ignoring that the approach speed (how fast proximity closes the bond) should be governed by the student's personality, not just the mentor's. The manning tradition teaches that the falconer must read the bird's threshold — approach too fast and the bird 'bates' (panics and damages the relationship permanently), approach too slow and the bird never bonds. Also flag any design where the bonded relationship requires no active maintenance — a trained hawk that is not flown regularly reverts; a bond that requires no upkeep is an imprint, not a training relationship.",
+  "distance_rationale": "No game designer looks to the psychology of wild raptor trust-habituation for mechanics governing elf apprenticeship bonds, yet manning is the world's most precisely documented pre-modern system for modeling asymmetric trust formation where the approaching party's speed and the approached party's temperament jointly determine the entire arc — which is structurally identical to the two-phase bond formation problem.",
+  "expected_isomorphisms": "Manning approach speed governed by bird temperament maps to proximity phase duration governed by student personality axes. Bating (trust setback from too-fast approach) maps to a missing bond-formation failure mode. Trained vs. imprinted distinction maps to early-bond vs. late-bond apprenticeships and their different effects on student aesthetic identity. Manning lapse (hawk goes wild without flying) maps to a missing bond-maintenance requirement. Pitch ceiling set by training conditions maps to the graduation-at-mentor-level ceiling mechanic.",
+  "focus": "Whether the two-phase bond formation (revel spark → proximity) correctly implements the falconer's graduated approach to trust-building with a wild animal whose temperament determines the entire arc — and whether personality-gating at bond formation does the structural work that temperament assessment does in manning",
+  "name": "fd-falconry-manning-imprint",
+  "persona": "A master falconer trained in the Arabic-Iberian tradition of the 13th-century hunting courts, who has manned over 200 individual raptors across goshawk, peregrine, and saker falcon lines. Studies how each bird's initial temperament assessment ('manning profile') sets a different speed and sequence for the entire habituation arc, and how a bird mis-assessed at the start becomes permanently degraded — over-manned birds lose the aggression that makes them hunt, under-manned birds are never reliably returned. Also versed in the distinction between a 'trained' hawk and an 'imprinted' hawk: imprinted birds are bonded for life but cannot hunt socially, trained birds hunt well but will hack back to wild if the relationship lapses.",
+  "review_areas": [
+    "Threshold asymmetry: in manning, the bird's temperament determines the approach threshold — a haggard (adult wild-caught) hawk requires ten times longer habituation than an eyas (nest-taken chick). The brainstorm gates mentor eligibility on mentor skill and personality, but does the student's personality set the required proximity duration or bonding speed? A highly reserved student elf should require far more revel-to-bond time than an openly social one.",
+    "Bating risk during approach: a falconer who moves too fast causes a 'bate' — the bird panics, damages feathers, and the trust relationship is set back measurably. Does the proximity phase have a failure mode where the mentor's approach style (patience axis) can cause the student to withdraw and require the relationship to partially reset? Currently the brainstorm only models successful bond formation.",
+    "Trained vs. imprinted distinction: an imprinted hawk is bonded at birth and the relationship is total and permanent but prevents normal adult socialization — the bird relates only to the falconer. Does the system distinguish between early-bond (eyas-equivalent) apprenticeships where the mentor becomes the student's entire aesthetic reference frame versus late-bond (haggard-equivalent) apprenticeships where the student retains their prior aesthetic identity and the mentor influence is partial and negotiated?",
+    "Manning lapse: a trained hawk not flown within 2-3 weeks begins 'going wild' — the bond degrades without active maintenance. Does the mentor-student relationship have a proximity or interaction frequency requirement to stay bonded, or does bonding fire once and persist indefinitely regardless of subsequent contact?",
+    "Casting off: at the end of a hawk's working relationship, the falconer releases it ('hacks back'). The hawk does not grieve; the falconer might. Does the graduation event capture the asymmetric emotional weight — the student simply becomes independent while the mentor may experience pride, loss, or obsolescence depending on their personality?",
+    "Pitch ceiling: a hawk's maximum hunt altitude ('pitch') is determined by early training conditions — a bird trained in low-cover terrain never develops the pitch of one trained in open sky. Does the mentor's own skill ceiling become the student's pitch ceiling permanently, or can a graduate exceed the ceiling in a subsequent relationship with a higher-skill mentor?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Proximity phase fires at the same duration for all student-mentor pairs regardless of the student's social openness, anxiety, or prior relationship history — a haggard-equivalent reserved elf bonds at the same rate as an eyas-equivalent social elf, making the two-phase formation feel like a single-speed pipeline rather than a personality-gated habituation arc",
+      "scenario": "Bond formation speed is independent of student personality",
+      "severity": "P1"
+    },
+    {
+      "condition": "Once the Apprenticeship component is created, it persists regardless of mentor-student co-presence, shared revels, or proximity. A mentor who dies socially (attends no revels, isolates) retains their apprentice indefinitely — the relationship cannot lapse, only graduate or formally break, unlike a trained hawk that goes wild without flying",
+      "scenario": "No bond maintenance requirement — bonded relationships persist without active interaction",
+      "severity": "P2"
+    },
+    {
+      "condition": "Graduation fires when student reaches mentor's skill level and no mechanism exists for the graduated student to exceed that ceiling in a second apprenticeship — the first mentor's limitation becomes a permanent developmental cap, a training artifact that has no real-world parallel in craft skill transmission",
+      "scenario": "Pitch ceiling is permanently set by first mentor's skill level",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Medieval Arabic-Iberian falconry manning — the graduated habituation of wild-caught raptors through the falconer's approach, jess-fitting, and carrying sequence, governed entirely by the bird's individual temperament profile and requiring continuous active maintenance of the trust relationship",
+  "success_hints": [
+    "A reserved high-anxiety student elf should require a dramatically longer approach arc than an openly social one — personality should gate how long the proximity phase takes, not just whether it fires",
+    "The revel-spark → proximity → bond sequence should have a failure mode: a mentor with low patience who pushes too fast during the proximity phase should cause a setback that delays or degrades the bond, leaving a visible record in the relationship",
+    "Graduation should feel structurally different from what the mentor experiences versus what the student experiences — asymmetric emotional resolution, not a mutual milestone"
+  ],
+  "task_context": "Brainstorm for elven colony sim adding mentor-student bonds. Phase 1: ApprenticeshipInterest fires when student witnesses mentor perform in a revel. Phase 2: proximity converts Interest to active Apprenticeship bond. Personality axes (patience, pride, boldness) modulate XP rate and aesthetic drift. Graduation fires when student skill matches mentor skill. School formation at 3+ graduates. Existing sim has 4D aesthetic space, personality axes, relationships, romance, fandom, revels, and aging/lifecycle."
+}

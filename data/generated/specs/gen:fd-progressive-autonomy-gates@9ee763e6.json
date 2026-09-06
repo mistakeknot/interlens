@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-gating-model-typology covers gate structure",
+    "fd-false-block-cost-modeling covers threshold optimization",
+    "fd-signal-verifiability-engineering covers signal improvement"
+  ],
+  "decision_lens": "Findings giving principled framework for when gates can be delegated from human to autonomous verification rank highest.",
+  "focus": "How aviation certification, medical device lifecycle, and CD frameworks model progression from human-gated to autonomously-gated verification",
+  "name": "fd-progressive-autonomy-gates",
+  "persona": "A safety systems engineer who treats the principal's progressive withdrawal from review as a first-class design parameter.",
+  "review_areas": [
+    "Survey DO-178C Design Assurance Levels for which verification activities require human review vs. can be automated",
+    "Examine FDA SaMD pre-determined change control plans for autonomous updates within pre-approved boundaries",
+    "Research progressive delivery literature for evidence requirements before gate delegation",
+    "Assess NASA NPR 7150.2 IV&V for gradual trust-building in automated verification",
+    "Survey automation trust calibration literature (Parasuraman & Riley) for gate handoff protocol design",
+    "Examine game dev regression ratchets and quality ladders as progressive gate tightening models"
+  ],
+  "success_hints": [
+    "Concrete model for which CUJ signal types can be delegated at which autonomy tiers",
+    "Framework precedent for envelope gates: autonomous within validated boundaries, human outside",
+    "Clear answer on when qualitative signals must remain human-gated regardless of maturity"
+  ],
+  "task_context": "AI agent factory uses CUJs with typed success signals to gate work item completion. Challenge: prevent quality regression without wasting tokens on false blocks as human withdraws from review."
+}

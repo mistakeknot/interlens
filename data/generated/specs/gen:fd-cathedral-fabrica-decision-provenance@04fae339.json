@@ -1,0 +1,47 @@
+{
+  "anti_overlap": [
+    "Do not analyze specimen-pinning or curatorial label discipline — that is the herbarium track.",
+    "Do not analyze knot-encoded verification hierarchies — that is the quipu track.",
+    "Do not analyze source-attribution gating for publication — that is the journalism track.",
+    "Stay focused on multi-generation decision provenance, alternatives-record, revisit-conditions, and binding-force on downstream masters."
+  ],
+  "decision_lens": "If the F2/F3/F5 implementation work begins six months hence with a completely fresh team and no access to the synthesis author, are D1–D8 sufficiently provenanced — by rationale, named-source citation, and revisit-conditions — to legitimately bind that team's choices, or will they end up re-litigating decisions the synthesis claims to have closed?",
+  "distance_rationale": "Multi-generation construction governance is a pre-modern professional tradition with refined doctrine for making decisions that bind successors who never met the deciders, structurally identical to research-synthesis decisions that bind downstream implementation plans authored by future sessions without shared memory.",
+  "expected_isomorphisms": "Fabrica-entry completeness (decider, rationale, alternatives, revisit conditions) maps directly to what D1–D8 must contain to legitimately bind F2/F3/F5. The cross-generation legibility test should expose whether decisions are author-context-dependent or stand independently. The binding-force-vs-preference distinction is rarely formalized in research synthesis but is central in fabrica doctrine.",
+  "focus": "Treat D1–D8 as fabrica-book entries — multi-generation construction decisions whose binding force on downstream masters (F2/F3/F5) depends on whether the chapter recorded the rationale, the named decider, and the conditions under which the decision may be revisited; the question is whether a successor master taking over after the original chapter has dispersed could continue the work without re-deciding.",
+  "name": "fd-cathedral-fabrica-decision-provenance",
+  "persona": "A reviewer-framework grounded in medieval cathedral-fabrica record-keeping — the chapter-and-master tradition of recording binding architectural decisions in fabric rolls and chapter minutes, where a decision made by one generation of masters constrains the next, and the legitimacy of constraining force rests on the completeness of the recorded entry (decider, date, rationale, conditions for review, dissenting voices). Reviews the synthesis as a fabrica record that will outlive its authors and govern construction by people who never met them.",
+  "review_areas": [
+    "Decider-of-record: for each of D1–D8, is the decision attributable to specific evidence (the named source loci at SHA) rather than to the synthesis author's preference — equivalent to a fabrica entry naming the chapter that voted, not just the scribe who recorded?",
+    "Rationale completeness: does each decision record not only the chosen path but the alternatives considered and why rejected — analogous to a chapter minute that records the dissenting canon's objection and the response — so a successor cannot reopen the question with the same argument?",
+    "Revisit-conditions: does each decision specify the conditions under which it may legitimately be reopened (new Hermes release? OQ-revision? downstream blocker?) — fabrica decisions specify when a successor master may revise vs. when they are bound?",
+    "Multi-generation legibility: can a reader who arrives months after the spike, with no memory of the research session, reconstruct why D1–D8 took their specific shape from the artifact alone — fabrica records are read by masters two generations removed?",
+    "Cross-decision dependency map: are inter-decision dependencies stated (does D3 depend on D1's resolution? would re-opening D1 invalidate D3?) — fabrica decisions to relocate a buttress affect the vault choice; the dependency must be recorded or the successor will move the buttress unaware?",
+    "Three-plan binding force: do D1–D8 actually bind F2/F3/F5 — i.e. are the decisions concrete enough that a downstream planner cannot ignore them in good faith — or are some decisions phrased as preferences/recommendations the downstream can route around?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Equivalent to a fabrica entry that says 'we will build a ribbed vault' with no record of the barrel-vault objection — a successor master with a contrary preference can reopen the question with no audit trail, and the downstream F2/F3/F5 plans inherit the contested decision as if it were settled.",
+      "scenario": "A decision in D1–D8 is recorded without the alternatives considered and rejected",
+      "severity": "P0"
+    },
+    {
+      "condition": "Downstream teams cannot tell whether they are bound by a decision or free to revise — equivalent to a chapter minute with no quorum or amendment rule; the quality gate cannot legitimately close because binding force is undefined.",
+      "scenario": "No revisit-conditions stated for D1–D8",
+      "severity": "P1"
+    },
+    {
+      "condition": "A future revision of D1 silently invalidates D3, but the synthesis does not flag the dependency — successor masters relocate the buttress unaware the vault choice was downstream.",
+      "scenario": "Inter-decision dependencies are not made explicit",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Medieval cathedral fabrica record-keeping and chapter-minute tradition (12th-16th century, e.g. York, Chartres, Florence Duomo fabrica rolls)",
+  "success_hints": [
+    "For each decision D1–D8, expect: alternatives considered, reason for rejection of each, named source-locus, conditions for revisit, downstream dependents.",
+    "Look for an explicit 'binding force' annotation per decision — distinguishing constraints (binding on F2/F3/F5) from preferences (advisory).",
+    "Expect a dependency map (or at minimum, prose dependency statements) so revising one decision flags others for re-examination.",
+    "A 'successor-master test': can a fresh reader six months hence reconstruct the decision rationale from the artifact alone without consulting the spike author?"
+  ],
+  "task_context": "Hermes skill runtime surface synthesis: produces D1–D8 decisions that gate three downstream implementation plans (F2, F3, F5). Decisions distilled into Layer 2 from Layer 1 raw observations. Downstream consumers may be different agents or future sessions with no memory of the research spike. Self-audit checkpoint passed; decisions summary already emitted."
+}

@@ -1,0 +1,48 @@
+{
+  "anti_overlap": [
+    "Do NOT review the multiplicative composition law `time × (1 + k×sf)` or alternatives",
+    "Do NOT review the Protocol-vs-ABC choice or the frozen-dataclass commitment",
+    "Do NOT review apply_weight's in-place mutation or GraphML caching",
+    "Stay focused on the policy taxonomy, its dispatch, its defaults, and its interaction with the +inf branch"
+  ],
+  "decision_lens": "Does the policy taxonomy name distinguishable stances or paper over them with similar-looking labels? Is the default 'neutral' a principled customary stance or an accidental Schelling point? Does the dispatch logic (`math.isnan(sf)` versus `quality == 'no_coverage'`) match the contract the docstring claims, and does it correctly handle the cases where the two conditions disagree? Is `nan_fallback_value` orthogonal to `nan_fallback_policy`, or do the two fields interact in ways the type system does not enforce?",
+  "distance_rationale": "A pre-modern juristic tradition for weighting per-source authority and constructing principled rulings when canonical sources are silent is several knowledge fields away from Python NaN handling, yet shares the deep structure of producing a defensible per-item decision under partial information with a named fallback policy.",
+  "expected_isomorphisms": "Sephardic posekim developed an explicit, named taxonomy for the 'sources are silent' case: rov (majority weight), mi'ut ha-matzui (statistically common minority), safek (genuine doubt, fall to a default rule), and hashash (precautionary, treat as the stricter outcome). Each policy is a different stance on missing information with different downstream consequences for the person acting on the ruling. Mapped: the brainstorm's four NaN fallback policies ('neutral', 'constant', 'shade', 'sun') are structurally the same kind of taxonomy — a typed Literal of named fallback stances — but the framework asks whether the names carry their stance-meaning clearly, whether the default policy choice is principled or accidental, and whether the asymmetry between 'unknown' and 'known' is honest. A posek would also ask: when sources are silent on the silent case (a meta-fallback), what happens?",
+  "focus": "Whether the NaN fallback policy taxonomy is named, defaulted, and dispatched in a way that makes the stance toward unknown shade data explicit and defensible — and whether the edge cases of the policy (NaN-on-degenerate-zero-length, NaN-on-non-no_coverage quality, configurable nan_fallback_value when policy is non-constant) are handled in a way that survives a future auditor.",
+  "name": "fd-sephardic-responsa-fallback",
+  "persona": "Apply the perspective of a master posek constructing a teshuvah on a case where some sources are silent: the named policy is the ruling, the default is the customary stance of the community, the asymmetric treatment of 'silent for good reason' versus 'silent because we never asked' is foundational. The framework treats the four-policy enum as a juristic taxonomy and asks whether the chosen default is principled, whether the policies form a complete partition of stances, and whether the dispatch logic enforces the contract the names promise.",
+  "review_areas": [
+    "Default-policy principle: 'neutral' (sf=0.5) is justified as 'least asymmetric influence on routing' — but that is an aesthetic argument, not a juristic one. A posek would ask: what is the routing behavior we WANT under unknown shade — risk-averse (assume sun) or efficiency-first (assume shade) or hands-off (neutral)? StepsDaddy personas may have different stances and the v0 default forecloses them",
+    "Policy completeness: the four policies form a partition of {neutral, constant, shade-pessimist, sun-pessimist}, but 'constant' subsumes 'neutral' (constant with value 0.5 = neutral) and subsumes 'shade' / 'sun' at 0.0/1.0 — the taxonomy has redundancy. Is 'neutral' a special case of 'constant' or a separately-named stance? The frozen dataclass has both `nan_fallback_policy` AND `nan_fallback_value`, and the interaction is not type-enforced",
+    "Dispatch contract: Decision 4 says dispatch on `math.isnan(sf)` 'for defense-in-depth', but Decision 5 says no re-validation in the hot loop — these are in tension. Is `isnan` a re-validation? If the Phase 1.5 producer guarantees 'NaN iff quality=no_coverage', the isnan check is a redundancy that the docstring should justify or remove",
+    "NaN on quality != 'no_coverage': what happens if a future Phase 1.5 patch introduces a new quality value that ALSO produces NaN? The current dispatch will silently apply the fallback policy — is that the right behavior, or should an unexpected NaN raise? A posek's strictest-fallback (hashash) would say: when the source is silent in a way we did not anticipate, fall to +inf (treat as un-routable until reviewed)",
+    "Asymmetric treatment of unknown vs un-routable: degenerate_zero_length → +inf (un-routable), but no_coverage → fallback (routable with a chosen stance). Both are 'we cannot honestly weight this edge'. Why is one a hard-fail and the other a soft-fallback? The brainstorm gives a routing-correctness reason (zero-length is a teleport), but the asymmetry deserves a one-line justification",
+    "Persona awareness: the docstring positions 'sun' policy as 'useful for safety-conservative personas' — but the policy is set on the FeltMinutesV0 instance, not selected per-query. Does the architecture support per-query persona-selection of policy, or is the policy a property of the weight-function instance? StepsDaddy 'stroll mode' wanting a sun-pessimist policy means a different weight instance per persona, which is fine — but the brainstorm should say so",
+    "nan_fallback_value when policy != 'constant': the field is on the dataclass unconditionally; for policy='neutral'/'shade'/'sun' the value is unused. Is this validated? An unused-but-set field is a silent footgun in tuning notebooks ('I set nan_fallback_value=0.8 but nothing changed')"
+  ],
+  "severity_examples": [
+    {
+      "condition": "If Phase 1.5 introduces a new shade_data_quality value that produces NaN sun_fraction (e.g., 'sensor_error' in a future patch), FeltMinutesV0 silently applies the fallback policy with no warning — the routing layer accepts edges with quality strings it does not recognize. A strict-stance default (raise on unrecognized NaN context) is more defensible for v0.",
+      "scenario": "Unexpected-NaN behavior is silent",
+      "severity": "P1"
+    },
+    {
+      "condition": "Setting nan_fallback_value=0.8 with policy='neutral' silently ignores the value; tuning notebooks will produce spurious 'no change' results. Either validate in __post_init__ or document that the field is only consulted when policy=='constant'.",
+      "scenario": "nan_fallback_value and nan_fallback_policy interaction is not type-enforced",
+      "severity": "P2"
+    },
+    {
+      "condition": "'Neutral' is defended as 'least asymmetric' — but the platform's downstream personas (StepsDaddy stroll, safety-conservative) have explicit stances on unknown shade. The default should either name the persona it serves or be acknowledged as a placeholder pending Phase 1.7 calibration.",
+      "scenario": "Default-policy choice is justified aesthetically, not from persona/routing intent",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Sephardic she'elot u-teshuvot weighting in halakhic jurisprudence (Iberian and post-Iberian rabbinic tradition, 11th c. onward)",
+  "success_hints": [
+    "Treat the policy enum as a juristic taxonomy: each name should map to a distinguishable stance, and the default should be a principled one",
+    "Pressure-test the dispatch logic against the contract the docstring claims, not against the implementation",
+    "The redundancy between 'neutral' and 'constant(0.5)' is real — either justify keeping both, or recommend collapsing them",
+    "Acknowledge that 'neutral' is a fine v0 default if the rationale is 'no persona signal yet'; flag P1 only if a downstream consumer is already known to need a different stance"
+  ],
+  "task_context": "Review the Phase 1.6 felt-minute edge weight brainstorm focusing exclusively on the NaN fallback policy taxonomy: the four-policy Literal, the default 'neutral' choice, the dispatch logic between isnan and quality, the interaction between nan_fallback_policy and nan_fallback_value, and the asymmetry with the +inf-for-zero-length branch. Do not address the multiplicative formula shape, the Protocol/dataclass architecture decision, the apply_weight helper, or the package layout — other reviewers cover those."
+}

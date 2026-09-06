@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Do not review the JSON Schema files themselves, cross-language enum-drift risk, or the conformance-vector fixture strategy in general — that is fd-schema-contract-crosslang's focus; this agent only reviews how Swift consumes/represents that contract.",
+    "Do not review the Python package's structure, tooling, or test setup — that is fd-python-packaging-testing's focus.",
+    "Do not review CI runner/workflow configuration for the Swift test suite (macOS runner, Xcode pinning) — that is fd-mixed-lang-ci's focus; this agent covers the package/target architecture the CI eventually builds, not the CI pipeline itself."
+  ],
+  "decision_lens": "For every Swift-side decision in the brainstorm (standalone SPM package for contract types, one no-op stage, a stage-interface protocol), ask: does this decision hold up once a second consumer (a future target, or the app itself importing it twice for app + extension) exists, and is the module boundary drawn so that contract types have zero dependency on anything iOS-specific (UIKit/AVFoundation/Vision) that would make the 'importable by future targets' rationale false in practice?",
+  "focus": "Swift Package Manager architecture and Swift API design for the pipeline-contract and stage-interface types: package boundaries, target structure, and whether the standalone-SPM-package decision actually delivers on its stated reuse goal",
+  "name": "fd-swift-spm-architecture",
+  "persona": "Apply the perspective of a Swift platform engineer who has maintained a standalone SPM package consumed by an iOS app target plus multiple future targets, and has seen such packages either succeed as clean dependency boundaries or calcify into a dumping ground for app-specific concerns because the initial target split wasn't disciplined from commit one.",
+  "review_areas": [
+    "Package/target split: is `pipeline-contract` Swift code its own SPM package with no dependency on iOS-only frameworks, or does the brainstorm risk it living inside `jawnscope-ios` as an embedded module that happens to work today but silently couples contract types to an iOS-only target, undermining the stated 'importable by app + future targets' goal",
+    "Stage-interface protocol design: is the no-op stage's protocol (`inputs`, `outputs`, `minimum_tier`, `privacy_class`) expressed as a Swift `protocol` with associated types/generics appropriate for content-addressed artifact I/O, or does the brainstorm leave the actual Swift shape of 'stage interface' undefined enough that the plan phase could pick something that doesn't generalize to real stages (async/await support, Sendable/concurrency-safety for a tiered scheduler that will run stages across dispatch queues later)",
+    "Codable conformance strategy for contract types: given schema-first with hand-written Swift types, will the manifest/artifact/stage types derive `Codable` directly against the JSON Schema's exact field names and closed enums (`CodingKeys`, custom `init(from:)` for the closed enums with unknown-case handling), and is there a stated policy for whether unknown/future enum values during decode throw, or silently coerce",
+    "Package versioning and SPM manifest hygiene: minimum platform version pinning appropriate for the actual target iOS version this ships to, explicit product/library declaration (so it's genuinely consumable by future targets and not just implicitly resolvable), and whether the package declares zero external dependencies (appropriate for a boring-JSON-manifest contract) or risks pulling in a JSON library dependency that Python's side has no equivalent constraint for",
+    "Testability of the no-op stage and shared conformance test: does the Swift side have its own `XCTest`/Swift Testing target structured so the shared conformance vectors can be loaded as test fixtures without hardcoding fixture paths in a way that breaks when `fixtures/` is consumed from a different package root than the one Xcode/SPM resolves relative paths against"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Confirm the plan explicitly creates `shared/pipeline-contract` (or equivalent) as its own `Package.swift` with a library product and zero iOS-only framework imports, verified by checking the target's dependency list.",
+      "scenario": "The brainstorm's phrasing leaves it ambiguous whether `pipeline-contract` Swift types live in a standalone SPM package versus an app-embedded module, and if the plan phase defaults to app-embedded for M0 expediency, contract types become transitively dependent on the iOS app target's frameworks — meaning a future non-iOS Swift consumer (or even a WatchOS/widget extension) cannot import just the contract types without pulling in AVFoundation/Vision, silently invalidating the 'lean standalone SPM package' decision already made in Key Decisions.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Check whether the stage-interface protocol's core method is declared `async throws` and whether conforming types are required to be `Sendable`, given the tiered scheduler (brief §3) will dispatch stages across tiers/queues.",
+      "scenario": "The stage-interface Swift protocol is designed as a synchronous-only protocol for the M0 no-op stage, with no `async throws` method signature or Sendable conformance planned, meaning every real stage added later (video redaction, garment segmentation) requires a breaking protocol change to add concurrency support that could have been designed in from M0 at near-zero cost.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Check that closed enums use `String` raw values explicitly matching the schema's enum strings, not relying on default synthesis of case-name-to-JSON-key mapping.",
+      "scenario": "The closed privacy_class/tier Swift enums derive `Codable` via the compiler-synthesized conformance keyed on Swift case names rather than explicit `CodingKeys`/raw values matching the JSON Schema's exact string enum values, so a decode succeeds only by coincidence of naming convention and silently breaks if a case is renamed for Swift style reasons without updating the raw value.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Distinguishes between what the brainstorm has already decided (standalone SPM package) and what it leaves unspecified enough for the plan phase to accidentally undermine that decision",
+    "Points to concrete SPM manifest or Swift protocol design details (target dependencies, Codable strategy, async/Sendable) rather than general 'good Swift practices' commentary",
+    "Considers the stage-interface protocol's shape against known future stages named in the brief (face/person detection, garment segmentation) to check it won't require a breaking change at M2/M4",
+    "Flags any assumption that couples the contract package to the app target's iOS version/frameworks"
+  ],
+  "task_context": "Review the M0 brainstorm for JawnScope's Swift-side deliverable: a stage-interface implementation in `jawnscope-ios` plus a decision (already made) to house shared pipeline-contract types in a standalone SPM package, with one no-op stage passing a shared conformance test. Identify Swift architecture and SPM packaging gaps before this becomes a detailed plan."
+}

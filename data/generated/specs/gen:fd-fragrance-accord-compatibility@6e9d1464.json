@@ -1,0 +1,36 @@
+{
+  "anti_overlap": "fd-matchmaking-compatibility-weighting covers scoring structure across all drivers; this covers the internal geometry of the aesthetic driver category specifically",
+  "decision_lens": "Accord coherence — compatible aesthetic elements must produce something distinct from their parts, not just a louder version of either",
+  "distance_rationale": "Master perfumers have developed a precise vocabulary for multi-dimensional aesthetic compatibility (note families, accords, top/heart/base structure) that maps directly onto aesthetic attraction design without the baggage of psychology or game design.",
+  "expected_isomorphisms": "Accord compatibility rules (which aesthetic families amplify vs mask vs transform each other) map to aesthetic attraction driver weights. The top/heart/base temporal structure maps to initial attraction vs sustained compatibility vs long-term resonance phases.",
+  "focus": "How master perfumers design accord compatibility — the rules governing which notes amplify, mask, or transform each other — as a model for aesthetic resonance and attraction in creative-aesthetic systems",
+  "name": "fd-fragrance-accord-compatibility",
+  "persona": "Master perfumer with thirty years of accord composition experience, trained in the classical French tradition, who now consults on fragrance compatibility systems for luxury brands",
+  "review_areas": [
+    "Evaluate whether 'aesthetic admiration' (attraction to someone with high-quality but different aesthetics) correctly models the accord effect — in perfumery, certain note families amplify each other across apparent opposition (woods + florals), not despite it",
+    "Check whether the 'aesthetic proximity' friendship driver and the 'aesthetic admiration' attraction driver are sufficiently distinct in the data model — proximity = same notes, admiration = complementary notes, and these require different distance metrics",
+    "Assess whether the system supports 'accord emergence': two elves with compatible-but-different aesthetics who collaborate should produce art that is distinctively different from either of their individual styles — and whether this new style can itself become an attraction driver",
+    "Evaluate whether aesthetic categories have internal structure (top notes, heart notes, base notes in perfumery terms) that determines which elements drive initial attraction vs. sustained compatibility vs. long-term resonance",
+    "Check whether 'creative synergy' as an attraction driver is measurable before the collaboration happens — perfumers can predict accord compatibility from formula analysis, not just from smelling the blend"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Aesthetic attraction computed as 1 - aesthetic_friendship_score rather than as a separate compatibility function",
+      "scenario": "Aesthetic proximity and aesthetic admiration use the same distance metric with inverted sign — 'similar = friends, different = attracted' — producing a clean but false dichotomy that misses the complementarity space where attraction is strongest",
+      "severity": "P2"
+    },
+    {
+      "condition": "Synergy score only updated after joint art event, not computed from aesthetic profiles at introduction",
+      "scenario": "Creative synergy attraction driver is only retroactive — elves feel it after collaboration, not as predictive pull before — meaning elves must be forced into collaboration before the driver activates, missing the 'I know we'd make something amazing together' anticipation",
+      "severity": "P3"
+    },
+    {
+      "condition": "Aesthetic profile is a single point in 1D or 2D space rather than a multi-axis vector with per-axis compatibility rules",
+      "scenario": "Aesthetic distance is computed as a single scalar on a shared style space, when the brainstorm describes multiple aesthetic dimensions (genre, mood, form, material) — two elves who share genre but differ in mood may be complementary, not merely different",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Classical perfumery and fragrance accord composition",
+  "success_hints": "Some of the most dramatically interesting elf pairings are elves whose aesthetics are recognizably different but whose combination produces a named collaborative style that other elves respond to distinctively.",
+  "task_context": "The brainstorm identifies aesthetic attraction (proximity vs admiration vs inspiration) as a key driver category distinct from artistic attraction (portfolio, skill gap, creative synergy); perfumery has operationalized exactly this distinction."
+}

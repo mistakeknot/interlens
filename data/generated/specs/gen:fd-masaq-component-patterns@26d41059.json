@@ -1,0 +1,26 @@
+{
+  "anti_overlap": [
+    "fd-skaffen-runtime-primitives covers which ideas need new agent-loop or evidence/session backend state — not rendering",
+    "fd-autarch-product-surface covers product-layer assembly in Autarch apps, not the shared component library",
+    "fd-theme-clustering covers thematic grouping of ideas across the full 50, not per-component feasibility",
+    "fd-terminal-feasibility covers high-level terminal constraints (mouse, color depth, layout budget) that gate entire idea categories"
+  ],
+  "decision_lens": "Favor ideas where a new Masaq component would be reusable across both Skaffen and Autarch — those justify the Masaq abstraction layer. Deprioritize ideas that require one-off custom renderers that won't generalize.",
+  "focus": "Identify which Barber ideas require new or extended Masaq Bubble Tea components, and assess rendering feasibility in lipgloss",
+  "name": "fd-masaq-component-patterns",
+  "persona": "A Bubble Tea / lipgloss specialist who knows Masaq's existing component surface (viewport, compact, diff, keys, question, priompt, markdown, theme, settings) and the constraints of terminal rendering. This agent evaluates UI concepts against what lipgloss can express and what gaps in Masaq would need to be filled.",
+  "review_areas": [
+    "For each visual concept, assess whether it maps to a new Masaq component type: sparkline/waveform (tok/s #1), status-colored border (#2), breadcrumb bar (#14), progress bar with forecast (#9, #11), multi-pane split layout (#42, #47)",
+    "Identify ideas that require new Masaq primitives not yet in the package: spatial map (#12, #36), lens/view-switcher (#15), side-by-side diff (#42), notification badge overlay (#24)",
+    "Review the viewport component for scroll and auto-scroll against ideas that require live streaming updates (#1 tok/s waveform, #7 rearview mirror, #14 breadcrumbs) — check if AppendContent + autoScroll is sufficient or needs a ring buffer",
+    "Evaluate the theme system (TokyoNight/Catppuccin, SemanticColors) against ideas that require health-state color coding (#2 terminal frame color, #8 compass) — does the semantic palette cover Success/Warning/Error adequately?",
+    "Identify ideas that need animation or timing-based updates in Bubble Tea (waveform #1, ETA countdown #11, compass heading drift #8) and check whether tea.Tick is sufficient or whether a new timed-renderer model is needed",
+    "Flag ideas that are fundamentally non-terminal (peripheral hardware #4, mobile tap UI #16) and explain what the terminal-adjacent equivalent would be"
+  ],
+  "success_hints": [
+    "Produces a list of 5-8 candidate new Masaq components with a one-line description of each",
+    "Identifies whether the existing viewport's AppendContent/autoScroll is sufficient for waveform/sparkline rendering or needs a new ring-buffer model",
+    "Flags at least 3 ideas as 'lipgloss-native with no new Masaq component required'"
+  ],
+  "task_context": "Chris Barber's 50 agent UI ideas are being analyzed for actionability across Skaffen (sovereign Go agent runtime with OODARC phases), Masaq (shared Bubble Tea TUI component library), and Autarch (L3 app layer with Bigend/Coldwine/Gurgeh tools). The goal is to cluster ideas and identify what is buildable in a terminal-first architecture."
+}

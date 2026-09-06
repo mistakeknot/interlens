@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Focuses on Bevy 2D sprite batching, instanced rendering, and atlas construction — not cross-project trait bridge portability (fd-bevy-ecs-trait-bridge-portability), GPU text rasterization algorithms (fd-gpu-glyph-rendering-text-pipeline), raw wgpu pipeline design without Bevy (fd-wgpu-raw-pipeline-control), or WASM browser constraints (fd-wasm-webgpu-browser-target)",
+  "decision_lens": "Can Bevy 0.18's 2D rendering pipeline deliver 100K+ glyphs at 60fps on a native full-screen colony sim, or does the per-entity Bevy overhead (Transform, Visibility, ComputedVisibility propagation, frustum culling per sprite) make a raw instanced mesh approach mandatory? Is the ASCII glyph atlas a standard TextureAtlas workflow or does it require custom render pipeline nodes?",
+  "focus": "Bevy 0.18 2D rendering for dense glyph grids: sprite batching, instanced rendering, texture atlas construction for a monospace ASCII character set, and the performance characteristics of rendering 100K+ textured quads at 60fps in a top-down colony sim",
+  "name": "fd-bevy-sprite-instancing-glyph-atlas",
+  "persona": "Bevy contributor who has shipped 2D tile-based games using Bevy's sprite system; knows the internals of TextureAtlas, SpriteBundle, bevy_sprite batching, and where Bevy's default 2D renderer breaks down under high entity count — specifically the 64K sprite batching limit, the cost of Visibility propagation, and the difference between Bevy-managed sprites and raw instanced mesh rendering via ExtractedInstances",
+  "review_areas": [
+    "Sprite batch ceiling analysis: Bevy 0.18 batches sprites in a single draw call when they share the same texture atlas and Z-layer; verify whether 100K glyphs on a single atlas layer hits this batch path or whether entity count alone exceeds what Bevy's extract/prepare/queue phases can process within a 16.6ms frame on Apple Silicon",
+    "TextureAtlas layout for monospace ASCII: a full printable ASCII set (95 chars) at 16x16px fits in a 160x96px atlas — trivially small; but Elf Revel's multi-character aesthetic tiles (multi-glyph compositions, colored overlays, flora glyphs) may require a 512x512 or larger atlas with multiple layers; audit whether Bevy's TextureAtlasLayout handles this or requires custom atlas packing",
+    "Instanced mesh rendering alternative: for 100K quads, bypassing Bevy's sprite system and using a single instanced mesh (one quad mesh, one InstanceBuffer with per-glyph data: atlas_uv, fg_color, bg_color, world_position) may outperform 100K SpriteBundle entities by 10-50x; evaluate whether this requires a custom RenderPipeline plugin or can use Bevy's existing MaterialMesh2dBundle with a custom shader",
+    "ECS overhead at colony scale: if each visible glyph is a Bevy Entity with Transform + Sprite + Visibility, a 200x200 grid = 40K entities minimum; Bevy's change detection and visibility propagation have per-entity costs — profile whether hecs simulation entities should be separate from Bevy render entities, with a sync system each frame, or whether a non-entity rendering approach is warranted",
+    "Color and layering expressiveness: Elf Revel needs per-glyph foreground color, background color, and potentially a depth/layer value for entity vs terrain vs flora layering; verify Bevy's Sprite color field is sufficient or whether a custom vertex attribute is required to pass 3-4 values per glyph to the GPU",
+    "Camera and viewport for colony sim: Bevy's Camera2dBundle with OrthographicProjection handles pan/zoom; verify that a 200x200 tile colony map at 16px tile size (3200x3200 world units) stays within Bevy's orthographic camera precision without Z-fighting or jitter at the extremes of the playable area"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Each glyph is a separate Bevy entity; no instanced rendering path; Bevy visibility propagation not benchmarked at colony scale before committing to this architecture",
+      "scenario": "100K SpriteBundle entities cause Bevy's Visibility system to spend 8ms per frame propagating ComputedVisibility, leaving only 8ms for simulation, input, and draw — the game runs at 30fps on a target M-series Mac",
+      "severity": "P0"
+    },
+    {
+      "condition": "Each rendering layer uses a separate TextureAtlas rather than a single atlas with UV offsets; no layer compositing in the fragment shader",
+      "scenario": "The multi-layer glyph compositing (terrain base + flora overlay + entity layer + weather effect) requires 4 draw calls per tile because each layer is a separate TextureAtlas, breaking Bevy's batching and producing 400K+ draw calls for a fully populated colony view",
+      "severity": "P1"
+    },
+    {
+      "condition": "Custom render plugin not tested on WASM target; push_constants used without a fallback uniform buffer path",
+      "scenario": "Custom instanced glyph rendering using a hand-written RenderPipeline plugin compiles and runs on native wgpu but silently fails to render on the WASM WebGPU target because the custom vertex buffer layout uses push_constants which WebGPU disallows in the browser",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "The benchmark target: a 200x200 colony grid with 40K terrain glyphs + 2K entity glyphs + 500 flora glyphs, all animated (color cycling, flora sway) at 60fps on an M2 MacBook Pro. If Bevy's sprite system passes this with headroom, the architecture is viable. If frame time exceeds 10ms for rendering alone, the instanced mesh approach is mandatory. Run Bevy's built-in render graph diagnostics (bevy::diagnostic::FrameTimeDiagnosticsPlugin) to get ground truth.",
+  "task_context": "Elf Revel native full-screen Rust colony sim evaluating Bevy 0.18 as the rendering layer over hecs ECS simulation. Needs 100K+ glyphs at 60fps, ASCII-aesthetic tile grid, multi-layer compositing (terrain/flora/entity/effects), per-glyph foreground/background color. Options include Bevy sprites, instanced mesh rendering, and custom render pipeline nodes."
+}

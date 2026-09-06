@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-intercom-scheduler-reliability covers Postgres task state persistence and cron correctness",
+    "fd-intercom-tenant-isolation covers per-group data separation and access control",
+    "fd-gateway-messaging covers high-level message routing architecture"
+  ],
+  "decision_lens": "Flag patterns where asyncio semantics have no clean tokio equivalent and where naive translation introduces deadlocks, starvation, or silent data loss.",
+  "focus": "Translate Hermes Python asyncio patterns into safe Rust/tokio equivalents for intercom's message pipeline",
+  "name": "fd-intercom-async-translation",
+  "persona": "A systems engineer who has ported Python asyncio services to Rust/tokio and understands where the mental models diverge.",
+  "review_areas": [
+    "How Hermes uses asyncio.run() from sync contexts vs intercom's tokio::spawn — thread-pool workaround pattern and Rust's spawn_blocking equivalent",
+    "Hermes fire-and-forget hook emission (errors swallowed) — confirm intercom's GroupQueue spawned tasks have equivalent non-blocking error isolation",
+    "Hermes re-entrant asyncio locks — verify this doesn't map to Rust Mutex held across await points in scheduler_wiring.rs",
+    "Hermes lazy async initialization vs intercom's Arc<Option<PgPool>> pattern — uninitialized-pool handling under concurrent requests",
+    "Hermes ThreadPoolExecutor(max_workers=1) timeout pattern — tokio::time::timeout equivalent for blocking DB writes",
+    "intercom's rand_u16() IPC filename generation — collision probability under high-concurrency vs Hermes uuid.uuid4()"
+  ],
+  "success_hints": [
+    "No Mutex held across an await point in scheduler or queue code",
+    "All fire-and-forget paths log errors and cannot silently drop messages",
+    "Blocking I/O isolated to spawn_blocking — never called from async context directly"
+  ],
+  "task_context": "Intercom is a Rust/Node gateway using tokio, axum, tokio-postgres. Hermes Agent is the Python asyncio reference implementation for cross-pollination."
+}

@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Focuses on UI layer composition and render pass architecture — not terminal protocol negotiation (fd-terminal-protocol-capability-negotiation), Unicode glyph selection (fd-unicode-density-aesthetics), image conversion (fd-image-to-ascii-pipeline), or procedural ASCII texture generation (fd-procgen-ascii-texture)",
+  "decision_lens": "Does the UI layer architecture allow independent enrichment of the map layer (new Unicode glyphs, colors) without breaking the panel/overlay/status layers? Are the layer boundaries explicit enough to support future rendering backends?",
+  "focus": "Roguelike UI layer separation: map layer vs. overlay vs. panel composition, Caves of Qud/DF layering patterns, crossterm render pass ordering",
+  "name": "fd-roguelike-ui-layer-architecture",
+  "persona": "Roguelike developer who has studied and modded Caves of Qud's rendering system, contributed to libtcod, and has strong opinions about the difference between a 'HUD' and an 'overlay' in terminal games",
+  "review_areas": [
+    "Layer separation model: map (terrain + entities), overlays (beauty auras, mood indicators, path highlights), panels (status, log, skills) — if all three layers write to the same crossterm buffer, enrichment of one layer bleeds into others",
+    "Caves of Qud pattern: Qud uses a Z-order compositing system where terrain, object, actor, and effect layers are blended per-cell; does rust_pixel/crossterm support per-cell Z-order or is it a single flat buffer?",
+    "Half-block tile composition: a half-block terrain tile occupying the lower half of a cell — if a status panel overlaps by one row, does the panel background correctly overwrite the half-block or does the Unicode character bleed through?",
+    "Color inheritance in layered rendering: 24-bit bg color set for terrain tile — does an overlay layer (e.g., danger highlight) correctly compose on top, or does it reset bg to terminal default and destroy the terrain color?",
+    "Dirty region tracking: enriched rendering with per-cell Unicode selection and 24-bit color is more expensive to re-render; does the rendering pipeline track dirty cells to minimize redraws, or does it full-redraw every frame?",
+    "Dwarf Fortress tilesets as reference: DF's tile-based renderer maps each character to a custom glyph in a bitmap tileset; does Elf Revel's architecture allow an optional tileset overlay, or is it hardwired to terminal font rendering?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No explicit color reset at layer boundaries in the crossterm render pass",
+      "scenario": "A 24-bit color terrain background bleeds into the status panel because the panel renderer doesn't explicitly reset bg color before writing, producing corrupted panel appearance",
+      "severity": "P1"
+    },
+    {
+      "condition": "No dirty-cell tracking; entire buffer submitted to crossterm every frame",
+      "scenario": "Full-screen redraw on every tick causes visible flicker when the map uses dense Unicode glyphs (braille, half-block) because terminal emulator must re-render all cells",
+      "severity": "P2"
+    },
+    {
+      "condition": "Overlay writes full cell including glyph character, not just color attributes",
+      "scenario": "Overlay layer (beauty aura, path highlight) written on top of terrain completely replaces the terrain Unicode glyph instead of compositing color on it",
+      "severity": "P3"
+    }
+  ],
+  "success_hints": "Draw a 3-column panel next to a map using braille terrain. Resize the terminal to force a reflow. If the panel border doesn't corrupt and the braille map redraws cleanly, the layer architecture is sound.",
+  "task_context": "Elf Revel — Rust colony sim using rust_pixel/crossterm; current map renders ASCII entities and terrain; exploring enriched rendering (Unicode density, 24-bit color, overlays) while maintaining panel UI integrity"
+}

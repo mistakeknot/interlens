@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-gateway-messaging covers gateway delivery and hook system architecture",
+    "fd-rl-training-pipeline covers agent loop from ML/training perspective",
+    "fd-honcho-user-modeling covers session identity, not credential management"
+  ],
+  "decision_lens": "Prioritizes patterns that plug specific gaps in Sylveste's current security posture. De-prioritizes anything already covered by existing safety floors or interspect.",
+  "focus": "Security patterns in Hermes beyond what Sylveste has already captured — redaction, auth, sandboxing",
+  "name": "fd-security-patterns",
+  "persona": "A security engineer focused on secrets management, credential isolation, and least-privilege design in agentic systems.",
+  "review_areas": [
+    "redact.py layered regex redaction: prefix patterns (sk-, ghp_, xox*), ENV assignments, JSON fields, Authorization headers, Telegram tokens",
+    "PairingStore security: unambiguous alphabet, secrets.choice(), 1-hour TTL, 3 pending cap, rate limiting, lockout, 0o600 permissions",
+    "_secure_write() pattern (atomic write + chmod 0o600) — which state files use it and which don't",
+    "Terminal backend isolation hierarchy: local vs. docker vs. modal vs. ssh vs. singularity security guarantees",
+    "Tool name allowlist enforcement — how unknown tool names are rejected vs. ignored as prompt injection guardrail",
+    ".env loading priority chain — credential isolation guarantees in multi-tenant deployments"
+  ],
+  "success_hints": [
+    "Identify redaction patterns Sylveste's logging doesn't implement",
+    "Determine if PairingStore lockout mechanism is absent from Sylveste auth flows",
+    "Find inconsistent _secure_write() usage revealing security boundary gaps"
+  ],
+  "task_context": "Analyzing Hermes Agent to find patterns adaptable for Sylveste's Autarch (L3 agent orchestration) and intercom (messaging/gateway)."
+}

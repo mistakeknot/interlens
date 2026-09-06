@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Do not evaluate strata sequencing, simulation-regime naming (settle vs. deferred-cascade), regeneration mechanics, or cost-curve realism — that belongs to fd-worldgen-history-simulation-depth.",
+    "Do not evaluate the Souls event-sourcing model, determinism/replay semantics, or storage-growth cost dimensions — that belongs to fd-eventsourcing-strata-regen-contract.",
+    "Stay on the simulate/author boundary, chronicle legibility, species-to-civ texture transfer, and lore-generation scope."
+  ],
+  "decision_lens": "A chronicle that is fully simulated is not automatically readable, and 'depth' that players can't perceive isn't depth they'll credit — DF's own legends mode is the standard cautionary tale of mechanically correct, humanly unreadable history. A goal that stakes its OUTCOME on DF/Qud depth needs a legibility and texture bar, not just an event-citation bar, or it will satisfy its own DONE WHEN while reproducing DF's known failure mode.",
+  "focus": "Procedural narrative generation and worldbuilding coherence — the simulate/author boundary, chronicle legibility versus DF's mechanical-legends failure mode, species-to-civ texture transfer, and lore-generation scope creep.",
+  "name": "fd-procgen-narrative-simulate-author",
+  "persona": "Apply the perspective of a procedural-narrative and computational worldbuilding designer with direct experience building or critiquing DF-legends-style and Qud-style history generators, who has had to make the simulate-versus-author call in a shipped procgen game and live with the consequences for chronicle readability and player trust.",
+  "review_areas": [
+    "OUTCOME pre-commits to 'history SIMULATED... rather than authored as text,' but GATE still offers 'hybrid' as a live option for the simulate/author line, including which layer 'owns names, gospels, flavor text.' If mk's brainstorm rules hybrid (likely, since pure-simulation chronicles read as dry event lists), OUTCOME's own framing becomes retroactively overstated, and nothing in DONE WHEN would catch that mismatch since DONE WHEN only checks that facts cite real places, not how they're authored.",
+    "DONE WHEN's 'readable chronicle' bar is satisfied by fact-citation and terminal-watchability alone, with no legibility or narrative-quality criterion. DF's legends mode is fully simulated and event-cited yet is widely experienced as mechanically unreadable prose that requires a separate wiki/cross-reference tool to use — the goal risks shipping exactly that outcome (technically compliant, practically unread) while checking every listed DONE WHEN box.",
+    "Species stubs are explicitly 'thin' (OUTCOME), yet DONE WHEN requires 'civilizations rising with derived facets' — no GATE fork asks what those facets derive from if the species layer beneath them carries no meaningful trait surface. In Qud, sultan culture and history draw directly on mutation/species traits for texture; if palettice's species stubs are texture-free, civ-derived facets risk being generically interchangeable regardless of originating species, and no DONE WHEN criterion would catch that flatness.",
+    "DONE WHEN fixes a five-item era-event taxonomy ('contact, schism, war, extinction or sublimation') for 120+ centuries of history; the 'at least' wording technically permits more but doesn't require variety, so the criterion is satisfiable by a history that mechanically hits each category once and reads as a checklist — the opposite of the emergent depth OUTCOME explicitly says it wants ('not genre admiration').",
+    "GATE's open question about who 'owns names, gospels, flavor text' has no corresponding OUT boundary — OUT excludes the grand-strategy shell and elf-revel MVP but says nothing about capping lore/mythology-generation infrastructure. Answering the GATE's ownership question could silently expand into building a full naming/mythology generator inside slice one's 20-turn budget, which is a classic procgen-worldbuilding scope trap the goal doesn't guard against."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If slice one's chronicle satisfies DONE WHEN by citing real places for every event but reads as a mechanical event dump (DF's actual legends-mode experience), the probe will pass its own acceptance criteria while failing to demonstrate the DF/Qud depth bet OUTCOME is staked on, and no later gate catches the gap because 'readable' was never given a legibility bar.",
+      "scenario": "chronicle is technically readable but practically unread",
+      "severity": "P1"
+    },
+    {
+      "condition": "If species stubs carry no trait surface for civ derivation to draw on, all generated civilizations could read as reskins of the same template regardless of species — satisfying DONE WHEN's 'derived facets' bullet literally while undermining the perceived depth of the output.",
+      "scenario": "civ facets are texture-flat across species",
+      "severity": "P2"
+    },
+    {
+      "condition": "If engineering answers 'which layer owns gospels/flavor text' by building bespoke myth/name generation to make the Reynolds ruins feel textured, that work has no OUT boundary capping it, and slice one's 20-turn budget could be consumed by lore infrastructure instead of the stratified pipeline the goal is actually about.",
+      "scenario": "GATE's ownership question expands into an unscoped mythology generator",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Check whether OUTCOME's 'simulated rather than authored' framing is consistent with GATE still offering 'hybrid' as an open option, and flag the tension if mk is likely to rule hybrid.",
+    "Look for a legibility or narrative-quality bar in DONE WHEN beyond fact-citation and terminal-watchability, and flag its absence against DF legends-mode's known readability failure.",
+    "Verify whether civ 'derived facets' have a named dependency on species-stub trait data, or whether the derivation is texture-blind to species.",
+    "Check whether the five-item era-event taxonomy is a floor or an effective ceiling given no variety requirement, and flag checklist-shaped history as a plausible DONE WHEN-satisfying outcome.",
+    "Confirm OUT caps how much naming/mythology/flavor-text infrastructure slice one may build while answering GATE's ownership question."
+  ],
+  "task_context": "Domain framing: this review applies procedural-narrative and computational worldbuilding expertise — the simulate/author boundary, chronicle legibility, and genre-fidelity risk relative to DF/Qud precedent — to a draft goal for a stratified worldgen pipeline. Stress-test this draft goal (stratified worldgen at DF/Qud depth for Mind State, slice one on the palettice engine) before ratification: find missing forks, scope traps, wrong assumptions, and anything the GATE/DONE WHEN/OUT structure gets wrong."
+}

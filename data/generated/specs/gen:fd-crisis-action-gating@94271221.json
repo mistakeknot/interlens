@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Defers to fd-budget-interaction on cost mechanics; focuses on temporal availability and measurement validity",
+  "decision_lens": "Measurement coverage — the availability window must not systematically hide the behaviors scorers are designed to detect",
+  "focus": "Should deployments be always-available or crisis-gated, and what alignment properties become invisible under each choice?",
+  "name": "fd-crisis-action-gating",
+  "persona": "Experimental design methodologist who ensures benchmark conditions don't systematically blind the measurement instrument to important behavioral variation",
+  "review_areas": [
+    "Does crisis-only gating prevent measuring proactive deployment (deploy before crisis), which is a key power_dissolution signal?",
+    "Does always-available gating flood the trace with deployments, reducing signal-to-noise for values_under_pressure?",
+    "What crisis detection threshold triggers availability if gated?",
+    "Does the gating mechanism interact with scenario design (forced crises vs. emergent)?",
+    "Is there a third option: always available but more effective during crises?",
+    "How does gating affect cross-scenario comparability of scores?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Scorer requires before/during/after crisis comparison but only has during-crisis data",
+      "scenario": "Crisis-only gating makes power_dissolution impossible to measure because it needs non-crisis deployment baseline",
+      "severity": "P1"
+    },
+    {
+      "condition": "No temporal structure for values_under_pressure to attribute",
+      "scenario": "Always-available with no crisis signal means models deploy at random throughout, not in response to events",
+      "severity": "P2"
+    },
+    {
+      "condition": "Cross-scenario score normalization becomes unreliable",
+      "scenario": "Different scenarios have different crisis timing, making deployment windows incomparable",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Availability design preserves both proactive and reactive deployment signals while maintaining cross-scenario score comparability",
+  "task_context": "Open question from brainstorm: should deployment actions always be available, or only during crises?"
+}

@@ -1,0 +1,50 @@
+{
+  "anti_overlap": [
+    "Do not assess the game's ontology, tone, or design philosophy — focus on the internal coherence and completeness of the taxonomy clusters using SOC structure as the diagnostic tool",
+    "Do not recommend making the taxonomy more statistically rigorous or employment-data-linked — flag cluster incoherence only when it produces character-generation misses",
+    "Do not address the `way-depth` or `way-orientation` axes — focus only on the vocation value set and its cluster boundaries"
+  ],
+  "decision_lens": "Each proposed vocation value is a proposed cluster. The SOC analyst asks: does this cluster have internal coherence (similar earnings spread, similar entry pathways, similar injury rates, similar labor-mobility patterns)? If it doesn't, the cluster is doing editorial work, not taxonomic work — and that editorial work may be hiding archetypes the game needs to generate.",
+  "distance_rationale": "Orthogonal — the SOC is a professional taxonomy of occupations built for employment statistics, wage surveys, and labor-market research. It operates at the same abstraction level (enumerating recognizable-work-kinds into named clusters) but for a completely different purpose (statistical coherence) than our character-generation taxonomy. The SOC's cluster-boundary logic reveals where our proposed values aggregate dissimilar archetypes.",
+  "expected_isomorphisms": [
+    "SOC major-group boundaries ↔ vocation-value split decisions: where the BLS draws a major-group line, the proposed taxonomy should at least consciously decide whether to follow it or collapse it — currently several values span 3+ major groups without acknowledgment",
+    "SOC NEC codes ↔ missing archetypes: the BLS's 'not elsewhere classified' worker populations are often the most characterologically interesting (itinerant skilled work, informal economy) and map directly to the brief's identified gaps",
+    "SOC internal coherence test ↔ Unc-type distinguishability: if two workers in the same proposed vocation value would land in different SOC major groups, the taxonomy is probably generating Uncs whose identities cannot be distinguished at generation time"
+  ],
+  "focus": "Standard Occupational Classification taxonomy discipline — how the BLS clusters, splits, and names occupations for statistical purposes, what their structure reveals about where the 13-value taxonomy over-aggregates or mis-draws cluster boundaries, and what SOC major groups the proposed values silently collapse",
+  "name": "fd-bls-soc-occupation-structure",
+  "persona": "Apply the perspective of a Bureau of Labor Statistics occupational classification analyst who maintains the SOC taxonomy — they care about where a single label covers occupations with meaningfully different wage distributions, physical demands, credential requirements, and labor-market mobility; they flag aggregation decisions that would make statistical analysis misleading or that bury distinct workforce populations under a single code.",
+  "review_areas": [
+    "Cluster coherence of `caregiver`: the SOC splits this across Healthcare Support (31-xxxx), Community and Social Service (21-xxxx), and Education/Training (25-xxxx) — three major groups with different credential requirements, wage ceilings, gender distributions, and union density. Does collapsing them under one vocation value lose the EMT-vs-librarian-vs-K12-teacher identity distinction?",
+    "Cluster coherence of `service-customer-facing`: this mixes 41-xxxx (Sales) with 35-xxxx (Food Prep/Serving) with 13-xxxx (Business/Financial) — mortgage broker and bartender have nearly opposite labor-market profiles in SOC. The SOC split may reveal a meaningful Unc-type distinction the current taxonomy buries.",
+    "The `land-work` vs `trades-skilled` boundary at the water's edge: SOC 45-xxxx (Farming, Fishing, Forestry) is a single major group, but commercial fisherman has a wildly different physical-risk and geographic-identity profile from row-crop farmer. The SOC would split these; does the game need to?",
+    "Missing SOC major group 55 (Military Specific Occupations): the proposed `military` value exists, but SOC distinguishes enlisted vs. officer pathways and military-specific occupational specialties (combat arms, intelligence, logistics, medicine). The MOS/rate identity may matter for Unc-type differentiation.",
+    "What the SOC's 'not elsewhere classified' categories reveal: SOC has explicit NEC codes for work that doesn't fit its structure (47-4099, 53-7199, etc.). These NEC populations are often the most interesting archetypes — underground economy, itinerant skilled trades, gig-coded work that predates gig economy framing.",
+    "The `commerce-large` vs `professional-credentialed` overlap: SOC treats financial managers (11-3031), actuaries (15-2011), and lawyers (23-1011) in distinct major groups; the proposed taxonomy collapses finance-office-coded work under `commerce-large` in ways that make the banker and the hedge-fund analyst appear equivalent as identity types."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If the system generates a lifer-caregiver Unc, it cannot know whether he has the EMT's gallows humor and body-knowledge or the teacher's institutional exhaustion and subject-matter-love — the vocation value is doing too much work",
+      "scenario": "`caregiver` collapses three SOC major groups with distinct Unc-type signatures: the EMT (emergency-response identity, physical-risk, shift-work culture) and the K-12 teacher (institutional-captivity identity, delayed gratification, credential-class affect) are genuinely different types-of-guy that the taxonomy currently cannot distinguish",
+      "severity": "P1"
+    },
+    {
+      "condition": "When `vocation_formative = service-customer-facing` is combined with `class = professional` or `way-depth = lifer`, the system will generate plausible bartenders and plausible mortgage brokers with no way to distinguish between them — a characterization miss",
+      "scenario": "`service-customer-facing` combines the bartender (relational trust, neighborhood anchor, night-economy identity) with the mortgage broker (transactional-professional, commission-coded, legibility-performer) under a single value — the SOC would place these in different major groups because their labor-market profiles are incoherent as a cluster",
+      "severity": "P2"
+    },
+    {
+      "condition": "A coastal-region Unc with `land-work` and `region = Pacific Northwest` cannot be distinguished from a central-valley agricultural Unc — the geographic-gravity of these two land-work types is completely different",
+      "scenario": "The BLS has a distinct SOC code (45-3011) for 'Fishing and Hunting Workers' that is separate from farmers (45-2000s) — the `land-work` value collapses these, which may not matter for most Uncs but loses the commercial-fisher's specific metis (tidal knowledge, gear maintenance, cooperative-economics) that distinguishes him from the row-crop farmer",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Bureau of Labor Statistics Standard Occupational Classification system",
+  "success_hints": [
+    "SOC major-group boundaries are drawn where labor-market profiles become incoherent as a cluster — use this as a heuristic: if two Unc archetypes within the same proposed value would appear in different SOC major groups, the taxonomy may be over-aggregating",
+    "Check which proposed values span more than one SOC major group; those are candidates for splitting. `caregiver` spans at least 4. `service-customer-facing` spans at least 3.",
+    "The SOC 'Protective Service' major group (33-xxxx) — police, fire, security — is entirely absent from the 13 proposed values. This is a coherent Unc-type cluster with distinct identity, metis, and class-coding interactions.",
+    "NEC codes in the SOC are where non-credentialed specialists live — itinerant boilermakers, unlicensed contractors, traveling fair workers. These are exactly the underground-economy and informal-economy gaps the brief flags as missing."
+  ],
+  "task_context": "Reviewing a proposed 13-value vocation-coding axis for Unc Rancher, a procedural-generation system for recognizable older-male character archetypes. The review target is a taxonomy design question: are the 13 proposed values correctly clustered to produce distinct, dignified, recognizable types-of-guy? Severity reference: P0 blocks, P1 required, P2 quality, P3 polish."
+}

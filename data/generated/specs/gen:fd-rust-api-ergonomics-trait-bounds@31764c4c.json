@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Do not cover event-sourcing replay semantics or aggregate-root questions — those belong to the event-sourcing agent",
+    "Do not cover ECS tick-loop performance or game-engine integration patterns — those belong to the ECS agent",
+    "Do not cover SoulStore persistence backend design or SQLite-specific concerns — those belong to the persistence agent"
+  ],
+  "decision_lens": "Every public type is a semver promise. Trait bounds on public APIs constrain downstream consumers forever. Derive macros silently add trait requirements that propagate through generic bounds. The cost of fixing a wrong lock is measured in major version bumps.",
+  "focus": "Rust API surface correctness, trait bound coherence, derive-macro interactions, ownership and lifetime design across the public API",
+  "name": "fd-rust-api-ergonomics-trait-bounds",
+  "persona": "Apply the perspective of a Rust library author with deep experience publishing crates on crates.io, reviewing RFC submissions, and auditing public APIs for semver compatibility and ergonomic footguns.",
+  "review_areas": [
+    "Soul is missing derive macros entirely — it cannot be Debug, Clone, or Serialize/Deserialize as written, which is inconsistent with SoulSnapshot (which derives all three). Whether Soul itself should be serializable or only its snapshot is a design question that §1 does not resolve, and the answer affects whether consumers can persist Soul across async boundaries without going through the store.",
+    "DerivationFn is Arc<dyn Fn(...) + Send + Sync> — this means Soul is Send+Sync only if DerivationRegistry is Send+Sync, which it is (Arc is), but the closure bound means consumers cannot capture &mut state or thread-locals in derivations. The spec does not make this constraint visible to consumers who may attempt to capture non-Send state.",
+    "FacetValue::Record uses HashMap<String, FacetValue> — HashMap does not implement Hash, so FacetValue cannot derive Hash despite deriving PartialEq. If any consumer tries to use FacetValue as a HashMap key or in a HashSet (reasonable given it derives PartialEq), this will fail to compile at the call site with a confusing error. The spec should either remove PartialEq from FacetValue, replace HashMap with BTreeMap in Record, or add a note that FacetValue is not Hash.",
+    "VocabularyRegistry::validate_event takes &SoulEvent but SoulEvent has owned String fields (facet names, tags) — every validation call clones nothing but borrows are fine; however the method signature is ambiguous about whether validation is pure (should be) or might mutate internal state (e.g. lazy-init a cache). The spec should annotate it as pure or make it &self consistently.",
+    "SoulStore trait uses #[async_trait] but §12 defers the async-fn-in-traits decision. The interaction matters for dyn SoulStore: native async fn in traits (Rust 1.75+) does not support dyn dispatch without workarounds, while async-trait does. The spec should resolve this before Phase 1 code starts — it directly affects whether ScopedStore<S: SoulStore> needs to be generic or can use Box<dyn SoulStore>.",
+    "SeqNo derives PartialOrd+Ord but is used as a range bound in SoulStore::read_events(from: Option<SeqNo>, to: Option<SeqNo>) — the range semantics (inclusive/exclusive on both ends) are unspecified. For an append-only log this matters: replaying from SeqNo(5) to SeqNo(10) might include 5 and/or 10 differently depending on the impl. The spec should define the range convention explicitly in the read_events signature."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If Soul is not Send+Sync (or if this is unintentional), consumers cannot store it in Arc, pass it across async await points, or use it with tokio::spawn. Since SoulStore::load returns Soul and the store is async, Soul must be at minimum Send. This must be resolved before scaffolding.",
+      "scenario": "Soul missing derive macros",
+      "severity": "P0"
+    },
+    {
+      "condition": "Any consumer that tries to use FacetValue in a HashMap/HashSet key position gets a compile error with no obvious cause. The mismatch between deriving PartialEq and being non-Hash due to HashMap<String,FacetValue> in the Record variant needs a design decision before the type is locked.",
+      "scenario": "FacetValue: PartialEq but not Hash despite HashMap internals",
+      "severity": "P1"
+    },
+    {
+      "condition": "The choice between async-trait and native async fn determines whether dyn SoulStore is viable. ScopedStore<S: SoulStore> works with generics; Box<dyn SoulStore> requires async-trait or RPITIT workarounds. If this is left open, Phase 1 scaffolding may need to be refactored mid-implementation.",
+      "scenario": "async-trait vs native async fn in traits left for code time",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Check every public struct and enum for which derives are present, which are missing, and whether the missing ones are intentional with a doc comment explaining why",
+    "Trace the Send+Sync bounds from SoulStore through Soul through DerivationRegistry through DerivationFn — verify the chain is complete and documented",
+    "Look for mismatches between what the locking section calls 'locked' and what the actual Rust signatures can support today (e.g. FacetValue::PartialEq + non-Hash Record variant)",
+    "Check §12 open questions against whether they are truly code-time or actually block the public API surface from being coherent"
+  ],
+  "task_context": "The spec is pre-implementation Rust API design for a crate targeting multiple consumers (game engine, web service, WASM). Items 1-4 are locked. The reviewer should produce specific findings on the locked types (§1-4), the draft error types (§6), the Cargo layout (§7), and flag any §12 'code-time' decisions that are actually API-time decisions."
+}

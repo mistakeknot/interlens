@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Defer witness-attribution and ritual narrative questions to fd-griot-jeliya-praise-name-salience.",
+    "Defer registry admission and category-schema questions to fd-kigo-saijiki-canonical-registry.",
+    "Defer decay-curve-shape and phase-structure questions to fd-parfumerie-drydown-salience-phases."
+  ],
+  "decision_lens": "Evaluate the epithets system as an escapement: each tick releases energy in the form of decay and event-draining, the pallet-engagement is the event-reactor draining CulturalEvent buffer, and stateful scans for the Patient/the Quiet are the beat-counters — audit for missed beats, drift, and position in the train.",
+  "distance_rationale": "Pre-electronic mechanical-clock engineering is far from ECS sim tick scheduling in both domain and era.",
+  "expected_isomorphisms": "Deadbeat release cadence, pallet-engagement discipline, accumulated-drift analysis, and gear-train ordering map onto the tick-pipeline slot placement, event-buffer drain timing, per-day decay-tick discretization, and streak-counter integrity.",
+  "focus": "Scrutinize the event-reactor + stateful-tick-scan design for deterministic release cadence, drift accumulation from linear per-day decay, and the tick-pipeline placement guarantees around the runs-late claim.",
+  "name": "fd-horological-escapement-tick-cadence",
+  "persona": "Apply the perspective of a classical horologist versed in verge, anchor, and deadbeat escapement traditions — they care about cadenced release of stored energy, dead-beat versus recoil discrimination, the difference between ticks-seen and ticks-elapsed, and the accumulated drift from periodic-but-imprecise counters; they measure isochronism and drift under varying tick rates, and they flag any control flow where a pallet might fail to engage its tooth, where impulse can be lost, or where an accumulated fractional count silently rounds away.",
+  "review_areas": [
+    "'Runs late in the tick pipeline — after compose, revel, romance, prestige, lifecycle, fandom': an escapement position in the gear train determines what energy it receives. Audit whether lifecycle running BEFORE epithets can remove an elf (death/departure) in the same tick a triggering event fires, causing an EpithetEarned on a dead entity — or whether fandom running before epithets means fandom-derived salience bumps are missed this tick.",
+    "-0.5/day decay via a daily tick-scan: this is a deadbeat counter. Audit WHERE the day boundary is computed — is it tick_count % TICKS_PER_DAY == 0? What if a day-boundary tick coincides with an EpithetEarned, and decay runs before or after the bump? Specify ordering deterministically.",
+    "Event-reactor drains CulturalEvent buffer; this tick five event-driven triggers depend on the buffer contents AT THIS TICK. Audit whether any upstream system consumes or re-emits CulturalEvent in a way that interferes with draining (e.g., double-consumption, late emission after drain).",
+    "Stateful streak for the Patient (500 ticks of 5+ friends): this is an accumulated counter vulnerable to drift if the streak data is stored as a tick-count and friend-count is checked per tick. Audit for the classic accumulator reset bug — if friends drop to 4 for one tick and return to 5, does the streak reset or persist? And can the 500-tick threshold be met across multiple non-contiguous intervals?",
+    "the Quiet evaluated at Elder stage transition: this is a one-shot gear release. Audit whether the Elder transition event is replayed on save/load — if not, an elf that hits Elder mid-save can miss the check after load. Save-load equivalence is named as a design value in the brainstorm (for decay); verify the one-shot also respects it.",
+    "Linear decay arithmetic: -0.5/day on a f32 salience. The brainstorm explicitly avoided exponential decay for float-determinism concerns. Verify linear arithmetic on f32 is also determinism-safe across platforms (it generally is for fixed operation order, but audit the iteration order of HashMap — Rust std HashMap has randomized seeds; confirm whether ColonyLexicon uses a deterministic map or std HashMap and whether that matters for replay fidelity)."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Use of std HashMap in a simulation with replay-equivalence requirements, where iteration order is observable downstream.",
+      "scenario": "ColonyLexicon is std::collections::HashMap (non-deterministic iteration in std). The daily decay pass iterates the map and applies -0.5 to each lexeme. Order-dependent downstream readback (e.g., display ordering, event emission order) can diverge in replay, violating save/load equivalence tests the brainstorm explicitly protects.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Late-pipeline placement means upstream despawns happen before epithets reacts.",
+      "scenario": "Lifecycle system removes an elf entity in tick N due to death/departure. Epithets system runs later in the same tick, pattern-matches an earlier CulturalEvent::ArtCompleted for that entity, and tries to insert an EarnedEpithet into a now-despawned entity Epithets component. Panic or silent drop.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Streak reset is too strict for a noisy per-tick measurement.",
+      "scenario": "the Patient streak resets on any tick where friends.count() < 5 instead of requiring sustained drop. A single tick where a friend is temporarily unaffiliated (e.g., during a revel reshuffle) resets 499 ticks of accumulated streak — player will never see the Patient earned despite narrative conditions clearly being met.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "European horological escapement tradition — the verge, anchor, and deadbeat mechanisms governing cadenced release of stored energy in mechanical clocks",
+  "success_hints": [
+    "Specify deterministic map iteration (BTreeMap or seeded HashMap) for ColonyLexicon.",
+    "Document tick-pipeline ordering invariants explicitly in code comments.",
+    "Audit every upstream system for despawn-then-read-by-epithets hazards.",
+    "Specify whether the Patient streak tolerates brief dips or requires strict 500-tick continuity."
+  ],
+  "task_context": "The brainstorm proposes a late-pipeline reactor with daily decay and stateful streak tracking; review through a horological-escapement lens to surface cadence, drift, determinism, and pallet-engagement issues."
+}

@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-intercom-async-translation covers Rust/tokio runtime correctness",
+    "fd-intercom-scheduler-reliability covers task persistence and delivery confirmation",
+    "fd-gateway-messaging covers platform routing architecture"
+  ],
+  "decision_lens": "Treat any path where group_jid from one tenant can influence state visible to another as critical. Session bleed is harder to detect than crashes.",
+  "focus": "Per-group data isolation and session lifecycle boundaries in intercom's shared gateway, using Hermes pairing/session-reset as reference",
+  "name": "fd-intercom-tenant-isolation",
+  "persona": "A security-focused engineer designing multi-tenant backends and reviewing session boundary violations.",
+  "review_areas": [
+    "GroupQueue groups HashMap — verify group_jid keys never normalized/aliased in ways causing two JIDs to share state",
+    "Hermes pairing approval flow vs intercom registered_groups — can unregistered groups receive task output via scheduler",
+    "intercom session endpoints keyed by group_folder — path traversal risk in write_ipc_message where group_folder constructs filesystem paths",
+    "Hermes mirror.py session-mirroring by platform+chat_id — intercom session lookup fallback collision risk between DM and group chat",
+    "Hermes SessionResetPolicy (daily/idle/both/none) — does intercom have per-group session reset backed by Postgres, idle container blocking max_concurrent",
+    "Migration-period dual-write path: Node host writing session/task entries — group_folder='../other_group' bypass risk"
+  ],
+  "success_hints": [
+    "All group_folder/group_jid validated against strict allowlist pattern before use as path or Postgres key",
+    "Unregistered groups cannot receive scheduled task output",
+    "GroupState entries for inactive groups garbage-collected to prevent unbounded HashMap growth"
+  ],
+  "task_context": "Intercom is a Rust/Node gateway using tokio, axum, tokio-postgres. Hermes Agent is the Python asyncio reference implementation for cross-pollination."
+}

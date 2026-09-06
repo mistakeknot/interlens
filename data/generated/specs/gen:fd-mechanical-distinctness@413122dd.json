@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-rust-data-model-correctness covers Rust implementation",
+    "fd-game-balance-budget covers numeric magnitude calibration",
+    "fd-emergence-legibility covers information design"
+  ],
+  "decision_lens": "Flags interactions that feel different thematically but produce identical mechanical incentives, and identifies missing archetypes.",
+  "focus": "Whether the 22 interactions are mechanically distinct or whether several reduce to equivalent modifier patterns",
+  "name": "fd-mechanical-distinctness",
+  "persona": "A game designer who has analyzed hundreds of card and modifier systems for redundancy.",
+  "review_areas": [
+    "Audit the document's internal count discrepancy: header says 19 but tables list 22",
+    "Identify interactions that reduce to the same +X% effectiveness in domain Y pattern",
+    "Check for unused InteractionEffects fields (coalition_trust_mod only used once?)",
+    "Evaluate whether conflicts are mechanically distinct from each other",
+    "Identify missing archetypes: stabilizer, specialist, coalition-only value",
+    "Check reckless_actor deployment speed for implementability"
+  ],
+  "success_hints": [
+    "Each interaction produces a player decision no other interaction produces",
+    "The count discrepancy is resolved"
+  ],
+  "task_context": "Shadow Work is a geopolitical simulation with 31 personality facets. Interactions are meant to be flavor on top of primary systems, not dominant drivers."
+}

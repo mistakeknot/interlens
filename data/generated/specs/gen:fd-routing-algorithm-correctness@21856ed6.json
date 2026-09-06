@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "Does not cover Python Protocol type-system semantics or dataclass configuration — that is fd-python-type-system.",
+    "Does not cover pedestrian formula calibration or felt-minute UX semantics — that is fd-pedestrian-routing-formula.",
+    "Does not cover GraphML attribute type recovery — that is fd-graphml-attribute-hygiene."
+  ],
+  "decision_lens": "Where do the brainstorm's weight formula, fallback policy, and +inf handling violate or create risk against the preconditions that Dijkstra and A* require for correct shortest-path computation?",
+  "focus": "Dijkstra/A* preconditions: non-negative weights, NaN propagation, +inf semantics, monotonicity invariants, NetworkX weight-function API contract",
+  "name": "fd-routing-algorithm-correctness",
+  "persona": "Apply the perspective of a graph algorithms engineer who has debugged routing failures caused by silent NaN propagation or negative-weight shortcuts — they care about whether the weight function's outputs satisfy all mathematical preconditions of Dijkstra and A*, measure correctness by whether the algorithm's optimality proof holds on the produced weight space, and flag anywhere that NaN, negative output, zero-length divide, or incorrect +inf semantics could cause incorrect routes, infinite loops, or silent wrong-path selection.",
+  "review_areas": [
+    "The formula walking_minutes * (1.0 + sun_coefficient * sf) where walking_minutes = (length_m / pace_mps) / 60.0 — for edges where length_m = 0.0 and shade_data_quality != 'degenerate_zero_length', this produces walking_minutes = 0.0 and felt_minutes = 0.0. Dijkstra handles zero-weight edges correctly (they add no cost), but A* with an inadmissible heuristic may expand them incorrectly. The brainstorm handles degenerate_zero_length -> +inf but does not address other quality values where length_m could be 0.0.",
+    "The NaN fallback policy _effective_sun_fraction returns 0.5, nan_fallback_value, 0.0, or 1.0 depending on policy — all non-NaN values. However, the brainstorm's Decision 5 places the defensive float() cast in apply_weight, not in __call__. If Phase 1.7 uses the lazy calling path (skips apply_weight, calls weight directly on raw edge dicts), the float() cast is bypassed and a string sun_fraction from GraphML triggers math.isnan('0.75') which raises TypeError, not a clean NaN fallback.",
+    "NetworkX's nx.astar_path and nx.dijkstra_path accept a weight parameter that is either a string (attribute name) or a callable (u, v, d) -> float. The brainstorm's EdgeWeight Protocol uses (edge_attrs: dict) -> float — this is NOT the (u, v, d) form NetworkX expects. Phase 1.7 will need an adapter function lambda u, v, d: weight_fn(d). The brainstorm should specify this adapter or document that apply_weight + weight='felt_minutes' string is the intended A* integration path.",
+    "The +inf sentinel for degenerate_zero_length works correctly with Dijkstra (infinite cost = edge never taken), but NetworkX's A* with a consistent heuristic may still expand infinite-cost neighbors if the heuristic underestimates. The brainstorm should document that Phase 1.7's heuristic must return <= felt_minutes for all edges, and that +inf edges need no special A* exemption since they will never be on any finite-cost path.",
+    "The monotonicity test test_monotonicity verifies that higher sun_fraction -> strictly larger felt_minutes for equal-length edges — this is necessary but not sufficient for routing correctness. The brainstorm does not test that two edges of unequal length but identical sun_fraction preserve the length ordering, nor that pace_mps changes preserve relative ordering."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If Phase 1.7 writes nx.astar_path(G, src, dst, weight=FeltMinutesV0()), NetworkX calls weight(u, v, d) with 3 positional args, but FeltMinutesV0.__call__ expects (self, edge_attrs) — the call receives u as edge_attrs (a node ID integer), producing wrong results or AttributeError with no clear error message pointing to the Protocol mismatch.",
+      "scenario": "Phase 1.7 passes FeltMinutesV0 directly to nx.astar_path as weight callable",
+      "severity": "P0"
+    },
+    {
+      "condition": "If Phase 1.7 uses the lazy calling path and loads the GraphML without the SHADED_GRAPH_EDGE_DTYPES cast, float(edge_attrs.get('sun_fraction', 0.0)) in __call__ returns a string, and math.isnan(string) raises TypeError mid-route, crashing the router on the first no_coverage edge.",
+      "scenario": "Lazy A* path skips apply_weight, hits string sun_fraction",
+      "severity": "P1"
+    },
+    {
+      "condition": "An OSM edge with quality='ok' but a geometry error giving length_m=0.0 produces felt_minutes=0.0 — a free teleport that Dijkstra exploits, routing paths through it preferentially even though the edge is not a valid shortcut.",
+      "scenario": "Non-degenerate_zero_length edge with length_m=0 produces felt_minutes=0",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "Document the NetworkX A* integration pattern explicitly: either 'use apply_weight once, then weight=felt_minutes string' or 'wrap in lambda u, v, d: weight(d)' — Phase 1.7 should not need to re-read the Protocol to know which adapter to use.",
+    "Add a guard in __call__ for length_m == 0.0 with quality != 'degenerate_zero_length' — either return +inf or raise a ValueError so the caller knows the edge is pathological.",
+    "Add a test verifying that felt_minutes is strictly positive for all non-degenerate edges (length > 0, valid sun_fraction), covering the routing precondition that no finite-cost edge is free."
+  ],
+  "task_context": "Reviewing the brainstorm's weight function design and +inf handling against Dijkstra/A* mathematical preconditions, and verifying the NetworkX integration contract is correctly specified for Phase 1.7."
+}

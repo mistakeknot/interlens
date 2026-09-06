@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-pillar-maturity-rubric covers whether the 5-level rubric correctly defines level boundaries for both signal-only and pressure-emitting pillars",
+    "fd-pillar-automation-infrastructure covers how to detect and report the delta-emission status of each pillar automatically",
+    "fd-cascade-graph-coverage covers whether the 13 pressure types have sufficient upstream feed-in from real pillar dynamics vs. being theoretical cascade nodes with no active sources"
+  ],
+  "decision_lens": "Findings are ranked by whether the asymmetry creates invisible coupling risks: if Climate or Economy reaches Calibrated level and starts producing strong signals, will the pressure cascade remain well-behaved if those pillars don't also emit deltas, or will the system silently undercount pressure?",
+  "focus": "Whether the architectural asymmetry between Compute (sole pressure-delta emitter) and the other 5 pillars (direct signal reads) is a design decision or an accidental gap, and what maturity-grading implications follow",
+  "name": "fd-pressure-emission-asymmetry",
+  "persona": "A simulation architecture reviewer who specializes in causal pipeline design and has deep familiarity with the PressureStore/cascade graph pattern. Approaches the system from the perspective of 'what invariants does the architecture need to enforce to remain coherent as more pillars deepen?'",
+  "review_areas": [
+    "Why does only ComputePillar::collect_pressure_deltas() exist — is this intentional (Compute is uniquely geopolitically destabilizing) or is it because the other pillars aren't deep enough yet to emit?",
+    "Do Climate, Food, Politics, and Institutions pillars have implicit pressure effects embedded in agent behavior rules that bypass the pillar-level delta mechanism — creating a hidden dual-path pressure accounting problem?",
+    "Does the maturity rubric need a 'pressure-wired' milestone distinct from Functional — i.e., a pillar can be Functional (signal logic runs) but not yet wired to emit deltas into the cascade?",
+    "What is the intended end-state: should all 6 pillars eventually emit pressure deltas, or is the design that only Compute emits and others influence pressure through agent actions?",
+    "Is the DAILY_SCALE constant applied consistently to Compute's pressure deltas vs. the natural decay/cascade in tick_all_scaled() — could adding more delta emitters break the pressure budget?",
+    "Does the WriteSetBuffer in tick_pillars_scheduled() have dead apply_write_set code — is this a known scaffold or a regression risk for future delta emitters?"
+  ],
+  "success_hints": [
+    "A clear design doc or code comment articulates the intended end-state of pillar-level pressure emission (all pillars emit, or only Compute, or by-case)",
+    "The pressure budget (total delta per tick summed across all emitters) is bounded and documented so adding new emitters doesn't cause runaway pressure inflation",
+    "The dead WriteSetBuffer code is either removed, documented as future scaffold, or wired up — not silently abandoned"
+  ],
+  "task_context": "Shadow Work has 6 pillar subsystems that cascade through a pressure graph with 13 PressureTypes. Only ComputePillar currently calls collect_pressure_deltas() to emit into the PressureStore; the other 5 pillars emit signals that agents and issues read directly."
+}

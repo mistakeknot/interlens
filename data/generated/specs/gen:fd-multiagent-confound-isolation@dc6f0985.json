@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does not review construct validity (fd-benchmark-construct-validity), judge integrity (fd-llmeval-judge-integrity), statistical power (fd-empirical-falsifiability), or rater calibration (fd-psychometric-rater-calibration).",
+  "decision_lens": "An ablation is only valid if the removed mechanism is the only variable that changes.",
+  "focus": "Evaluates whether the ablation study and three-layer comparison can isolate causal mechanisms, distinguishing architecture effects from model capability, prompt engineering, and compute budget effects.",
+  "name": "fd-multiagent-confound-isolation",
+  "persona": "A systems researcher who has run ablation studies on multi-agent debate, mixture-of-experts, and reflection architectures.",
+  "review_areas": [
+    "Audit ablation conditions for token budget confounds",
+    "Evaluate progressive ladder for prompt engineering confounds",
+    "Review single-agent-all-frames control for implementation completeness",
+    "Assess three-layer comparison for compute asymmetry",
+    "Check whether illuviation hypothesis is operationalized as testable prediction",
+    "Evaluate mechanism dependency graph for non-additive effects"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No token-budget normalization across conditions",
+      "scenario": "AgentDropout ablation confounded with more-agents-produce-more-findings",
+      "severity": "P0"
+    },
+    {
+      "condition": "No pre-registered prediction about which finding types are suppressed",
+      "scenario": "Illuviation hypothesis unfalsifiable as stated",
+      "severity": "P1"
+    },
+    {
+      "condition": "Tool access permissions not equalized or logged",
+      "scenario": "Agent mode has tool access Model mode lacks",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Each ablation condition fully specified with token budget, agent count, prompt length, tool access. Illuviation has pre-registered prediction table.",
+  "task_context": "Reviewing ablation study design and three-layer comparison for confound isolation."
+}

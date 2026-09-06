@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-pavement-survey-cadence: that agent focuses on interval choice for valid samples; this agent focuses on detecting and flagging where valid samples are absent",
+    "fd-agri-ndvi-aggregation: that agent focuses on aggregation bias given valid samples; this agent focuses on what happens when samples are missing or spatially incomplete",
+    "fd-mobile-airquality-calibration: that agent focuses on whether the raster values are trustworthy; this agent focuses on whether the raster spatially covers the graph"
+  ],
+  "decision_lens": "Is the spatial coverage of the shadow raster verified against the graph extent before the 95% NaN budget is spent, and is the NaN propagation path to Phase 1.6 fully specified?",
+  "distance_rationale": "Hydrographic surveyors plan sounding lines to guarantee that no seafloor feature larger than a specified size goes undetected within a survey area — the same coverage-completeness requirement as ensuring that > 95% of graph edges have at least one valid shadow sample.",
+  "expected_isomorphisms": "IHO S-44 distinguishes 'full seafloor search' from 'single beam' coverage, and defines coverage probability as a function of line spacing relative to feature size — this maps to the brainstorm's '> 95% edges receive non-NaN sun_fraction' acceptance criterion, which is a coverage-probability claim that should be derived from raster-extent vs. graph-extent geometry, not assumed.",
+  "focus": "Missing-data and coverage-completeness handling — whether the NaN policy and the 95% acceptance criterion are justified by the spatial relationship between raster extent and graph extent",
+  "name": "fd-hydro-survey-coverage",
+  "persona": "Apply the perspective of a hydrographic survey planner who must certify that a survey achieves IHO S-44 Special Order coverage, tracking which areas have been sounded and which remain in shadow.",
+  "review_areas": [
+    "The 95% non-NaN acceptance criterion assumes the DTLA bounding box is fully inside the DSM coverage — this is stated as a fact but never verified programmatically. A graph edge that extends 2 m outside the raster boundary will produce a mix of valid and clipped samples, passing the 95% gate while silently introducing aggregation bias",
+    "The shade_data_quality='no_coverage' flag is assigned only when every sample is nodata — but partial nodata (e.g., 8 of 11 samples are nodata) is not flagged and reduces the effective sample size without warning. IHO practice distinguishes 'gap' from 'insufficient density' coverage",
+    "The nodata value is read as src.nodata or 255 — if the GeoTIFF has src.nodata=None but the actual nodata fill is 255, the fallback is correct; if a future raster has src.nodata=0 (meaning no-data is encoded as 0, colliding with the 'sun' pixel value), the script will silently misclassify nodata as sun",
+    "The raster boundary clip guard (np.clip) means that samples falling outside the raster are mapped to boundary pixels rather than flagged as out-of-coverage — these produce false readings that pollute the valid-sample count and suppress the NaN flag on edges that should receive it",
+    "The idempotency check (mtime comparison) does not verify that the output graph's coverage statistics match the current raster — if the raster is regenerated with a different extent (e.g., after re-running build_shadow.py with a larger bbox), the existing output file is treated as fresh",
+    "No spatial audit report is produced to let the operator see which edges received NaN — the --report flag shows a distribution histogram but not a geographic extent or edge-ID list of no-coverage edges"
+  ],
+  "severity_examples": [
+    {
+      "example": "If a future shadow raster encodes nodata as 0 (matching the 'sun' pixel value) and src.nodata is not set in the GeoTIFF metadata, every nodata pixel is silently counted as sun. The 95% non-NaN gate passes, sun_fraction values look plausible, and the routing layer receives systematically inflated sun fractions in uncovered areas. This is a silent data corruption mode with no error or warning.",
+      "severity": "P0"
+    },
+    {
+      "example": "The np.clip boundary guard converts out-of-raster sample coordinates to boundary pixel reads rather than marking them as nodata. Graph edges at the raster perimeter will have artificially high valid-sample counts, suppressing the NaN flag and producing sun_fraction values derived partly from a single boundary pixel repeated N times. The 95% acceptance criterion does not distinguish these 'covered by clip' edges from genuinely covered ones.",
+      "severity": "P1"
+    },
+    {
+      "example": "The shade_data_quality flag is only set on total-nodata edges. Edges with 50%+ nodata samples are indistinguishable from fully-covered edges in the output GraphML. IHO practice would log a 'reduced confidence' coverage class for these edges. Phase 1.6 has no signal that some non-NaN sun_fraction values rest on thin sample counts.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Hydrographic survey line planning and IHO S-44 coverage standards",
+  "success_hints": [
+    "Add a startup check: assert graph bounding box is fully contained within raster bounding box, exit 2 if not",
+    "Replace np.clip with explicit out-of-bounds detection — mask samples outside raster extent as nodata before computing sun_fraction",
+    "Store sun_valid_samples and sun_nodata_samples as edge attributes so coverage quality is inspectable"
+  ],
+  "task_context": "Phase 1.5 brainstorm for Solwend edge shadow sampling — fixed 5 m interval, vectorized NumPy raster lookup, NaN for no-coverage edges, sun_fraction drives felt-minute routing weight."
+}

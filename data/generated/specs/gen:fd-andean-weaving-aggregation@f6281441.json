@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Do NOT review the choice of 5 m sampling interval or sample placement",
+    "Do NOT review the nodata exclusion policy or NaN propagation",
+    "Do NOT review single-timestamp / dynamic-phenomena concerns",
+    "Stay focused on the many-to-one collapse and what survives it"
+  ],
+  "decision_lens": "Does sun_fraction preserve the routing-relevant structure of shade along an edge, or does it conflate qualitatively different experiences? Is there a small, cheap additional statistic (longest-shade-run, transition-count, endpoint shade) that would survive the same storage path and serve later phases?",
+  "distance_rationale": "A textile craft tradition that encodes meaning through warp-interval color decisions has no surface connection to raster sampling, yet shares the deep structure of producing an aggregate property from sequenced discrete picks.",
+  "expected_isomorphisms": "A q'ero weaver does not average colors along a warp — averaging destroys the pattern (pallay) which IS the meaning. The information lives in run-lengths, transitions, and the symmetry of bands. Mapped: collapsing samples to a scalar sun_fraction discards the pattern of shade along the edge — a street that is sunny-shady-sunny-shady reads identically to one that is sunny-sunny-shady-shady, yet the pedestrian experience and the routing implication may differ sharply.",
+  "focus": "Whether collapsing per-edge samples to a single sun_fraction scalar is the right aggregation, or whether the run-length / sequence structure of shade-along-edge carries routing-relevant signal that the mean discards.",
+  "name": "fd-andean-weaving-aggregation",
+  "persona": "Apply the perspective of a master weaver of pallay-rich textiles, for whom the sequence of color picks is the artifact — a mean color is no textile at all. The framework treats per-edge aggregation as a lossy compression and asks what the compression throws away that downstream consumers might have wanted.",
+  "review_areas": [
+    "Mean vs distributional summary: two edges with sun_fraction=0.5 can be (sun-sun-shade-shade) or (sun-shade-sun-shade); the pedestrian experience differs and routing may want to know",
+    "Storage opportunity cost: GraphML edge attrs are cheap; storing one extra scalar (e.g., longest_shade_run_m or transition_count) would be ~1 MB more and let Phase 1.6 ask better questions",
+    "Endpoint sensitivity for short edges: two-sample edges aggregate to {0.0, 0.5, 1.0} — the aggregation policy makes short edges quantized in a way the brainstorm does not flag",
+    "Length-weighting claim: 'fixed 5 m interval gives long edges proportionally more votes' is correct for length-weighted shade across the network, but the per-edge sun_fraction itself is NOT length-weighted across edges — is this distinction made clear for Phase 1.6 consumers?",
+    "Loss of pattern information: the routing layer in Phase 1.6 cannot reconstruct shade-sequence from sun_fraction; if a future feature wants it, the data is gone — is that acceptable?"
+  ],
+  "severity_examples": [
+    {
+      "example": "sun_fraction is the only aggregate stored; if Phase 1.6 or a later phase wants run-length or transition-count, the entire pipeline must re-run — propose storing one additional cheap statistic now.",
+      "severity": "P1"
+    },
+    {
+      "example": "Two-sample edges quantize sun_fraction to {0, 0.5, 1} with no documentation of this discretization in the output schema.",
+      "severity": "P2"
+    },
+    {
+      "example": "Length-weighting semantics — per-edge fraction is unweighted, network-level shade is length-weighted — is not stated in the output contract, risking downstream misuse.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Andean q'ero textile weaving (highland Peru, pre-Columbian to present)",
+  "success_hints": [
+    "Argue from information-theoretic loss: sun_fraction is a 1-D projection of an N-D vector; quantify what is thrown away",
+    "Propose at most ONE additional stored statistic — do not demand the full vector",
+    "Tie recommendations to Phase 1.6's planned felt-minute formula: would the additional statistic actually be used?",
+    "Acknowledge that the simple scalar is right for v1 if no clear consumer exists — burden is on you to name one"
+  ],
+  "task_context": "Review the Phase 1.5 brainstorm focusing on the aggregation step: many samples → one sun_fraction. Examine what the mean discards, whether the discarded structure has routing-relevant value, and whether a small additional stored statistic would future-proof the pipeline. Do not address sampling cadence, NaN handling, or temporality — other reviewers cover those."
+}

@@ -1,0 +1,36 @@
+{
+  "anti_overlap": "Does not cover: guild governance structure (fd-venetian-glassblowing), resource flow coordination (fd-edo-irrigation), or accounting dimensionality (fd-andean-textile)",
+  "decision_lens": "Evaluates whether the system maintains integrity of provenance when work products move between states, whether merge operations preserve or destroy important context, and whether the system can distinguish authoritative from unreliable contributions",
+  "distance_rationale": "Medieval textual scholarship concerned with authenticating oral and written transmission chains across centuries operates in a completely different medium and timescale from real-time digital collaboration.",
+  "expected_isomorphisms": "Isnad maps to direction provenance and merge history; manuscript collation maps to conflict resolution; hadith transmitter classification maps to contribution quality assessment; rich taxonomy of transmission modes maps to direction lifecycle states.",
+  "focus": "Reviews direction merging, state integrity, and fork/merge semantics through the lens of Islamic manuscript transmission science",
+  "name": "fd-islamic-manuscript-transmission",
+  "persona": "Scholar of ilm al-hadith (the science of hadith transmission) and manuscript collation, expert in authenticating transmitted texts through chains of transmission (isnad), identifying textual variants, and establishing authoritative recensions",
+  "review_areas": [
+    "Whether direction merging preserves provenance chain — in hadith science, the isnad is as important as the content; when a direction merges, is the history of how content was produced preserved or flattened?",
+    "Whether the system can handle divergent versions of the same work — manuscript collation compares variant readings across copies; what is the merge strategy for conflicting directions?",
+    "Whether there is an authentication layer for contribution quality — hadith scholars classified transmitters as reliable, acceptable, weak, or fabricating; does the system distinguish between high and low quality contributions?",
+    "Whether fork semantics maintain connection to origin — when a manuscript was copied, scholars tracked the exemplar; when a garden is forked, does it maintain connection to its source?",
+    "Whether the lifecycle is sufficient — manuscript transmission had richer states including 'heard', 'read back', 'authorized', and 'found document' each with different authority levels"
+  ],
+  "severity_examples": [
+    {
+      "condition": "If merging discards the chain of agents, contributors, and intermediate states, the garden loses the ability to audit or revert",
+      "scenario": "Direction merging flattens provenance, making it impossible to trace how merged content was produced",
+      "severity": "P1"
+    },
+    {
+      "condition": "Two active directions modifying the same artifact and both attempting to merge need a collation strategy",
+      "scenario": "No conflict resolution strategy for overlapping directions",
+      "severity": "P2"
+    },
+    {
+      "condition": "No state for 'complete but awaiting review' forces governance models to use out-of-band signaling",
+      "scenario": "Direction lifecycle lacks intermediate review/authorization state",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Islamic manuscript transmission science (ilm al-hadith and textual criticism, 8th-15th century)",
+  "success_hints": "Good merge and transmission systems preserve provenance through all transformations, record variant readings rather than silently resolving them, and have explicit quality classifications for sources.",
+  "task_context": "Reviewing a governance and compute-attribution layer design for Garden Salon. Directions are first-class work scopes with lifecycle states that can be merged into the garden's main state."
+}

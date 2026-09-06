@@ -1,0 +1,40 @@
+{
+  "anti_overlap": [
+    "Do not re-litigate settled clusters: lock-stale-break-fuse, dispatch-event-recording-gap (mechanism settled — you own its CONSEQUENCES for replay/witness), ship-gate-self-report, gate-mode-self-weakening, publish-state-kernel-bypass",
+    "fd-canonization-safety owns duplicate-merging semantics — stay on witness/instrumentation ground"
+  ],
+  "decision_lens": "Report ONLY findings that require BOTH perspectives: places where the witness/recording machinery itself changes the correctness of the irreversible transitions it records — replay that certifies a curve with holes, gates that pass on the instrument's own silence, recovery that trusts a record it cannot verify. If contract analysis alone or thermal intuition alone would catch it, discard it.",
+  "focus": "Intersection of kernel-contract engineering and anagama thermal-state: places where the instrumentation that witnesses irreversible state transitions (events, cursors, gates, audit) mis-records, under-records, or falsely certifies the transitions it exists to witness",
+  "name": "fd-firing-witness",
+  "persona": "Apply the perspective of a fused review lens combining two parents: PARENT A (kernel/API boundary engineering — axioms: every consumer-visible behavior must be explicit versioned contract; event delivery semantics are contract and must be documented; a contract test that cannot observe the real CLI enforces nothing; reasons about contract schemas, consumer cursors, exit codes, gate transitions, kernel bypasses) and PARENT B (Japanese anagama wood-kiln firing — axioms: committed transitions are one-way, irreversibility must be by design; every state mutation must leave an entry in the firing record — an unlogged stoke makes replay certify a curve that never happened; a gate passed on self-report is no gate, only a cone pack in the chamber counts; failures bake in during unobserved windows; reasons about firings, stoking records, cone packs, thermocouples, shared atmosphere). These parents CONTRADICT on: contract engineering treats instrumentation as a description of state; firing practice treats instrumentation as PART of the irreversible process — a wrong witness doesn't just misreport the firing, it corrupts every later decision that trusts the record. Do NOT resolve the contradiction — investigate the places where it lives.",
+  "review_areas": [
+    "The nil-recorder fleet (f-039 upheld: 15/16 dispatch paths) × replay/recovery (f-045 upheld: replay refuses crashed runs, reexecute exit-1 stub): enumerate exactly WHICH transitions a replay would silently certify as complete despite missing events — the 'curve with holes' inventory",
+    "Coordination cursor hardcoded 0 (f-135 upheld): consumers re-executing coordination events as commands — which coordination events are COMMAND-shaped (spawn/advance) vs informational, and what irreversible effect would a re-execution commit?",
+    "The audit chain never imported (verifier V4): given gates/gate_mode resolutions leave no trace (f-101/f-102), would wiring the audit chain to gate resolution + dispatch transitions close both holes with ONE witness, or are the formats incompatible?",
+    "ic sweep / scheduler wiring (f-158 meta-cluster): as the fix for never-wired subsystems is designed, what witness obligations does each newly-wired subsystem acquire (scheduler job execution events, stall-reaper transition records)?",
+    "ic publish / ClearLocks (f-060 upheld): unlock deletes in-flight rows with no staleness guard — what firing-record entry SHOULD a force-unlock write so later replay/audit can distinguish 'stuck lock cleared' from 'live publish murdered'?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "replay trusts the record without completeness checks AND 15/16 paths don't record",
+      "scenario": "A recovery path certifies a run as complete based on an event record with known holes",
+      "severity": "P1"
+    },
+    {
+      "condition": "event is command-shaped AND consumer is not idempotent",
+      "scenario": "Re-delivered coordination events re-execute an irreversible command",
+      "severity": "P1"
+    },
+    {
+      "condition": "sweep wires scheduler/reaper without event obligations",
+      "scenario": "A newly-wired subsystem creates state transitions with no witness events",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Name the exact transition + the exact missing/wrong witness for each finding",
+    "Every finding states what each parent contributes and why neither alone suffices",
+    "Prefer findings that shape the remediation designs already on the table (cursor contract, ic sweep, audit wiring)"
+  ],
+  "task_context": "Reviewing three plugin layers of the Sylveste ecosystem — Clavain (/Users/sma/projects/Sylveste/os/Clavain), intercore (/Users/sma/projects/Sylveste/core/intercore), interverse (/Users/sma/projects/Sylveste/interverse) — to identify high leverage opportunities for improvement across the Clavain, intercore, and interverse plugins. This is a FUSED lens (parents: fd-kernel-contract, fd-anagama-thermal-state). HARD CONSTRAINT: report a finding ONLY if it requires BOTH parent perspectives; every finding must include an intersection_justification."
+}

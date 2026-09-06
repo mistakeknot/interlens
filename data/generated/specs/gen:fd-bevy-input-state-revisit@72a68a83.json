@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-overlay-state-machine covers OverlayState field correctness and prior_paused invariants — this agent focuses on ButtonInput primitives and SystemSet wiring, not state machine logic",
+    "fd-tooltip-content-lifecycle covers viewport_to_world_2d in depth for picking math — this agent flags the Result vs Option issue only as a correctness marker, not for coordinate math",
+    "fd-game-ux-conventions covers whether the keybinding layout matches genre conventions — this agent focuses purely on Bevy API correctness, not player ergonomics"
+  ],
+  "decision_lens": "For each of the 9 locked keybindings: is the API primitive correct (just_pressed vs pressed), is the KeyCode name valid in Bevy 0.18 winit mapping, and is system ordering declared so that the overlay-state reader never sees stale state produced by a sibling system on the same frame?",
+  "focus": "Bevy 0.18 input API correctness — ButtonInput<KeyCode> just_pressed vs pressed, system ordering with .after(), chord atomicity for Shift+N elf select, KeyCode naming, and double-consumption risk across systems that share the same frame's input.",
+  "name": "fd-bevy-input-state-revisit",
+  "persona": "Apply the perspective of a Bevy engine contributor who has triaged dozens of input bugs — they care about which systems run on the same frame and whether they compete for the same ButtonInput or event stream, measure correctness by whether the locked keybindings (Esc, backtick, digit 1-6, Space, +/-, Tab, Shift+1-9, , and .) all fire exactly once per physical key press, and flag any use of pressed() where just_pressed() is required, any missing KeyCode::Backquote alias for backtick, and any system that reads ButtonInput<KeyCode> without declaring .after() on systems that mutate OverlayState.",
+  "review_areas": [
+    "Esc: must use just_pressed(KeyCode::Escape) in the OverlayState toggle path — pressed() would open-and-close the pause menu every held frame; review_areas must call this out if the plan's pseudo-code is ambiguous",
+    "Backtick: KeyCode::Backquote is the correct Bevy 0.18 name (winit maps the grave-accent key); check the spec uses this name, not KeyCode::Grave or a string literal",
+    "Digit keys: KeyCode::Digit1 through KeyCode::Digit6 (not Numpad variants) — verify the locked decision maps to the correct KeyCode; also Shift+Digit1-9 for elf select requires keys.pressed(ShiftLeft) || keys.pressed(ShiftRight) guard before just_pressed(Digit N)",
+    "GatedInput and GatedCamera SystemSet ordering: systems in GatedInput must explicitly declare .in_set(GatedInput) and the set must run_if before any system that branches on overlay state — else a system could fire before OverlayState is updated by Esc press on the same frame",
+    "Tab cycle_selection already exists in selection.rs:42-79; the new GatedInput set must include it, but the existing .after(tick_and_extract) ordering must be preserved — check that adding the system set doesn't drop this .after() constraint",
+    "viewport_to_world_2d in picking.rs: Bevy 0.18 returns Result<Vec2, _> not Option<Vec2> — any plan pseudo-code using .ok() or .unwrap_or() must use the correct return type; confirm the spec acknowledges this"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Always reproducible; every real key press on a mechanical keyboard holds for 50-150ms, which spans multiple frames at 60fps",
+      "scenario": "Esc toggle uses keys.pressed(Escape) — pause menu opens and immediately closes within the same second-long keypress, making it impossible to reach Resume/Settings/Quit",
+      "severity": "P0"
+    },
+    {
+      "condition": "Guaranteed if the implementation follows v1's per-system early-return idiom instead of the M4 SystemSet pattern and misses even one system",
+      "scenario": "GatedInput SystemSet is configured with run_if but systems inside it omit .in_set(GatedInput) — they run unconditionally despite the set predicate, so Space unpauses while pause menu is open",
+      "severity": "P1"
+    },
+    {
+      "condition": "Always reproducible for right-handed typists",
+      "scenario": "Shift+1-9 elf select checks only keys.pressed(KeyCode::ShiftLeft) — right-shift users can never use keyboard elf cycling, a silent regression from the brainstorm's stated acceptance criteria",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Grep the plan and any pseudo-code for .pressed( and flag every one-shot action that should be .just_pressed(",
+    "Verify KeyCode::Backquote appears for backtick and KeyCode::Digit1..Digit6 appear for overlay keys — not string literals or Numpad variants",
+    "Confirm that every system added to GatedInput is listed with .in_set(GatedInput) in the app.configure_sets call, and that .after(tick_and_extract) is preserved for validate_selection and cycle_selection"
+  ],
+  "task_context": "Reviewing the Revel-14e locked-decisions document (post-review, 2026-05-04) and the existing er-renderer source (selection.rs, bridge.rs) to verify that the 9 locked keybinding decisions and 4 mechanical P0 fixes are stated with correct Bevy 0.18 API primitives and system-ordering semantics before implementation begins."
+}

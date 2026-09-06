@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-test-validation-loop covers post-patch evaluation",
+    "fd-localization-toolchain covers tool mechanics",
+    "fd-model-routing-calibration covers model selection"
+  ],
+  "decision_lens": "Findings that close the gap between 'I read the issue' and 'I know which file, class, and code path is responsible' rank highest.",
+  "focus": "How well Skaffen understands GitHub issue text and maps it to a localized fault hypothesis before writing any code",
+  "name": "fd-issue-comprehension",
+  "persona": "A cognitive systems researcher who has studied how top SWE-bench solvers structure their initial fault models. Evaluates the Orient phase as the primary leverage point.",
+  "review_areas": [
+    "Evaluate whether the Orient phase system prompt instructs the agent to produce a structured fault hypothesis before any tool calls",
+    "Check whether the bash tool's 10KB output cap causes truncation of diagnostic test failure output",
+    "Assess whether grep defaults to files_with_matches mode causing the agent to miss surrounding context",
+    "Evaluate whether OODARC allows Observe-Orient re-entry after a failed patch",
+    "Check whether issue text is injected verbatim or structured with reproduction steps separated",
+    "Assess whether quality history injection could surface localization strategy patterns"
+  ],
+  "success_hints": [
+    "Agent emits a fault hypothesis naming a specific symbol before first tool call",
+    "When first patch fails, agent revises hypothesis rather than incrementally modifying patch"
+  ],
+  "task_context": "Skaffen Go agent with OODARC phases in headless print mode for SWE-bench Lite. Goal: #1 (~60% baseline) through genuine improvements."
+}

@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-llm-pipeline-cost focuses on counting subprocess invocations",
+    "fd-synthesis-batching focuses on merging calls rather than caching",
+    "fd-output-token-budget focuses on output verbosity"
+  ],
+  "decision_lens": "Findings are ranked by their impact on the cache-hit ratio across a full book run. Changes that cluster calls temporally get high value; changes that serialize with delays risk cold-cache overhead.",
+  "focus": "Prompt caching behavior: which parts of each call get cached, when caches are cold vs warm, and whether session structure maximizes cache-read hits",
+  "name": "fd-cache-dynamics",
+  "persona": "A caching specialist who understands that claude -p creates a fresh process per call, meaning the 66K system prompt is cache-created on the first call and cache-read on subsequent calls within the same session window (~5 minutes).",
+  "review_areas": [
+    "Verify that the 18 framework synthesis calls fire concurrently so they land within the cache TTL window",
+    "Check whether outline and keyword calls are separated by significant latency from synthesis phase",
+    "Identify optimizations that reduce SYNTHESIS_CONCURRENCY — these risk spreading calls across cache TTL boundaries",
+    "Flag proposals that add intermediate calls between phases, delaying subsequent calls outside cache windows",
+    "Assess whether repair-retry calls fire inside or outside the cache window of their parent synthesis call",
+    "Evaluate the self-check call timing relative to the cache window"
+  ],
+  "success_hints": [
+    "Parallelizing synthesis calls within a single phase is the key cache optimization",
+    "For large books where chunk extraction runs 5+ minutes, cache will be cold at synthesis time regardless"
+  ],
+  "task_context": "The NTSMR pipeline uses claude -p as a subprocess backend. Each invocation carries ~$0.18 overhead from a 66K system prompt. Pipeline: outline (1) → keywords (1) → chunk extractions (N) → 18 framework syntheses → self-check (1), plus repair retries."
+}

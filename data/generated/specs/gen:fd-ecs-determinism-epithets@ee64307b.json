@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-save-schema-stability covers serialization format and schema evolution — this agent covers runtime determinism and tick-ordering, not on-disk format",
+    "fd-event-reactor-completeness covers whether trigger hooks exist — this agent covers whether the system is correct given those hooks",
+    "fd-salience-decay-tuning covers whether the +10/-0.5 numbers are good — this agent covers whether the arithmetic is safe and deterministic"
+  ],
+  "decision_lens": "The brainstorm adopts linear salience decay (-0.5/day) and a 500-tick streak counter for the Patient — the trade-off is simplicity vs. tick-ordering fragility. If the decay tick-scan and the epithet-award tick-scan run in different orders across reloads, the Patient could fire one tick early or late, and salience could differ by 0.5 on first load.",
+  "focus": "hecs/bevy ECS determinism and tick-order sensitivity for the epithet system, with special attention to the Patient streak and save/load equivalence of salience floats",
+  "name": "fd-ecs-determinism-epithets",
+  "persona": "Apply the perspective of a Rust ECS correctness engineer who has shipped production hecs-based games — they care about query-ordering determinism, collect-then-mutate discipline, and round-trip save equivalence; they measure by asking 'does a reload at tick N produce identical state to uninterrupted run at tick N?'; they flag any float accumulation that diverges across platforms or any system that reads-then-mutates in the same query pass.",
+  "review_areas": [
+    "Verify that PatientStreak accumulation (tick-scan every tick) and the epithet-award check use the same pipeline slot — if streak is incremented in one system and checked in another downstream, a mid-session reload could replay tick N twice or skip it, awarding the epithet one tick off",
+    "Assess whether the salience f32 -0.5/day decay is applied before or after the epithet-earn +10.0 on the same tick — if both fire in the same tick and order is not pinned, reloads could produce s=9.5 vs s=10.5 for a newly earned lexeme",
+    "Check that the ColonyLexicon HashMap<LexemeId, Lexeme> iteration order is deterministic across platforms when the daily decay scan applies -0.5 to all entries — HashMap randomized iteration is harmless for independent fields but flags future bugs if decay ever has side-effects keyed on iteration order",
+    "Evaluate whether the 'the Quiet' elder-stage check emits EpithetEarned in the same tick as lifecycle::stage_transition — if lifecycle.rs runs after epithets.rs in world.rs, the elder check fires one tick late; confirm the intended pipeline ordering",
+    "Review whether the 500-tick Patient streak should be stored on Epithets inline vs. a separate PatientStreak component — inlining saves a component slot but makes save-schema evolution harder if the threshold changes; a separate component is easier to remove after award",
+    "Confirm that salience.partial_cmp().unwrap() in the sort_by prestige display is safe — if two lexemes have NaN salience (possible if +10.0 init or -0.5 decay produces NaN under exotic float conditions), the sort is undefined behavior in safe Rust"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No idempotency guard on epithet-earn: earned: Vec<EarnedEpithet> is not checked for duplicates before push",
+      "scenario": "PatientStreak is incremented in epithets.rs tick-scan and the 500-tick threshold check is in the same pass, but a save/load causes the tick counter to replay, firing the Patient epithet a second time and inserting a duplicate LexemeId into ColonyLexicon",
+      "severity": "P0"
+    },
+    {
+      "condition": "No canonical rounding applied after deserialization; test suite only runs on one platform",
+      "scenario": "Salience float is serialized as f32 in serde, deserialized on a platform with different FPU rounding, and -0.5/day accumulated over 200 days produces a value that differs by 1 ULP from the original run — prestige sort order flips for two co-earned epithets",
+      "severity": "P1"
+    },
+    {
+      "condition": "Award logic is event-gated rather than idempotently component-checkable on reload",
+      "scenario": "The 'the Quiet' elder-stage check is placed in epithets.rs which runs late-pipeline, but lifecycle.rs emits stage-transition events earlier — on the elder-transition tick, epithets.rs sees the event and awards the Quiet, but on reload the stage transition is reconstructed from component state rather than event, so the award check runs without seeing the event",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "A save at tick 499 of the Patient streak, reload, then one more tick correctly awards the epithet exactly once",
+    "Salience values at day 100 match byte-for-byte between two runs with identical seeds",
+    "No epithet is awarded twice to the same elf across any save/load cycle in tests"
+  ],
+  "task_context": "The brainstorm introduces systems/epithets.rs as a late-pipeline reactor handling both event-driven triggers and tick-scan stateful passes (Patient streak, the Quiet elder check), plus a per-day ColonyLexicon decay scan. This agent reviews ECS correctness, tick-order pinning, and float determinism across save/load cycles."
+}

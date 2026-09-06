@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-delivery-guarantee-model covers Postgres-level message loss",
+    "fd-ipc-transport-design covers Rust↔Node transport options",
+    "fd-process-boundary-collapse covers migration implications"
+  ],
+  "decision_lens": "Any output path where partial marker or truncation silently produces wrong ContainerOutput is a P0 defect. Latency secondary to correctness.",
+  "focus": "Reviews container stdout sentinel marker protocol and streaming output path for correctness, truncation risks, and latency",
+  "name": "fd-container-output-extraction",
+  "persona": "Infrastructure engineer who has debugged subprocess output parsing, backpressure in async stdout readers, and Docker stdout buffering.",
+  "review_areas": [
+    "Audit extract_output_markers for multi-buffer marker boundary handling",
+    "Review BufReader loop for long-line handling and MAX_OUTPUT_SIZE interaction",
+    "Examine streaming callback ordering for partial/out-of-order events",
+    "Evaluate session ID race with timeout watchdog",
+    "Assess container-internal IPC input latency compounding",
+    "Identify Docker stdout buffer behavior on container crash"
+  ],
+  "success_hints": [
+    "Marker boundaries handled without silent drops or duplicates",
+    "Streaming path and final RunResult agree on session ID",
+    "Container IPC input latency bounded and measurable"
+  ],
+  "task_context": "Intercom dual-process (Node+Rust) message delivery pipeline redesign — replacing polling and fire-and-forget HTTP with reliable event-driven IPC."
+}

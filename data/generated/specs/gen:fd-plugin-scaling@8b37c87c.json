@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-session-startup-latency covers single-session latency",
+    "fd-context-loading-architecture covers token budget",
+    "fd-competitive-workflow-gaps covers missing features"
+  ],
+  "decision_lens": "Prioritizes issues visible in the current codebase (53 plugins, 48 commands, 10+ concurrent sessions) and issues that become blockers within 2x growth.",
+  "focus": "Performance and correctness as commands, skills, companions, and concurrent sessions scale up",
+  "name": "fd-plugin-scaling",
+  "persona": "A reliability engineer who understands how O(n) startup scans, in-memory caches with no eviction, and global temp file namespaces degrade under load.",
+  "review_areas": [
+    "Companion discovery: lib.sh find traversal across plugins/cache/ with 7 OR'd patterns — measure scaling as plugins grow from 53",
+    "/tmp namespace collisions: multiple sentinel files use flat namespaces — with parallel interserve sessions, assess collision risk and CLAUDE_SESSION_ID discriminator usage",
+    "routing.yaml parsing: lib-routing.sh parses into bash arrays guarded by _ROUTING_LOADED per-process — Codex workers each incur full parse",
+    "help command: static markdown — as commands grow beyond 48, assess table degradation and sync validation",
+    "agent-rig.json (13.3KB): audit for stale entries, duplication with routing.yaml, and whether size scales with command count",
+    "skills/ directory: assess whether any skill loading at session start is O(skills) rather than lazy"
+  ],
+  "success_hints": [
+    "Concrete upper bound on companion discovery time (N plugins → M ms)",
+    "All /tmp sentinels verified to use CLAUDE_SESSION_ID as discriminator",
+    "help.md has automated sync check or drift risk is flagged"
+  ],
+  "task_context": "Clavain manages 48 commands, 18 skills, 6 agents, 10 hooks, and 53 Interverse companions. Interserve mode spawns concurrent Codex sessions each running their own Clavain hooks."
+}

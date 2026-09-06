@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-unsafe-ffi-correctness covers the runtime correctness of the objc2 bindings, not their published API shape",
+    "fd-bevy-rendergraph-lifecycle covers the Bevy plugin internals, not the public plugin surface for external consumers",
+    "fd-wgpu-metal-interop covers the internal interop correctness, not the feature-gating and dependency surface"
+  ],
+  "decision_lens": "Findings that would block publication (unsound public API, broken feature flags, missing platform guards) are highest priority. Ergonomic issues that affect adoption but not correctness are medium priority.",
+  "focus": "Reviews the public API surface and crate structure for open-source publication readiness of metalfx-rs and bevy_metalfx",
+  "name": "fd-crate-extraction-api",
+  "persona": "A Rust library author and crates.io maintainer who has shipped graphics crates and values correct feature-gating, semver stability, and minimal dependency footprints. Evaluates whether the crates will be usable, discoverable, and maintainable outside the shadow-work project.",
+  "review_areas": [
+    "Verify that metalfx-rs has zero Bevy/wgpu dependencies as stated — check Cargo.toml deps list and confirm there are no transitive dependencies that would pull in heavy crates; confirm the crate compiles with only objc2 + objc2-foundation",
+    "Check that both crates have correct platform gating — all MetalFX code must be behind #[cfg(target_os = \"macos\")] (and ideally target_arch = \"aarch64\" or a runtime check) so the crates compile on Linux/Windows for CI without errors",
+    "Review the public API of metalfx-rs for unsound patterns that would be visible to external users — verify that all methods marked unsafe impl have a corresponding Safety doc comment, and that any method taking a raw *mut AnyObject is either unexposed or wrapped in a safe abstraction",
+    "Audit bevy_metalfx's Cargo.toml feature flags — the Metal interop requires wgpu's metal feature; confirm this is declared as a required or optional feature and that the crate fails gracefully at compile time (not runtime) on non-Metal backends",
+    "Check that the MetalFxPlugin::default() configuration (render_scale=0.5, mode=Spatial) is appropriate as a published default — render_scale=0.5 is aggressive; consider whether 0.75 is a safer default for a general-purpose crate",
+    "Verify that the crate separation is clean enough that bevy_metalfx does not re-export metalfx-rs internals in ways that would create version coupling — users should be able to use metalfx-rs independently without needing a matching bevy_metalfx version"
+  ],
+  "success_hints": [
+    "metalfx-rs compiles on x86_64-unknown-linux-gnu with no errors (only macOS-specific code is gated)",
+    "All public unsafe API in metalfx-rs has Safety documentation",
+    "bevy_metalfx fails to compile with a clear error (not a runtime panic) when the wgpu metal feature is absent"
+  ],
+  "task_context": "This design integrates Apple's MetalFX ML upscaling into a Bevy render pipeline via raw objc2 bindings (metalfx-rs) and wgpu hal::metal interop (bevy_metalfx). The goal is half-resolution rendering upscaled to full res for ~2x FPS improvement on Apple Silicon."
+}

@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "fd-datamodel-format-durability covers the schema's internal consistency and its durability as a second (TUI) reader arrives, not whether a human can workably execute the confirm step",
+    "fd-infoarch-ceremony-risk covers whether the whole card-and-confirm apparatus is the right instrument for the estate's overwhelm problem at all, not the ergonomics of the specific confirm interaction"
+  ],
+  "decision_lens": "Prioritizes findings about whether the confirm step, as specified, is something a human will actually do accurately and sustainably at the stated scale (82 projects, later 'on first touch' perpetually), versus whether it merely looks confirmable in a single demo run. Weighs measurement-design flaws (n=1, no baseline, no comparison condition) as seriously as workflow flaws, since the goal explicitly treats 'minutes and what it changed' as the artifact that will justify ruling 12's 82x commitment.",
+  "focus": "Review the confirm step — an agent-drafted card ratified by a human — as a repeated human workflow, checking whether the goal's plan to measure its cost once on unc-rancher can honestly support ruling 12's commitment to performing it 82 times",
+  "name": "fd-hci-ratification-cost",
+  "persona": "Apply the perspective of a human-in-the-loop workflow researcher who studies the ergonomics of repeated ratification steps — PR approval, editorial sign-off, content moderation — and who is skeptical by training of extrapolating a per-unit cost or a workflow's tolerability from a single pilot instance.",
+  "review_areas": [
+    "the goal's DONE WHEN treats a single confirm on unc-rancher as producing 'the confirm-step cost' that gets 'written into the brainstorm as rulings' — assess whether one measurement, on the one repo picked partly because it is also funding-page sales copy (unusually strong incentive, and one of the richer rows in the five-repo table with 4/6 drafted fields), can honestly generalize to a jawnomicon-like project with a thin card or to the worst-documented tail ruling 11 puts on top",
+    "success drafted 0/5 across the measurement means unc-rancher's confirm step is not 'review and approve a drafted field' for success — it is 'originate a metric from nothing,' a materially different and more expensive cognitive task than confirming the persona/pain/cuj fields that measured drafted; check whether the goal's cost-measurement plan separates the cost of ratifying pre-drafted fields from the cost of authoring success (and guardrail, if declined) from scratch, since collapsing them into one number would misrepresent what ruling 12 actually commits 82 repetitions of",
+    "card-check.py's R3 refuses status: confirmed while any field remains drafted, forcing all six slots to reach declined or confirmed in one sitting — evaluate whether this all-or-nothing gate risks the classic long-form-approval failure mode (reviewer fatigues partway through and rubber-stamps the remaining fields to clear the gate) rather than genuinely adjudicating each one, and whether the drafter procedure or format doc guards against that at all",
+    "card-drafter.md's 'How to decline well' asks the confirming human to also write a needs line that 'is the question mk answers' for anything declined — assess whether confirming a card is actually two nested human tasks (ratify what's drafted, and originate new prose for anything declined) and whether the proposal's cost measurement is scoped to capture both or only the faster of the two",
+    "ruling 12's own rationale ('a signal that fires on 100% of rows carries no information... adoption to be gradual') depends on confirm happening repeatedly, spread out over time, on first touch — assess whether a single measured confirm-episode on unc-rancher, performed as a focused review exercise for this goal, can speak to the sustainability of that scattered, interrupt-driven cadence, or only to the cost of one seated session",
+    "guard-plan-needs-card.sh's override path (AUTARCH_CARD_OVERRIDE=\"reason\") is a zero-friction escape hatch available to any agent hitting the gate — evaluate whether the existence of a working override undermines the incentive to ever complete the more expensive confirm step being measured, i.e., whether the cost measurement risks measuring a step agents will in practice route around"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Only surfaces once mk or an agent tries to confirm a thin card (e.g., jawnomicon-shaped) and the minutes run far past what unc-rancher's number suggested.",
+      "scenario": "Ruling 12's 82x commitment gets re-affirmed on the strength of one unc-rancher confirm, but the measured cost is dominated by originating a success metric from nothing (the 0/5 field) — a cost that will recur worse, not better, on thinner projects with no CUJ or PRD to draft from at all — so the estate commits to a workflow whose true cost was never actually measured.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Confirmed only after several more confirms happen in normal workflow and the pattern of actual time spent diverges from the pilot's number.",
+      "scenario": "The single confirm session is treated as representative, but because it is a focused review exercise performed to satisfy the goal's DONE WHEN, it does not exhibit the fatigue or interruption pattern of a real 'on first touch' confirm happening between other tasks — the recorded minutes understate real-world cost.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Hard to detect from outside — would require comparing confirm-time-per-field within the single session, which the goal's plan does not obviously call for.",
+      "scenario": "R3's all-or-nothing gate causes the confirming human to rubber-stamp a low-confidence field near the end of the session just to clear status: confirmed, and that field is silently treated as equally trustworthy as one genuinely reviewed.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "A reviewer who explicitly separates 'confirming a drafted field' from 'originating a declined field from nothing' as different-cost operations, rather than treating the confirm step as one homogeneous action",
+    "A reviewer who names the specific extrapolation risk (n=1, on the best-resourced of the five measured repos, chosen partly for external stakes) rather than accepting the single-instance measurement as sufficient grounding for an 82x commitment",
+    "A reviewer who checks whether the override mechanism and the confirm-cost measurement are in tension — a cheap escape hatch sitting next to an expensive, being-measured mandatory step"
+  ],
+  "task_context": "Review docs/proposals/2026-08-13-goal-card-loop-phase2.md before any of it runs. Is the sequencing right — confirm one card, then TUI? Is unc-rancher the right first subject? Does the six-field format survive a real human confirming it, given success drafted 0/5? Are the DONE WHEN clauses checkable, and does any encode a false assumption? What would be expensive to discover only after the TUI reads the format? Attack the premise too: is a per-project why-card the right instrument for overwhelm across 82 projects, or ceremony added to an estate that already has 2270 plans nobody reads?"
+}

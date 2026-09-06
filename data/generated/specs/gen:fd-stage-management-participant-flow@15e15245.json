@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Focuses on live-session participant coordination; fd-trading-floor handles multi-stream attention; fd-hotel-operations handles dual-audience wayfinding; fd-newsroom handles completion signals.",
+  "decision_lens": "Latecomers to a live event can't pause the show — they must self-orient from environmental cues. The environment should tell you what's happening without anyone stopping to explain.",
+  "distance_rationale": "Stage management solves real-time multi-participant coordination with role-differentiated views in a live environment where you can't pause — parallel to multiplayer collaboration but in physical performance.",
+  "expected_isomorphisms": "The preset (join-state summary) maps to mid-session orientation. Cue vocabulary (standby/go/complete) maps to proposal status. The stage manager's calling script maps to sma's agent orchestration view.",
+  "focus": "How participants join, orient, and self-coordinate within a live session — drawn from theatrical stage management.",
+  "name": "fd-stage-management-participant-flow",
+  "persona": "A production stage manager with 15 years of live theater experience, expert in calling shows, managing latecomers, and coordinating multi-department cue sequences.",
+  "review_areas": [
+    "Is there a 'preset' — a join-state summary that tells latecomers what's in progress when they arrive?",
+    "Do participants have role-distinct presence indicators (like crew headsets vs audience seats)?",
+    "Is proposal status communicated with a clear vocabulary (standby / go / complete) rather than ambiguous states?",
+    "Can the 'stage manager' (sma) see a different view than the 'audience' (Ryan) without splitting the interface?",
+    "Is there a 'half hour call' equivalent — a signal that a session is about to start or that review is needed?",
+    "How does the system handle the equivalent of a missed cue — an agent proposal that nobody reviews?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No join-state briefing for mid-session arrivals",
+      "scenario": "A user joins mid-session and has no preset — they see raw state with no context for what's in progress",
+      "severity": "P1"
+    },
+    {
+      "condition": "Status vocabulary not action-oriented",
+      "scenario": "Proposal status uses generic labels ('pending') instead of action-oriented vocabulary ('awaiting your review')",
+      "severity": "P2"
+    },
+    {
+      "condition": "No missed-cue escalation signal",
+      "scenario": "Missed cues (unreviewed proposals) accumulate silently with no escalation",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Theatrical production stage management",
+  "success_hints": "Joining mid-session feels natural — you get a quick preset, you see what's active, and you know what needs your attention. The vocabulary is action-oriented, not state-descriptive.",
+  "task_context": "Review the Garden Salon session model through the lens of theatrical stage management — do participants orient, coordinate, and respond to cues effectively?"
+}

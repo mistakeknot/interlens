@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "Does not cover raster or coordinate correctness — that is fd-geospatial-raster-correctness.",
+    "Does not cover GraphML serialization types — that is fd-graph-data-engineering.",
+    "Does not cover routing formula consumer contract — that is fd-routing-contract."
+  ],
+  "decision_lens": "Where does the brainstorm's idempotency, error handling, or CLI design create risks for automated or repeated execution?",
+  "focus": "Python script/CLI engineering: idempotency semantics, --force race conditions, exit codes, argparse defaults, error message quality, logging conventions",
+  "name": "fd-cli-engineering",
+  "persona": "Apply the perspective of a CLI reliability engineer who has debugged idempotency failures in data pipelines — they care about whether re-running the script produces the same output and never corrupts existing state, measure correctness by whether a CI job can safely re-run sample_edge_shadow.py on every push without side effects, and flag anywhere that mtime-based idempotency, argparse default inference, or exit code semantics leave ambiguity for automation.",
+  "review_areas": [
+    "The brainstorm specifies idempotency 'via mtime check, matching build_shadow.py' but does not specify what is compared: output mtime vs input graph mtime, vs input raster mtime, vs both; if the graph is updated but the raster is unchanged, an mtime check against the raster alone would skip regeneration and leave a stale shaded graph.",
+    "The `--force` flag bypasses the mtime check, but the brainstorm does not specify whether it overwrites the output file atomically (write to temp then rename) or in-place; an interrupted --force run could produce a partial GraphML that loads without error but has missing edge attributes.",
+    "The brainstorm specifies `--out` as an argparse argument but also specifies an output filename convention (`streets_dtla_shaded_<timestamp>.graphml`) — it is not specified whether `--out` defaults to the convention-derived path or requires explicit specification; if --out is required, the idempotency check cannot be automatic (the caller must supply the same path each time).",
+    "Exit code 2 is specified for 'input/CRS error' but the brainstorm does not define exit code behavior for: missing input files, unreadable raster (corrupt GeoTIFF), NetworkX load failure, or disk full on write; each of these should exit 2 (not 1 or unhandled exception) for CI to distinguish user error from infrastructure failure.",
+    "The `print()` to stdout / errors to stderr logging convention is described as 'matches build_shadow.py' — but the brainstorm does not specify whether the --report flag's one-line histogram goes to stdout (alongside normal progress messages, making them hard to parse) or to a dedicated file, and whether it is machine-readable (JSON/TSV) or human-readable."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If idempotency checks only the raster mtime and the OSM graph is regenerated (e.g., from a new OSMnx pull), the shaded graph retains sun_fraction values from the old edge set — new edges get no sun_fraction at all, and deleted edges remain in the output, silently corrupting the routing graph.",
+      "scenario": "Stale shaded graph from single-input mtime check",
+      "severity": "P1"
+    },
+    {
+      "condition": "If ox.save_graphml writes to the output path directly and the process is killed mid-write, the output GraphML is truncated XML — NetworkX will raise a parse error on next load, blocking Phase 1.6 without a clear recovery path.",
+      "scenario": "Partial GraphML from interrupted --force write",
+      "severity": "P1"
+    },
+    {
+      "condition": "If --out has no default and is required, a CI script that calls sample_edge_shadow.py without --out fails with argparse's generic 'required' error rather than a domain-specific message, and the idempotency logic cannot locate the expected output path automatically.",
+      "scenario": "--out defaulting behavior undocumented",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Specify the mtime comparison as: output mtime > max(graph mtime, raster mtime) — both inputs must be older than the output for the skip to be valid.",
+    "Specify atomic write: write to `<out>.tmp` and `os.replace()` to final path, matching the pattern used in build_shadow.py if applicable.",
+    "Document the --out default explicitly: either require it (and document why) or derive it from --shadow filename per the naming convention and document the derivation rule."
+  ],
+  "task_context": "Reviewing the brainstorm's CLI and idempotency design for reliability in automated and repeated execution contexts."
+}

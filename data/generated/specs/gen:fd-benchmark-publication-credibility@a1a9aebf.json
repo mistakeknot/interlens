@@ -1,0 +1,35 @@
+{
+  "anti_overlap": "fd-pareto-frontier-scoring covers scoring design; fd-alignment-eval-novelty-claim covers construct novelty; this agent covers publication-layer credibility specifically.",
+  "decision_lens": "Does the publication meet the community's bars for methodology transparency, reproducibility, and intellectual honesty?",
+  "focus": "Assesses whether the v0.1 publication package meets LessWrong/EA Forum/GitHub credibility bars: reproducibility artifact, comparative-framing risk, license + terms-of-service compatibility, and the 'try it yourself' accessibility claim.",
+  "name": "fd-benchmark-publication-credibility",
+  "persona": "LessWrong alignment eval publisher who has shipped 2-3 public benchmarks; knows which critiques burn reputation and which roll off.",
+  "review_areas": [
+    "Is the GitHub repo actually one-command reproducible on a clean machine, or does 'reproducible' mean 'requires the author's environment'?",
+    "Does the license (to be decided) permit the uses the brainstorm promises (read/run/republish traces)? Model providers' terms may prohibit publishing raw completions.",
+    "Is the cost envelope (~$40 pilot, full-run TBD) accurate and accessible to readers who want to reproduce?",
+    "Does the blog's comparative framing risk violating OpenAI/xAI/Google terms (competitor benchmarking with adversarial framing)?",
+    "Is solo-dev credibility framed as a feature or a weakness? LessWrong respects transparency; obscuring solo-dev status backfires.",
+    "Does the 'Everybody wants to run the world' opener set the right register, or does it signal marketing rather than methodology?",
+    "Is there a pre-registration of the kill gate before the pilot runs? Without pre-registration, 'flat frontier → redesign' looks like p-hacking."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Trace tarball can't ship; reproducibility claim collapses",
+      "scenario": "Model provider terms prohibit publishing raw completions from their API",
+      "severity": "P0"
+    },
+    {
+      "condition": "'Try it yourself' claim is aspirational; community trust degrades",
+      "scenario": "Readers can't reproduce on a clean machine within 1 hour of first trying",
+      "severity": "P1"
+    },
+    {
+      "condition": "Post-hoc pivot looks like selective publication",
+      "scenario": "Kill gate (flat frontier → redesign) not pre-registered publicly before pilot",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": "Publish the protocol + kill gate as a pre-registered artifact (forum post or OSF page) BEFORE the pilot runs. Link from v0.1 announcement. Register the gate publicly.",
+  "task_context": "The brainstorm lists LessWrong as primary publication venue but doesn't engage with the community's specific credibility norms (pre-registration, adversarial reproduction, license honesty)."
+}

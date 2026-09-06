@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Do not evaluate genre fidelity to DF/Qud, simulation-regime naming (settle vs. deferred-cascade), or chronicle delivery UX — that belongs to fd-worldgen-history-simulation-depth.",
+    "Do not evaluate narrative texture, the simulate-vs-author line, or lore/flavor-text ownership — that belongs to fd-procgen-narrative-simulate-author.",
+    "Stay on Souls-model scope, determinism/replay semantics, regeneration durability, and the storage dimension of the cost curve."
+  ],
+  "decision_lens": "In an event-sourced system, every 'is X a Soul' question is a determinism and storage-growth commitment, not a modeling preference — it decides what gets replayed, what gets versioned, and what a regeneration event is allowed to discard. A goal that leaves Soul-scope, determinism semantics, and log-growth unaddressed cannot be tested by cargo test in any way that actually verifies the properties DONE WHEN claims.",
+  "focus": "Event-sourced simulation architecture for the Souls model — determinism boundaries across regenerated strata, replay/cascade-invalidation semantics, and the storage/log-growth dimension of the cost curve.",
+  "name": "fd-eventsourcing-strata-regen-contract",
+  "persona": "Apply the perspective of a distributed-systems and event-sourcing architect experienced in CQRS-style aggregate replay, deterministic simulation engines, and designing rebuild/regeneration contracts for layered systems where upper strata derive from and must survive changes to lower-stratum state.",
+  "review_areas": [
+    "GATE poses 'are celestial bodies Souls... or plain data' as open, but DONE WHEN's Reynolds-ruins bullet already commits to an answer in effect — 'evidenced by the event log itself' for a fallen civ's ruins at 'a real location' implies the location-bearing entity (the planet/site) must itself carry or be addressable through an event log, which is a Souls-model commitment GATE claims is still undecided. The goal is internally inconsistent about how settled this fork already is.",
+    "The determinism claim in DONE WHEN ('generates deterministically from the world seed') is unqualified for a stratified, regenerable system: determinism must be scoped per-stratum-boundary (same seed + same lower strata ⇒ bit-identical upper strata? or same seed alone, tolerating re-divergence above any regenerated stratum?). Without this, 'cargo test --workspace green' cannot encode a meaningful determinism test — a test asserting seed-in/history-out equality would be either untestable (if regeneration is expected to diverge) or wrong (if it isn't).",
+    "DONE WHEN's cost curve is scoped as 'systems × civs × members × centuries' — a compute/CPU-shaped formula — but for an event-sourced model the dominant scaling wall is typically event-log volume and replay time as history accumulates, not raw compute per tick. Neither GATE nor DONE WHEN asks about storage growth or replay cost, so the probe could report a clean compute-cost curve while silently building an unreplayable, unbounded event log — the 'affordability envelope' referenced is not tied to a specific resource dimension.",
+    "GATE's 'worlds disposable until played' regeneration stance is not reconciled with the Reynolds-ruins DONE WHEN requirement: if a fallen civilization's ruins are generated but the player never visits before a lower stratum regenerates, the goal never specifies whether that civ's coordinates/event log survive the regeneration or are discarded as 'unplayed.' This is exactly the kind of stratum-boundary durability question event-sourced layered systems get wrong by default, in the direction of silently losing history.",
+    "Beads filed for 'strata deliberately stubbed' (DONE WHEN) have no requirement that the stub interfaces be schema-versioned; in an event-sourced model, later deepening a stubbed stratum (e.g., giving species stubs real Dixon-grade evolution) means either replaying old event logs against a new schema or breaking every already-generated world — OUTCOME's 'interfaces designed for later deepening' language doesn't commit to which, and this is the standard failure mode of unversioned event schemas in long-lived event-sourced systems."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If the brainstorm mk holds treats 'are celestial bodies Souls' as genuinely open per the GATE wording, but engineering has already built the Reynolds-ruins path assuming planets carry event logs (per DONE WHEN's literal requirement), the brainstorm ruling could contradict already-built architecture, forcing a rework the goal's sequencing ('rulings... before implementation starts') was supposed to prevent.",
+      "scenario": "Souls-scope answered implicitly, then re-litigated in the brainstorm",
+      "severity": "P0"
+    },
+    {
+      "condition": "If cargo test encodes seed-to-full-history determinism without the goal having scoped what determinism means across a regenerated stratum, the test either fails during legitimate future-stratum deepening (false positive) or passes while masking real nondeterminism introduced by concurrent derivation (false negative).",
+      "scenario": "determinism test asserts the wrong invariant",
+      "severity": "P1"
+    },
+    {
+      "condition": "If the probe reports systems×civs×members×centuries against wall-clock time only, a slice-one run could look affordable while the underlying event store grows unboundedly per century simulated, and the next engine bottleneck (storage, not compute) goes unmeasured — directly contradicting the goal's own 'measured rather than guessed' claim.",
+      "scenario": "cost curve blind to log growth",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "Check whether the goal's Reynolds-ruins DONE WHEN bullet is consistent with GATE treating celestial-bodies-as-Souls as still open, and flag the inconsistency if the two disagree.",
+    "Look for an explicit definition of determinism scoped to stratum-regeneration boundaries, not just 'generates deterministically from the seed'.",
+    "Verify the cost-curve formula in DONE WHEN accounts for event-log/storage growth, not only compute across systems×civs×members×centuries.",
+    "Check whether 'worlds disposable until played' is reconciled with the durability requirement implied by queryable ruins.",
+    "Flag whether stubbed-stratum interfaces are required to be schema-versioned so later deepening doesn't break already-generated event logs."
+  ],
+  "task_context": "Domain framing: this review applies event-sourcing and layered-system architecture expertise — CQRS-style aggregate replay, determinism boundaries, and regeneration/rebuild contracts — to a draft goal built on an event-sourced 'Souls' entity model. Stress-test this draft goal (stratified worldgen at DF/Qud depth for Mind State, slice one on the palettice engine) before ratification: find missing forks, scope traps, wrong assumptions, and anything the GATE/DONE WHEN/OUT structure gets wrong."
+}

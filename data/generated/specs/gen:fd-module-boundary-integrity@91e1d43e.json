@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-plugin-structure-compliance covers plugin.json and file layout correctness",
+    "fd-doc-hierarchy-restructure covers doc semantic structure, not plugin ownership",
+    "fd-graceful-degradation covers runtime resilience, not architectural domain separation"
+  ],
+  "decision_lens": "Raises concerns when interlore is proposed to do something that interdoc or interwatch already owns. Critical if it creates second ownership of a domain.",
+  "focus": "Evaluates whether interlore's proposed scope respects the cybernetic unix principle and avoids colonizing interdoc and interwatch domains",
+  "name": "fd-module-boundary-integrity",
+  "persona": "A systems architect who thinks in terms of composable unix tools and draws hard lines between observation, analysis, and generation responsibilities. Knows the Sylveste philosophy's 'composition over capability' principle deeply.",
+  "review_areas": [
+    "Does interlore read artifacts directly or delegate discovery to interwatch — is the boundary explicit?",
+    "Is PHILOSOPHY.md update proposed as interlore writing directly or producing proposals for human/interdoc to apply?",
+    "Does interlore duplicate interwatch's watchables registry and signal detection pipeline?",
+    "Does the PRD define a clean input contract (receives artifact paths vs crawls filesystem)?",
+    "Does interlore's output have a defined schema downstream consumers can use without importing internals?",
+    "Are sprint hook integrations scoped to emitting events, or does interlore reach into sprint state management?"
+  ],
+  "success_hints": [
+    "interlore should own the pattern-detection lens, not the artifact-fetching pipeline.",
+    "Output schema for pattern proposals should be explicit — downstream plugins cannot depend on prose output.",
+    "The 'wired or it doesn't exist' principle means interlore must have a defined call-site."
+  ],
+  "task_context": "interlore is a new Claude Code plugin in the Sylveste Interverse ecosystem that detects latent design patterns across decision artifacts and proposes updates to PHILOSOPHY.md."
+}

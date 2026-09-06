@@ -1,0 +1,22 @@
+{
+  "anti_overlap": [
+    "fd-genre-selection-probability covers internal probability logic",
+    "fd-name-pool-coverage covers pool data"
+  ],
+  "decision_lens": "Flags first any parameter that silently defaults to wrong value, then any parameter sourced from wrong entity.",
+  "focus": "Parameter extraction from ECS components and handoff from compose_system to generate_name",
+  "name": "fd-compose-system-wiring",
+  "persona": "A Rust ECS integration specialist who audits call sites for type mismatches, stale data reads, and wrong-entity queries.",
+  "review_areas": [
+    "Verify mood_net from composing elf's current Mood component",
+    "Confirm music_skill from elf's Skills.music with correct tier thresholds",
+    "Check is_night sourced from world tick, not cached",
+    "Verify AestheticPosition is elf's current position not composition snapshot",
+    "Confirm Composition fully populated before storage"
+  ],
+  "success_hints": [
+    "Skill tier thresholds match between compose_system and pool selection",
+    "is_night sourced from single authoritative location"
+  ],
+  "task_context": "Procedural art naming system for elven colony sim: mood-ranged prefixes (8 pools), genre families (3: Classical/Anachronistic/Nature), skill-tiered base types (4 tiers), inspiration-source suffixes (5 pools)."
+}

@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "Focuses on glyph-to-geometry conversion and font rendering techniques — not spatial tile engine logic (fd-isometric-tile-engine-architecture), ASCII art vocabulary choices (fd-ascii-art-game-aesthetics), GPU pipeline and WASM constraints (fd-wgpu-wasm-render-pipeline), or procedural content generation (fd-procgen-ascii-art-pipeline)",
+  "decision_lens": "Can ASCII characters be converted to geometric data (lyon paths, SDF textures, tessellated meshes) efficiently enough for real-time rendering? Does the glyph-as-geometry approach maintain character readability at various scales and rotation angles, or does it introduce artifacts that destroy legibility?",
+  "focus": "Font rendering and glyph-as-geometry: using fontdue, lyon, and SDF techniques to convert ASCII characters into geometric primitives (tessellated polygons, signed distance fields) that can be rendered as spatial objects rather than screen-aligned text",
+  "name": "fd-glyph-geometry-rasterization",
+  "persona": "Font rendering engineer who has worked on both GPU text rasterization (like slug) and vector tessellation (like pathfinder/lyon); understands the tradeoffs between SDF text rendering, CPU outline tessellation, and bitmap atlas approaches for game use cases. Has implemented glyph-to-polygon pipelines for creative coding projects.",
+  "review_areas": [
+    "fontdue vs ab_glyph vs cosmic-text: fontdue gives raw rasterized bitmaps (fast, simple); ab_glyph provides outline access for tessellation; cosmic-text handles complex text layout — which level of font API does the architecture actually need for character-as-polygon rendering?",
+    "Lyon tessellation pipeline: converting font outlines (cubic beziers from TTF/OTF) into triangle meshes via lyon's tessellator — does the triangle count per glyph stay reasonable (50-200 triangles) or do complex characters (Chinese, decorative) explode into thousands?",
+    "Signed Distance Field approach: pre-computing SDF textures for the ASCII character set enables resolution-independent rendering with correct antialiasing at any scale — but SDF struggles with sharp corners and thin strokes; does the chosen SDF resolution (typically 32x32 or 64x64) preserve the distinguishing features of monospace ASCII characters?",
+    "Glyph caching strategy: tessellating or rasterizing glyphs every frame is prohibitive; the architecture needs a glyph cache keyed by (character, font_size, style) — how large is this cache for the full ASCII printable set (95 characters) × the needed size variants?",
+    "Perspective and rotation tolerance: a key question for ASCII-as-polygon is whether characters remain readable when rendered on isometric tile surfaces (effectively a non-trivial affine transform) — does the approach produce characters that survive perspective projection or do stroke weights become uneven?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No triangle budget per glyph; font choice includes complex curves without simplification pass",
+      "scenario": "Lyon tessellation of decorative font outlines produces 2000+ triangles per glyph, causing the vertex buffer for a screen full of ASCII tiles to exceed GPU memory limits and drop to <5fps",
+      "severity": "P1"
+    },
+    {
+      "condition": "SDF resolution chosen for storage efficiency without validating against a character confusion matrix",
+      "scenario": "SDF-rendered characters at 32x32 resolution lose the distinction between similar characters (I/l/1, O/0, rn/m) because the SDF grid is too coarse to capture the distinguishing pixels",
+      "severity": "P2"
+    },
+    {
+      "condition": "Single-resolution bitmap atlas with no scale-independent rendering path",
+      "scenario": "Pre-rasterized glyph atlas approach works perfectly at 1x scale but produces blurry characters at 2x zoom because the bitmap was rasterized at a fixed resolution without SDF or multi-resolution variants",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Render the string 'The elves gather beneath ancient oaks' on an isometric floor tile using each candidate approach (bitmap atlas, SDF, lyon tessellation). The winner is whichever remains readable at 0.5x, 1x, and 2x scale while staying under 0.5ms GPU time for a full screen of such tiles. If none pass, the hybrid approach (bitmap at 1x, SDF for zoom) is the pragmatic answer.",
+  "task_context": "Elf Revel — exploring whether ASCII characters can serve as geometric primitives in spatial rendering. This requires converting font data into renderable geometry (not just screen text). Rust ecosystem: fontdue for rasterization, lyon for tessellation, wgpu for GPU rendering. Target: WASM browser at 60fps."
+}

@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Do not cover PRD-level quality concerns (problem statement, solution prose, dependency accuracy) — that belongs to fd-prd-quality-standard",
+    "Do not cover feature decomposition and bundling concerns — that belongs to fd-feature-decomposition-shape",
+    "Do not cover extraction-strategy-specific PRD concerns (freeze protocol, topology verification) — that belongs to fd-engine-extraction-strategy"
+  ],
+  "decision_lens": "An acceptance criterion is a gate, not a guideline. A gate that two reviewers can assess differently is not a gate — it is a negotiation deferred to close time. The migration-blockers PRD is gating the migration epic on four features closing; if any criterion is a vibes-check, the migration epic's open date depends on a subjective judgment that has not yet been made. The criterion that will be judged most subjectively is the one whose author was most confident at PRD-write time.",
+  "focus": "Whether the acceptance criteria across F1/F2/F3/F4 are measurable, testable, and closeable — with F2's playtest-card test and F4's tractability-at-10k-Souls benchmark as the primary targets",
+  "name": "fd-acceptance-criteria-precision",
+  "persona": "Apply the perspective of a QA-oriented technical writer who has seen PRDs closed on vibes-check acceptance criteria, spent time in post-mortems tracing migration failures to criteria that were never operationally defined, and developed a test for each criterion: 'if two reasonable people independently assess this criterion, will they agree on whether it passes?' Criteria that fail this test are not criteria — they are aspirations.",
+  "review_areas": [
+    "F2's playtest-card test states: 'one Contact mission description is written in terms of explicit reads and writes against a civ-Soul. If the test can't be written, the provisional design is not concrete enough; iterate until it can.' This criterion has two problems. First, 'iterate until it can' is process guidance embedded in a pass/fail criterion — it describes what to do if the criterion fails, not what passing looks like. Second, the criterion does not specify what 'explicit reads and writes' means operationally: does it require naming specific SoulEvent types? Specific facet names? Specific aggregation operator calls? Without this definition, a one-sentence mission description that mentions a Soul's Curiosity score could be argued to satisfy the criterion.",
+    "F4b's tractability criterion states: 'Target acceptance bar to be set during planning, not in this PRD; tractable is named here as the goal.' This is a documented placeholder, not a criterion. A feature cannot close against a placeholder. The PRD should either set a provisional bar (e.g., 'wall-clock time per simulated century does not exceed X ms at 10k Souls') or explicitly gate F4b's close on the planning session producing the bar — making the planning session itself an acceptance criterion for F4. As written, F4b can close with any benchmark result, since the bar was never set.",
+    "F3's trülku criterion requires 'a single Initialised { snapshot } event' at migration cutover. This is measurable — it can be checked in the event log. F3's yangsi criterion requires 'a sequence of replayed events reconstructing the trajectory.' 'Reconstructing the trajectory' is not measurable as stated: does it mean all historical events are replayed in order? A representative subset? Events from a specific time window? The criterion should specify what constitutes a complete reconstruction versus an adequate approximation.",
+    "F1's acceptance criteria require the decision document to name 'the cutover trigger for the deferred shape (e.g. promote workspace → published crate when Culture game starts).' The example trigger is milestone-gated on an undefined event. If the decision document is allowed to record milestone-gated triggers with undefined milestones, then F1's criterion for trigger specification is satisfied by copying the example text verbatim. The criterion should require the trigger to be operationally defined: either a specific observable (a named deliverable closes, a named capability ships) or an explicit statement that the trigger is deferred to a named future planning session.",
+    "F3's yangsi branch requires the identity-constitutive event class to be 'named which event kinds qualify (PersonalityScar? formative goal changes? archetype crossings?).' The examples in the parenthetical are illustrative, not exhaustive. The criterion does not specify whether the named event kinds must cover all identity-constitutive events (a closed enumeration) or are a representative sample. If the class can be open-ended ('including but not limited to'), then F4b's compaction policy cannot safely implement the exemption — it must exempting a potentially unbounded set of event kinds from compaction. The completeness of the enumeration is load-bearing for F4b's design."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If F4b's benchmark criterion is a placeholder at PRD time and the planning session does not produce a bar, F4b can close with any benchmark result. The migration epic opens against an engine whose performance at 10k Souls is unmeasured against any requirement. When the migration hits scale, the first performance failure has no criterion to reference, and the scope of the fix is undefined.",
+      "scenario": "F4b closes without a tractability bar, migration epic opens with no benchmark target",
+      "severity": "P1"
+    },
+    {
+      "condition": "Without defining what 'explicit reads and writes' means operationally, a mission description that says 'the operative reads the civ-Soul's Curiosity and writes a PersonalityScar' satisfies the letter of the criterion. If the aggregation operator spec does not actually require the design to exercise, the criterion has not validated the design's concreteness — it has only validated that the author can write a sentence mentioning a Soul.",
+      "scenario": "F2 playtest-card criterion satisfied by a one-sentence mission description",
+      "severity": "P1"
+    },
+    {
+      "condition": "If F3's accepted event class is stated as 'including but not limited to' a set of examples, F4b must implement a compaction exemption for a class whose boundaries are undefined. Any event kind that is later argued to be identity-constitutive must be retroactively exempted from compaction, potentially requiring a cold-tier migration for events already compacted.",
+      "scenario": "Identity-constitutive event class is open-ended, breaking F4b's compaction exemption",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Apply the two-reviewer test to each criterion: would two reasonable people independently agree on whether it is satisfied, given only the criterion text and the deliverable",
+    "For F4b's tractability criterion specifically, check whether a provisional bar is stated or whether the criterion is purely a placeholder — and if a placeholder, check whether the planning session is named as a prerequisite to F4b's acceptance",
+    "For F2's playtest-card test, check whether 'explicit reads and writes' is defined operationally in terms of named types, named facets, or named operator calls — vague operational language is a vibes-check in disguise",
+    "For F3's identity-constitutive event class, check whether the enumeration is closed (specific named event kinds, complete) or open (examples, non-exhaustive) — open enumerations propagate ambiguity into F4b's compaction implementation"
+  ],
+  "task_context": "The document is a strategy-step PRD with acceptance criteria across four features that gate the migration epic's opening. This review focuses specifically on whether the acceptance criteria are measurable and closeable — applying the two-reviewer test to each criterion, with particular attention to F2's playtest-card test (the most design-validation-flavoured criterion) and F4b's tractability placeholder (the most obviously deferred criterion)."
+}

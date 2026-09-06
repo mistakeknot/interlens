@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Do not cover product-management meta-questions (right grain of decomposition, deferred items) — that belongs to fd-pm-decomposition-discipline",
+    "Do not cover whether individual acceptance criteria are measurable and testable at the criterion level — that belongs to fd-acceptance-criteria-precision",
+    "Do not cover Rust extraction mechanics or library-extraction-specific failure modes — that belongs to fd-engine-extraction-strategy"
+  ],
+  "decision_lens": "A PRD is not a design document — it is a contract between the author and the implementer. Every sentence in a PRD that is imprecise or untestable is a hidden negotiation that will happen during implementation instead of during review. The migration-blockers PRD is gating the migration epic; its quality gate is therefore higher than normal. If a migration team opens the epic and discovers that F3's continuity contract is ambiguous or F4b's stratification policy is undefined, the migration stalls at exactly the moment it should be accelerating.",
+  "focus": "Standard PRD quality concerns applied to the migration-blockers PRD: problem statement precision, solution concreteness, feature independence, testable acceptance criteria, scope discipline, and dependency modelling accuracy",
+  "name": "fd-prd-quality-standard",
+  "persona": "Apply the perspective of a senior technical program manager who has shepherded dozens of PRDs from design through ship, routinely returned vague or over-scoped documents for revision, and developed strong pattern-recognition for the PRD failure modes that cause planning sessions to collapse: poorly-stated problems, acceptance criteria that cannot be closed, and scope that expands silently once work begins.",
+  "review_areas": [
+    "The Problem section names four items and asserts they 'resist being addressed in passing' — but does not state what failure mode each item produces if skipped. The consequences named ('silent corruption,' 'scope explosion,' 'API friction,' 'unrunnability at scale') are attached in the Solution section rather than the Problem section, which means a reader cannot evaluate the problem's severity without reading both sections. A PRD whose problem statement requires the solution section to be legible has inverted the reading contract.",
+    "F1's acceptance criteria require 'a trivial end-to-end build verifies the chosen topology: cargo check --workspace passes from a clean clone.' But the PRD also states that F1 explicitly defers hard extraction (shape A). If shape C (reverse migration, two separate repos) is chosen, there is no workspace to cargo check — the criterion is inapplicable for one of the three named options. The acceptance criterion must either be parameterised by choice or three separate criteria must be written for each shape.",
+    "F2's acceptance criteria include the playtest-card test: 'one Contact mission description is written in terms of explicit reads and writes against a civ-Soul.' The iteration instruction ('iterate until it can') is process guidance, not an acceptance criterion. The criterion as written does not specify who judges whether the card exercises the design adequately, what 'concrete enough' means, or what constitutes a passing vs failing card. This criterion cannot be closed without an additional definition of done.",
+    "F3's acceptance criteria for the yangsi branch include: 'the engine must be able to identify the event(s) in its history that explain that state.' This is stated as a capability of the engine, but F3's Out of Scope explicitly says 'Building the recognition test framework belongs to a follow-on.' If F3 must prove the engine can identify formative events but the framework that exercises this is out of scope, the criterion is written against a system that does not yet exist and cannot be verified in F3's scope.",
+    "The dependency diagram labels F2 and F3 as 'independent of F1, can run in parallel after F1 opens the workspace.' However, F2's acceptance criteria require a playtest card written against a civ-Soul, and F3 requires auditing the brainstorm's North Star prose. Neither of these has any actual dependency on F1's workspace topology decision. The phrase 'after F1 opens the workspace' implies a temporal dependency that does not exist for the document-deliverable parts of F2 and F3 — they could begin immediately. The dependency model overstates F1's blocking role for the non-code deliverables.",
+    "The PRD's Goals section has three bullets, none of which names a failure criterion: what does it look like if the goals are not met? 'A migration team can execute the migration without re-litigating any of the four questions' is a qualitative claim about a future team's experience. Without a test for whether re-litigation was avoided, this goal cannot be assessed at PRD close. Consider whether the goal would be better stated as an observable: 'The migration epic's opening task references the four decision documents and requires no new design sessions on these topics.'"
+  ],
+  "severity_examples": [
+    {
+      "condition": "If the team chooses shape C (reverse migration into two separate repos), the criterion 'cargo check --workspace passes from a clean clone' cannot be satisfied because there is no workspace. F1 will either block on an unanswerable criterion or be closed with a tacit exception that is not recorded, silently weakening the gate.",
+      "scenario": "F1 acceptance criterion inapplicable for extraction shape C",
+      "severity": "P1"
+    },
+    {
+      "condition": "The criterion requires the engine to identify formative events; the framework to prove this is explicitly out of scope. At F3 close, this criterion will either be waived (the contract is weakened) or scope will be pulled in (the out-of-scope boundary moves), producing unplanned work.",
+      "scenario": "F3 yangsi recognition criterion requires out-of-scope framework",
+      "severity": "P1"
+    },
+    {
+      "condition": "Without a definition of 'concrete enough' and a named judge for the card's adequacy, the F2 playtest-card criterion is a vibes-check. Two people reviewing the PRD close can reasonably disagree on whether the card passes, producing a re-litigation of F2's deliverable quality at exactly the moment the migration epic is supposed to open.",
+      "scenario": "F2 playtest-card criterion is not closeable as written",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Check each acceptance criterion for a named verifier: who asserts the criterion is met and by what means — prose, test output, or review sign-off",
+    "For each 'if X, then Y' branching criterion (F2's yes/no on country-as-Soul, F3's yangsi/trülku split), verify that every branch has a complete set of criteria, not just the primary branch",
+    "Check the dependency diagram against the actual deliverables: which F2 and F3 criteria require the workspace topology to be resolved, and which are pure document deliverables that could start immediately",
+    "Verify that each goal in the Goals section has a corresponding observable that can be checked at PRD close"
+  ],
+  "task_context": "The document is a strategy-step PRD gating the shadow-work migration epic. This review applies standard PRD quality criteria: problem statement clarity, solution concreteness, feature independence, acceptance criteria testability, scope discipline, and dependency model accuracy. The review focuses on whether the PRD as a written artifact is complete enough to hand to a migration team without further design sessions."
+}

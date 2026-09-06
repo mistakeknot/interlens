@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "fd-insurance-risk-scoring: that agent focuses on audit trails and parameter provenance after the fact; this agent focuses on runtime substitution mechanics and live operator introspection",
+    "fd-synth-signal-chain: that agent focuses on the static Protocol boundary contract; this agent focuses on the dynamic lifecycle of weight instances in a running routing server",
+    "fd-portfolio-risk-sensitivity: that agent focuses on offline calibration and A/B comparison of formula instances; this agent focuses on live serving ergonomics and persona-tier hot-swap without graph reload"
+  ],
+  "decision_lens": "Can Phase 1.7's routing server replace the active EdgeWeight instance at runtime (e.g., switching from default pace to stroll pace for a persona) without reloading the graph from disk, and is the Protocol designed to support a weight factory registry?",
+  "distance_rationale": "PID tuner engineers design controller-flavor swap mechanisms that replace a running controller (P-only → PID → cascade) without stopping the process, requiring the new controller to be initialized from the current state — the same operational pattern as swapping EdgeWeight implementations in a running routing server without requiring a full graph reload.",
+  "expected_isomorphisms": "The PID 'bumpless transfer' (new controller inherits integral accumulator from the old one at swap time) maps to the Phase 1.7 concern of whether apply_weight can be called mid-session to update felt_minutes without reloading the graph from disk. The PID 'controller flavor registry' (map from flavor-name string to constructor) maps to a weight factory pattern that Phase 1.7's routing API might expose for persona-tier routing (StepsDaddy stroll mode vs. brisk mode).",
+  "focus": "Runtime substitution ergonomics — whether FeltMinutesV0 and the apply_weight helper support mid-session weight updates without full graph reload, and whether the Protocol enables a weight registry for persona-tier dispatch",
+  "name": "fd-pid-tuner-hotswap",
+  "persona": "Apply the perspective of an industrial process-control engineer who designs PID tuning systems with bumpless controller-flavor transfer, hot-swap registries, and parameter introspection endpoints for live operator dashboards.",
+  "review_areas": [
+    "The brainstorm states that Phase 1.7 can choose between (a) call apply_weight once at load and read felt_minutes per edge during A*, or (b) call weight callable lazily per-edge during A*. Option (a) bakes the weight into the graph; option (b) keeps the weight hot-swappable. PID practice: the brainstorm should commit to (b) as the canonical path for live-serving, with (a) as an optimization only for batch/offline use. The current text leaves both equally valid, which will create a split implementation.",
+    "The persona-aware pace case (StepsDaddy stroll mode = FeltMinutesV0(pace_mps=1.1)) is mentioned as a different instance, not a schema change. PID hot-swap practice: the routing server needs a weight registry or factory that maps persona-ID to an EdgeWeight instance, and the Protocol should support a display_name or identifier for logging. Without this, persona dispatch is an undocumented caller convention.",
+    "apply_weight mutates the graph in place (writes to edge dicts). If option (a) is used and a user switches persona mid-session, apply_weight must be re-called over all 12,880 edges. PID bumpless transfer avoids full-state recomputation; the lazy option (b) avoids the re-run cost entirely but requires A* to call the weight callable per edge rather than reading a pre-computed attribute. The choice has a direct latency impact on persona-switch responsiveness.",
+    "The NanFallback Literal type has four values, but there is no mechanism for an operator to inspect which policy is active on the running routing server. PID tuners expose parameter introspection endpoints (current Kp, Ki, Kd, flavor). Phase 1.7's API should expose the active weight instance's repr() or a structured parameter dump so that operator dashboards can display 'routing mode: stroll, sun_coefficient: 0.5, fallback: neutral.'",
+    "The Protocol has no version field, which means a weight registry keyed on formula class name alone cannot distinguish FeltMinutesV0 v1 (initial) from FeltMinutesV0 v2 (after Phase 1.7 calibration updates the default coefficient). PID flavor registries version their flavors; the Protocol should carry a version string for registry safety.",
+    "The frozen dataclass supports dataclasses.replace() for creating variants, but the brainstorm does not specify a canonical factory pattern for persona-tier instantiation. PID systems use a controller factory that takes persona config and returns a ready-to-run instance; without this, each caller invents its own FeltMinutesV0() initialization convention, leading to config drift across the routing server, the test suite, and any future CLI tools."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If Phase 1.7 adopts option (a) — apply_weight at load time — and a user requests a persona-aware route (stroll mode), the server must re-call apply_weight across all 12,880 edges before routing. At < 2 s per the smoke test, this is acceptable for a one-time switch but unacceptable for a per-request persona parameter. The brainstorm should specify which option is canonical for the serving path and which is for offline use, before Phase 1.7 picks one ad hoc.",
+      "scenario": "Option (a) apply_weight used in serving path, persona switch requires full graph re-walk",
+      "severity": "P1"
+    },
+    {
+      "condition": "Phase 1.7's routing API will need to accept a persona parameter and instantiate the right EdgeWeight. Without a canonical factory (e.g., EdgeWeightFactory.for_persona(persona_id)) or a registry, each call site invents its own FeltMinutesV0() initialization, making it impossible to audit which persona maps to which parameters without reading all call sites.",
+      "scenario": "No weight registry or factory pattern means persona dispatch is an undocumented caller convention",
+      "severity": "P2"
+    },
+    {
+      "condition": "Phase 1.7 will serve routes to a Mapbox frontend. The route card is specified to expose shade %, UTCI, and felt-minutes. It should also expose the active weight parameters (sun_coefficient, fallback policy, pace) so users can understand why two routes have different costs. The FeltMinutesV0 repr() provides this, but Phase 1.7 needs to know to serialize it — this should be specified as a requirement in Phase 1.6's scope.",
+      "scenario": "No parameter introspection endpoint specified for the active weight instance",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Industrial process-control PID tuner design",
+  "success_hints": [
+    "Explicitly declare that option (b) — lazy per-edge weight callable during A* — is the canonical serving path, and that apply_weight is for offline/smoke-test use only",
+    "Define a WEIGHT_REGISTRY: dict[str, EdgeWeight] convention (or a for_persona factory) so persona-tier dispatch has a canonical lookup pattern from Phase 1.6 forward",
+    "Add an as_dict() method to FeltMinutesV0 returning {param: value} so Phase 1.7's route-card serializer has a structured parameter dump without parsing repr()"
+  ],
+  "task_context": "Phase 1.6 brainstorm for Solwend felt-minute edge weight — Protocol + frozen dataclass architecture, FeltMinutesV0 with sun_coefficient and nan_fallback_policy, apply_weight helper, per-quality dispatch for shade_data_quality values."
+}

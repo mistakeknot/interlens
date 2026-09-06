@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "Specific LoRA hyperparameter choices (rank, alpha) — covered by ML methodology reviewers",
+    "Shadow log format and audit trail completeness — covered by the smart order routing reviewer",
+    "Patient safety floor bypass scenarios — covered by the triage reviewer"
+  ],
+  "decision_lens": "Prioritize findings where a cost component is structurally missing from the training signal — for example, if the loss function optimizes pass@1 but does not penalize routing latency or cloud spend, the router will minimize the visible cost while ignoring the costs the system was built to reduce. Second priority: security constraint violations — any path where safety floors (the hard constraints in this analogy) can be violated under contingency (router failure, timeout, garbage response).",
+  "distance_rationale": "Both systems optimize resource allocation under hard safety constraints, require contingency reserve modeling (what happens when the primary dispatcher fails), and use shadow simulation to validate a new dispatch policy before committing to it fleet-wide.",
+  "expected_isomorphisms": "Security-constrained dispatch (the grid must remain stable under any single-unit failure) maps to the requirement that safety floors hold under all router failure modes. Economic dispatch objective design (missing a cost component produces a schedule that optimizes the wrong thing) maps to the risk that a naive cross-entropy loss produces a router that ignores latency and cloud spend.",
+  "focus": "Economic dispatch correctness — cost-weighted loss design, security-constrained routing (safety floors as hard constraints), contingency reserve sufficiency (B3 fallback capacity), and shadow simulation validity before fleet commit.",
+  "name": "fd-dispatch-economic-grid",
+  "persona": "Apply the perspective of a power systems dispatch engineer who designs and audits economic dispatch and security-constrained unit commitment (SCUC) systems for an Independent System Operator. They care about whether the optimization objective correctly encodes economic cost vs. reliability tradeoffs, whether security constraints (N-1 contingency: what happens when one resource fails) are modeled correctly, whether reserve margins are sufficient to handle the loss of the marginal unit, and whether the shadow-price signals from a simulated dispatch actually reflect real system behavior before committing the schedule. They measure dispatch cost reduction vs. baseline, constraint violation rate under contingency, reserve margin adequacy, and shadow-vs-actual dispatch deviation. They flag: any objective function that ignores a cost component (e.g., routing latency is a cost but may not appear in the loss), any constraint that is soft when it must be hard (safety floors), and any shadow simulation that uses a different load profile than production.",
+  "review_areas": [
+    "Cost-weighted loss completeness: verify that the training loss design (bead 1 and 3) accounts for all three stated non-cost wins — latency savings, privacy routing, and quality preservation — not just classification accuracy or a single cost proxy, since a loss that optimizes only one dimension will sacrifice the others",
+    "Contingency reserve adequacy: confirm that when the microrouter is unavailable (the marginal unit trips offline in grid dispatch terms), the B3 calibration fallback has sufficient capacity and current calibration data to handle the full execute-phase load without degradation — this requires verifying that B3 is not itself in a degraded state when B6 is being evaluated",
+    "Hard constraint vs. soft constraint encoding: verify that safety floors (fd-safety, fd-correctness → sonnet minimum) are encoded as hard constraints that cannot be violated by any loss weighting, not as soft penalties that could theoretically be traded away for a large enough cost reduction",
+    "Shadow simulation load profile validity: check that the shadow-mode soak uses the same distribution of agent types, complexity tiers, and task categories as actual production sprints — a shadow soak on a cherry-picked sprint will produce an optimistic estimate of routing distribution and reroute rate",
+    "Economic dispatch of local vs. cloud resources: verify that the tier_mappings and complexity_routing in local_models (B5) are correctly reflected in the router's training label space — if the router can route to local:qwen3.6-35b-a3b-4bit but this tier's cost/quality profile is not in the training data, the dispatch will be economically suboptimal",
+    "Reserve margin for model-not-loaded failure: check that the mode auto-degrades to shadow (not off) when the router model is not loaded, and that this transition is logged with enough detail to distinguish planned maintenance from unexpected failure"
+  ],
+  "severity_examples": [
+    {
+      "condition": "if the corpus is 80%+ sonnet-routed tasks, a cross-entropy loss will achieve high accuracy by always predicting sonnet — the cost-weighted loss described in the epic is required to prevent this, and its absence should block training",
+      "scenario": "training loss does not penalize the distillation-collapse failure mode (always pick sonnet) because the loss is pure cross-entropy without cost weighting",
+      "severity": "P1"
+    },
+    {
+      "condition": "the epic states B3 is the fallback, but if .clavain/interspect/routing-calibration.json has not been updated recently, the fallback quality is lower than assumed in the success criteria",
+      "scenario": "B3 calibration data is stale or absent when the microrouter falls through, meaning the contingency reserve itself is degraded",
+      "severity": "P1"
+    },
+    {
+      "condition": "this inflates the apparent reroute rate and makes the shadow-to-enforce gate appear cleared when the router has not actually demonstrated value on the task distribution it will face in production",
+      "scenario": "shadow soak is conducted on a sprint dominated by C3/C4 tasks, but the router's reroute rate metric is measured against total calls including C5 tasks where it should always pass through",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "electric grid economic dispatch / independent system operator",
+  "success_hints": [
+    "Verify the design bead explicitly lists all cost components that must appear in the loss function, not just the primary objective",
+    "Check that the eval matrix includes a row for the contingency case: microrouter down, B3 active — what is the observed pass@1 degradation",
+    "Confirm the shadow soak plan specifies the sprint selection criteria, not just the minimum duration"
+  ],
+  "task_context": "Reviewing the microrouter epic (sylveste-s3z6.19) and 7 children. The proposal trains a cost-aware router to reduce cloud spend and latency. The B3 calibration layer is the stated fallback. The stated risks include distillation collapse (always picks sonnet) mitigated by cost-weighted loss. The eval harness includes a comparator matrix with oracle upper bound and no-router baseline."
+}

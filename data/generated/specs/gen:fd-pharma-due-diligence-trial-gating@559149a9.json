@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "Pharma DD focuses on evidentiary chain quality and gating discipline; the M&A integration agent focuses on handoff completeness and inheritance liability; do not duplicate handoff-completeness findings."
+  ],
+  "decision_lens": "Would a Phase II trial design team, reading only this synthesis and its citations, be able to write protocol sections without re-opening the upstream investigation? Would a regulatory reviewer accept the evidence chain behind each closed question as sufficient to bear the trial-design risk?",
+  "distance_rationale": "Pharma DD operates on the same 'research synthesis gates downstream specification work' abstraction but in a domain where regulatory scrutiny mandates explicit primary-vs-secondary source provenance.",
+  "expected_isomorphisms": "The def-site vs. echo-site discipline maps directly to primary-vs-secondary-source discipline in pharma DD; the gating-checkpoint pattern (self-audit gate) maps to the DD report's go/no-go recommendation that sponsors rely on to commit Phase II resources.",
+  "focus": "Whether the synthesis closes open questions with the same evidentiary rigor a pharmaceutical due-diligence report needs to gate Phase II trial design — specifically that every gating decision rests on def-site/primary evidence, that absence-of-evidence is distinguished from evidence-of-absence, and that residual uncertainty is named with explicit downstream handling instructions.",
+  "name": "fd-pharma-due-diligence-trial-gating",
+  "persona": "Apply the perspective of a pharmaceutical due-diligence lead writing the synthesis report that determines whether a sponsor commits to a Phase II clinical trial design. Such reviewers treat each closed open-question as a gate that, once passed, will not be re-litigated when Phase II protocol authors begin work; they therefore demand primary-source citation (regulatory filing, raw study report) over echo-site mentions, and they refuse to let inferential closures pass without a named residual-risk owner.",
+  "review_areas": [
+    "Each closed open-question (OQ1, OQ3, OQ6) has at least one def-site/primary citation in the evidence chain, and echo-site-only closures are flagged as inferential.",
+    "The CVE GHSA-rhgp-j443-p4rf citation in the OQ1 closure is treated as a primary regulatory artifact (with date, scope, and patch-status), not as ambient context.",
+    "Residual uncertainty after each closure has a named recipient — i.e. F2/F3/F5 plan-writers know exactly which assumptions they are inheriting and which they must re-verify.",
+    "Negative findings ([ABSENT] citations) record the search specification with enough fidelity that another investigator could reproduce the search and arrive at the same negative.",
+    "Decisions D1-D8 each declare the open-question(s) they depend on, so downstream feature plans inherit a traceable evidence pedigree.",
+    "The self-audit gate functions as a true gating checkpoint (with stop conditions) rather than a retrospective summary."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Any D-row Evidence column lacks at least one [IMPL] def-site citation AND is not flagged in §9 as an inferential closure.",
+      "scenario": "A gating decision (D1-D8) rests entirely on echo-site citations with no def-site evidence, and the §9 single-observation flag is not raised.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Any [ABSENT: ...] citation does not record the exact rg/search invocation.",
+      "scenario": "An [ABSENT] citation lacks the search specification (pattern, directory, file-types), making the negative finding unreproducible.",
+      "severity": "P1"
+    },
+    {
+      "condition": "An OQ closure mentions residual risk but does not identify which of F2/F3/F5 inherits it.",
+      "scenario": "Residual uncertainty after a closure is acknowledged but not routed to a downstream plan owner.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Pharmaceutical due diligence reports gating Phase II clinical trial design",
+  "success_hints": [
+    "Trace each D-row evidence column back to its [IMPL] def-site citation and verify the def-site/echo-site distinction is preserved.",
+    "Check that the CVE-cited closure of OQ1 records CVE date, scope, and patched-version metadata sufficient for a downstream plan-writer to assess whether the threat model still applies at their target Hermes SHA.",
+    "Verify [ABSENT] citations record the exact search invocation (pattern + directory + file-type flags) so the negative is reproducible.",
+    "Confirm the §9 single-observation flag policy is actually applied wherever an inferential closure exists, and is not silently bypassed."
+  ],
+  "task_context": "Review the F0 research synthesis as if it were a pharmaceutical due-diligence report whose closures will gate Phase II trial design. Three downstream plans (F2, F3, F5) will treat the closures as settled and will not re-open the investigation. The review goal is to flag any closure whose evidentiary chain is too thin to bear that downstream weight."
+}

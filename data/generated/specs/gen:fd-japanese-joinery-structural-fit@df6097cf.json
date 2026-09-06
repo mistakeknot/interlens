@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Covers structural coupling and integration contracts between components. Does NOT cover: temporal irreversibility (see fd-venetian-glassblowing), iterative refinement cycles (see fd-persian-miniature), or navigation under uncertainty (see fd-polynesian-navigation).",
+  "decision_lens": "Structural coupling through shape rather than external connectors; how much each component 'knows' about its neighbors; the assembly sequence that joint geometry demands.",
+  "distance_rationale": "Pre-industrial timber construction that achieves system integrity through material geometry rather than abstract protocols has no surface similarity to a Swift/Python production application.",
+  "expected_isomorphisms": "The four workflow surfaces must interlock without heavy middleware — the episode filesystem convention (design.md, script.md, shotlist.json, shots/, audio/) is the 'joint geometry' that lets Swift and Python fit together. The question is whether these joints are load-bearing or decorative.",
+  "focus": "How traditional Japanese wood joinery (tsugite/shiguchi) achieves structural integrity without fasteners by designing the joints themselves to encode load paths, tolerances, and assembly order into the shape of each piece.",
+  "name": "fd-japanese-joinery-structural-fit",
+  "persona": "A miyadaiku (temple carpenter) trained in the Nishioka lineage, specializing in interlocking timber joints where the geometry of each piece encodes its relationship to every adjacent piece — no nails, no glue, no external fasteners.",
+  "review_areas": [
+    "Does the filesystem convention (episodes/<slug>/...) actually encode enough structure to serve as the integration contract, or does it need a schema layer on top?",
+    "Are the four surfaces truly interlocking (changes in one propagate structurally to others) or merely adjacent (they read the same files but don't react to changes)?",
+    "What is the 'assembly order'? Japanese joints often can only be assembled in one sequence. Is there an implicit ordering to surface setup (e.g., research must exist before script references it) that the app should enforce or at least visualize?",
+    "How tight are the tolerances? In joinery, a 1mm error propagates. If shotlist.json references a script beat that gets deleted, how does the system handle the gap?",
+    "Is the FastAPI HTTP bridge a 'nail' (external fastener) or a 'joint' (shaped interface)? Does the API contract between Swift and Python have the same structural elegance as the filesystem convention?",
+    "Can the system be 'disassembled' — can you extract one surface's work (e.g., export just the music mashup) without breaking the others?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No schema validation at the filesystem integration boundary.",
+      "scenario": "The filesystem convention has no validation — a malformed shotlist.json (e.g., referencing nonexistent shot files) silently corrupts the Video surface without surfacing errors.",
+      "severity": "P0"
+    },
+    {
+      "condition": "The filesystem convention is documented but not programmatically enforced as a shared contract.",
+      "scenario": "The Swift app and Python engine have divergent assumptions about episode directory structure, causing one to write files the other cannot find.",
+      "severity": "P1"
+    },
+    {
+      "condition": "No referential integrity checking across workflow surfaces.",
+      "scenario": "Deleting a research source that a script references produces no warning in the Script surface because the surfaces don't track cross-references.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Japanese traditional wood joinery (tsugite and shiguchi, 7th century onward)",
+  "success_hints": "The filesystem convention should be as precisely shaped as a tsugite joint — a machine-readable schema that both Swift and Python validate against, where the structure itself makes invalid states unrepresentable. Each surface should interlock with its neighbors through the data shapes, not just coexist in the same directory.",
+  "task_context": "The target uses a file-based project model where episodes/<slug>/ contains design.md, script.md, shotlist.json, shots/*.mp4, audio/*.wav, and final/*.mp4. Swift reads/writes these files directly. Python/FastAPI also reads/writes them. There is no database — the filesystem IS the database. Claude Code skills also operate on these same files."
+}

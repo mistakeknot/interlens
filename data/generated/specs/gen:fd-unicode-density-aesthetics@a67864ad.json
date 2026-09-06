@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Focuses on Unicode glyph selection and readability — not terminal protocol negotiation (fd-terminal-protocol-capability-negotiation), image conversion pipelines (fd-image-to-ascii-pipeline), roguelike UI layer composition (fd-roguelike-ui-layer-architecture), or procedural ASCII texture generation (fd-procgen-ascii-texture)",
+  "decision_lens": "Do the chosen Unicode characters produce the intended density gradient across the fonts Elf Revel players will actually use? Does the glyph set preserve roguelike readability (entity vs. terrain distinction) or does it blend them into texture noise?",
+  "focus": "Unicode block element and braille character selection: density perception, font coverage, roguelike readability contracts",
+  "name": "fd-unicode-density-aesthetics",
+  "persona": "Type system designer and Unicode specialist who has designed the glyph vocabularies for Caves of Qud and maintains a personal test corpus of terminal font coverage tables",
+  "review_areas": [
+    "Half-block coverage: U+2580–U+259F (block elements) are universally covered; U+1FB00–U+1FBFF (legacy computing supplement) covers 2×3 sextants and 2×4 octants but is missing from many Linux monospace fonts — is fallback defined when sextant glyphs render as tofu?",
+    "Braille density gradient: U+2800–U+28FF provides 8 dots per cell (2×4); mapping terrain elevation or flora density to braille dot patterns requires a perceptually linear dot-count-to-intensity curve, not a bitmask-sequential one",
+    "Roguelike readability contract: DF/CDDA convention is that '.' means floor, '@' means player, '#' means wall — using block elements for terrain texture risks turning readable ASCII maps into illegible noise bitmaps",
+    "24-bit color + Unicode interaction: coloring a braille character with a 24-bit fg/bg pair over a terrain tile — does the color encode the elf/entity or the terrain underneath? Compositing semantics must be defined",
+    "Font rendering in common terminals: Nerd Fonts, JetBrains Mono, Iosevka all handle U+2580–U+259F but differ on cell height baseline — a half-block in Iosevka may not perfectly tile with the adjacent cell",
+    "Caves of Qud glyph vocabulary: Qud uses U+2588 FULL BLOCK for solid walls, sparse box-drawing for passages — can Elf Revel borrow this vocabulary without licensing issues, and does it fit the elven aesthetic?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No font coverage detection fallback; sextant glyphs used for a primary visual layer",
+      "scenario": "Sextant (U+1FB00) glyphs render as empty boxes on the player's terminal font, making entire flora density layer invisible",
+      "severity": "P1"
+    },
+    {
+      "condition": "Braille mapping uses sequential U+2800 increments rather than a dot-count-sorted lookup table",
+      "scenario": "Braille dot pattern for 'dense forest' is visually identical to braille pattern for 'rocky terrain' because bit assignment follows Unicode codepoint order rather than perceptual density order",
+      "severity": "P2"
+    },
+    {
+      "condition": "No reserved glyph namespace separating entity symbols from terrain texture symbols",
+      "scenario": "Elf entities rendered with block element glyphs become invisible against terrain tiles that use the same block element for texture",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Test the glyph set in monospace fonts: Terminus, JetBrains Mono, and DejaVu Sans Mono. These three together cover the font diversity of most roguelike players. If a glyph breaks in any of them, it needs a fallback.",
+  "task_context": "Elf Revel — Rust colony sim exploring half-block chars, braille unicode, and 24-bit color to increase visual density of the ASCII map; elven aesthetic should feel organic, not technical"
+}

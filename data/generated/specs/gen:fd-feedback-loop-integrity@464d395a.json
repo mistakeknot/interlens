@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "fd-aviation-safety-crm covers scenario generation methodology but not feedback loop stability analysis",
+    "fd-clinical-case-reasoning covers diagnostic improvement but not control-theoretic stability properties",
+    "fd-retrospective-facilitation covers structured reflection practices but not the formal dynamics of self-referential systems"
+  ],
+  "decision_lens": "Evaluates whether Forge Mode's self-improvement flywheel has the control-theoretic properties needed for stable convergence — correct gain, damping, and separation between the system being improved and the improvement mechanism — or whether it risks the classic pathologies of self-referential feedback: oscillation, runaway optimization, and Goodhart's Law collapse.",
+  "distance_rationale": "Forge Mode is fundamentally a feedback control system: it measures its own performance (stress tests), generates error signals (near-miss identification), and applies corrections (contraindication metadata). Control theory has formal tools for analyzing whether such loops converge, oscillate, or diverge — and the history of self-referential systems is full of cautionary examples that map directly to Forge Mode's architecture.",
+  "expected_isomorphisms": [
+    "Forge Mode flywheel = closed-loop feedback controller: stress test measures error, contraindication update is the corrective action, next stress test is the measurement of the corrected system",
+    "Near-miss analysis = error signal detection: both identify the difference between actual output and desired output, but the quality of the error signal determines whether correction converges or oscillates",
+    "Meta Mode (applying own lenses to own decisions) = self-referential measurement: the system measuring itself with its own instruments, creating the observer effect where the measurement changes what is measured",
+    "Contraindication accumulation = gain increase: each new contraindication increases the system's sensitivity to potential errors, which can improve accuracy (correct gain) or create over-sensitivity (excessive gain leading to oscillation)"
+  ],
+  "focus": "How control systems engineering manages the stability, gain, and integrity of feedback loops — particularly the risks of self-referential systems that use their own output as input for self-improvement, including oscillation, runaway gain, and the observer effect where measuring a system changes its behavior",
+  "name": "fd-feedback-loop-integrity",
+  "persona": "A control systems engineer and cybernetics researcher who has designed feedback control for industrial processes, autonomous systems, and adaptive algorithms. Studies how self-referential feedback loops become unstable, how gain must be managed to prevent oscillation, and how the observer effect distorts measurement in systems that measure themselves.",
+  "review_areas": [
+    "Loop stability analysis: the Forge Mode flywheel (stress test -> update metadata -> validate -> apply to decisions -> find new edge cases -> stress test) is a closed feedback loop — analyze whether this loop has the properties for stable convergence (negative feedback with appropriate gain) or whether it risks oscillation (contraindication added, then removed when it blocks valid applications, then re-added when the removal allows the original error)",
+    "Gain management in contraindication accumulation: each Forge Mode session adds contraindications, distinguishing features, and near-miss relationships — as this metadata grows, the system's sensitivity to potential misapplication increases — determine whether there is a gain-limiting mechanism that prevents the system from becoming so sensitive to false positives that it can no longer confidently select any lens",
+    "Observer effect in Meta Mode: when Auraken applies its own lenses to its own product decisions, the system is simultaneously the observer and the observed — assess whether this self-referential measurement distorts either the measurement or the thing being measured in ways that make the Meta Mode output less trustworthy than external evaluation",
+    "Damping and convergence rate: well-designed feedback systems converge to a stable state — assess whether Forge Mode has damping mechanisms (e.g., diminishing weight of successive corrections, threshold for metadata changes) or whether each session produces equal-weight changes regardless of convergence state",
+    "Goodhart's Law risk in stress test metrics: if Forge Mode optimizes for stress test pass rate (all known near-misses correctly handled), this metric can become the target rather than the measure — the system optimizes for handling generated scenarios rather than for genuine lens selection quality in real conversations"
+  ],
+  "severity_examples": [
+    {
+      "example": "No explicit gain-limiting mechanism in the Forge Mode flywheel — contraindication metadata grows monotonically with each session, with no mechanism for pruning contraindications that are not validated by real-world pushback events, risking unbounded sensitivity increase",
+      "severity": "high"
+    },
+    {
+      "example": "Meta Mode's self-referential structure (applying own lenses to own development) creates an observer effect with no external reference signal — the system may converge on internally consistent but externally suboptimal decisions because the measurement instrument and the measured system share the same biases",
+      "severity": "medium"
+    },
+    {
+      "example": "The flywheel description does not specify convergence criteria — there is no definition of when Forge Mode stress testing for a particular capability has reached sufficient coverage, risking either premature termination or indefinite iteration",
+      "severity": "low"
+    }
+  ],
+  "source_domain": "Control systems engineering and cybernetics — feedback loop design, stability analysis, gain management, and observer effect in self-referential systems",
+  "success_hints": [
+    "A well-designed self-improvement loop needs explicit gain management — the rate of change should decrease as the system converges, not remain constant",
+    "Self-referential measurement (Meta Mode) should be explicitly marked as lower-confidence than external measurement, with mechanisms for external validation of internally-generated conclusions",
+    "The most important missing component in many self-improving systems is a stopping criterion — without one, the improvement loop either runs forever or stops arbitrarily"
+  ],
+  "task_context": "Forge Mode is a reflexive self-improvement system where a cognitive augmentation agent uses its own capabilities to stress-test its lens selection (conceptual framework matching), simulate user profiles, and apply its own lenses to its own product decisions — generating synthetic scenarios to find where reasoning breaks down and producing concrete metadata artifacts."
+}

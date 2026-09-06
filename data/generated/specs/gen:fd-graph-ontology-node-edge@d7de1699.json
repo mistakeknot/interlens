@@ -1,0 +1,40 @@
+{
+  "anti_overlap": [
+    "does not adjudicate the statistical validity of the covariance gate, pairwise-deletion bias mechanics, or measurement invariance of axis semantics across populations — that is the psychometrics agent's territory",
+    "does not evaluate what kind of entity a symbol is in Jungian, Peircean, or comparative-mythology terms, or whether vectorizing a symbol commits a category error — that is the comparative-symbology agent's territory",
+    "focuses on representational/structural graph mechanics only; where an option's graph shape depends on an unresolved ontological or statistical question owned by another lens, flags the dependency rather than resolving it"
+  ],
+  "decision_lens": "For each option (A-D and any newly surfaced one), ask: does this representation choice resolve the node-vs-edge-vs-axis question as a principled ontology decision defensible in a schema review, or does it default to 'symbol = being-shaped node' because the tooling only knows how to model beings? Prefer answers that sketch a concrete label/schema/index shape and trace it through the existing Neo4j queries it would touch, over answers that stay at the prose-preference level.",
+  "focus": "Whether the symbol tier's proposed representation — node-with-coordinates, edge-type, reified relation, or axis-of-the-space — is argued from graph-modeling and ontology-engineering first principles rather than by analogy to the existing being schema, and whether the strict 29-key creature schema and the hygiene-09 relatedness-universe boundary are operationalized as real graph-topology decisions rather than soft conventions.",
+  "name": "fd-graph-ontology-node-edge",
+  "persona": "Apply the perspective of a knowledge-graph architect and ontology engineer experienced in property-graph and RDF/OWL modeling, reification patterns for ambiguous entity/relation boundaries, and schema evolution under strict load-time validation constraints.",
+  "review_areas": [
+    "Whether the node-vs-edge-vs-axis question is resolved using established graph-modeling patterns (reification, n-ary relation modeling, property-graph vs RDF/OWL tradeoffs) rather than by unreflective extension of the being schema's shape onto symbols",
+    "Whether the strict 29-key creature schema constraint (constraint 5) is honored by proposing symbols as a genuinely separate collection/label/schema rather than schema-weakening workarounds — nullable keys, sentinel not-applicable values, or being-subtype hacks that `validateCanon` would need to special-case",
+    "Whether hygiene-09's 'registry stays out of the relatedness universe' is operationalized as an enforceable graph-topology decision (label partition, separate index, gated traversal boundary) rather than a convention a later migration or query could silently violate",
+    "Whether newly surfaced options include established graph-modeling patterns for this exact shape of problem — bipartite being-symbol edge types, reified-relation nodes carrying their own attribute set, or symbols as controlled-vocabulary tags/labels rather than standalone entities",
+    "Whether each option's consequences for the existing V=801/30-orphan relatedness build, the 47-family clustering traversal, and any Cypher query touching the being-node collection are traced concretely rather than asserted as 'shouldn't affect existing queries'",
+    "Whether the chosen representation can evolve later (e.g., promoting a subset of symbols to fuller nodes, or demoting an over-eager promotion) without forcing another schema-breaking migration across the 546 existing being entries"
+  ],
+  "severity_examples": [
+    {
+      "scenario": "an option requires the being schema's 29 required keys to become optional or accepts a sentinel not-applicable value to accommodate symbols sharing the same node label, silently breaking `validateCanon`'s load-time guarantee for all 546 existing being entries",
+      "severity": "P0"
+    },
+    {
+      "scenario": "an option puts symbols in the graph as nodes with edges to beings but leaves the edge type, direction, and traversal semantics unspecified, so the family-clustering and relatedness-build queries have no defined boundary and are liable to silently absorb symbol nodes into similarity computations hygiene-09 was written to prevent",
+      "severity": "P1"
+    },
+    {
+      "scenario": "the analysis treats 'node vs relation' as strictly binary and never considers a reified-relation (edge-as-node) pattern, which would resolve the tension between wanting symbol-level metadata and not wanting symbols to be directly comparable nodes in the relatedness universe",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "cites specific graph-modeling patterns (reification, RDF vs. labeled-property-graph tradeoffs, n-ary relation modeling) rather than asserting a representational preference",
+    "traces each option's consequence through to a concrete label/schema/index sketch, not only prose description",
+    "names exactly which existing queries or indices (relatedness build, family clustering, `validateCanon`) would need to change under each option, and how",
+    "proposes at least one representation not among options A-D that resolves the node-vs-edge-vs-axis question at the ontology level rather than the implementation level"
+  ],
+  "task_context": "Determine how the jawnomicon symbol tier should be structured: what vector (if any) a symbol entry carries, how symbols relate to the existing 29-axis eidogen space for beings, and where symbols sit in the graph and relatedness layers. Surface options beyond the four already listed, especially any that question whether a symbol should be a node with coordinates at all. Attack each option against the measured constraints: the five universal axes, the covariance ratchet's pairwise-deletion estimates, the hygiene-09 V-shrinkage lesson, the strict 29-key creature schema, and the downstream jawnsight grammar. This review's specific lens is graph and ontology modeling: the entity/relation boundary, schema mechanics, and graph-topology enforcement of any chosen representation."
+}

@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-rust-data-model-correctness covers type and lifetime correctness",
+    "fd-game-balance-budget covers numeric tuning",
+    "fd-mechanical-distinctness covers design-level uniqueness"
+  ],
+  "decision_lens": "Prioritizes integration bugs where the same interaction gets applied twice, graduated strength is dropped at call sites, or clamping interacts badly.",
+  "focus": "Whether integration points in deployment_effectiveness, stress, scoring, and evolution correctly consume the central registry",
+  "name": "fd-integration-contract",
+  "persona": "A backend engineer who specializes in reviewing integration boundaries between modules.",
+  "review_areas": [
+    "Verify evaluate_interactions() is called once and shared across callers per tick",
+    "Check effectiveness integration for sign confusion with negative synergy mods",
+    "Audit evolution integration: cognitive_dissonance needs access to deployment outcome data",
+    "Check feudal_lord blocking behavior encoding in InteractionEffects struct",
+    "Assess stoic_anchor affect-other-agents field gap in InteractionEffects",
+    "Check institution filter logic for None vs Some interactions"
+  ],
+  "success_hints": [
+    "evaluate_interactions() is called exactly once per tick and results threaded to all consumers",
+    "All 8 InteractionEffects fields have at least one interaction using them AND one integration point reading them"
+  ],
+  "task_context": "Shadow Work central registry pattern means evaluate_interactions() is the single source of truth, consumed by deployment_effectiveness.rs, stress.rs, scoring.rs, and evolution.rs."
+}

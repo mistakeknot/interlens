@@ -1,0 +1,48 @@
+{
+  "anti_overlap": [
+    "fd-realtime-audio-integrity owns the mechanics of how branch B is actually shed at the audio-engine level; this agent owns when/why that shed is triggered and whether the thermal policy itself is sound",
+    "fd-storage-durability owns the separate storage-pressure degrade state machine (frame-selective/pause); this agent owns the thermal/power degrade state machine and where the two policies could interact or conflict (e.g., both degrading simultaneously)",
+    "fd-avfoundation-capture-pipeline owns whether the capture session mechanically survives interruptions; this agent owns whether backgrounding/idle-timer/thermal policy decisions are correct given the device's real sustained power/thermal envelope"
+  ],
+  "decision_lens": "On a physically chest-mounted 13 mini running screen-on 4K30 HEVC encode plus GPS plus continuous IMU for 60 minutes in direct sun or a hot pocket, does the degrade/recover state machine actually prevent thermal shutdown, or does it just react one step behind reality with no hysteresis, oscillation guard, or accounting for the screen-on power draw itself being part of the problem?",
+  "focus": "iOS power, thermal, and background-execution management on iPhone 13 mini for a sustained 60-minute foreground capture workload",
+  "name": "fd-ios-power-thermal",
+  "persona": "Apply the perspective of an iOS performance engineer who specializes in thermal/power profiling on A-series chips — they care about sustained (not burst) thermal behavior, the ordering and hysteresis of degrade/recovery transitions, and whether the design's thermal response is grounded in ProcessInfo.thermalState's actual coarse-grained, delayed signal rather than treated as a fine-grained real-time control input.",
+  "review_areas": [
+    "ProcessInfo.thermalState granularity (nominal/fair/serious/critical, delivered via notification with no numeric temperature and often laggy) versus the design's implied need for graduated response — is 'shed branch B -> reduce indicator cadence -> never reduce capture quality' actually enough state to avoid oscillating at the serious/critical boundary, and is there hysteresis to avoid rapid flapping between states",
+    "Whether the persistent screen-on requirement (chest-mount indicator visibility) is itself accounted for as a major sustained heat/power contributor, and whether display brightness or screen timeout policy is considered as a degrade lever before capture quality",
+    "GPS (continuous, presumably high-accuracy CLLocationManager) and 50 Hz IMU as sustained background power/thermal contributors — are these included in the thermal budget and degrade ordering, or does the design only model the capture pipeline (camera+encoder) as the heat source",
+    "Battery/idle-timer interaction: idle timer explicitly disabled (isIdleTimerDisabled) for the full 60-minute session — verify this is scoped correctly (re-enabled on session end/crash) and doesn't combine with foreground-only operation to create an unrecoverable state if the app is backgrounded unexpectedly (call, notification, control center)",
+    "A15 chip sustained 4K30 HEVC hardware encode thermal envelope on the mini's smaller chassis/battery (worse thermal mass and battery capacity than standard/Pro models) — whether the 'default ~40 Mbps' bitrate assumption and thermal degrade thresholds were validated against the mini specifically rather than assumed from larger-chassis testing",
+    "Recovery path when thermalState improves (serious -> fair -> nominal) — is branch B tap consumer resumption specified with the same rigor as the shed path, and is there a cooldown/debounce to avoid immediately re-triggering shed on a state flap"
+  ],
+  "severity_examples": [
+    {
+      "condition": "no fallback degrade step exists beyond 'shed branch B + reduce indicator cadence' before critical thermalState, and 'never capture quality' is treated as an absolute rather than a last-resort-before-hard-stop tradeoff",
+      "scenario": "The degrade order shreds branch B and reduces indicator cadence at 'serious' thermalState, but by the time serious fires the device is already minutes from thermal throttling/shutdown given ProcessInfo.thermalState's known reporting lag — the 60-minute soak test fails intermittently in a way that looks like a one-off but is a structural signal-lag problem, and there's no more aggressive lever (e.g., reducing capture resolution/bitrate, which the design explicitly refuses to touch) once branch B and indicator cadence are already fully shed.",
+      "severity": "P0"
+    },
+    {
+      "condition": "no explicit handling of UIApplication background/foreground transitions is described for the capture session or idle-timer state",
+      "scenario": "isIdleTimerDisabled is set for the session but the app can be interrupted (incoming call, Control Center swipe, iOS system alert) forcing background/inactive state; capture session behavior (and idle timer restoration) in that transition is unspecified, risking either continued full-power capture while backgrounded (worse thermal/battery + possible AVCaptureSession backgrounding restrictions causing silent stop) or a stuck disabled idle timer if the app is force-quit mid-session.",
+      "severity": "P0"
+    },
+    {
+      "condition": "no hysteresis/minimum-dwell-time is specified for thermal state transitions",
+      "scenario": "Thermal state transitions are treated as one-directional triggers with no debounce; a borderline device oscillating between fair and serious causes branch B to repeatedly shed and resume within the same session, producing session-stats noise that makes the soak-test acceptance data unreliable and potentially causing repeated conversion/allocation churn in the tap consumer.",
+      "severity": "P1"
+    },
+    {
+      "condition": "GPX/IMU sidecar capture is described only in terms of data format, with no power/thermal accounting",
+      "scenario": "Continuous high-accuracy GPS and 50 Hz IMU sampling are not mentioned anywhere in the thermal/power budget or degrade ordering, despite being always-on for the full session duration and non-trivial power draws on a mini-class battery.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Grounds claims in ProcessInfo.thermalState's actual documented behavior (coarse 4-level enum, notification-driven, no absolute temperature) rather than treating it as a fine-grained sensor",
+    "Explicitly checks for hysteresis/debounce in any state-transition-driven degrade logic",
+    "Accounts for screen-on, GPS, and IMU as thermal/power contributors alongside the camera/encoder pipeline",
+    "Distinguishes the iPhone 13 mini's smaller thermal mass/battery from generic 'iPhone' assumptions"
+  ],
+  "task_context": "Reviewing a brainstorm/design document for an iOS ambient-capture app targeting a specific device (iPhone 13 mini, chest-mounted, screen-on, no SIM) that must sustain a 60-minute recording session without thermal shutdown or dropped audio. The design specifies a thermal degrade order (shed sheddable audio branch -> reduce indicator cadence -> never reduce capture quality) driven by ProcessInfo.thermalState. Goal is to catch device-specific power/thermal reasoning gaps before the physical soak test is attempted."
+}

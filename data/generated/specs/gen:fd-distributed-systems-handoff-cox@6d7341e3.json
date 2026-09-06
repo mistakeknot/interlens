@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Do not estimate model pricing, pool accounting, or total token economics; the observability and token-gate reviewer owns those questions.",
+    "Do not judge whether Opus supplies semantic information beyond the frozen criteria except where state independence is required; the verification reviewer owns validator value.",
+    "Do not flag generic prompt style, prose clarity, or model preference unless it breaks artifact identity or recovery semantics."
+  ],
+  "decision_lens": "A handoff is safe only when the receiver can identify the exact state and contract it was derived from, reject stale preconditions before mutation, and retry without duplicating or obscuring observable effects.",
+  "focus": "State-transfer correctness across the orchestrator, fresh-context executor, validator, and landing boundary, including plan drift, retries, and concurrent repository mutation.",
+  "name": "fd-distributed-systems-handoff-cox",
+  "persona": "Apply the perspective of a distributed-systems reliability reviewer who treats the orchestrator, executor, and validator as independently scheduled nodes communicating through versioned durable artifacts and a mutable repository.",
+  "review_areas": [
+    "Check whether every plan binds its assumptions and frozen criteria to an identifiable repository commit, worktree, dependency state, and plan revision.",
+    "Trace artifact identity from plan creation through executor commit, report, validator rerun, and final landing so mixed revisions cannot be mistaken for one successful item.",
+    "Evaluate plan-drift and stale-state detection before writes begin, including changes made by parallel items, hooks, humans, or generated files after planning.",
+    "Test retry and two-strikes semantics after partial edits, partial commits, flaky verification, executor loss, or validator loss; require idempotent recovery or explicit compensation.",
+    "Check ordering, ownership, and conflict handling when multiple offloaded items share files, tests, generated artifacts, or prerequisites.",
+    "Determine whether the validator observes an independent post-execution state and can distinguish executor defects from environmental drift or nondeterminism."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Plan, report, and validation evidence lack a shared immutable revision identity or landing rechecks it incorrectly.",
+      "scenario": "An executor edits one repository revision while the validator reruns against another, both report PASS, and the orchestrator lands a commit that never satisfied the frozen plan.",
+      "severity": "P0"
+    },
+    {
+      "condition": "The pilot protocol has no idempotency key, preflight state check, or recovery rule for partial effects.",
+      "scenario": "A retry after a partial commit can duplicate edits, overwrite a sibling item, or consume the second strike without determining what state the first attempt left behind.",
+      "severity": "P1"
+    },
+    {
+      "condition": "The result is recoverable but increases context and makes stale evidence easier to accept.",
+      "scenario": "Reports omit the plan hash or executed commit SHA, forcing the orchestrator to reopen artifacts and infer which attempt produced the evidence.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Produce a minimal handoff envelope naming the plan revision, base commit, resulting commit, verify command identity, and attempt identity.",
+    "Walk at least one stale-plan race and one partial-failure retry from dispatch through landing.",
+    "Identify which preconditions must fail closed before an executor mutates files.",
+    "State whether Q-E understates the new failure surface by treating plan drift as a single failure rather than a family of distributed-state faults."
+  ],
+  "task_context": "Review the cited Pattern F design before three pilots. Stress-test the main-thread offload architecture (Pattern F) before its pilots run: what silently fails when execution moves from a 300K-context frontier main thread to fresh-context Sonnet executors and Opus validators; whether the validator adds information or only cost; where the orchestrator's context still bloats; plan-drift and stale-state failure modes; what the token-share gate (<=50% main-thread generated tokens) fails to capture; and which of the five open questions Q-A..Q-E has a wrong premise."
+}

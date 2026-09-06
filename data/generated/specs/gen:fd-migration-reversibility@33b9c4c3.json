@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Do not review SQLite WAL checkpoint mechanics — that is fd-sqlite-wal-safety's domain.",
+    "Do not review systemd unit lifecycle sequencing — that is fd-systemd-lifecycle's domain.",
+    "Do not review Discord/Telegram reconnect window or token conflict — that is fd-gateway-reconnect's domain."
+  ],
+  "decision_lens": "Rank by whether a failure mid-migration leaves the system in an unrecoverable state (no clean rollback path) vs a recoverable degraded state. Prefer migrations that can be safely aborted at any phase boundary with a documented recovery procedure.",
+  "focus": "Archive-not-delete invariants, forward/back recovery paths, ordering dependencies between phases, pre-flight completeness, and orphan process hygiene.",
+  "name": "fd-migration-reversibility",
+  "persona": "Apply the perspective of a site reliability engineer who designs rollback-safe migration procedures — they care about whether every destructive step has a documented reversal action, measure whether the archive contains everything needed to restore the previous state without data loss, and flag ordering violations where a later step assumes state that a earlier step may have partially destroyed.",
+  "review_areas": [
+    "Verify that the archive in Phase 2 (step 9-10) includes all files needed for full rollback — specifically check whether auth.json and auth.lock are intentionally excluded from the archive or erroneously omitted; auth.json likely contains bot token configuration that is needed if the profile's .env is somehow corrupted.",
+    "Check whether the Phase 1 → Phase 2 ordering creates a window of inconsistency — after step 6 (profile created from root) but before step 9 (root archived), two copies of state.db exist on disk and both reference the same historical data; if a crash occurs in this window and the operator restores from archive, they have a valid state; but if step 8 (rm -f profile/state.db-shm -wal) runs before Phase 2 completes, the profile state.db is now the only clean copy — flag this dependency.",
+    "Confirm that the fallback procedure in step 18 ('copy _archive_root_preprofile/channel_directory.json into profile, restart') is sufficient for the channel routing failure case — this only addresses the channel_directory.json case, not the case where state.db itself is inconsistent; document a full rollback procedure that restores HERMES_HOME to the root directory.",
+    "Validate that SIGTERM of orphan auraken-lens processes (Phase 0 step 3) will not kill the Auraken gateway process itself — pgrep -f auraken-lens should be scoped to MCP server processes, not the gateway; the plan mentions PID 1975729 as the unrelated Auraken PID to preserve; confirm the SIGTERM command excludes that PID.",
+    "Check that the 12 orphan dolt sql-server processes explicitly excluded from cleanup (under 'What is NOT being done') do not hold open file descriptors on /home/mk/.hermes-amtiskaw/state.db — if they do, the lsof check in step 2 will prevent the checkpoint from proceeding; the plan says they are 'harmless idle' but has not confirmed they are not SQLite readers.",
+    "Verify that the archive directory naming convention (_archive_root_preprofile_20260423) is consistent and that both archive operations (step 5 and steps 9-10) use distinguishable names that do not conflict — _archive_pre_migration_20260423_amtiskaw vs _archive_root_preprofile_20260423 are different enough, but confirm the profile-level archive is not accidentally nested inside the root archive."
+  ],
+  "severity_examples": [
+    {
+      "condition": "The auraken-lens SIGTERM command uses a broad pgrep pattern that matches Auraken gateway's own MCP children, not just the 20 orphaned pts-session processes.",
+      "scenario": "SIGTERM is sent to all processes matching 'auraken-lens' including the Auraken gateway's own lens subprocess, taking down the separate production Auraken gateway. Constraint 'Must not break Auraken' is violated.",
+      "severity": "P0"
+    },
+    {
+      "condition": "No atomic guarantee across the multiple `mv` operations in step 10; each is individually atomic but the sequence is not.",
+      "scenario": "Phase 2 archive move fails partway through (disk full, permission error) after sessions/ is moved but before state.db is moved. The profile state.db is now the only copy; root is in a half-archived state. Rollback requires manually reassembling the root from the partial archive.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Plan does not include a full rollback runbook for the case where gateway starts but state is incorrect.",
+      "scenario": "The rollback documentation only covers the channel_directory.json failure case (step 18). A full rollback to root layout requires stopping the service, updating HERMES_HOME back to the root, running daemon-reload, reset-failed, and start — this procedure is not documented in the plan and operators under pressure may miss a step.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Check whether a full rollback procedure (not just step 18's channel_directory.json fallback) is documented for the case where the profile gateway is broken.",
+    "Verify the SIGTERM scope for auraken-lens processes explicitly excludes the running Auraken gateway PID.",
+    "Flag whether dolt sql-server processes are confirmed to not hold SQLite handles on hermes-amtiskaw's state.db before the lsof check."
+  ],
+  "task_context": "Reviewing the Hermes Amtiskaw migration plan (hermes-amtiskaw-migration-plan.md) for rollback safety and migration ordering correctness. The plan uses archive-not-delete semantics across two archive operations (stale profile archive in Phase 1, root state archive in Phase 2). The plan has an explicit constraint that Auraken must not be broken, and explicitly excludes 12 orphan dolt processes from cleanup. Today's outage was caused in part by inadequate pre-flight checks before a destructive operation."
+}

@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-messaging-protocol covers poll semantics, inbox/topic routing, and message delivery guarantees — not storage internals",
+    "fd-tool-surface covers the 40+ MCP tool API design and ergonomics — not how tools persist their effects",
+    "fd-coordination-identity covers agent registration, contact policies, and identity lifecycle — not storage backends"
+  ],
+  "decision_lens": "Prioritizes findings where Sylveste's current stack (Intercore's SQLite phase store, Interlock's file-based reservations) could learn concrete durability guarantees or rollback patterns. Elevates any finding where Git-as-audit-log creates unexpected coupling or operational overhead.",
+  "focus": "SQLite+Git dual-persistence patterns: how mcp_agent_mail achieves durable message storage with Git as audit trail",
+  "name": "fd-persistence-durability",
+  "persona": "A distributed systems engineer specializing in embedded databases and event sourcing. Approaches durability from first principles: what guarantees does each storage layer provide, and where do they complement or conflict?",
+  "review_areas": [
+    "How mcp_agent_mail sequences SQLite writes vs Git commits — is Git the source of truth or a secondary audit log, and what happens on crash between the two?",
+    "Transaction boundaries: does each MCP tool call map to a single atomic SQLite transaction, and how are partial commits surfaced to callers?",
+    "Git commit message schema and whether messages encode enough metadata (agent ID, tool name, timestamp) to replay or audit without touching SQLite",
+    "Compaction / archival strategy: does old message data get pruned from SQLite, from Git history, or neither — and what is the operational impact at scale?",
+    "Read-path consistency: when a poll tool reads messages, does it read from SQLite or from Git-tracked files, and how is stale-cache risk managed?",
+    "Applicability to Intercore: where Intercore's phase-gated sprint state could adopt the same dual-write pattern vs where it would be over-engineering"
+  ],
+  "success_hints": [
+    "Find at least one durability guarantee in mcp_agent_mail that Intercore's sprint store does not currently provide, with a concrete adopt/skip recommendation",
+    "Identify whether Git's atomic commit model is exploited for rollback or is purely decorative — this determines whether Sylveste should replicate it",
+    "Determine if the dual-persistence adds measurable latency overhead that would be unacceptable in Intermute's real-time WebSocket path"
+  ],
+  "task_context": "mcp_agent_mail is a Python/FastMCP coordination server using SQLite for runtime state and Git commits for durable audit. Sylveste's coordination stack (Intermute, Interlock, Intercore) uses Go with SQLite and file-based approaches but lacks a unified audit trail. The goal is to extract adoptable patterns, not to port the code."
+}

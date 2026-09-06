@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-repomap-build-vs-integrate covers where graph computation lives (Go vs intermap) — this agent assumes ranked scores are available and focuses on the downstream prompt assembly",
+    "fd-repomap-graph-model covers the PageRank algorithm and ranking computation — this agent starts where ranked scores end",
+    "fd-repomap-alternatives covers non-Aider ranking strategies — this agent is algorithm-agnostic and focuses on the priompt integration contract regardless of ranking source"
+  ],
+  "decision_lens": "Every design choice is evaluated against two questions: does it keep the stable prompt prefix intact for Anthropic cache hits, and does it degrade gracefully when the token budget shrinks?",
+  "focus": "Design the interface between the ranked repomap output and Skaffen's priompt token-budget system, including element structure, binary-search fitting, cache-stability, and phase-aware priority",
+  "name": "fd-repomap-priompt-integration",
+  "persona": "A prompt engineering systems designer who thinks about context assembly as a data pipeline with hard token constraints. Has deep familiarity with Skaffen's priompt.Element/Render API and the OODARC phase model.",
+  "review_areas": [
+    "Map the repomap output format (ranked file list with symbols) to priompt.Element fields: what Priority value range is appropriate relative to other system prompt sections, should it use Stable=true or false, and which PhaseBoost values make sense per OODARC phase (build vs brainstorm need different code context weight)",
+    "Evaluate binary-search token fitting: Aider bisects the ranked file list until it fits the budget — assess whether this logic belongs in the priompt.ContentFunc closure (called per render), in a pre-render caching layer, or as a new priompt API (e.g. a BudgetedList element type)",
+    "Analyze the interaction between repomap token consumption and the estimateMessageTokens budget subtraction in agent/loop.go — the repomap is a system prompt element but must leave headroom for conversation history; model the worst-case token partition",
+    "Design the ContentFunc signature for a dynamic repomap element: what inputs does it need (conversation text for personalization seed, current phase, remaining budget), and how does it avoid blocking the render hot path with a slow graph computation",
+    "Check whether RenderResult.StableTokens is invalidated if the repomap element changes rank between turns (it will) — evaluate whether the repomap should be non-stable (dynamic) and what that costs in cache hit rate",
+    "Assess the output format rendered into the prompt: Aider uses a specific text format with file paths and tag signatures — evaluate alternatives (JSON, markdown code fence, concise symbol index) for LLM parse quality per token"
+  ],
+  "success_hints": [
+    "A concrete priompt.Element definition for the repomap section including Priority, PhaseBoost map, Stable flag, and ContentFunc interface contract",
+    "A token partition model showing how repomap budget interacts with system prompt stable prefix, conversation history, and tool result headroom at 100k and 200k context windows",
+    "A clear recommendation on whether binary-search fitting happens inside ContentFunc or as a pre-computation step, with rationale about blocking vs async tradeoffs in the TUI render loop"
+  ],
+  "task_context": "Skaffen is a pure-Go (CGO_ENABLED=0) sovereign agent runtime that needs a conversation-aware, token-budgeted repo map for LLM context. The priompt system uses ContentFunc/Element/Render to assemble system prompts within a token budget, with cache-stable prefixes and phase-aware priority boosts."
+}

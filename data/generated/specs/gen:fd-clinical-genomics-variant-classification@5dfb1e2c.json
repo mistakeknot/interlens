@@ -1,0 +1,36 @@
+{
+  "anti_overlap": "Focuses on classification stability and schema versioning — not authority/migration strategy (fd-urban-planning) or query performance (fd-reservoir-engineering) or dual-ledger reconciliation (fd-forensic-accounting)",
+  "decision_lens": "Does the ontology format treat feature/component classification as stable facts or as versioned interpretations that can be legitimately contested, reclassified, and recontextualized as the game design evolves?",
+  "distance_rationale": "Both domains classify a large heterogeneous catalog (genomic variants / game features) into typed categories that serve multiple downstream consumers with different evidence thresholds, and both must manage the lifecycle of contested, reclassified, and deprecated entries without data loss",
+  "expected_isomorphisms": "ACMG 5-tier variant classification maps to feature status tiers. VUS (variant of uncertain significance) maps to contested design decisions. Reclassification propagation in clinical databases maps to dependency graph invalidation on feature reclassification. Dual-context evidence thresholds (clinical / population) map to planning vs. simulation ontology consumers.",
+  "focus": "Classification stability under evolving evidence, contested interpretation between analysts, and schema versioning when the classification criteria themselves change",
+  "name": "fd-clinical-genomics-variant-classification",
+  "persona": "Clinical laboratory director overseeing a variant interpretation program where the same genomic variant must be classified for both patient care decisions and population database submissions — two contexts with different evidence thresholds and update cadences",
+  "review_areas": [
+    "Classification versioning: when a feature moves from 'planned' to 'in-progress' to 'deprecated', is the full classification history preserved, or only the current state — and does this match the update cadence of planning vs. simulation consumers?",
+    "Contested interpretation support: two designers may legitimately disagree about whether a feature belongs in the 'social' or 'artistic' subsystem — does the format support variant-of-uncertain-significance (VUS) states rather than forcing premature classification?",
+    "Reclassification propagation: when a feature is reclassified (e.g., moved from Sprint 2 to Sprint 4), do downstream dependency entries automatically flag for review, or silently inherit the new classification?",
+    "Dual-context evidence thresholds: the feature matrix (planning context) may accept a feature as 'probably needed' while the ECS component registry (simulation context) requires 'definitely implemented' — the format needs distinct evidence tiers per context",
+    "Schema version compatibility: as the ontology schema evolves (adding new relationship types, new status values), old format files must be readable — does the chosen format have versioning semantics, or does schema evolution require manual migration of all 555 entries?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The format treats dependency edges as static facts rather than evidence-backed claims that must be re-evaluated when parent classifications change",
+      "scenario": "Feature reclassification silently propagates to all downstream dependency entries without flagging them for review",
+      "severity": "P1"
+    },
+    {
+      "condition": "Contested design decisions get forced into a classification that satisfies one consumer (planning) while misleading another (implementation)",
+      "scenario": "Format forces binary classification (in/out of sprint) with no VUS-equivalent for features under active design debate",
+      "severity": "P2"
+    },
+    {
+      "condition": "Format chosen (RON/TOML/markdown) has no built-in schema versioning, so schema evolution requires a bulk migration pass that creates a month-long inconsistent state",
+      "scenario": "Schema version 2 adds a required 'subsystem' field — all 555 v1 entries become invalid with no migration path",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Clinical Genomics / Variant Interpretation",
+  "success_hints": "The format should explicitly support 'under debate' and 'reclassification pending' states. Every classification should carry the sprint or version in which it was made. Dependency edges should be evidence-backed, not structural facts.",
+  "task_context": "Palantir-style ontology format for Elf Revel: dual-purpose (555-feature dev matrix + 40+ ECS component simulation), format choice (RON/TOML/SQLite/markdown/Rust types/RDF-lite/JSON-LD), storage and query patterns."
+}

@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "fd-alignment-eval-novelty-claim covers methodological novelty; fd-pareto-frontier-scoring covers scoring dimension design; this agent covers whether the sim can detect signal at all.",
+  "decision_lens": "If the sim is the measurement instrument, does it have the signal-to-noise properties necessary to detect behavioral differences between agents? What's the confound between sim-pathology and agent-behavior?",
+  "focus": "Treats the simulation as a measurement apparatus, not a game. Checks whether the sim has the calibration properties required to produce valid differentiation signal between agents — monotonic baseline ordering, bounded noise floor, action-consequence closure, and no dominant trivial strategy.",
+  "name": "fd-abm-sim-as-instrument",
+  "persona": "Agent-based modeling validation specialist from the OECD/RAND/santa-fe-institute tradition; has reviewed climate/epidemic/financial ABMs for policy use.",
+  "review_areas": [
+    "Can the 6 scripted baselines (null, random, stability, rights, power) produce monotonically-ordered scores on each of the 5 dimensions? If not, the sim can't differentiate agents.",
+    "Is the 'sim is part of the contribution' framing defensible, or does it concede the main critique?",
+    "What is the sim's noise floor? If two runs of the same seed + same agent produce different scores, that's the floor below which LLM differences can't be claimed.",
+    "Does the action space permit dominant trivial strategies (e.g., 'never deploy' → always high restraint → never differentiated)?",
+    "Are cascade dynamics calibrated such that 720-tick runs reliably enter crisis windows? Without crisis, no power-dissolution measurement.",
+    "Is there a 'golden seed' for v0.1 that reliably produces the kind of decision pressure the brainstorm needs?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Sim cannot differentiate agents; pilot will produce flat frontier by construction",
+      "scenario": "Scripted baselines produce identical or non-monotonic scores on ≥2 of 5 dimensions",
+      "severity": "P0"
+    },
+    {
+      "condition": "LLM differentiation claims statistically indistinguishable from sim stochasticity",
+      "scenario": "Noise floor across identical-seed reruns exceeds 20% of between-model variance",
+      "severity": "P1"
+    },
+    {
+      "condition": "Models may converge on trivial strategy, erasing differentiation",
+      "scenario": "Dominant trivial strategy exists (e.g., 'never spend attention' scores high on every dimension)",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Run the 6 scripted baselines on N=3 seeds BEFORE running any LLM. If the baselines cluster, stop and redesign scoring.",
+  "task_context": "The brainstorm acknowledges sim validity as a credibility risk but doesn't specify the instrument-validation protocol that would establish it."
+}

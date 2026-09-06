@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "Leaves the walk simulation's tick logic, pathfinding, door/stair/station allocation, and determinism-under-frame-timing to the tick-simulation reviewer.",
+    "Leaves canvas scale/DPR, image-smoothing scoping, offscreen drawRoomTo capture correctness, and viewport/camera-pan mechanics to the canvas-rendering reviewer.",
+    "Does not re-litigate the determinism sweep or roomFor's existing rotation math (Must-Have: mechanics are bit-identical) — reviews only the storage layer's new stores, migrations, and the ledger addition."
+  ],
+  "decision_lens": "If a player bounces at the Wave 1 gate, opens two tabs on the same profile, or keeps playing for months, does every store this plan touches still read back exactly what was written, with no lost writes, no un-openable database, and no unbounded growth — or does the plan's prose describe the happy path only?",
+  "focus": "Whether the plan's IndexedDB changes — the additive DB_VERSION 9→10 bump and two new stores (Task 5), the home-room resolution/day-counting algorithm that reads and writes one of those stores (Task 5 Steps 2–3), the ledger's new spend() (Task 11), and the snapshot capture/store lifecycle (Task 13) — are actually consistent, race-free, and won't corrupt or silently diverge player state across sessions, tabs, and the Wave 1/Wave 2 gate boundary.",
+  "name": "fd-clientstorage-schemamigration",
+  "persona": "Apply the perspective of a client-side storage engineer who specializes in offline-first web apps — IndexedDB schema versioning and migration safety, multi-tab/concurrent-write consistency, and blob-store lifecycle and retention management.",
+  "review_areas": [
+    "Task 5 Step 1's migration (\"bump DB_VERSION to 10... additive\") and the plan's claim that \"a bounce at the gate is a one-line revert\" (line 15): verify a player who reaches Wave 1 (DB at v10, home_rooms/house_snapshots stores created) and is then rolled back to a pre-Wave-1 build (DB_VERSION 9 code) doesn't hit an IndexedDB open failure or silent data loss — IndexedDB does not support downgrading a database's version once opened, so a revert needs an explicit story for what happens to a v10 database opened by v9 code.",
+    "Task 5 Step 2's resolveHomeRooms day-counting (challengerDays, \"only when dateKey differs from the last counted day,\" stored in a \"since-style lastDay field\" the prose names but the HomeRoomRow interface in the same step and in the Must-Haves artifact list doesn't declare): confirm the persisted row shape actually has somewhere durable to read the last-counted day back from across reloads, or whether the type is simply missing a field the algorithm depends on.",
+    "Task 5's interaction with refreshFromStores (Task 8 Step 2): getHomeRooms() loads once per mount while resolveHomeRooms recomputes on every [presences, rhymeStepsByRoom, rooms, dateKey] change and conditionally calls saveHomeRooms; with two tabs/windows open on the same profile — a normal IndexedDB access pattern, not an exotic one — verify concurrent reads-then-conditional-writes of home_rooms can't produce a lost update (one tab's stale stored overwriting another tab's just-saved challenger promotion) given neither store function nor the calling effect describes a version check or a transaction spanning the read-decide-write cycle.",
+    "Task 11's spend(amount): \"refuses (ok: false, balance unchanged) when balance < amount; otherwise writes... in one readwrite transaction\" — check whether the balance check and the write happen inside the SAME transaction (so a concurrent spend/spendMint from another tab or a double-tapped buy button can't slip in between the check and the write), or whether the read-then-branch happens outside the transaction the write uses, making the refusal check racy under exactly the concurrent-purchase scenario the catalog UI (Task 12) invites.",
+    "Task 13's snapshot store: saveSnapshot is write-once via add with ConstraintError swallowed, keyed ${dateKey}:${daypart}, and getSnapshots(limit=30) reads newest-first — but nothing in Task 13 or the Acceptance Criteria prunes old rows from house_snapshots; over months of play the store (holding PNG blobs) grows unbounded while only the most recent 30 are ever read, a storage-quota risk the plan doesn't budget for or test.",
+    "Task 14's purge (retiring conjure/journal): the migration in Task 5 only adds stores; nothing in Task 14's file list or verify block removes or migrates whatever IndexedDB store lib/conjure.ts used — confirm whether that store becomes permanently orphaned dead weight in every player's database, or whether removing the reading/writing code without a migration step risks a future store-name reuse misreading stale conjure rows."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Occurs the first time a player double-taps an unresponsive-feeling button, or plays the same profile on phone and desktop simultaneously — not a contrived scenario.",
+      "scenario": "spend()'s balance check and its write are not proven to share one transaction (Task 11 Step 1 describes the write's transaction, not the check's), so two rapid taps on a catalog item's buy button (Task 12), or two tabs open on the same profile, can both read a sufficient balance before either writes, both succeed, and the player is charged twice for one purchase or driven to a negative balance the ledger was designed to forbid.",
+      "severity": "P0"
+    },
+    {
+      "condition": "The \"one-line revert\" claim is unverified against the one persistence mechanism the wave actually changed, and the gate (AC 12) exists precisely to make a bounce cheap and likely.",
+      "scenario": "The DB migration (Task 5) is purely additive with no documented downgrade path, but the plan explicitly promises the Wave 1 gate bounce is \"a one-line revert\" (line 15); if mk plays on the Wave 1 build (DB at v10) and the team reverts the deployed code to pre-Wave-1 (DB_VERSION 9), IndexedDB's version-only-increases contract means the reverted app either fails to open the database or must carry extra downgrade-handling code the plan never scopes.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Manifests only after months of continuous play, so it won't surface in any pre-ship QA sweep (Task 9, Task 15).",
+      "scenario": "house_snapshots accumulates one PNG blob per selected daypart per day indefinitely (Task 13 Step 3 defines add-based writes and a 30-row read limit, but no delete/retention policy), so IndexedDB storage for the profile grows without bound over a long-lived save, risking a browser storage-eviction event for the whole app's persisted state (ranch, ledger, home rooms) long after the record drawer itself stopped surfacing the oldest snapshots.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Anchors every finding to the specific Task number, step, and file/line the plan gives (e.g., Task 5 Step 1's lib/eventOutbox.ts:50/:176-178, Task 11's lib/stepLedger.ts:96-120) rather than generic \"IndexedDB is hard\" concerns.",
+    "Treats the plan's own stated invariants (\"additive,\" \"bit-identical,\" \"a one-line revert\") as claims to verify against IndexedDB's actual versioning semantics, not as givens.",
+    "Separates a genuine data-race or migration hazard from a merely undocumented-but-safe detail — states which lock, transaction, or ordering guarantee is missing for each finding, not just that concurrency exists in the abstract.",
+    "Considers the two-wave gate explicitly: what a Wave-1-only player's persisted data looks like, and whether Wave 2's additional store/field changes (Tasks 10–13) can read Wave-1 data without a second migration.",
+    "Leaves the walk simulation's in-memory WalkState correctness and canvas capture drawing code to the other two reviewers; reviews only what is written to, read from, or migrated in IndexedDB."
+  ],
+  "task_context": "Target: the cross-section implementation plan at docs/plans/2026-09-02-cross-section.md (bead uncrancher-9zo), specifically Task 5 (home_rooms/house_snapshots stores, DB_VERSION 9→10, resolveHomeRooms's day-counting persistence), Task 11 (stepLedger's new spend()), and Task 13 (snapshot capture and write-once storage), plus the plan's own claim that a Wave 1 gate bounce is 'a one-line revert.' Apply the client-storage/IndexedDB engineering perspective above and find what makes this plan fail and what it's missing — specifically whether the additive migration, the home-room day-counter's persisted shape, the ledger's spend/check ordering, and the unbounded snapshot store are actually race-free, revertible, and storage-safe as specified, or whether the plan asserts guarantees (one-line revert, no double-spend, bounded storage) that its own task steps don't actually deliver."
+}

@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-ipc-transport-design covers wire-level transport tradeoffs",
+    "fd-process-boundary-collapse covers merging Node and Rust",
+    "fd-container-output-extraction covers stdout marker parsing"
+  ],
+  "decision_lens": "Prioritizes changes that close the known fire-and-forget gaps before optimizing for latency. A slower reliable path beats a fast lossy one.",
+  "focus": "Reviews the end-to-end message delivery contract: what guarantees exist, where messages can be lost, and which redesign option closes each gap",
+  "name": "fd-delivery-guarantee-model",
+  "persona": "Distributed systems engineer who specializes in message durability and at-least-once delivery semantics. Approaches the codebase by mapping every write path to its failure modes and asking what happens on process crash at each step.",
+  "review_areas": [
+    "Trace HttpDelegate fire-and-forget path — identify every message that can be silently dropped",
+    "Examine dual-cursor crash window in message_loop.rs between save_cursor() and enqueue_message_check()",
+    "Assess recover_pending_messages() completeness after crash",
+    "Evaluate outbox pattern as fix for HttpDelegate loss window",
+    "Compare LISTEN/NOTIFY vs polling for at-least-once risk on connection drop",
+    "Identify whether single-process collapse eliminates dual-write gap or just moves it"
+  ],
+  "success_hints": [
+    "Every message can be proven to reach container input or be retried",
+    "Crash recovery correctly re-enqueues messages whose per-group cursor trails global cursor",
+    "Chosen IPC has explicit ack or at-least-once retry rather than fire-and-forget"
+  ],
+  "task_context": "Intercom dual-process (Node+Rust) message delivery pipeline redesign — replacing polling and fire-and-forget HTTP with reliable event-driven IPC."
+}

@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Discard stale-plan, commit-pin, dirty-tree, file-lock and strike-counter-durability findings that do not also change what a verdict is able to certify — f-001 through f-005 already hold that ground.",
+    "Discard shared-method, unverified-plate, self-authored-criteria and lane-classification findings that do not also depend on state, timing, durability, or coordination — see f-020 through f-023.",
+    "Do not resolve the tension by always preferring an isolated replay or always preferring an independent counter-assay; locate where the design chooses silently and say what the choice costs.",
+    "Do not report model routing, token pricing, prose quality, or generic workflow complexity unless coordination state and assay validity jointly make it consequential."
+  ],
+  "decision_lens": "Investigate the replay-versus-independence tension without resolving it: reproducibility machinery and independence machinery are the same machinery pointed in opposite directions. Report a finding ONLY when it requires BOTH parent perspectives. Every finding must carry an intersection_justification naming the coordination fact, the assay fact, and why removing either collapses the finding entirely.",
+  "focus": "Replay-versus-independence in Pattern F's verification chain: whether each mechanism that makes a re-run reproducible across fresh-context spawns is the same mechanism that makes the second examination certify nothing, and where the design settles that conflict by omission.",
+  "name": "fd-fused-replay-independence",
+  "persona": "Apply the perspective of a reviewer who reads a verification protocol twice — once as a distributed coordination problem (version pins, leases, durable logs, timeouts, idempotent retries) and once as an assay office (trial plate, remedy band, register, counter-assay, instrument independence) — and treats any artifact asked to serve both readings as a specification conflict until the design says which reading wins.",
+  "review_areas": [
+    "Cross every durable-state need with its register role: a strike counter must reset when a plan is repaired, a plate-calibration register must be append-only across revisions — check which one the design loses by storing both in one place.",
+    "Read the verify block as two incompatible specifications at once: an idempotent retry-safe operation and an independent second examination. Ask which one Q-A is actually asking about, and whether the doc knows it is choosing.",
+    "Treat frozen criteria as a trial plate that is also a pinned read: freezing buys reproducibility across spawns and buys plate staleness at the same rate. Look for any expiry, date letter, or re-verification interval on a plan.",
+    "Classify every non-verdict — timeout, silent subagent, sandbox denial, half-applied tree — against a tolerance fixed in advance; without one, the orchestrator's default resolution of silence is an unwritten criterion.",
+    "Examine the token-share gate as both a measurement of the wrong property (weight, not fineness) and a stale partial read over asynchronously written transcripts that the measured party itself produces.",
+    "Ask what re-tests a landed PASS: 100% pre-landing assay with zero counter-assay inverts both parents' economics, and no post-landing consistency model exists to define what re-testing would even mean.",
+    "Walk one item through pin, lease, retry, timeout crossed with sample, plate, method, instrument, and register — name every cell where a coordination fix would destroy independence, or an independence fix would reintroduce drift."
+  ],
+  "severity_examples": [
+    {
+      "condition": "One mechanism is asked to deliver both reproducibility and independence, and no durable register exists to reveal which of the two was actually obtained.",
+      "scenario": "The validator receives the executor's exact worktree and the executor's frozen plate, so its re-run is a perfectly idempotent retry and therefore certifies nothing; the resulting PASS is written to no durable register, so the gauge that produced it can never be assayed and a systematically wrong criterion survives all three pilots undetected.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Silence has neither a failure-detector policy nor a remedy band, and the resolution is made by the criterion's author with no durable trace of the criterion it turned on.",
+      "scenario": "An executor subagent never returns. The orchestrator cannot distinguish crash from slow, has no tolerance band for 'no verdict', resolves the silence itself — as the party that authored the criteria — and the two-strikes counter lives only in its context, so nothing records that the item was ever attempted.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Frozen criteria carry neither a version pin nor an expiry, and the verdict record omits the plate's age, so staleness is unrecoverable after the fact.",
+      "scenario": "A plan waits in the queue while a sibling session lands a change. Its frozen criteria still pass, because they were pinned to nothing and only assert what the plan itself edits; the register, if any, captures the PASS but not that the plate was a week old.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Name the fused cell in every finding: one coordination coordinate (pin, lease, log, timeout, retry) crossed with one assay coordinate (plate, sample, method, instrument, register, remedy).",
+    "Apply the removal test: discard any finding either parent reaches alone. Bare 'no commit pin' and bare 'the validator shares the method' are parent-alone and already on the ledger as f-001 and f-020.",
+    "Prefer findings where the fix one parent demands is exactly the damage the other fears; say where the doc settles that by omission, and do not prescribe which side should win.",
+    "Check durability against reset semantics: ask what must survive an orchestrator reset, what must not survive a plan repair, and where the design keeps both in one record.",
+    "Quote the doc's own open questions (Q-A, Q-D, Q-E) where they are the conflict rather than a question, and cite line numbers from the 34-line design doc."
+  ],
+  "task_context": "Review docs/brainstorms/2026-09-03-main-thread-offload-pattern-f.md (34 lines) before three pilots. Pattern F: a thin Fable orchestrator writes execution-grade plans; fresh-context Sonnet executors apply one plan and run its verify block; Opus validators re-run that same block and judge only the plan's frozen criteria; a main-thread token-share gate is measured by interstat profile.py; two-strikes escalation returns items to the orchestrator. The named tension: the machinery that makes a re-run reproducible (pinned state, frozen plate, replayed method, shared worktree, durable strike log) is the same machinery that makes a second examination certify nothing, while every independence fix reintroduces the drift that makes a verdict uninterpretable. HARD CONSTRAINT: report only findings that require BOTH perspectives, and include an intersection_justification in every finding."
+}

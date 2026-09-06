@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Does not cover real-world GPS session shapes or walk-length distribution — that is fd-location-game-ops.",
+    "Does not cover cozy-game pacing or negative space between encounters — that is fd-cozy-game-pacing.",
+    "Does not cover D1/D7/D30 churn modeling or cohort retention — that is fd-mobile-retention-lifecycle."
+  ],
+  "decision_lens": "At this frequency, does the 3-beat dialog tree function as a ritual that accumulates meaning, or does it become a repeated gesture that players learn to perform without reading?",
+  "focus": "Dialog-as-ritual: how encounter frequency interacts with the 3-beat dialog tree, narrative tone sustainability, and the risk of ritual fatigue or ritual dilution across a player's lifetime of encounters",
+  "name": "fd-dialog-ritual-design",
+  "persona": "Apply the perspective of a narrative/character-game designer who has worked in the tradition of Disco Elysium, Kentucky Route Zero, and 80 Days — they care about whether a repeated dialog structure gains meaning through repetition or loses it, measure success by whether a player's 50th dialog encounter still carries the tonal register of the 1st, and flag any density setting that turns the ritual into a text-skip habit or rewards players for engaging less carefully.",
+  "review_areas": [
+    "Disco Elysium's skill checks work as ritual because they are low-frequency within any given scene and their outcomes feel consequential. The 3-beat Unc taming dialog has 3 responses × 3 beats = up to 27 tonal pathways — assess whether this branching space is rich enough to maintain novelty at Option A frequency (once per walk) vs Option C frequency (3–4 per walk), and whether the dialog's tonal variation space exhausts faster than encounter variety does.",
+    "Kentucky Route Zero's dialogs are memorable partly because they are sparse — the game never gives you two significant conversations in quick succession. Assess whether the 60–90 second ritual duration is sustainable across multiple encounters per walk (Option C), or whether the second and third encounters on a single walk feel like replaying a scene rather than meeting a new character.",
+    "The 'kind / teasing / deferential' tonal axes across 3 beats create a character-expression mechanic as much as a taming mechanic — players are narrating their relationship with each Unc. Evaluate whether higher encounter density (Option C) dilutes this character-expression function by making it too frequent to feel expressive, paralleling how rapid dialog in games like Borderlands trains players to skip text.",
+    "Option D's rare encounters could make each dialog feel like a high-stakes event (the encounter was hard to get, the dialog must be worth engaging). Assess whether the lure-quality signal ('rare/weird lure → 90% chance') creates narrative priming — does a player who chose an obscure 1970s experimental album as their lure arrive at the dialog with different expectations than a player who used a chart hit? And does the current design support that priming?",
+    "Evaluate the ritual against the 'player-chosen density' alternative (brief §2): a 'depth vs breadth' setting implies that some players want more encounters with less dialog time, and some want fewer encounters with richer dialog. Assess whether the 3-beat ritual is rigid enough to survive compression (a 'short mode') without losing its ceremony, or whether compression would destroy the tonal effect.",
+    "Consider the Wandersong design precedent: its rhythm-based interactions are brief but they recur constantly, and the repetition accumulates meaning because the music contextualizes each recurrence. Evaluate whether Unc Rancher has an equivalent contextualizing mechanism (the lure music/media metadata) that could scaffold meaning-through-repetition at higher densities."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If a player encounters 3 Uncs on a 3km walk and each dialog takes 60–90 seconds, the third dialog comes 3–4 minutes after the second — at this cadence, players are still in 'encounter mode' and may read the second dialog carelessly and the third perfunctorily, establishing a skip-habit that persists into future sessions.",
+      "scenario": "Option C induces dialog skip-habit by encounter 3 of a single walk",
+      "severity": "P1"
+    },
+    {
+      "condition": "If the 3×3 dialog tree has fewer effective tonal outcomes than there are Unc families, players who walk frequently will encounter the same dialog beat sequences with different Uncs — the taming ritual feels like a UI obligation rather than a character encounter, which degrades the 'we respect our Uncs' aesthetic.",
+      "scenario": "Tonal response exhaustion before Unc family variety exhausts",
+      "severity": "P2"
+    },
+    {
+      "condition": "If the game does not communicate that an unusual lure produces an unusual Unc before the encounter, players arrive at the dialog without the narrative context that would make them read carefully — the priming effect only works if it is legible to the player before the ritual begins.",
+      "scenario": "Lure-quality priming not surfaced in pre-dialog UI",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Apply the 'second encounter on the same walk' test: if a player gets a second Unc 20 minutes into a walk, will they read the dialog as carefully as the first? Design for the answer to be yes — or choose a density where the question rarely arises.",
+    "Evaluate whether the 3-beat dialog tree needs a per-Unc variation space that scales with encounter frequency — at Option A, 3 tonal variants per beat may be sufficient; at Option C, each Unc family may need distinct dialog registers that are legibly different from each other.",
+    "The Wandersong precedent: brief repeated rituals can accumulate meaning if the context (the lure/music metadata) varies meaningfully each time. Assess whether the lure-seeding mechanism provides enough contextual variation to support higher-density ritual repetition."
+  ],
+  "task_context": "Reviewing the four encounter density options (A/B/C/D) for Unc Rancher v0 through a narrative/dialog-as-ritual lens — assessing whether each density option preserves the tonal integrity of the 3-beat taming dialog over a player's lifetime of encounters, or creates conditions for ritual fatigue and skip-habit formation."
+}

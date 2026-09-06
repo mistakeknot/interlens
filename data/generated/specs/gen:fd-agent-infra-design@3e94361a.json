@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Does not evaluate Notion DB schema or provisioning mechanics (fd-notion-architecture)",
+    "Does not evaluate portfolio prioritization or project state taxonomy (fd-multi-project-portfolio)",
+    "Does not evaluate beads issue hierarchy or label conventions (fd-beads-semantics)"
+  ],
+  "decision_lens": "Would an agent starting a new session with only access to the documented query interfaces be able to correctly answer 'what is the current portfolio priority order and which projects are blocked' without any human mediation?",
+  "focus": "Review the AI agent infrastructure design for world-model durability, query affordance correctness, coordination protocol gaps, and write-boundary enforcement between the agent fleet and the portfolio canonical layer.",
+  "name": "fd-agent-infra-design",
+  "persona": "Apply the perspective of an AI agent infrastructure architect — they care about whether agents can reconstruct portfolio state from a cold start without human help, whether the query interface (beads CLI vs Notion API) is stable enough to be embedded in agent prompts, whether the social 'no-write' convention has any observable enforcement, and whether Hermes's autonomous operation on zklw has different access patterns that break the unified-persona assumption.",
+  "review_areas": [
+    "Evaluate the 'one or two tool calls' query goal from the agent CUJ: is this achievable with the current portfolio-beads CLI + Notion API design, or does it require schema features not yet specified?",
+    "Assess whether the 'Two personas, not three' bet creates silent design gaps for Hermes — Hermes runs autonomously on zklw without a terminal session, so `bd list` CLI access may not be available without explicit SSH or API bridging.",
+    "Review whether the agent write-boundary ('agents do not run bd create in portfolio') has any audit-trail mechanism — beads command logs, session notes convention, or Notion-side read-only enforcement.",
+    "Check whether the agent's `last_synced` freshness check (referenced in both CUJs) requires agents to parse and compare timestamps, and whether the format is machine-readable or human-readable prose.",
+    "Evaluate whether Hermes's Notion API query path produces structurally identical information to Claude Code's `bd list` path — if the two paths diverge in field names or priority encoding, agent reasoning will be inconsistent across personas.",
+    "Assess whether the 'zero re-onboarding cost' goal (one-tool-call portfolio query) is achievable without a pre-formatted summary artifact — does the Initiatives DB alone contain enough context, or do agents need to also read Projects DB relations to understand scope?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Two query paths returning structurally different data invalidate the 'unified substrate' guarantee.",
+      "scenario": "Hermes running autonomously on zklw cannot call `bd list` without SSH to the Mac or zklw — but the agent CUJ 'happy path (Claude Code)' assumes CLI access, and Hermes is only given a Notion API alternative. If the Notion path returns different field shapes, the two agent types build divergent world models.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Unobservable write violations in a canonical store degrade trust in the substrate's integrity.",
+      "scenario": "The no-write social convention for agents has no observable enforcement — if an agent accidentally runs `bd update` in portfolio, the violation is invisible until a human notices priority drift.",
+      "severity": "P2"
+    },
+    {
+      "condition": "Freshness signals in non-machine-readable formats are ignored in practice, defeating the stale-view mitigation.",
+      "scenario": "`last_synced` is referenced as a machine-checkable freshness signal in both CUJs but its format and location in the Initiatives row are unspecified — agents cannot reliably parse it without a spec.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Agent CUJ happy paths specify exact field names and data shapes that agents will parse",
+    "Hermes and Claude Code query paths produce structurally identical Initiatives representations",
+    "`last_synced` field format is ISO 8601 and machine-readable per the JSON Schema",
+    "Write-boundary enforcement has at least one observable mechanism (log, audit field, or read-only Notion share)"
+  ],
+  "task_context": "The ideagui foundation serves an AI agent fleet (Claude Code interactive + Hermes autonomous) as primary consumers of the portfolio substrate. The review goal is to identify agent-specific design gaps — query interface durability, cross-persona consistency, write-boundary enforcement — that would cause agents to build incorrect or inconsistent world models of portfolio state."
+}

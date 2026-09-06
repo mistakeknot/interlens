@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Focus on structural interlocks, one-way progression, confirm-before-advance, and dead-letter/interrupted-transfer states; leave whether the flow table is closed and default-deny to fd-kashrut-separation-flow-law.",
+    "Do not review provenance-lineage completeness or classification-as-tested-property — that is fd-assay-office-purity-provenance.",
+    "Leave Swift/Python cross-language agreement and schema-as-source-of-truth to fd-treaty-translation-conformance."
+  ],
+  "decision_lens": "Does the contract make unsafe (tier, privacy_class, destination) transits structurally impossible rather than merely disallowed by policy, is stage advancement gated on confirmed outputs (both gates never open), and does every session/artifact that fails to confirm land in a defined dead-letter state with a manual drain path instead of being stranded or silently dropped?",
+  "distance_rationale": "Hydraulic lock engineering is a heavy-civil physical-infrastructure discipline governing water and gravity, wholly unrelated to software schemas, privacy classes, or ML scheduling.",
+  "expected_isomorphisms": "A canal lock moves a vessel through a sequence of chambers where both gates can never be open at once (an interlock), water only ever flows one way per operation, a vessel cannot enter the next chamber until the current one confirms level, and a vessel that gets stuck mid-transit must have a defined recovery rather than blocking the whole canal — structurally isomorphic to the tier ladder (device_realtime -> device_deferred -> personal_node -> cloud_burst), the (tier x privacy_class) egress gate that must never let raw cross to cloud/corpus, the verify-then-confirm-before-advance discipline, and the dead-letter state for sessions whose routed stages never confirm.",
+  "focus": "One-way tier progression, level-difference gating, interlocks, and stranded-vessel (dead-letter) handling",
+  "name": "fd-canal-lock-tier-gating",
+  "persona": "Apply the perspective of a lock-keeper and canal hydraulic engineer — they care that gates interlock so two levels never connect directly, that a vessel only advances after the chamber it's leaving has confirmed its state, that flow direction is enforced by the structure not by operator diligence, and that a stranded vessel has a defined drain/inspect path so it never silently blocks the waterway. They measure the design by whether an unsafe gate combination is physically impossible, and flag any point where confirmation is assumed rather than gated.",
+  "review_areas": [
+    "Egress interlock: whether the flow rules make it structurally impossible for a raw_quarantined artifact to reach cloud_burst or corpus, versus relying on each stage to check policy (the 'both gates open' failure)",
+    "One-way tier progression: whether the contract expresses that stages route per-stage up the tier ladder and whether any privacy_class is pinned to a maximum tier (e.g., raw may move device->node but the schema forbids it appearing at cloud_burst)",
+    "Confirm-before-advance: whether the manifest models the verify-then-delete / sink-confirmation gate as an explicit state an artifact must reach before the next action (raw reclaim), rather than an implicit assumption",
+    "Dead-letter / stranded-vessel state: does the contract/manifest have a representable dead-letter state for sessions whose routed stages never confirm (crash, permanently unavailable tier), with a manual drain/inspect path, per §3",
+    "Level-difference safety at tier boundaries: what happens to an artifact mid-transfer device->node (the §8.1 crash/reconciliation protocol) — can the manifest represent an interrupted transfer so raw is never stranded or duplicated",
+    "Whether tier is a closed enum ordered as a ladder, and whether the ordering is machine-checkable (a stage's minimum_tier vs the tier it actually ran at) so a stage can't be recorded as having run below its declared minimum tier"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The (tier x privacy_class) egress constraint for raw is enforced only in stage logic, not encoded as a structural rule in the flow-rule data file the schema validates.",
+      "scenario": "Nothing in the contract binds privacy_class to a maximum tier/destination, so the only thing stopping raw_quarantined from being routed to cloud_burst is per-stage code discipline — the interlock is missing and both gates can open at once.",
+      "severity": "P0"
+    },
+    {
+      "condition": "The manifest schema cannot express a terminal dead-letter/stranded state with a drain path for unconfirmed sessions.",
+      "scenario": "The session manifest has no representable dead-letter state, so a session whose node stage never confirms either blocks reclaim forever or gets silently dropped, violating §3's 'no session stays silently quarantined forever.'",
+      "severity": "P1"
+    },
+    {
+      "condition": "Sink confirmation / output verification is not a first-class state in the manifest that reclaim can depend on.",
+      "scenario": "The manifest models stage completion as a boolean rather than a confirmed-output-with-checksum state, so 'confirm-before-reclaim' (verify-then-delete, §12 M2) can't be gated on actual verification at the contract level.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Canal and river lock-and-dam hydraulic engineering — the staircase of chambers, paired gates, and interlocks that raise and lower vessels between water levels without ever mixing pools (e.g., Panama/Erie/Caledonian canal locks)",
+  "success_hints": [
+    "Ask: could raw_quarantined ever be recorded at cloud_burst or corpus without the schema itself rejecting the manifest? If yes, the interlock is missing.",
+    "Look for a representable terminal dead-letter state in the manifest and a modeled interrupted-transfer state for device->node.",
+    "Check whether stage advancement / raw reclaim depends on an explicit confirmed-output state versus an implicit assumption.",
+    "Verify tier is a closed, ordered enum and that minimum_tier vs actual-run-tier is machine-checkable."
+  ],
+  "task_context": "Reviewing the M0 brainstorm for JawnScope, which defines a tier ladder (device_realtime -> device_deferred -> personal_node -> cloud_burst), a (tier x privacy_class) flow-rule table controlling destinations, and manifest-modeled session lifecycle including quarantine, confirmation, reclaim, and (per §3) a dead-letter path. The review goal is to test whether unsafe transits are structurally impossible and whether stalled/interrupted sessions have a defined recovery."
+}

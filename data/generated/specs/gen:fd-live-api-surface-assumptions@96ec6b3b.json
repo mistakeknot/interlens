@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "Does not cover MIDI protocol semantics or channel-global bend behavior — that is fd-midi-pitch-bend-channel-semantics's domain",
+    "Does not cover the two-PRD contract boundary or TrackMutationResult ownership — that is fd-two-prd-contract-interlock's domain",
+    "Does not evaluate test sufficiency across the 6-pass pipeline — that is fd-test-falsifiability-coverage's domain"
+  ],
+  "decision_lens": "The PRD's §3.8 explicitly acknowledges that set_clip_data 'may or may not exist in upstream's jpoindexter fork' and that the fallback is delete_clip + import_midi_file. That acknowledgment is honest but the implications for the test contract, the determinism guarantee, and the audition timeline are not fully traced. Every 'spike during implementation' note is a latent P1 that could block M1.",
+  "focus": "Ableton Live API surface uncertainty — clip-data read/write existence in jpoindexter's fork, pitch-bend-range default unverified at 2 semitones, and preset-load failure modes under load_browser_item",
+  "name": "fd-live-api-surface-assumptions",
+  "persona": "Apply the perspective of a Live API integration engineer who has worked with AbletonMCP and jpoindexter's Python LOM extensions, and who treats every 'to be verified during implementation' note in a PRD as a potential P0. They measure risk by asking 'what is the fallback if this API call does not exist?' and flag any assumption where the fallback path is slower, lossy, or operator-blocking.",
+  "review_areas": [
+    "§3.8 clip-replace mechanism: the PRD's primary path (set_clip_data) is unverified in the jpoindexter fork; the fallback (delete_clip + import_midi_file) writes a temporary .mid file to disk and reimports it. The fallback is 'acceptable for M1' but the PRD does not specify the temporary file's path, cleanup behavior, or whether the temp file's MIDI bytes are guaranteed to survive the round-trip through Live's importer without tick-quantization or format normalization that would alter the mutated events",
+    "§3.4 pitch-bend-range default of 2 semitones: Open Question #2 (§7) acknowledges this is unverified. The bend value formula is cent_offset × (8192 / 100 × pitch_bend_range_semitones). If the actual Silk rack uses 12 semitones (common for vibrato instruments), all cent-offset bends are 6× too small — producing bends so small they are inaudible, and the M1 audition fails with total_mutations > 0 but no audible difference. This is the most likely single cause of a false-clean M1 verdict",
+    "§1.2 step 4 preset load via load_browser_item: the PRD assumes the .adg rack path resolves in Live's browser. But Live's browser resolves paths relative to the User Library root, not the filesystem root. The preset_path in the roster uses 'User Library/Presets/...' — this convention must be validated against how load_browser_item actually resolves paths in the jpoindexter fork. A trailing-slash or root-prefix difference silently fails to load the preset while returning a success response",
+    "§5.2 Live-side integration test 3: 'read the clip back out of Live' after apply_tonal_grammar — this implies a clip-read API that is symmetric to the clip-write. The PRD does not verify that the jpoindexter fork exposes clip-data read (only write is discussed in §3.8). If clip-read is also absent, the Live-side integration test cannot be written as specified",
+    "§3.1 import_midi_file called by realize_ensemble before apply_tonal_grammar is called (§2.8 step 5b) — this tool then 'reads the clip back out of the track via upstream's clip-read API' (§1.2 step 6 note). The clip-read step is structurally dependent on import_midi_file having completed successfully and the clip being in slot 0. If Live's importer is asynchronous (clip available only after a render cycle), apply_tonal_grammar may read an empty or stale clip"
+  ],
+  "severity_examples": [
+    {
+      "condition": "If the medset-hindustani .adg racks for bansuri and sarod default to 12-semitone pitch-bend range (standard for vibrato articulations in EWQL Silk), the bend formula produces values 1/6th of the intended cent offset. A 50-cent offset (about a quarter-tone, clearly audible in Hindustani music) becomes ~8 cents — below the 10-cent just-noticeable-difference threshold. The M1 audition produces total_mutations > 0 but orthodox-hindustani sounds identical to straight-12-tet. The failure mode is documented in §5.3 as a known diagnostic, but the root cause is never found unless the pitch-bend-range is verified pre-ship.",
+      "scenario": "pitch-bend-range default is wrong by 6× in Silk vibrato racks",
+      "severity": "P0"
+    },
+    {
+      "condition": "If Live's MIDI importer normalizes imported MIDI (e.g., quantizes to 96 PPQ, drops sub-tick events, reorders simultaneous events), the fallback path in §3.8 produces different MIDI bytes than the direct set_clip_data path. The mutated .mutated.mid artifact on disk diverges from what Live actually plays, breaking §3.8's audibility claim ('the resulting .mid byte-stream is a diffable artifact').",
+      "scenario": "delete_clip + import_midi_file fallback introduces tick quantization",
+      "severity": "P1"
+    },
+    {
+      "condition": "If the jpoindexter fork's load_browser_item expects an absolute filesystem path but the roster uses a Live-browser-relative path ('User Library/Presets/...'), the call returns error.type preset_not_found for every instrument in every collision — blocking M1 completely. The failure is caught (§4 failure catalog) but the root cause is a path convention mismatch, not a missing file.",
+      "scenario": "load_browser_item resolves path incorrectly due to User Library root prefix",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "The PRD honestly surfaces the clip-replace uncertainty in §3.8 and in Open Question #3 — this is the right posture even if the implications need fuller tracing",
+    "The .adg rack loading model (companion PRD §2.2) is sound: wrapping Play in a Live-native rack makes the browser path resolvable without plugin-specific preset APIs",
+    "The fallback path (delete_clip + import_midi_file) is a reasonable M1 workaround, but the temporary file path and cleanup need to be specified to avoid orphaned files accumulating in the session directory"
+  ],
+  "task_context": "Reviewing the apply_tonal_grammar PRD for Live API surface assumptions that may not hold in the jpoindexter fork — specifically: clip-data read/write API existence, pitch-bend-range default correctness in EWQL Silk racks, load_browser_item path resolution conventions, and the asynchronous clip-availability risk after import_midi_file."
+}

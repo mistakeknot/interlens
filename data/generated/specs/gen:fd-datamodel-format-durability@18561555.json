@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "fd-hci-ratification-cost covers whether a human can workably confirm the format's fields under real cognitive/time constraints, not whether the format's own representation is internally consistent or durable across two machine readers",
+    "fd-infoarch-ceremony-risk covers whether a structured why-card is the right instrument at all for the 82-project estate, not whether this particular schema's mechanics hold together"
+  ],
+  "decision_lens": "Prioritizes findings about representational ambiguity, unstated invariants, and cross-consumer coupling that are cheap to change now (before pkg/tui and card-check.py --json both depend on the shape) and expensive once two independent readers exist. Treats 'the validator accepts it' as necessary but not sufficient — asks whether a second reader (the TUI, later the funding page) can also make sense of the same bytes without re-deriving rules the validator enforces procedurally rather than declaratively.",
+  "focus": "Review the six-field product-card format and its card-check.py validator as a data contract that must serve two independent readers at once — a human confirming it and, starting with phase 2, a TUI rendering it — checking for representational gaps that are cheap to fix now and expensive once a second reader depends on the current shape",
+  "name": "fd-datamodel-format-durability",
+  "persona": "Apply the perspective of a structured-data and API-contract reviewer who specializes in formats that must serve two audiences at once — a human author/ratifier and a downstream machine consumer — and who has previously supported multiple 'v1' schemas that hardened around an early sample size before a second consumer arrived.",
+  "review_areas": [
+    "card_version is pinned to exactly 1 (card-check.py raises CardError if card_version != 1) with no migration path described anywhere in product-card-format.md or card-drafter.md — check whether phase 2's TUI, which is about to become a second reader of docs/why.md, has any contract for what happens when card_version needs to become 2, and whether the goal's DONE WHEN implicitly locks the schema before that question is answered",
+    "strength() in card-check.py adds a synthetic +1 to the confirmed count for a set `line`, on top of the five named fields, making 'score out of 6' a mix of five real field states and one derived one — verify the proposal's DONE WHEN clause 'ranking matches ruling 11 against real card strengths' is checkable against this exact scoring function rather than an informal notion of how filled-out a card looks",
+    "cuj.ref is documented as nullable with path as the fallback identifier, but card-check.py's per-field validation loop for cuj only checks `state` — never `ref` or `path` — so a `confirmed` cuj with neither set passes validation silently; assess whether the TUI reading a 'confirmed' project's row could render a broken or empty CUJ link, and whether that is a format gap or a validator gap",
+    "the proposal's DONE WHEN requires 'absent, provisional, invalid and confirmed' to be four visibly distinct TUI row states, but product-card-format.md's own 'Absent, provisional, confirmed' section names only three card-level states while card-check.py's exit codes define four (0/1/2/3, adding invalid) — check whether the format doc and the validator actually describe the same state machine, since a TUI author reading only the format doc would miss invalid as a distinct state entirely",
+    "R2 scope exempts cuj from project-scope evidence ('cuj is exempt: a journey reference is journey-scoped by definition') but the format doc's field table lists cuj as one of six slots under the same drafted/declined/confirmed lifecycle as the rest — assess whether this asymmetry (four fields under R1+R2, line derived, cuj under R1 only) is documented anywhere a card author would see it before drafting, or is only discoverable by reading card-check.py's source",
+    "evidence scope is a closed four-value enum (project, epic, journey, external) enforced by card-check.py, and the format doc never states this is exhaustive or how a fifth scope would be added — assess whether phase 2's coupling to the funding page's 'sales copy' plausibly needs a scope (e.g., organization- or slate-level evidence) this enum cannot express"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Confirmed only after the TUI is live and ranks look wrong, rather than caught by reading strength() before phase 2 starts.",
+      "scenario": "The TUI ships reading `strength.score` for ruling-11 ranking, but a project confirms `line` without confirming the other five fields being well-understood as 'mostly done' — the +1 synthetic bump for `line` silently changes rank order relative to what a human skimming the card would expect.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Discovered as a TUI bug report rather than as a format-review finding before the TUI was built.",
+      "scenario": "A confirmed card has cuj.state=confirmed with no ref and no path (validator permits this), and the TUI's card-panel CUJ link renders empty or errors for that project row.",
+      "severity": "P2"
+    },
+    {
+      "condition": "Only a cost if it happens after multiple cards exist; currently zero cards are written into repos so the cost is still near-zero.",
+      "scenario": "A future scope value (e.g. 'slate') is needed for GSV funding-page coupling and has to be added to card-check.py's SCOPES enum plus every card already written, rather than being anticipated in the v1 format.",
+      "severity": "P3"
+    }
+  ],
+  "success_hints": [
+    "A reviewer who has actually diffed product-card-format.md's prose description of the state machine against card-check.py's exit-code contract line by line, and can point to the specific place they diverge (invalid vs. the doc's three-state list), rather than asserting they 'seem consistent'",
+    "A reviewer who traces what happens to a specific malformed or edge-case card (e.g., confirmed cuj with no ref/path, or a fifth evidence scope) through the validator's actual control flow rather than reasoning about the format only from its prose description",
+    "A reviewer who ties each finding to the concrete cost of discovering it after pkg/tui is built against the current shape, rather than treating schema cleanliness as an abstract virtue"
+  ],
+  "task_context": "Review docs/proposals/2026-08-13-goal-card-loop-phase2.md before any of it runs. Is the sequencing right — confirm one card, then TUI? Is unc-rancher the right first subject? Does the six-field format survive a real human confirming it, given success drafted 0/5? Are the DONE WHEN clauses checkable, and does any encode a false assumption? What would be expensive to discover only after the TUI reads the format? Attack the premise too: is a per-project why-card the right instrument for overwhelm across 82 projects, or ceremony added to an estate that already has 2270 plans nobody reads?"
+}

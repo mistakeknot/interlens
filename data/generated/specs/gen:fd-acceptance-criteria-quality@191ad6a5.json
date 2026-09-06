@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-experiment-feasibility covers spec achievability",
+    "fd-scope-containment covers scope sizing",
+    "fd-composition-architecture covers F10 architectural risks"
+  ],
+  "decision_lens": "Prioritizes subjective language in criteria, key behaviors with no corresponding criterion, and criteria impossible to verify without full system.",
+  "focus": "Whether acceptance criteria are objectively testable, complete, and consistent with implementation specs",
+  "name": "fd-acceptance-criteria-quality",
+  "persona": "A QA engineer evaluating whether each criterion can be verified by a third party without subjective judgment, and whether critical behaviors are missing.",
+  "review_areas": [
+    "F2 subjective: 'legible at 3m' — objectively verifiable? Split-flap animation correctness criterion missing?",
+    "F3 performance: '60fps on 2020-era laptop' — measurement method? Achievable on integrated graphics?",
+    "F4 missing criteria: hover labels and zoom/pan in spec but not in PRD acceptance criteria",
+    "F1 schema validity: 'matching factory-status schema' — schema defined or linked anywhere?",
+    "F9 diff correctness: testable definition of diff? When full vs partial?",
+    "F10 contradiction: PRD lists websocket in data toggle but websocket is a non-goal"
+  ],
+  "success_hints": [
+    "Every criterion verifiable by script or devtools — no subjective judgment",
+    "Every spec behavior has at least one acceptance criterion",
+    "No criterion references a non-goal feature"
+  ],
+  "task_context": "Plan separates specs (plan.md) from criteria (prd.md). Criteria used to close beads. Ambiguous or mismatched criteria block closure or allow incomplete implementations."
+}

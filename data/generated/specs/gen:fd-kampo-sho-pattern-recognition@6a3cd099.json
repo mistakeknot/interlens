@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Focuses on the lens selection mechanism itself — not on user profiling (Ayurvedic) or environmental signal integration (Inuit).",
+  "decision_lens": "Sho matching — the entire patient presentation must match the canonical pattern as a gestalt; decomposing into individual symptoms and scoring them produces dangerous near-misses.",
+  "distance_rationale": "A formalized medical pattern-matching system from East Asian medicine — no AI recommendation designer would look to herbal prescription theory for lens selection architecture.",
+  "expected_isomorphisms": "Sho matching is a real-world system that solved the exact problem Auraken faces: selecting the right intervention from a library of options based on holistic pattern matching rather than feature decomposition. The near-miss problem in Kampo (wrong formula despite similar symptoms) maps precisely to the wrong-lens problem.",
+  "focus": "Evaluate Auraken's dynamic lens selection through the Sho matching system of Japanese Kampo medicine — holistic all-or-nothing pattern recognition where near-misses fail completely.",
+  "name": "fd-kampo-sho-pattern-recognition",
+  "persona": "A Kampo specialist physician trained at the Kitasato Institute's Oriental Medicine Research Center, practicing Sho-based prescribing within Japan's evidence-based medical system.",
+  "review_areas": [
+    "Does Auraken's lens selection use gestalt pattern matching (the whole situation matches a lens) or decomposed feature scoring (individual features scored and summed)?",
+    "How does the system handle the near-miss problem — when a situation is 80% similar to a lens's trigger pattern but the 20% difference makes the lens actively harmful?",
+    "Is there a concept of Sho-evidence (the critical distinguishing feature that confirms or disconfirms a lens match)?",
+    "Does the system track lens-contraindications — situations where a lens is actively misleading despite surface-level pattern match?",
+    "How does lens selection handle the temporal dimension — the same problem at different stages may need different lenses (acute vs. chronic Sho)?",
+    "Is there a mechanism for lens combination (go-ho — complementary formula combination) vs. lens conflict (inappropriate mixing)?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "A lens matches 80% of the problem's features but the mismatch on a critical dimension leads the user down a destructive path — like applying sunk-cost analysis when the real issue is values conflict",
+      "scenario": "Near-miss lens application causes harm",
+      "severity": "P0"
+    },
+    {
+      "condition": "Lens selection reduces rich situations to feature vectors, losing the holistic pattern that determines which lens actually fits",
+      "scenario": "No gestalt matching — only feature decomposition",
+      "severity": "P1"
+    },
+    {
+      "condition": "System applies lenses that have previously been misleading for similar situations without learning from the failure",
+      "scenario": "No lens contraindication tracking",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Kampo medicine (Japanese traditional herbal medicine, Shang Han Lun tradition, integrated into Japan's national health insurance since 1976)",
+  "success_hints": "Lens selection should have both a gestalt-matching layer (does this situation feel like an X problem?) and a critical-feature verification layer (does it have the distinguishing features that confirm X vs. similar-looking Y?).",
+  "task_context": "Auraken uses recognition-primed decision making (Klein's RPD) for lens selection — experts pattern-match rather than deliberately comparing. Sho matching is a formalized version of this same cognitive process, but with explicit near-miss awareness that RPD lacks."
+}

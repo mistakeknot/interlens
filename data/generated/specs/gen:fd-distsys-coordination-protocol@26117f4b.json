@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Leave license/CI/contribution-scaffolding gaps, personal-path leaks, versioning/tagging, and cross-repo install/demo feasibility to fd-ossrelease-launch-readiness.",
+    "Leave authentication, authorization, and injection/exfiltration attack surface (who can invoke a coordination RPC, tmux pane injection, /tmp file exposure) to fd-appsec-swarm-trustboundary — this lens covers whether the coordination logic is correct, not who is allowed to invoke it.",
+    "Do not re-derive or re-score the audit's 12-dimension rubric; focus on specific, verifiable technical claims about coordination-protocol correctness."
+  ],
+  "decision_lens": "Would this coordination/negotiation code behave correctly under real concurrent multi-agent load and partial-failure of any single party — not just the single scenario the audit's named test or benchmark exercises — and does the audit's own language ('real resilience layer', 'sidesteps TOCTOU', '220 tests') survive being traced to the exact code path that is supposed to prove it?",
+  "focus": "Correctness of intermute's and interlock's coordination primitives — glob-overlap reservations, the SQLite resilience layer, and the three-party release-negotiation protocol — verified as actual liveness/safety properties traced through code, not accepted as the audit's prose claims.",
+  "name": "fd-distsys-coordination-protocol",
+  "persona": "Apply the perspective of a distributed-systems engineer who has built and debugged production lock-negotiation and job-coordination protocols (lease services, workflow engines, distributed job queues) and has personally watched a 'no TOCTOU' or '220 tests, real resilience layer' claim collapse under concurrent multi-writer load that the named test never exercised.",
+  "review_areas": [
+    "Reservation/negotiation correctness: trace negotiate_release → respond_to_release → force_release_negotiation (interlock/tools.go:455-794) end to end and determine whether both parties can ever believe they hold the same lock simultaneously — especially if the negotiation initiator crashes or the MCP connection drops mid-exchange.",
+    "Glob-overlap DoS bounds: check whether internal/glob/overlap.go's claimed bounds are proven for adversarial/high-cardinality pattern pairs typical of a real multi-agent fleet, or only benchmarked on the cases the audit cites — benchmarked is not the same as adversarially bounded.",
+    "SQLite resilience layer: confirm the circuitbreaker/retry/sweeper/wedge_test files actually cover the failure modes implied by 'real resilience layer' (concurrent writers from 3+ agents, WAL checkpoint stalls under load) rather than one named SQLITE_BUSY scenario standing in for the whole claim.",
+    "Cross-repo coordination boundary: intermute's dual-write bridge to intercore is 'off by default' and interlock has 'no standalone install path' for intermute — determine what happens to lock/reservation state consistency if interlock and intermute are both live against the same files without the bridge, since Wave 1 ships exactly that three-repo combination.",
+    "TOCTOU claim: interlock's docs/solutions write-up argues commit-time blocking 'sidesteps TOCTOU' versus per-edit locking — pressure-test that argument against a scenario where two agents both pass the advisory pre-edit hook before either one commits, and determine what actually stops the second commit.",
+    "Fail-open interaction with in-flight state: 'every hook fails open' (interlock) is a resilience feature, but determine whether fail-open during an in-flight negotiation or reservation can silently strand a lock, drop a release message, or leave the system unable to detect the failure it just tolerated."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Two agents race a negotiate_release/force_release_negotiation cycle against the same reservation with overlapping deferral windows — this is the exact mechanism the Wave 1 two-agent demo exercises, so a verified break here should block the launch outright regardless of the mechanical-sweep checklist being complete.",
+      "scenario": "force_release_negotiation is claimed to validate that the ETA-capped deferral window has actually elapsed before allowing a force, but tracing tools.go:455-794 shows the elapsed check reads a timestamp that both parties can independently reset by re-issuing negotiate_release; two agents both proceed believing they hold the same file lock.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Wedge_test's setup uses a single blocking writer to induce SQLITE_BUSY, with no test asserting correct behavior when multiple independent agent connections contend for the same row concurrently.",
+      "scenario": "The 'real resilience layer' (circuitbreaker/retry/sweeper) is real per the audit, but the wedge_test named as evidence only exercises a single-writer SQLITE_BUSY scenario; 3+ concurrent agents writing reservations simultaneously (the actual shape of the Wave 1 demo and any real fleet) is untested, so the resilience claim is unverified for the load the launch will actually see.",
+      "severity": "P1"
+    },
+    {
+      "condition": "No fuzz or property-based test exists for overlap.go asserting the claimed bound holds across a randomized adversarial input space, only fixed benchmark cases.",
+      "scenario": "Glob-overlap DoS bounds are benchmarked on the patterns in the benchmark suite but not fuzzed against pathological pattern pairs (e.g. deeply nested alternation or many overlapping wildcard segments) that a real agent fleet with auto-generated reservation patterns could plausibly produce.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Cites exact file:line for every claim it confirms or disputes, matching or correcting the audit's own citations rather than restating them.",
+    "Distinguishes 'the audit's characterization of what the code proves is wrong' from 'the code is fine but the test coverage doesn't match the claimed scope' — these are different findings with different severities.",
+    "Traces at least one negotiation or lock-acquisition scenario through the actual Go source before asserting a race or split-brain condition exists; does not infer correctness or its absence from prose alone.",
+    "Treats 'the auditor ran the demo once and it worked' as insufficient evidence for any concurrency or liveness claim, and says so explicitly when the audit relies on that kind of evidence."
+  ],
+  "task_context": "This is the plan for taking intermute, interlock, and intermux public together as one coordination-plus-visibility stack (Wave 1 of the recommended program: security fixes first, one mechanical sweep, one real fix per repo, a two-agent demo a stranger can run from a clean clone). Find what makes that Wave 1 program fail, what it is missing, and where the audit's claims are wrong or unverified. The three repos live at /Users/sma/projects/Sylveste/core/intermute, /Users/sma/projects/Sylveste/interverse/interlock, and /Users/sma/projects/Sylveste/interverse/intermux; attp is cloned at /private/tmp/claude-501/-Users-sma-projects/376b47df-d178-4275-921e-b4fc80b33ed0/scratchpad/attp. Verify claims against the code, not the report. This lens's scope within that goal is narrow: the correctness of the coordination and negotiation primitives themselves — locks, reservations, the resilience layer, and the three-party negotiation protocol — as distributed-systems claims to be verified against source, independent of who is authorized to invoke them or whether the repos are packaged for public release."
+}

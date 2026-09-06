@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Focuses on multi-modal signal integration and confidence calibration — not on constitutional typology (Ayurvedic) or lens matching mechanisms (Kampo).",
+  "decision_lens": "Siku epistemology — confidence comes from integrating many weak signals across different modalities, not from any single strong signal. The most critical skill is the no-go decision: knowing when you don't have enough context to act safely.",
+  "distance_rationale": "Arctic Indigenous environmental epistemology at the intersection of survival, observation, and oral tradition — no AI designer would consult ice navigation for recommendation confidence calibration.",
+  "expected_isomorphisms": "The no-go decision (knowing when you lack sufficient context) maps to confidence-gated lens selection. Multi-modal signal integration (wind + ice sounds + snow texture + animal behavior) maps to combining explicit statements + behavioral patterns + timing + topic patterns. The 'ice is always changing' problem maps to temporal decay in user profiles.",
+  "focus": "Evaluate Auraken's ambient signal integration and confidence calibration through Inuit sea ice navigation — synthesizing dozens of weak signals into high-stakes decisions in a continuously transforming environment.",
+  "name": "fd-inuit-siku-ice-knowledge",
+  "persona": "An elder hunter and ice navigator from Igloolik, Nunavut, trained in multi-generational Siku (sea ice) knowledge — reading wind, current, snow texture, animal behavior, cloud patterns, and ice sounds to make safe travel decisions.",
+  "review_areas": [
+    "Does Auraken integrate signals across multiple modalities (what users say, how they say it, what they don't say, behavioral patterns, timing patterns) or does it over-index on explicit verbal content?",
+    "Is there a confidence calibration mechanism — does the system know when it doesn't know enough about a user to make good recommendations?",
+    "How does the system handle the no-go decision — when should it explicitly decline to apply a lens or make a recommendation rather than guessing?",
+    "Does the system track environmental context signals (time of day, recent life events, emotional state) that modify how verbal content should be interpreted?",
+    "Is there a concept of signal freshness — do recent observations override older ones, and at what rate?",
+    "How does the system handle the 'ice is always changing' problem — that the user's context is continuously transforming, so yesterday's model may be dangerously wrong today?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "System makes confident-sounding recommendations based on thin context — like navigating unfamiliar ice without reading the signals",
+      "scenario": "No confidence gating on recommendations",
+      "severity": "P1"
+    },
+    {
+      "condition": "System relies entirely on what users explicitly say, ignoring behavioral signals (timing, topic avoidance, emotional markers) — like reading only wind and ignoring ice sounds",
+      "scenario": "Over-indexing on single signal modality",
+      "severity": "P1"
+    },
+    {
+      "condition": "System treats months-old profile data as equally valid as recent observations — like using last season's ice map for today's travel",
+      "scenario": "No signal freshness decay",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Inuit Siku (sea ice) knowledge (Arctic Indigenous epistemology, multi-generational oral tradition, Igloolik/Nunavut)",
+  "success_hints": "The system should integrate multiple signal types with explicit confidence levels, have a clear 'insufficient context' threshold below which it asks rather than recommends, and implement temporal decay on profile observations.",
+  "task_context": "Auraken builds a cognitive profile through conversation over months. The Siku lens asks whether this profile-building process integrates enough signal modalities, whether it knows when it doesn't know enough, and whether it handles the continuous evolution of user context."
+}

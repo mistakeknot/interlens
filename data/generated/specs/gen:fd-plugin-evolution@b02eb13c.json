@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-coordination-state-model covers CRDT/gossip infrastructure and interlock replacement, not plugin-specific evolution or skill scoring",
+    "fd-autonomous-work-loop covers the general research pipeline and mutation-based improvement for Skaffen/Autarch code work, not plugin ecosystem dynamics",
+    "fd-observability-data-model covers structured experiment formats and snapshot publishing for general agent observability, not plugin quality metrics or adoption tracking"
+  ],
+  "decision_lens": "Prioritize plugin evolution patterns that could be implemented as an extension to existing interlab and Interverse tooling. Deprioritize WASM-specific techniques that don't apply to Claude Code's plugin execution model.",
+  "focus": "Evaluate Hyperspace's Skills & Tools domain (autonomous skill invention, WASM sandboxing, correctness×utility scoring, cross-agent adoption) as a model for autonomous Interverse plugin evolution",
+  "name": "fd-plugin-evolution",
+  "persona": "A plugin ecosystem architect who has designed plugin lifecycle systems and understands the tension between autonomous plugin generation and plugin quality guarantees. Thinks carefully about when autonomous creation adds value and when human curation is necessary.",
+  "review_areas": [
+    "Evaluate Hyperspace's Skills & Tools domain (WASM skills scored by test_pass_rate × adoption) as a template for an Interverse plugin quality metric beyond star ratings or manual review",
+    "Assess whether the autonomous skill invention loop (agents identify friction → generate skill → test → share if score > threshold) could be implemented using interlab's existing campaign framework targeting plugin improvement",
+    "Evaluate the 'cross-agent adoption via gossip' pattern for Interverse — when one agent invents a useful plugin, how would other Skaffen instances discover and adopt it without a gossip network",
+    "Check whether Hyperspace's composite scoring (correctness × utility) maps to Interverse's needs, and what 'utility' means for Claude Code plugins vs. WASM skills for web scraping",
+    "Assess the WASM sandboxing principle (portable, sandboxed skill execution) against Claude Code's plugin execution model and what isolation guarantees Interverse currently provides vs. needs",
+    "Evaluate whether autonomous plugin evolution introduces adversarial surface area (a generated plugin could exfiltrate data or manipulate other agents) and what guardrails Sylveste's security model requires before enabling it"
+  ],
+  "success_hints": [
+    "Agent produces a concrete scoring formula (correctness × utility) for Interverse plugins with specific definitions of each term drawn from actual plugin behavior",
+    "Agent identifies which existing interlab primitives (init_experiment, log_experiment, synthesize_campaigns) could be reused for autonomous plugin improvement campaigns without new infrastructure",
+    "Agent explicitly addresses the security boundary: what permissions or review gates are required before an autonomously generated plugin can be published to Interverse"
+  ],
+  "task_context": "Hyperspace AGI is a P2P autonomous AI research network using GossipSub, Loro CRDTs, and GitHub as a 3-layer coordination stack. Sylveste is a single-operator multi-agent platform where Clavain orchestrates agents via interlock (file-based reservations) and beads (Dolt-backed issue tracking). The analysis must identify adoptable coordination patterns for a local, single-machine context."
+}

@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Focuses on glyph rasterization algorithms, atlas construction, and per-glyph GPU color — not Bevy sprite batching architecture (fd-bevy-sprite-instancing-glyph-atlas), cross-project trait bridge portability (fd-bevy-ecs-trait-bridge-portability), raw wgpu pipeline vs Bevy selection (fd-wgpu-raw-pipeline-control), or WASM browser deployment constraints (fd-wasm-webgpu-browser-target)",
+  "decision_lens": "For Elf Revel's ASCII tile aesthetic at 16-32px tile sizes on a native HiDPI display (effectively 32-64px physical pixels), which glyph rendering approach preserves the crisp monospace character shapes that define the genre? Does the chosen approach handle the full Unicode range needed for elvish/decorative characters, box-drawing, and Braille-like density glyphs, or is it ASCII-only?",
+  "focus": "GPU-side text and glyph rendering for a game tile grid: bitmap atlas vs SDF (signed distance field) vs MSDF approaches for monospace ASCII characters at game tile sizes, font rasterization with fontdue/ab_glyph, per-glyph color manipulation in fragment shaders, and rendering quality at 16-32px tile sizes common in colony sims",
+  "name": "fd-gpu-glyph-rendering-text-pipeline",
+  "persona": "Graphics engineer who has built GPU text rendering pipelines for both games and UI toolkits; has shipped SDF text in a Rust game using wgpu, benchmarked fontdue vs ab_glyph for atlas generation speed, and knows the sharp-corner failure modes of vanilla SDF (where '#', '+', and box-drawing characters lose their crispness) that make MSDF or bitmap+SDF hybrid approaches necessary for ASCII game tile aesthetics",
+  "review_areas": [
+    "Bitmap atlas vs SDF tradeoff at tile sizes: at 16px tiles on a 2x HiDPI display (32px physical), bitmap atlas rasterized at 32px physical is perfectly sharp with zero rendering overhead; SDF adds complexity and GPU cost for no quality benefit at this size — evaluate whether the complexity of SDF is justified for Elf Revel's use case or if fontdue bitmap rasterization is the pragmatic choice",
+    "MSDF for ASCII aesthetics: standard SDF blurs sharp corners (the '+' character's right-angle junction, '#' crossbars) which destroys the crisp ASCII game aesthetic; MSDF (multi-channel SDF) preserves corners correctly but requires the msdfgen crate or offline atlas pre-generation — assess whether the atlas generation pipeline can run offline (ship baked atlases) or must generate at runtime from user font choices",
+    "fontdue integration path: fontdue provides SubpixelRasterize and rasterize() for bitmap output directly into a pixel buffer; it does not provide SDF; verify the integration path from fontdue rasterization output → wgpu TextureView → WASM-compatible texture upload, and whether fontdue's Rust API is stable enough for a production game build (last release timeline matters)",
+    "Per-glyph color as first-class GPU data: Elf Revel needs per-glyph foreground and background color (for mood visualization, seasonal tinting, depth-based color temperature); verify whether the chosen approach passes color as vertex attributes to the fragment shader (efficient, batched) or as per-instance uniform buffers (works but limits batching) or as texture lookups (flexible but adds a texture sample per glyph)",
+    "Unicode coverage for elven aesthetic: the design calls for elvish/decorative characters, box-drawing (U+2500 block), geometric shapes (U+25A0 block), and potentially custom Private Use Area glyphs for flora/fauna icons; verify that the chosen font pipeline can handle a 512+ character atlas without blowing WASM texture memory budgets (512x512 atlas at 32px glyph size fits ~256 glyphs; verify coverage)",
+    "Subpixel rendering and HiDPI: native full-screen on Apple Silicon means Retina display; subpixel antialiasing is unavailable in Metal/wgpu (no RGB subpixel layout access); verify the atlas rasterization DPI strategy — rasterize at 2x physical pixels and render at logical size, or rasterize at logical size and let the OS scale? The first produces crisper glyphs."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Vanilla SDF atlas used for ASCII tile rendering without MSDF corner correction; tile size small enough that SDF blur radius is a significant fraction of glyph size",
+      "scenario": "Standard SDF atlas causes the '#' terrain glyph (used for walls in every ASCII roguelike) to render with rounded corners and blurred crossbars, making it visually indistinguishable from the 'H' entity glyph — the fundamental ASCII readability contract is broken",
+      "severity": "P1"
+    },
+    {
+      "condition": "Atlas generation script only covers printable ASCII (U+0020–U+007E); Unicode blocks not enumerated in atlas build configuration",
+      "scenario": "The Unicode box-drawing block (U+2500–U+257F) used for building walls and structural tiles is not included in the pre-baked atlas, causing missing-glyph fallback boxes to appear wherever structural glyphs are used — the colony sim's architecture is visually illegible",
+      "severity": "P1"
+    },
+    {
+      "condition": "DPI scaling factor not applied to fontdue rasterization size; logical and physical pixels conflated in atlas generation code",
+      "scenario": "fontdue rasterizes glyphs at logical pixel size (16px) rather than physical pixel size (32px on 2x Retina), producing noticeably blurry characters compared to native macOS text on the same display — the game looks low-quality next to system UI despite running at native resolution",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Render the string '#.@~^|+' (core ASCII roguelike vocabulary) at 16px logical size on a 2x HiDPI display using each candidate approach. The winning approach is the one where all 7 characters are pixel-perfectly crisp with correct right-angle corners on '#', '+', and '|'. Zoom to 400% in a screenshot — if you can count individual pixels and they align to the pixel grid, the approach is correct.",
+  "task_context": "Elf Revel native full-screen Rust colony sim needing 100K+ ASCII-aesthetic glyphs at 60fps. Options include fontdue bitmap atlas, SDF atlas, MSDF atlas, and ab_glyph outline tessellation. Tile sizes are 16-24px logical (32-48px physical on Retina). Characters include full printable ASCII, Unicode box-drawing, geometric shapes, and potentially custom PUA glyphs for flora/fauna."
+}

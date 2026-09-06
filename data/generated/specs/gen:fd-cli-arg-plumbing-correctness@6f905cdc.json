@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-null-baseline-semantic-validity covers whether the null baseline is the right agent to run calibration against — this agent covers only the mechanical correctness of the flag path regardless of which model is used.",
+    "fd-trace-schema-year-boundary covers whether year-end attention-budget state is observable in the trace — this agent covers only the flag forwarding path, not the observability of budget state during execution.",
+    "fd-statistical-calibration-procedure covers the decision tree logic and pick rule — this agent covers only the CLI and subprocess plumbing."
+  ],
+  "decision_lens": "Prioritizes findings where the flag is accepted by the runner (so --help passes) but the value never reaches the sim binary — producing calibration results that look valid but were all run at the default budget regardless of the specified value. Secondary priority is precedence ordering: if both the runner default and the sim default are 10 but a user passes 5, the wrong value reaches the sim.",
+  "focus": "Whether the --attention-budget flag is plumbed correctly from shadowbench-runner CLI through RunConfig and sim_args() to the shadowbench binary, without silent defaults, precedence inversions, or arg-forwarding gaps that would produce subtly wrong calibration results",
+  "name": "fd-cli-arg-plumbing-correctness",
+  "persona": "Apply the perspective of a systems programmer who has debugged CLI plumbing bugs in orchestrator-subprocess architectures — they care about the full data path from argparse to spawned process, measure the delta between what the user specified and what actually lands in the subprocess, and flag any gap where a default silently overrides a user value or where a flag is parsed but never forwarded.",
+  "review_areas": [
+    "RunConfig struct in orchestrator.rs lacks an attention_budget field — verify the field is added, correctly typed as u32, and that sim_args() appends '--attention-budget' and the value unconditionally (not gated on non-default comparison, which would silently drop the flag for B=10 if the default is also 10).",
+    "Seed derivation interaction: RunConfig.seed() adds run_index to base_seed; confirm that --attention-budget is forwarded as a fixed value (not per-run derived) so all N runs at a given budget level are homogeneous.",
+    "Port collision in the calibration script: the script uses --port $((9000+budget)) for each budget, which means concurrent invocations share no port, but sequential runs at the same budget share the same port — verify the runner's port-handling doesn't leave TIME_WAIT sockets that block the next sequential run at the same port.",
+    "The calibrate-attention-budget.sh precheck (line 16–19) uses rg against --help output; confirm the runner's --help actually surfaces --attention-budget in its printed text and not just as a parsed-but-hidden arg, since clap's default help formatting is sensitive to whether the field has a doc comment.",
+    "Output-dir and trace-dir forwarding: the script passes both --output-dir and --trace-dir to the runner, but sim_args() in orchestrator.rs only forwards --trace-dir; verify the runner handles --output-dir separately so result artifacts are not silently dropped.",
+    "Default-value collision: sim binary default for attention_budget is 10 (confirmed in shadowbench.rs:44); if the runner omits forwarding when the value equals 10, B=10 runs see the sim's own default rather than the value the calibration intends to test — this is a correctness trap even though the numeric result is the same today, because it breaks the forward contract if either default changes."
+  ],
+  "severity_examples": [
+    {
+      "condition": "All three budget levels (5, 10, 20) run at the sim's default of 10; the calibration procedure produces identical traces for all three levels; the decision tree trivially picks 10 for the wrong reason; PROTOCOL.md §7a is locked to a value that was never actually tested",
+      "scenario": "sim_args() does not include '--attention-budget' in the forwarded args vector",
+      "severity": "P0"
+    },
+    {
+      "condition": "B=10 calibration runs at the sim default (matching), but B=5 and B=20 run at the correct value; this means the B=10 traces cannot be distinguished from a future run where the sim default changes, silently invalidating reproducibility",
+      "scenario": "The runner forwards --attention-budget only when the value differs from a hardcoded default of 10",
+      "severity": "P1"
+    },
+    {
+      "condition": "The calibration script exits non-zero midway through the loop; only partial traces are produced; the Python analyzer runs over incomplete data and emits a pick decision based on one or two budget levels instead of three",
+      "scenario": "Port reuse across sequential budget runs causes sim startup failure on the second or third budget level",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "sim_args() unconditionally appends '--attention-budget' and the u32 value regardless of whether it equals the sim's own default.",
+    "Running the calibration script with --dry-run or trace logging shows three distinct --attention-budget N values in the three subprocess invocations.",
+    "The runner --help output includes the --attention-budget flag with its description and default value visible in the printed text."
+  ],
+  "task_context": "The brainstorm describes adding --attention-budget to shadowbench-runner so that calibrate-attention-budget.sh can invoke the runner at three budget levels (5, 10, 20). This review checks whether the plumbing from the runner CLI flag through RunConfig and sim_args() to the spawned shadowbench binary is complete and correct, with no silent gaps or default-value traps."
+}

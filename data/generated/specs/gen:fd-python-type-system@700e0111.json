@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "Does not cover routing algorithm preconditions (non-negative, non-NaN) — that is fd-routing-algorithm-correctness.",
+    "Does not cover GraphML round-trip type recovery or edge attribute hygiene — that is fd-graphml-attribute-hygiene.",
+    "Does not cover pedestrian routing formula numerics or felt-minute calibration — that is fd-pedestrian-routing-formula."
+  ],
+  "decision_lens": "Where do the brainstorm's type annotations, Protocol definition, and dataclass configuration create gaps between what the type system appears to guarantee and what Python actually enforces at runtime?",
+  "focus": "Python type-system design: Protocol runtime_checkable semantics, frozen dataclass + slots invariants, Literal type for NanFallback, isinstance behavior, mypy/pyright structural subtyping",
+  "name": "fd-python-type-system",
+  "persona": "Apply the perspective of a Python type-system specialist who maintains typed library APIs — they care about whether Protocol structural subtyping is correctly enforced at runtime and by static checkers, measure correctness by whether a conforming third-party class is accepted and a non-conforming one is rejected, and flag anywhere that frozen dataclass + slots interaction, Literal type narrowing, or @runtime_checkable limitations create surprising behavior for Phase 2 UTCI implementers.",
+  "review_areas": [
+    "The Protocol's __call__ signature is (self, edge_attrs: dict[str, Any]) -> float — @runtime_checkable only checks for the *presence* of __call__, not its signature; a class implementing def __call__(self, x: int) -> str passes isinstance(_, EdgeWeight) at runtime even though it violates the contract. The brainstorm relies on test_protocol_isinstance as a correctness gate without noting this limitation.",
+    "@dataclass(frozen=True, slots=True) in Python 3.10+ generates __slots__ on the class, which is incompatible with multiple inheritance and breaks __dict__-based introspection tools (e.g., dataclasses.asdict). The brainstorm proposes replace() for tuning — dataclasses.replace() works on frozen dataclasses, but only if all fields are in __slots__; verify that NanFallback = Literal[...] fields serialize correctly through replace().",
+    "NanFallback = Literal['neutral', 'constant', 'shade', 'sun'] as a type alias is not a runtime type — it cannot be used in isinstance checks or stored as a field default with type validation. The nan_fallback_policy: NanFallback = 'neutral' field stores any string at runtime; a caller passing nan_fallback_policy='optimistic' gets no runtime error, only a mypy/pyright warning. The brainstorm does not flag this gap.",
+    "The brainstorm's open question 4 proposes @runtime_checkable on EdgeWeight but notes that Phase 1.7 'likely doesn't need isinstance.' If @runtime_checkable is added, isinstance(callable_fn, EdgeWeight) will return True for any callable with __call__, including plain functions — a Phase 1.7 author passing a lambda as a weight function passes the isinstance check but gets no Protocol enforcement for return type or signature.",
+    "The slots=True flag means FeltMinutesV0 has no __dict__ — any code that tries to pickle, copy, or serialize the dataclass via vars() or __dict__ will raise TypeError. If Phase 1.7 or a tuning notebook serializes weight instances (e.g., for logging), this silently fails."
+  ],
+  "severity_examples": [
+    {
+      "condition": "A Phase 2 implementer writes class UTCIWeight: def __call__(self, u, v, k, attrs): ... (4-arg form per open question 1). At runtime isinstance passes because @runtime_checkable only checks __call__ exists. Type checkers catch it, but if the project's CI does not run mypy on Phase 2 modules, the routing engine silently calls UTCIWeight with 1 arg and raises TypeError at route-computation time, not at import time.",
+      "scenario": "UTCI weight passes isinstance(_, EdgeWeight) despite wrong signature",
+      "severity": "P1"
+    },
+    {
+      "condition": "A caller passes FeltMinutesV0(nan_fallback_policy='pessimistic') — frozen=True prevents post-init mutation but does not validate field values. The instance is created without error, and _effective_sun_fraction falls through to whichever branch handles an unexpected policy string, potentially returning an uninitialized or wrong value.",
+      "scenario": "Invalid NanFallback string silently accepted",
+      "severity": "P2"
+    },
+    {
+      "condition": "A Phase 1.7 diagnostics path calls json.dumps(dataclasses.asdict(weight_fn)) to log the active weight config. With slots=True, asdict recurses into slot fields correctly, but adding a non-dataclass mutable field in a future FeltMinutesV1 could break asdict silently.",
+      "scenario": "slots=True breaks dataclasses.asdict in logging",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Add a post-init validator or use an Enum for NanFallback values instead of a Literal alias — Enum members are runtime-checkable and raise ValueError on invalid construction.",
+    "Document the @runtime_checkable limitation explicitly in the Protocol docstring: 'isinstance(x, EdgeWeight) confirms __call__ exists, not that the signature matches; use type checkers for full enforcement.'",
+    "Add a test that verifies a non-conforming callable (wrong return type) is rejected by mypy/pyright in the test suite's type-checking pass, not just via isinstance."
+  ],
+  "task_context": "Reviewing the brainstorm's Python type-system choices — Protocol definition, frozen dataclass with slots, Literal type for NanFallback — for gaps between type annotations and runtime behavior that would affect correctness or Phase 2 extensibility."
+}

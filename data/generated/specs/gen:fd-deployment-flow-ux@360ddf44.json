@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-core-loop-clarity covers the high-level loop and how deployments fit into the overall game cycle, not the wizard UX details",
+    "fd-control-discoverability covers keyboard shortcuts and affordances including the I key to trigger deployment, not the wizard flow content",
+    "fd-feedback-and-state covers how deployment outcomes feed back into world state, not the forward flow of the wizard itself"
+  ],
+  "decision_lens": "Prioritizes findings where a step in the deployment wizard is under-explained, where the player cannot predict outcomes before committing, or where the relationship between equipment/motivation choices and mission outcomes is opaque. Also flags whether the Quick Deploy vs. full wizard tradeoff is clearly communicated.",
+  "focus": "Whether the deployment system — the primary direct-action mechanic — has a coherent, learnable flow from trigger to outcome",
+  "name": "fd-deployment-flow-ux",
+  "persona": "A game UX designer who has designed ability and unit-command systems for RTS and 4X games. Evaluates multi-step flows for cognitive load, reversibility, and clarity of step purpose.",
+  "review_areas": [
+    "The 5-step wizard (Agent → Equipment → Objective → Motivation → Review) — does the manual explain what information a player needs to make each choice, or does it just label the steps?",
+    "The Equipment step lists 10 options (Analytics, Funding, Access Codes, Blackmail, etc.) — does the manual explain how equipment choices affect mission outcomes, or are these labels with no described mechanical effect?",
+    "The Motivation step (Ideological/Financial/Personal/Coercion) 'affects psychology' — does the manual explain what psychology effects mean concretely for the agent and future deployments?",
+    "The Review step shows 'risk assessment and estimated completion' — does the manual explain how these are calculated or what inputs the player can change to improve them?",
+    "The path from 'I intervene' on a policy card to the deployment wizard is described, but does the manual explain what the deployment achieves relative to just selecting a policy stance? When is intervention better?",
+    "Deployment outcomes (Effectiveness %, Status in the deployment table) are listed as columns — does the manual explain what these mean post-mission and whether failed deployments have consequences beyond the mission itself?"
+  ],
+  "success_hints": [
+    "A player reading the Deployments section can articulate what each of the 5 steps contributes to the mission and what tradeoffs they are making",
+    "The manual explains the mechanical difference between addressing a crisis via policy card vs. deploying an agent, so players can make a strategic choice",
+    "Equipment options have enough description that a player can make a non-random selection without trial-and-error across multiple sessions"
+  ],
+  "task_context": "Shadow Work is a geopolitical strategy simulation with a deep simulation backend. The game manual at docs/GAME-MANUAL.md documents all screens, controls, and mechanics. The review task is to assess playability, intuitiveness, and UX coherence for new players."
+}

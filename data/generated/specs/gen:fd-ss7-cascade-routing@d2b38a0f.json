@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "Training data quality and label correctness — covered by ML methodology reviewers",
+    "Cost-weighted loss design and economic optimization — covered by the economic dispatch reviewer",
+    "Patient safety floor bypass and acuity misclassification — covered by the triage reviewer"
+  ],
+  "decision_lens": "Prioritize findings where the cascade fallback chain is underspecified — the router spec documents three failure modes (unreachable, timeout, model not loaded) but the resolution order when multiple failures occur simultaneously is not specified. Second priority: route flap — the timeout window (100ms) is short enough that a router endpoint that is intermittently available could produce alternating routing decisions within a single sprint, creating a worse outcome than a clean fallback.",
+  "distance_rationale": "Both systems make per-call routing decisions at high volume under hard latency budgets, with cascade fallback chains that must be correct under simultaneous failure conditions, and where route flap (intermittent availability) creates worse outcomes than clean failure.",
+  "expected_isomorphisms": "SS7 cascade trunk group fallback (preferred route unavailable → secondary → tertiary → operator intervention) maps directly to the resolver chain layers and the requirement that each layer's skip reason be logged. Route flap detection maps to the timeout window design: 100ms is short enough that intermittent endpoint availability creates incoherent routing distributions within a single sprint.",
+  "focus": "Telephone-network cascade routing — per-call routing decisions at high volume, timeout handling and congestion fallthrough, route flap detection, and the correctness of the cascade fallback chain under sustained load.",
+  "name": "fd-ss7-cascade-routing",
+  "persona": "Apply the perspective of a telecommunications network routing engineer who designs and audits SS7 signaling and intelligent network (IN) routing systems. They care about the correctness of the fallthrough chain when a preferred route is unavailable, the handling of routing decisions under sustained high call volume (hundreds of calls per minute), route flap detection (a route alternating between available and unavailable creates worse outcomes than a clean fallback), the latency budget for routing decisions relative to call setup time, and the behavior of the system when the routing database is unavailable mid-call. They measure fallthrough rate by failure type, route flap frequency, routing decision latency distribution, and cascade chain depth. They flag: any cascade chain longer than the documented fallback depth, any fallthrough that does not log the reason, route flap conditions where the router oscillates between available and unavailable within the timeout window, and any case where the cascade reaches the end of the chain without a documented terminal fallback.",
+  "review_areas": [
+    "Cascade chain terminal condition: verify that the resolver chain specification in bead 5 defines a guaranteed terminal fallback — the documented chain ends at phases[phase].model (the B1 static default) but verify this is reachable even when B3 calibration data is absent, preventing an empty-handed resolution",
+    "Simultaneous failure mode handling: check that the failure mode spec handles combinations (timeout AND model not loaded, endpoint unreachable AND calibration file absent) not just each failure in isolation — in SS7 systems, simultaneous trunk group and database failures are the cases that cause outages because they were only tested in isolation",
+    "Route flap within a sprint: verify the design accounts for the router endpoint becoming intermittently available within the 100ms timeout window — if the endpoint responds on some calls and not others within the same sprint, the routing distribution will be incoherent and the shadow log will show artificially high variance",
+    "Fallthrough reason logging at each cascade layer: confirm that each layer in the resolver chain logs not just the final resolution but which layers were traversed and why each one was skipped — without per-layer logging, debugging a wrong routing outcome requires re-running the scenario rather than reading the log",
+    "Latency budget accounting across the full chain: check that the 100ms timeout budget accounts for the full round-trip including DNS resolution, connection establishment to the local endpoint, and deserialization of the response — not just the model inference time, analogous to SS7 call setup time including all signaling hops",
+    "High-volume concurrency behavior: verify the bead 5 resolver integration spec addresses concurrent calls to the router endpoint within a single sprint execution — if multiple subagents call the router simultaneously and it is stateful, there is a race condition risk not present when each call is isolated"
+  ],
+  "severity_examples": [
+    {
+      "condition": "this is an end-of-chain failure — the cascade exhausts all defined layers without producing a model selection, which blocks the subagent call entirely rather than falling back gracefully",
+      "scenario": "resolver chain has no guaranteed terminal: B3 calibration file is absent and B1 phases[phase].model lookup fails due to missing phase key, leaving the resolver with no result",
+      "severity": "P1"
+    },
+    {
+      "condition": "the shadow-soak metric (reroute rate) becomes meaningless if the router is flapping — the measured reroute rate reflects availability, not routing quality",
+      "scenario": "router endpoint intermittently available within timeout window causes route flap: some subagent calls in the same sprint get microrouted, others fall through to B3, producing an incoherent routing mix that the shadow log attributes to the router",
+      "severity": "P1"
+    },
+    {
+      "condition": "this degrades the shadow log from a routing audit trail to a final-decision log, which is insufficient for diagnosing why the router's reroute rate is lower than expected",
+      "scenario": "fallthrough reason is not logged at each cascade layer, only at the final resolution, making it impossible to distinguish a B3-calibration hit from a microrouter-timeout-then-B3 path in the shadow log",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "telephone network SS7 signaling / intelligent network routing",
+  "success_hints": [
+    "Verify the resolver spec includes a reachability proof that the terminal fallback (B1 static default) is always reachable from any failure state",
+    "Check that the test suite for bead 5 includes a flapping-endpoint test where the router alternates between 200 OK and timeout within a batch of calls",
+    "Confirm the 100ms timeout budget is specified as wall-clock time measured at the resolver, not at the model inference layer"
+  ],
+  "task_context": "Reviewing the microrouter epic (sylveste-s3z6.19) and 7 children. Bead 5 defines the resolver integration including failure modes: endpoint unreachable falls through to B3, timeout > timeout_ms falls through, model not loaded auto-degrades to shadow. The resolver chain has 8 layers from kernel overrides to defaults.model. The system handles hundreds of subagent calls per sprint. The local endpoint is served by interfer on localhost:8421."
+}

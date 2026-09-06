@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does not cover async patterns (fd-asyncio), CLI calls (fd-claude-cli), or evolution scoring (fd-lens-evolution)",
+  "decision_lens": "Every nullable column without a constraint is a data integrity hole; every missing index is a latent performance cliff",
+  "focus": "Schema correctness, bi-temporal entity consistency, and query efficiency",
+  "name": "fd-sqlalchemy-pgvector-integrity",
+  "persona": "Database architect specializing in temporal data models and PostgreSQL extensions",
+  "review_areas": [
+    "Missing unique partial index on preference_entities WHERE valid_until IS NULL (allows duplicate active entities)",
+    "Orphaned ProfileEmbedding rows after /forget cascade (GDPR violation risk)",
+    "N+1 query patterns in _load_known_entities and _load_style_fingerprint",
+    "Bi-temporal valid_from/valid_until correctness: can overlapping validity windows exist?",
+    "JSONB GIN index on CoreProfile.structured_prefs: is it actually used by queries?",
+    "pgvector HNSW index maintenance under high write load"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Two extraction tasks both ADD entity before either commits",
+      "scenario": "Duplicate active entities for same user/domain/type after concurrent extraction",
+      "severity": "P0"
+    },
+    {
+      "condition": "Cascade deletes episodes but not embeddings derived from them",
+      "scenario": "/forget leaves embeddings that contain deleted entity text",
+      "severity": "P1"
+    },
+    {
+      "condition": "Missing WHERE valid_until IS NULL in profile_gen queries",
+      "scenario": "Profile regeneration queries all entities including expired ones",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Focus on models.py schema and db.py query patterns, cross-reference with extraction.py _apply_entities",
+  "task_context": "F3 (unified identity) adds UserIdentity table — schema must be clean before migration"
+}

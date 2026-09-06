@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-context-loading-architecture covers what context is loaded before routing runs",
+    "fd-session-startup-latency covers timing cost of the haiku fallback subprocess",
+    "fd-competitive-workflow-gaps covers features other orchestration systems have"
+  ],
+  "decision_lens": "Prioritizes routing rules that fire on ambiguous inputs (confidence 0.85) and places where the LLM fallback (haiku) is the tiebreaker — these are the highest-variance decisions where calibration data matters most.",
+  "focus": "Whether heuristic and LLM-fallback routing produce correct sprint/work dispatch decisions under compressed or incomplete context",
+  "name": "fd-routing-dispatch-quality",
+  "persona": "An ML evaluation engineer who has built routing quality benchmarks for multi-agent systems. Treats every routing rule as a hypothesis with a measurable false-positive and false-negative rate.",
+  "review_areas": [
+    "route.md fast-path heuristics table: 14 rules share confidence 0.85 — audit for rule ordering conflicts where two rules match the same bead state and produce contradictory routes",
+    "route.md Step 4b LLM classification: the fallback haiku subagent receives bead metadata but no examples — assess whether the prompt includes sufficient negative examples to prevent systematic bias toward /sprint",
+    "routing.yaml complexity section: B2 is in shadow mode — audit whether the shadow mode logging is actually capturing classification outcomes",
+    "routing.yaml calibration section: B3 is also shadow mode — verify whether interspect routing-calibration.json is being written and whether per-agent hit rates are being fed back into safety floor overrides",
+    "config/agent-roles.yaml safety floors: verify that safety floor clamping handles namespaced agent IDs (interflux:review:fd-safety vs fd-safety) consistently"
+  ],
+  "success_hints": [
+    "Zero routing rule conflicts in the fast-path table",
+    "B2 shadow mode log output is parseable and shows classification distribution across a real backlog",
+    "The haiku fallback prompt includes at least 3 negative examples"
+  ],
+  "task_context": "Clavain's route command uses a 14-rule fast-path heuristic table plus a haiku LLM fallback. The routing.yaml defines a 4-track system where B2 and B3 are in shadow mode."
+}

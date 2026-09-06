@@ -1,0 +1,36 @@
+{
+  "anti_overlap": "fd-matchmaking-compatibility-weighting covers scoring structure; fd-ethology-pair-bond-formation covers behavioral sequencing; this covers how the system's outputs are made interpretable to the AI curator tier",
+  "decision_lens": "Inferential legibility — the system must produce behavioral outputs that allow an informed observer to reconstruct the underlying drivers that produced the relationship",
+  "distance_rationale": "Attachment theorists have developed rigorous methods for making internal relational states legible from behavioral evidence — exactly the problem the curator faces when explaining elf relationships to the human player.",
+  "expected_isomorphisms": "Event-linked causal records for attraction deltas map to the clinical practice of noting specific incidents as evidence of attachment pattern. The explain-pairing tool design mirrors structured clinical formulation. Legible attachment patterns (anxious, avoidant, secure) map to named elf relationship archetypes the curator can deploy.",
+  "focus": "Whether a romantic attraction system is legible to the 'narrator' (curator/AI advisor) — how clinical psychologists make attachment patterns readable from behavioral evidence without direct access to internal states",
+  "name": "fd-clinical-attachment-legibility",
+  "persona": "Clinical psychologist specializing in attachment theory who trains therapists to infer attachment style from observable relationship behavior rather than self-report, and who consults on AI systems that must explain relationship dynamics",
+  "review_areas": [
+    "Evaluate whether each attraction driver leaves a distinct behavioral trace that a curator could cite when explaining a pairing — 'these elves bonded because of shared grief at the revel' requires the grief event to be logged and causally linked to the attraction score delta",
+    "Check whether the system supports the 'anxious-avoidant' dynamic: elves with high attraction to prestige (status driver) paired with elves who have low prestige-seeking (underdog attraction) should produce a recognizable pattern of pursuit and withdrawal",
+    "Assess whether the 'fandom-to-love pipeline' produces a legible narrative transition — the curator should be able to report 'Elf A became a fan of Elf B's work at the autumn revel, and has attended every revel where Elf B performs since', not just 'Elf A has high attraction to Elf B'",
+    "Evaluate whether asymmetric attraction (if implemented) is legible — the curator must be able to explain why one elf feels attraction and the other does not, based on their different driver profiles",
+    "Check whether the design of the curator's explain-pairing tool is constrained by the attraction driver model — a driver model with 7 independent categories requires a richer explanation template than a 2-3 driver model"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Attraction delta events are not logged with causal driver tags",
+      "scenario": "Attraction scores accumulate correctly but without event-linked causal records — the curator can report 'these elves are highly attracted' but cannot explain why, breaking the core promise of the bead description ('aesthetic proximity + personality complementarity + proximity time' as an explainable formula)",
+      "severity": "P1"
+    },
+    {
+      "condition": "Curator explanation template doesn't enumerate contributing drivers above a threshold weight",
+      "scenario": "The system supports 7 attraction drivers but the curator's explain-pairing prompt template only surfaces the top 1 — producing 'these elves share aesthetic taste' for every pairing, even when the real driver was skill-gap admiration after the winter composition revel",
+      "severity": "P2"
+    },
+    {
+      "condition": "Continuous/statistical drivers have no discrete event representation in the event log",
+      "scenario": "Mood resonance driver (elves whose mood curves sync) produces attraction without leaving any observable event in the timeline — the curator cannot point to a moment when the synchrony was established, only an abstract 'their moods tend to align'",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Clinical psychology, attachment theory, and relational inference",
+  "success_hints": "When the curator explains why two elves are attracted, the explanation reads like a story, not a formula readout — referencing specific shared events, a named revel where fandom began, or the skill gap that first made an elf look up.",
+  "task_context": "The brainstorm explicitly names curator legibility as a design tension ('the curator needs to explain pairings'); clinical psychology's methodology for inferring attachment style from behavioral evidence directly addresses this."
+}

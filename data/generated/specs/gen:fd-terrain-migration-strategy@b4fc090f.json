@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "Focuses on terrain architecture migration — not species generation (fd-botanical-procgen), beauty model (fd-observer-beauty), entity count (fd-ecs-flora-entity-budget), or garden timing (fd-garden-art-sprint-scope)",
+  "decision_lens": "Which terrain replacement strategy avoids data integrity failures while minimizing migration blast radius? Where do existing systems break?",
+  "focus": "ECS terrain replacement architecture: dual-representation hazards, lazy migration invariants, tick pipeline coupling",
+  "name": "fd-terrain-migration-strategy",
+  "persona": "ECS architect specializing in incremental system migrations in game engines with live data",
+  "review_areas": [
+    "Q3 Option B dual-representation: terrain says 'forest' while entities say 'three oaks' — which is authoritative for pathfinding, beauty, ForestSpirit?",
+    "Q3 Option C lazy migration: what invariant ensures partially-migrated state is consistent? What happens when erosion_system reads terrain but flora_growth reads entities?",
+    "Tick pipeline coupling: terrain_effect_system at step 7.5 reads TileData.terrain for beauty — if forest becomes Meadow+entities, beauty source changes",
+    "ForestSpirit system: currently counts AncientForest/YoungForest terrain tiles — must migrate to entity-based counting",
+    "ClearForest system: currently flips terrain type — must become entity despawn + terrain revert"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Q3 Option A or D chosen without pathfinding update",
+      "scenario": "Pathfinding treats entity-forest as walkable meadow, elves walk through trees",
+      "severity": "P0"
+    },
+    {
+      "condition": "Any option without ForestSpirit migration",
+      "scenario": "ForestSpirit anger tracks terrain forest count, not entity forest count — deforestation goes undetected",
+      "severity": "P1"
+    },
+    {
+      "condition": "192+ existing tests reference Terrain::AncientForest or YoungForest",
+      "scenario": "Existing tests break due to terrain type removal",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Grep for every use of Terrain::AncientForest and Terrain::YoungForest across the codebase — every hit is a migration point. The count determines whether full replacement or overlay is cheaper.",
+  "task_context": "Flora design for Elf Revel — current codebase has 208 tests, terrain_effect_system, erosion_system, ForestSpirit, ClearForest all read terrain types"
+}

@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-wasm-threading-feasibility covers full in-browser execution with SharedArrayBuffer threading",
+    "fd-server-side-execution covers fully server-hosted execution behind a WebSocket",
+    "fd-webgpu-compute covers GPU compute shader offloading of the agent workload"
+  ],
+  "decision_lens": "Prioritizes approaches that avoid the COOP/COEP header requirement (ruling out SharedArrayBuffer) while still delivering meaningful browser-side compute. Favors designs that leverage the existing pillar architecture (Climate/Food/Economy/Politics/Institutions running at different cadences) as a natural split boundary.",
+  "focus": "Split-execution architectures and novel compilation targets: WASM component model, dedicated Web Worker pools without SharedArrayBuffer, and approaches that move only part of the simulation (e.g., emergence vs economy pillars) to the browser",
+  "name": "fd-hybrid-architecture",
+  "persona": "A polyglot architect who designs systems that span execution environments, with experience in WebAssembly component model (WIT/WASI), Offscreencanvas + Worker pipelines, and feature-gated compilation strategies for multi-target Rust crates.",
+  "review_areas": [
+    "WASM component model (WIT interfaces + wasm-pkg toolchain) production-readiness in 2026: whether it can express the simulation-engine crate's SimulationResults interface cleanly, and whether the component boundary overhead is acceptable at 42ms tick cadence",
+    "Dedicated Web Worker pool without SharedArrayBuffer: spawning N workers each owning a country-shard of the agent pool, using structured cloning for PressureConditionCache snapshots, and aggregating ActionResult via postMessage — whether this approximates Rayon's throughput for 1768 agents at 42ms",
+    "Pillar-based split feasibility: running the Economy pillar (hourly, numeric-heavy) server-side and the Politics/Institutions pillars (daily, event-driven, lower compute) in-browser WASM, given the existing CatchupScheduler cadence system in the codebase",
+    "WASI preview 2 (WASIX) as a near-native execution target: whether the Tokio + Rayon dependency stack compiles to WASI with thread support in 2026, and what runtime hosts (Wasmtime, WasmEdge, WAPM) are production-ready for this use case",
+    "Cloudflare Workers + Durable Objects as a hybrid: running the simulation in a Durable Object (V8 isolate, no Rayon, single-threaded) with the browser as a thin rendering client — whether the 42ms tick can be sustained in a V8 isolate without Rayon parallelism at 1768 agents",
+    "Progressive enhancement strategy: ship a simplified single-threaded WASM build for browser discovery with reduced agent count or tick rate, while preserving the full Tauri desktop experience — and what the minimum viable agent count is before emergence behavior degrades"
+  ],
+  "success_hints": [
+    "Identification of the optimal split boundary using the existing pillar cadence system (which pillars run in-browser vs server-side) based on compute cost and data dependency analysis",
+    "A concrete agent count floor below which the emergence system's behavior degrades unacceptably for a discovery experience, to inform the progressive enhancement option",
+    "Whether the WASM component model is mature enough in 2026 to use as the interface contract between a server-side simulation and browser-side rendering without a custom WebSocket protocol"
+  ],
+  "task_context": "The simulation has a tiered pillar system (Climate/Food/Economy/Politics/Institutions) running at different cadences (hourly to daily) orchestrated by a CatchupScheduler. The agent pool runs Rayon par_iter_mut over 1768+ agents. The goal is web distribution/discovery feasibility."
+}

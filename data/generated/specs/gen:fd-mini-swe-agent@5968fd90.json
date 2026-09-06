@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-rl-training-pipeline covers Atropos base env and reward functions",
+    "fd-security-patterns covers terminal isolation from security perspective",
+    "fd-gateway-messaging covers platform delivery, not execution environments"
+  ],
+  "decision_lens": "Prioritizes findings about execution backend interface contracts, trajectory format normalization, and batch pipeline design. Flags assumptions that would break with new backends.",
+  "focus": "Mini-swe-agent execution environment abstraction and trajectory bridge as model for Autarch's sandboxed task execution",
+  "name": "fd-mini-swe-agent",
+  "persona": "An agent infrastructure engineer specializing in sandboxed execution environments for LLM-driven software tasks.",
+  "review_areas": [
+    "create_environment() factory — how local/docker/modal are unified behind execute() interface and minimal backend contract",
+    "MINI_SWE_AGENT_FINAL_OUTPUT sentinel signal — stdout scanning vs. tool_calls cessation for completion detection",
+    "_convert_to_hermes_format() trajectory bridge — OpenAI tool_calls to ShareGPT from/value with XML tags, losslessness",
+    "run_batch() design — immediate JSONL flush, error isolation per task, implications for Autarch's batch eval",
+    "patches.py async-safe workaround for SwerexModalEnvironment — thread executor for nested event loops",
+    "TerminalbenchEnv and HermesSweEnv as concrete subclasses — minimal interface for new SWE environments"
+  ],
+  "success_hints": [
+    "Determine if trajectory bridge output is compatible with batch_runner + trajectory_compressor pipeline",
+    "Identify if execute() backend interface is formally documented or duck-typed",
+    "Assess if sentinel approach is robust enough or if structured completion protocol is preferable"
+  ],
+  "task_context": "Analyzing Hermes Agent to find patterns adaptable for Sylveste's Autarch (L3 agent orchestration) and intercom (messaging/gateway)."
+}

@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Does not assess construct operationalization (fd-clinical-trials-construct-validity), scoring reliability (fd-psychometrics-measurement-precision), or competitive differentiation (fd-product-strategy-competitive-differentiation).",
+  "decision_lens": "Ecological validity: a benchmark measuring artificial tasks may be measuring task compliance, not the construct.",
+  "distance_rationale": "UX researchers face the same lab-vs-field validity problem but with immediately visible ecological validity failures.",
+  "expected_isomorphisms": "UX principle that task scenarios must embed goals/constraints/context maps to benchmark task design. Task validation with domain experts before running transfers directly.",
+  "focus": "Reviews whether benchmark task scenarios are ecologically valid representations of contexts where oblique reasoning matters in deployed agent systems.",
+  "name": "fd-ux-research-ecological-fidelity",
+  "persona": "A principal UX researcher with 12 years running contextual inquiry and field studies for enterprise software.",
+  "review_areas": [
+    "Assess whether tasks reflect contexts where oblique reasoning is instrumentally valuable",
+    "Review scaffolding configurations for real-deployment correspondence",
+    "Check task context richness",
+    "Evaluate time/resource constraint realism",
+    "Audit social and goal context capture",
+    "Verify tasks include oblique-reasoning-required scenarios"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No realistic deployment scenario embedding",
+      "scenario": "All tasks are decontextualized puzzles",
+      "severity": "P1"
+    },
+    {
+      "condition": "Dose-response relationship unmappable",
+      "scenario": "Only minimal vs. maximal scaffolding tested",
+      "severity": "P2"
+    },
+    {
+      "condition": "Misses scaffolding×context-complexity interaction",
+      "scenario": "Uniform information density across conditions",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "UX research — contextual inquiry and field study design for enterprise software",
+  "success_hints": "Tasks drawn from real agent deployment logs, scaffolding conditions span real configurations, at least one oblique-reasoning-required task, pilot validation with practitioners.",
+  "task_context": "Reviewing task design and scaffolding conditions for ecological validity."
+}

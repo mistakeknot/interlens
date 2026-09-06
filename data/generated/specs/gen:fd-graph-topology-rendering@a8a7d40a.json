@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-information-density-tufte covers what encodings communicate semantically",
+    "fd-embodied-spatial-cognition covers how spatial stability affects memory formation",
+    "fd-explorable-explanation-victor covers interactive causal traversal"
+  ],
+  "decision_lens": "Prioritizes findings that would cause layout thrashing, overplotting, or rendering degradation at production scale, and where compound vs. flat vs. gravity-clustered topology materially changes which relationships are visually accessible. Flags layouts that break at scale but appear fine in demos.",
+  "focus": "Cytoscape.js layout algorithm fitness, compound node vs. flat graph tradeoffs, and ambient canvas compositing at 42-project / 61-agent / 500-bead scale",
+  "name": "fd-graph-topology-rendering",
+  "persona": "Evaluates graph visualization at the intersection of infovis research, frontend rendering performance, and graph topology theory. Draws from fCoSE/CoSE-Bilkent papers, compound graph theory (Sugiyama hierarchical vs. force-directed), and canvas compositing performance. Treats the decision as a rendering and topology problem.",
+  "review_areas": [
+    "At 500+ nodes, does fCoSE converge in < 2 seconds and does compound nesting help or hurt convergence by reducing effective node count?",
+    "Does Cytoscape.js compound node implementation correctly handle edge routing between different nesting depths, or do cross-compound edges become spaghetti?",
+    "For spatial gravity: does implementing gravitational attraction as a custom fCoSE constraint or D3-force produce stable results with Cytoscape.js physics?",
+    "How does ambient glow canvas compositing interact with Cytoscape.js's own canvas — are they independent elements or competing for the same 2D context?",
+    "Does the chosen layout support incremental updates (add/remove/update nodes without full re-layout) via cy.batch() and differential updates?",
+    "What is the realistic node/edge ceiling before frame rate drops below 30fps on 2020-era hardware with the ambient canvas also running?"
+  ],
+  "success_hints": [
+    "Layout converges within 1.5s on initial load with 500+ nodes, subsequent incremental updates < 200ms",
+    "Ambient glow runs as separate offscreen canvas composited onto graph layer with no DOM reflow per node",
+    "Chosen topology survives 10 sequential incremental data updates without nodes migrating > 50px from settled positions"
+  ],
+  "task_context": "Meadowsyn is a public ops room visualization for an autonomous AI agent factory: 42 projects, 61 agents, 500+ beads (work items). The architecture choice is between compound graph nodes, spatial gravity clustering, and hybrid approaches rendered via Cytoscape.js with a custom ambient glow canvas overlay."
+}

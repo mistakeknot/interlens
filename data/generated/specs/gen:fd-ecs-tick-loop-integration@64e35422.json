@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Do not cover Rust API ergonomics, trait bounds, or derive correctness — those belong to the Rust ergonomics agent",
+    "Do not cover SQLite schema design or backend persistence internals — those belong to the persistence agent",
+    "Do not cover ACL, scope grants, or cross-Soul identity — those belong to the access-control agent"
+  ],
+  "decision_lens": "A game tick is a budget. Every allocation, every syscall, and every block_on is a deduction from that budget. The right integration layer makes the happy path fit the budget with zero tax; the wrong integration layer makes every tick pay for abstractions it doesn't use. The ECS community has learned that 'bolt-on external state stores' fail unless the integration is co-designed with the component model.",
+  "focus": "ECS integration patterns, per-tick read/write performance budgets, sync-from-async access under pollster::block_on, Soul-as-aggregate vs ECS components mismatch, save-game compatibility, mutation atomicity within a tick",
+  "name": "fd-ecs-tick-loop-integration",
+  "persona": "Apply the perspective of a game engine programmer who has integrated third-party data systems into production ECS game loops (hecs, specs, bevy-style), with specific experience in single-threaded tick loops where allocation and blocking are the primary performance enemies.",
+  "review_areas": [
+    "The ported mood_system (§9, naïve port) allocates a Vec<FacetValue> per elf per tick for the new modifier list, plus HashMap clones for each modifier Record. For 8 elves at 100 ticks/sec that is 800 Vec allocs + N*800 HashMap clones per second. The spec acknowledges this and proposes the optimal derivation-based port, but the optimal port requires consumer_tick in DerivationFn (§12, deferred). Until §12 is resolved, the naïve port is the only implementable Phase 1 port — and the spec's claim that 'the mood_system literally vanishes' is premature.",
+    "Pattern A (write-through, §8) calls pollster::block_on on every Soul::append in the tick loop. For a MemSoulStore this is a no-op plus one allocation (the Future). For 8 elves × 20 events/tick = 160 block_on calls/tick. At 100 ticks/sec that is 16,000 block_on calls/sec. The spec says 'acceptable for in-memory.' It is — but the caller must know that adding a SqliteSoulStore flips this from acceptble to catastrophic without any API change. The spec should recommend Pattern B (deferred-batch) as the default for any I/O-backed store, not as 'Phase 1.5 opt-in.'",
+    "Soul is the 'aggregate' in event-sourcing terms — all mutations go through Soul::append. But in elf-revel's ECS, Personality, Mood, Scars, Relationships are separate components queried independently. The port forces elf-revel to hold a Soul alongside each elf entity, and systems must reach into the Soul's facet map instead of directly borrowing a component. The spec does not address how world.get_soul_mut(soul_id) is implemented — is Soul an ECS component itself? A side-table? The answer materially affects whether ECS parallelism is preserved or broken.",
+    "The Heartbreak port (§14) calls soul.append(...) six times per elf per dissolution event. Each append invalidates DerivedCache. If mood.active_modifiers is a registered derivation (the optimal shape), each append re-derives it. For a dissolution event that happens 0-5 times per game, this cost is negligible. But the spec generalizes the pattern: systems that call append multiple times in a tight loop will re-derive on every append. The spec should recommend or enforce 'batch-then-invalidate-once' for multi-append patterns (Soul::replay is already the tool for this).",
+    "The spec notes 'elf-revel has no production save path wired' (elf-revel-port-notes.md §Q5) and says 'the Palettice port will be the elf-revel persistence solution.' This means Phase 1 must design the save-game format from scratch. The SqliteSoulStore is the candidate. The spec says elf-revel 'might stay in-memory + snapshot-to-disk' — but this option is not designed anywhere in the spec. If Phase 1 ships only MemSoulStore, elf-revel has no persistence. The Phase 1 acceptance criteria require SqliteSoulStore to pass the shared test suite, but do not require elf-revel to actually use it. This gap should be made explicit.",
+    "The §14 port demonstrates that the elf-revel ECS's `world.get_soul_mut(soul_id)` is called in a loop over dissolving pairs. If two dissolution events in the same tick affect the same elf (edge case but possible in a sim), the Soul is mutated twice in the same tick before the durable write happens. With Pattern B (deferred-batch), both batches queue independently and then both block_on at day boundary. The spec does not address whether append_events is idempotent or whether duplicate events from a double-append scenario are a correctness risk."
+  ],
+  "severity_examples": [
+    {
+      "condition": "The spec's §9 optimal port shape (mood_system vanishes, decay is a derivation) requires current_tick in DerivationFn. The locked DerivationFn signature does not carry it. If Phase 1 code starts with the locked signature, every implementation of time-relative derivations must use a workaround (captured Arc<AtomicU64>, closure mutation) that the spec does not anticipate or bless. This is a P0 for the ECS integration because the entire argument that 'the hot path stays sync' depends on derivations being able to compute without store calls — and without tick context, they can't compute ticks_remaining.",
+      "scenario": "consumer_tick unavailable to derivations, optimal mood port blocked",
+      "severity": "P0"
+    },
+    {
+      "condition": "The spec recommends Pattern A as the Phase 1 default and Pattern B as 'Phase 1.5 opt-in.' If elf-revel ships Phase 1 with SqliteSoulStore and Pattern A, every Soul::append will fsync, making the tick loop I/O-bound at 100 ticks/sec. The spec should invert the default: Pattern B (deferred-batch) is the default for any I/O store; Pattern A is only for MemSoulStore.",
+      "scenario": "Pattern A write-through under SqliteSoulStore",
+      "severity": "P1"
+    },
+    {
+      "condition": "The port shapes in §9 and §14 use world.get_soul_mut(soul_id) but this function is not defined anywhere in the spec. Whether Soul is an ECS component, a side-table HashMap<SoulId, Soul>, or a field on a higher-level ElfWorld struct determines whether elf-revel's existing &mut World parallelism is preserved or broken.",
+      "scenario": "Soul placement in ECS world unspecified",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Count allocations in the naïve mood-system port per tick per elf, and verify they are in the budget documented in elf-revel-port-notes.md §5",
+    "Check that the §8 async/sync interop pattern works correctly when the store is SqliteSoulStore, not just MemSoulStore",
+    "Verify that §9 and §14 validation passes can be implemented with the locked DerivationFn signature, or document exactly which locked items must change",
+    "Check whether the acceptance criteria in §10 require elf-revel to actually use SqliteSoulStore for persistence, or only that SqliteSoulStore passes a standalone test suite"
+  ],
+  "task_context": "elf-revel is the Phase 1 integration target — a running ~9700-LOC Rust ECS sim with a single-threaded tick loop at 100 ticks/sec, 8-50 elves, ~40 systems. The reviewer should check that the locked API (§1-4) is actually usable inside this tick loop without performance regressions, and that the §8 interop pattern is sufficient for Phase 1."
+}

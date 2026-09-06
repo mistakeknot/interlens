@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-dual-database-state-divergence covers whether registrations reach both databases.",
+    "fd-mount-security-wiring covers filesystem mount isolation underlying IPC namespace separation.",
+    "fd-queue-delivery-reliability covers message dispatch after authorization passes."
+  ],
+  "decision_lens": "Prioritizes findings where Rust and Node apply different authorization rules for the same IPC operation, where sourceGroup identity can be spoofed, and where main-group privileges can be exercised by a non-main group.",
+  "focus": "IPC authorization model: whether group identity derived from filesystem path is enforced consistently across Node and Rust, and whether cross-group privilege escalation is possible",
+  "name": "fd-ipc-authorization-boundary",
+  "persona": "A security researcher who specializes in confused deputy attacks and authorization boundary bypasses in filesystem-based IPC systems. Asks: what proves identity, and can that proof be forged?",
+  "review_areas": [
+    "Audit Node IPC watcher identity model (ipc.ts): sourceGroup is derived from the directory name. Verify no code path mounts the entire DATA_DIR/ipc/ directory, which would let a container write to other groups' subdirectories.",
+    "Check register_group IPC handler: only main can register. But the handler writes to SQLite without writing to Postgres. Confirm whether this creates a SQLite-only group invisible to the Rust daemon.",
+    "Examine whether intercomd has its own IPC file poller or relies on Node host-callback. If Rust polls IPC directly, confirm it applies the same sourceGroup identity checks.",
+    "Inspect host-callback /v1/ipc/forward-task: Rust passes is_main as a boolean. Verify intercomd derives is_main from its own group registry, not from a container-influenced field.",
+    "Check cross-group message authorization (ipc.ts): non-main can only message their own group. Verify registeredGroups() is called fresh, not from stale cache.",
+    "Audit schedule_task authorization: non-main can only schedule for themselves. Confirm folder uniqueness is enforced at registration time to prevent cross-group scheduling via folder collision."
+  ],
+  "success_hints": [
+    "IPC directory mount per group is confirmed — no container can write to another group's IPC namespace.",
+    "is_main is derived from Rust's own registry, never from container IPC payload.",
+    "Group folder uniqueness enforced by UNIQUE constraint in both databases."
+  ],
+  "task_context": "Boundary-crossing failures have been found at IPC, database, and mount layers. This agent focuses on whether authorization rules at the IPC layer are applied consistently by both processes."
+}

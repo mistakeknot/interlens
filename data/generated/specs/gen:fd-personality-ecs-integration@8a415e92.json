@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "fd-personality-llm-legibility covers the prompt layer; this covers the ECS/Rust implementation layer",
+  "decision_lens": "Implementation cleanliness — personality must integrate without requiring collect-then-mutate workarounds or system reordering cascades",
+  "focus": "How personality components integrate with the existing ECS architecture and system pipeline",
+  "name": "fd-personality-ecs-integration",
+  "persona": "Rust ECS architect experienced with hecs, specializing in component composition and system ordering",
+  "review_areas": [
+    "Evaluate whether personality should be a single component (Personality { introversion: f32, patience: f32, pride: f32 }) or separate components per axis",
+    "Check how many existing systems need modification to consume personality data (company_system, conflict_system, aspiration_system, satisfaction calculations)",
+    "Assess whether personality requires new system ordering dependencies or can slot into existing tick pipeline",
+    "Verify serde compatibility: #[serde(default)] for backward compatibility with existing saves",
+    "Check whether personality generation at spawn interacts correctly with the name generation pipeline (the brainstorm suggests name family biases personality)"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Query tuple grows beyond what hecs supports or misses the new component",
+      "scenario": "Personality component added to spawn but not included in the 10-component query in state.rs from_world(), causing a runtime panic",
+      "severity": "P1"
+    },
+    {
+      "condition": "Two different components both modify the same need",
+      "scenario": "Personality modifies company_system behavior but company_system currently reads AestheticPosition.social — dual-axis control creates confusing interactions",
+      "severity": "P2"
+    },
+    {
+      "condition": "Additive component field without serde default",
+      "scenario": "Missing #[serde(default)] causes deserialization failure on old saves",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Personality integrates as a single additive component with #[serde(default)], consumed by 3-5 existing systems via minor modifications, no system reordering required.",
+  "task_context": "The codebase uses hecs ECS with collect-then-mutate discipline. The previous sprint (syllable meanings) caught a silent feature-nullification bug where new fields existed but were never rendered to the LLM."
+}

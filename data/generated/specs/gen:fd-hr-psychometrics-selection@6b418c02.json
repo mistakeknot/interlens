@@ -1,0 +1,31 @@
+{
+  "anti_overlap": "fd-personality-prior-art-gaps covers game design precedent; this covers real-world personality science",
+  "decision_lens": "Predictive validity — personality dimensions must actually predict behavior differences, not just describe preferences",
+  "distance_rationale": "I/O psych solves the exact same problem (which personality dimensions predict behavior?) but with empirical validation, not game design intuition.",
+  "expected_isomorphisms": "Factor analysis for axis independence, person-environment fit for role satisfaction, and complementarity research for relationship dynamics.",
+  "focus": "Organizational psychology's lessons on personality assessment, team composition, and trait interaction",
+  "name": "fd-hr-psychometrics-selection",
+  "persona": "Industrial-organizational psychologist who designs personality assessments for team composition and predicts group performance from trait profiles",
+  "review_areas": [
+    "Evaluate the Big Five vs proposed 3-axis model: Big Five research shows which personality dimensions predict work behavior (Conscientiousness and Agreeableness strongest) — do the proposed axes map to these?",
+    "Check whether axes predict different DOMAINS of behavior: introversion→social, patience→task completion, pride→status-seeking — or do they overlap?",
+    "Assess 'person-environment fit' — I/O psych shows personality effects depend on context. Does a proud elf suffer more in a low-prestige role than a humble one?",
+    "Evaluate 'complementarity vs similarity' in team composition: research shows some traits work best when mixed (complementary) while others work best when matched (similar)",
+    "Check for the 'dark triad' problem: extremely high pride + low patience + high extroversion = toxic personality that should create specific negative dynamics, not just low numbers"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Axis name/description implies one behavioral domain but implementation affects another",
+      "scenario": "Patience axis maps to Conscientiousness but the brainstorm frames it as impulse control — these predict different behaviors (work quality vs social disruption)",
+      "severity": "P2"
+    },
+    {
+      "condition": "Role satisfaction ignores personality",
+      "scenario": "No person-environment fit effect: a proud elf assigned to gathering (low-prestige role) should suffer more than a humble elf, but the system treats role satisfaction as personality-independent",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Industrial-organizational psychology and psychometrics",
+  "success_hints": "Each axis predicts a distinct behavioral domain. Personality interacts with context (roles, relationships, events) to produce situational effects, not just flat modifiers.",
+  "task_context": "The proposed axes need to produce meaningful behavioral differences in a simulation. I/O psychology has decades of data on which personality dimensions actually predict behavior."
+}

@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-rust-data-model-correctness covers Rust type issues",
+    "fd-mechanical-distinctness covers qualitative uniqueness",
+    "fd-emergence-legibility covers player information design"
+  ],
+  "decision_lens": "Flags interactions whose effects are either so weak they won't influence decisions or so strong they crowd out other mechanics. Pays special attention to interactions that stack or compound.",
+  "focus": "Numeric budget analysis: are effect magnitudes, thresholds, and interaction count calibrated to avoid dominant strategies or irrelevant interactions?",
+  "name": "fd-game-balance-budget",
+  "persona": "A game systems designer with experience balancing modifier stacks in strategy games. They think in terms of expected value, variance, and dominant-strategy detection.",
+  "review_areas": [
+    "Audit the +/-0.20 effectiveness clamp against personality_modifier +/-0.15 range for stacking issues",
+    "Check stress budget: conflicts add 1-3 stress/deploy against base 3-20 range",
+    "Identify interactions with no meaningful downside or no meaningful upside",
+    "Evaluate Hi=70/Lo=30 thresholds + graduated strength for sweet-spot problems",
+    "Check ghost_operator and stoic_anchor for incompatible multi-agent assumptions",
+    "Flag 3-Hi-facet interactions for probability of naturally occurring"
+  ],
+  "success_hints": [
+    "No single interaction or stacking pair dominates the +/-0.20 effectiveness clamp",
+    "Stress bonuses from conflicts represent at least 10% of base stress accumulation"
+  ],
+  "task_context": "Shadow Work is a geopolitical simulation with 31 personality facets. Effects modify deployment effectiveness, stress, action scoring, and facet evolution."
+}

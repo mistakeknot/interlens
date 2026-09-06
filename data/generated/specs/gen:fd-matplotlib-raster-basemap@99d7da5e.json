@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "fd-geospatial-crs-precision owns the geodetic correctness of the EPSG:32611 → WGS84 reprojection (resampling choice, axis ordering) — focus here on how the reprojected raster is then DRAWN in matplotlib",
+    "fd-python-routing-api owns the CLI ↔ library boundary — focus here on the rendering inside the CLI script, not its function signature"
+  ],
+  "decision_lens": "If a reviewer opens phase-1-7-route-k0.png next to phase-1-7-route-k1.png in a PR diff at 1× zoom, will the difference in routing decisions be visually obvious?",
+  "focus": "Matplotlib + rasterio basemap rendering — raster reprojection for display, alpha blending, and route-overlay legibility on shaded urban grids.",
+  "name": "fd-matplotlib-raster-basemap",
+  "persona": "Apply the perspective of a scientific-visualization engineer who has shipped geospatial figures in papers and dashboards — they care about whether the resulting image actually communicates the claim it is committed as evidence for, measure legibility via contrast and visual hierarchy, and flag any place where matplotlib defaults (axes, colormaps, extents, DPI) will turn the Epic DoD #1 artifact into an unreadable blob.",
+  "review_areas": [
+    "ax.imshow extent — matplotlib defaults to (0, ncols, nrows, 0) pixel space; geographic figures need extent=(west, east, south, north) from rasterio.bounds (and an inverted y-axis if origin='lower')",
+    "Colormap and alpha for the shadow raster as basemap — a binary or near-binary shade mask in gray-on-white at full alpha will dominate any colored route polyline; alpha around 0.5–0.7 + a perceptually-uniform cmap is the standard fix",
+    "Route polyline visual hierarchy — line width, edgecolor halo, endpoint markers; on a dark shaded basemap a pure-red line vanishes in shadow pixels",
+    "Reprojection-for-display pipeline (rasterio.warp.reproject in-memory vs gdalwarp pre-step) and the resampling rule for a categorical shade mask",
+    "Figure dimensions, DPI, and aspect-ratio lock at DTLA's latitude (Mercator-like aspect ≈ cos(34°) ≈ 0.83) — a square figure with equal-aspect axes squashes longitude",
+    "Optional underlay (OSM edge lines from the graph) — z-order, color, alpha discipline; does it actually improve legibility or just add visual noise?",
+    "PNG-existence test as a quality gate vs a perceptual check — file exists ≠ figure is informative"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Raster pixels render in pixel space, route polyline (in geographic coords) renders in lat/lon space → they share no coordinate system on screen; PNG is unusable as Epic DoD evidence even though the file exists and is non-empty",
+      "scenario": "ax.imshow called without extent= on a reprojected raster",
+      "severity": "P1"
+    },
+    {
+      "condition": "Route invisible on the committed k0 vs k1 artifacts at GitHub diff zoom; reviewers cannot tell the routes differ → Epic DoD #1 evidence is committed but doesn't communicate",
+      "scenario": "Shadow raster plotted at alpha=1.0 with a gray colormap, route polyline at default matplotlib width (≈1.5pt)",
+      "severity": "P1"
+    },
+    {
+      "condition": "Longitude axis stretched; visually the route looks like it takes detours that aren't there — undermines the 'visually inspectable' framing",
+      "scenario": "Figure aspect set to default (auto) on a lat/lon axis at 34° N",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "ax.imshow uses extent=rasterio.bounds_in_wgs84 and origin='upper' or 'lower' consistent with the array's row order",
+    "Shadow raster plotted at alpha≈0.55 with a sequential cmap (greys or viridis_r), route polyline at linewidth≈3 with a white path-effects halo",
+    "ax.set_aspect(1/cos(radians(34.05))) or use projected axes (cartopy) — aspect explicitly justified",
+    "A perceptual test or visual diff (compare k0 vs k1 PNG with pixel-difference threshold) gates that the artifacts actually differ on screen"
+  ],
+  "task_context": "Reviewing a Phase 1.7 brainstorm that proposes a matplotlib + rasterio PNG as the committed evidence artifact for Epic DoD #1 (routes differ at k=0 vs k=1). The PNG is described as the central proof — 'reviewable in any PR diff or markdown viewer'. Review goal: catch visualization-engineering issues that would make the PNG technically exist but fail its evidentiary purpose."
+}

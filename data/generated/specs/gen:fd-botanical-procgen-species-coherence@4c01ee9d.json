@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "Focuses on species generation coherence — not terrain migration (fd-terrain-migration), beauty computation (fd-observer-beauty), entity density (fd-ecs-flora-entity-budget), or garden scope (fd-garden-art-sprint-scope)",
+  "decision_lens": "Does the species generation produce learnable, distinct species or noisy parameter soup? Do the generation axes interact coherently with the geology substrate?",
+  "focus": "Procedural species generation: learnability vs. diversity, axis cross-product coherence, soil-type coupling",
+  "name": "fd-botanical-procgen-species-coherence",
+  "persona": "Procedural content generation specialist with deep experience in species simulation and biological taxonomy systems in games",
+  "review_areas": [
+    "Q1 species count: cognitive load at each option (8-12 vs. 20-30 vs. fixed vs. layered) — which produces recognizable species?",
+    "Axis cross-product coherence: do the 8 generation axes (growth form, leaf type, seasonal behavior, soil preference, beauty, growth rate, spread, wood quality) produce meaningful combinations or nonsensical chimeras?",
+    "Soil-type coupling to geology TileData: species soil_preference axis must map to SoilKind enum values (Loam, Clay, Sand, Peat, Rocky) — are there orphan preferences?",
+    "Name generation: composable 3-part names from pools — does the pool size support the species count without repetitive names?",
+    "Ancient species: civilization aesthetic_imprint on growth pattern — does this interact with the standard generation axes or create a parallel system?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No constraint system on axis cross-products",
+      "scenario": "Species generation axes produce incoherent combinations (aquatic + rocky-soil + needle-leaf)",
+      "severity": "P1"
+    },
+    {
+      "condition": "Axes correlate too strongly, collapsing diversity",
+      "scenario": "20+ species generated but only 3 visually distinct categories emerge from axis combinations",
+      "severity": "P2"
+    },
+    {
+      "condition": "Decoupled enum definitions between flora and geology",
+      "scenario": "Species soil preferences reference soil types not in the geology system",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Check whether species feel like species (distinct identity, recognizable) or like database rows (parameter variations). The test: could a player describe a species to another player?",
+  "task_context": "Flora design for Elf Revel — Rust ECS elven colony sim with geology foundation (TileData, SoilKind, fertility, erosion)"
+}

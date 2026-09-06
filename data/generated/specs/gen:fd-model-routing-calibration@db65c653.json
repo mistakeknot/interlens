@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-issue-comprehension covers Orient reasoning quality",
+    "fd-test-validation-loop covers Reflect phase logic",
+    "fd-patch-correctness-signals covers patch evaluation"
+  ],
+  "decision_lens": "Haiku on reasoning-heavy turns (localization, test interpretation) rank P0. Opus on mechanical turns rank P1.",
+  "focus": "Whether per-turn model routing is correctly calibrated for SWE-bench task structure",
+  "name": "fd-model-routing-calibration",
+  "persona": "An ML systems engineer profiling model capability vs cost tradeoffs on coding benchmarks.",
+  "review_areas": [
+    "Evaluate whether complexity classifier uses only token count (poor proxy for reasoning difficulty)",
+    "Assess whether phase defaults assign Opus to Orient and Reflect phases",
+    "Check whether complexity shadow mode means routing is a no-op",
+    "Evaluate whether budget demotion kicks in mid-repair breaking trajectory",
+    "Assess within-phase routing granularity (reading vs hypothesis vs patching)",
+    "Evaluate context window mismatch risk on model demotion"
+  ],
+  "success_hints": [
+    "Fault hypothesis and patch synthesis turns always use Opus",
+    "Model demotion never occurs during active repair attempt"
+  ],
+  "task_context": "Skaffen Go agent with OODARC phases in headless print mode for SWE-bench Lite. Goal: #1 (~60% baseline) through genuine improvements."
+}

@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Leave mechanical buildability of any resulting design (gem mapping, socket rules, artifact schema, balance) to the itemization/economy reviewer.",
+    "Leave the R8 observation-vs-extraction philosophical question and cultural-heritage/repatriation ethics of the Met artifact loot to the collection-ethics reviewer; engage those source docs only insofar as they are canon clauses being read for or against, not for their design-ethics content.",
+    "Do not independently re-derive whether Uncs-as-combat-abilities is a good design choice — only whether the canon clauses cited to permit or forbid it are read honestly."
+  ],
+  "decision_lens": "If the cited clause in ontology.md or universe.md is read cold, stripped of this document's framing, does it support the reading offered — or does the reading depend on a distinction (aimed vs. received, universe-framing vs. game-design, acquisition vs. use) that the source clause itself does not draw?",
+  "focus": "Whether the document's readings of uncrancher/docs/ontology.md and After-Them/docs/universe.md are honest constructions of the cited clauses or motivated reinterpretations engineered to clear a predetermined design, verified against the source text directly rather than the composition doc's own block-quotes and paraphrases.",
+  "name": "fd-canon-continuity-audit",
+  "persona": "Apply the perspective of a continuity/canon editor for a long-running shared-universe franchise — the role that adjudicates whether a new story 'technically' complies with a style bible or is quietly rewriting it — trained to distrust a document's own paraphrase of the rules it claims to satisfy and to always re-derive the verdict from the cited clause's actual wording, including what the clause does not say.",
+  "review_areas": [
+    "Re-read ontology.md §5 directly (not the composition doc's block-quotes) and test whether the 'unbidden vs. aimed' distinction in §6.1/§9-A is present in or derivable from the clause's own stated reasoning ('free chooser inside a non-weird system', 'the recognition IS the reward'), or is a distinction invented to rescue the mechanic.",
+    "Re-read ontology.md's sitting-only clause and the uncrancher-3h3 bead's 'couch activity' language directly, and test whether §9-B Option 1 (walk-gates-Delve-access) satisfies the clause's evident intent (anti-fitness-app, embodied requirement) or only its letter, leaving a sitting-dominant play pattern once a player has banked Uncs.",
+    "Re-read After-Them/docs/universe.md's Encryptid clause ('none of this is renamed or restructured by the universe frame') in its surrounding context and test §9-F's 'universe-framing vs. game-design' scope distinction — does the source clause's own context support confining it to naming discipline, or is that boundary drawn by the composition doc for its own convenience.",
+    "Check §1.2's 'unexpected support' citations (Encryptids-as-chronicle-fed-beings, Engramicon provenance chains) against the actual universe.md passages in context — do they say what the composition doc says they say, or are they read out of the surrounding argument.",
+    "Evaluate §9-E's Brand-layer assignment reasoning (CULTURE, via the 'culture sediments into myth, ecology, species' shear-line) against infinite-fun-space/docs/canon/pace-layer-universe.md directly — is that shear-boundary language actually about entity-class transitions like Unc→Encryptid, or is it repurposed from a different original argument.",
+    "Flag every place the document calls a clause reading 'narrow', 'defensible', or 'likely a non-conflict' and independently determine whether that hedge is honest interpretive work or a laundering move toward a predetermined outcome."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If the source clause forbids exactly the 'unbidden crit' mechanism §6.1 proposes, then §9-A Option 1 is not a live option but a mislabeled ontology violation, and ratifying it under the 'unbidden' framing corrupts the permanent-v0 guarantee it claims to respect.",
+      "scenario": "ontology.md §5's Uncanny-unlock clause, read in full surrounding context, objects to mechanized Uncanny-consumption as such, not merely to player-aimed pursuit of it.",
+      "severity": "P0"
+    },
+    {
+      "condition": "If so, §9-F's central move — treating the clause as non-binding on game design — is a misreading that the entire Encryptid/Unc merger in §6.2/§7 depends on, and the recommendation should be flagged as resting on a motivated reading rather than a settled non-conflict.",
+      "scenario": "universe.md's 'none of this is renamed or restructured' clause, read in its own paragraph, is not scoped to universe-framing-only — i.e. the 'naming discipline only' closing line the composition doc cites belongs to a different claim in the source than the one §9-F applies it to.",
+      "severity": "P0"
+    },
+    {
+      "condition": "If so, §9-B's framing of the tension as awaiting future ratification understates an existing commitment that already conflicts with the sitting-only clause, and the open call is under-scoped.",
+      "scenario": "uncrancher-3h3's 'couch activity' language, read in context, describes a mode the uncrancher team already committed to shipping rather than a bead-stage idea.",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "Actually fetches and quotes the source clauses (ontology.md §5, universe.md's Encryptid/Habitat passages, pace-layer-universe.md's shear-line language) rather than trusting the composition doc's block-quotes, since an accurate quote can still be selectively bounded.",
+    "For each honest-vs-motivated test, states explicitly what the source clause would need to say for the composition doc's reading to be honest, and whether it actually says that.",
+    "Treats 'the doc already flags this as an open call' as a point in its favor, not a reason to skip scrutiny — the review target is whether the recommendation attached to the open call is itself honestly argued from the source text.",
+    "Does not evaluate whether the resulting mechanic is fun, buildable, or philosophically non-extractive — stays strictly on textual fidelity to the cited canon."
+  ],
+  "task_context": "Stress-test this cross-repo game-design composition before mk ratifies it. Three concerns, in priority order. (1) The seven open calls in §9 — are the recommendations right, and is any 'ratified ruling' in §8 actually load-bearing enough to be an open call instead? (2) Ontology and canon compliance: the doc runs into uncrancher/docs/ontology.md §5 (Uncanny-as-unlock marked a PERMANENT v0 constraint; sitting-only play modes forbidden) and After-Them/docs/universe.md (canonical: 'Encryptids as skill-entities agents equip — none of this is renamed or restructured'). Are the proposed reconciliations honest readings or motivated ones? (3) Does the composition actually hold as a game — three tempos, Uncs as skills, artifacts as loot, inverted socket — or does it collapse under a failure mode the doc has not named? Especially: does R8's observation-not-collection thesis survive Uncs being deployed as combat abilities at all? Read the cited sources rather than trusting the doc's summaries of them: docs/ontology.md, docs/uncrancher-vision.md, docs/axis-vocabulary.md, docs/research/2026-07-25-*.md, /Users/sma/projects/After-Them/docs/universe.md, /Users/sma/projects/After-Them/game-design-docs/after-them-{core-gameplay-loop,encryptid-and-skill-system,agent-system}.md, /Users/sma/projects/infinite-fun-space/docs/canon/pace-layer-universe.md"
+}

@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-procgen-geology covers whether civilizations are generated with sufficient variety",
+    "fd-narrative-archaeology covers whether the lore and storytelling aspects are compelling",
+    "fd-ecs-wasm-architecture covers the data model for representing contamination state"
+  ],
+  "decision_lens": "Prioritize findings where (a) archaeological discoveries trivialize the existing aesthetic space by flooding it with new options, (b) the depth-dependent comprehension model has gaps that make mid-layer discoveries strictly worse than shallow or deep ones, or (c) faction formation from discoveries is disconnected from the existing 4-axis aesthetic space and cultural movement system. A discovery that makes all pre-existing art feel obsolete is P1. A faction system that runs parallel to rather than through the existing aesthetic space is P1.",
+  "focus": "Whether the cultural contamination and faction dynamics system creates meaningful gameplay tension from archaeological discoveries without overwhelming the existing aesthetic/social simulation",
+  "name": "fd-cultural-contamination",
+  "persona": "A narrative systems designer who has worked on games where discovered lore changes gameplay dynamics — experienced with Stellaris archaeology, Sunless Sea/Sunless Skies discovery mechanics, and Cultist Simulator knowledge-as-gameplay. Understands how information injection into a running social simulation can either create fascinating emergent stories or destabilize carefully tuned equilibria.",
+  "review_areas": [
+    "Evaluate how aesthetic contamination (found styles entering the composition system) interacts with the existing Diablo-style art pipeline — do discovered techniques add new base types, new affixes, new genre families, or something else? Does this dilute the identity of self-created art?",
+    "Check the depth-dependent comprehension curve: shallow (direct technique), mid (debatable), deep (pure inspiration). Is there a dead zone where mid-layer discoveries are less interesting than either extreme? What makes mid-layer foreign but comprehensible mechanically distinct?",
+    "Assess faction formation from discoveries against the existing 4-axis aesthetic space — do archaeological factions (traditionalist vs. radical) map onto the Tradition/Innovation axis or create a separate faction dimension? If separate, does the game now have two competing identity systems?",
+    "Verify that artifact interpretation disputes (the same artifact means different things to different aesthetic positions) have concrete mechanical consequences, not just flavor text",
+    "Evaluate the rate of discovery injection: how many civilization unlocks and artifact finds per game-day? Does the system have pacing controls to prevent discovery fatigue or discovery drought?",
+    "Check whether the McLuhan medium as discovery concept (finding a civilization that composed music through architecture) translates into specific gameplay mechanics or remains purely narrative"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No balancing mechanism (adoption cost, learning curve, cultural resistance) gates the integration of discovered techniques",
+      "scenario": "Discovering a shallow-layer civilization gives elves access to strictly superior techniques, making all compositions before excavation feel obsolete",
+      "severity": "P1"
+    },
+    {
+      "condition": "The faction dynamics section does not specify how discovery-driven factions map onto or modify the Structure/Freedom, Tradition/Innovation, Emotion/Intellect, Social/Personal axes",
+      "scenario": "Archaeological factions (traditionalist/radical) operate on a separate axis from the existing 4-axis aesthetic space, creating two disconnected identity systems that do not interact",
+      "severity": "P1"
+    },
+    {
+      "condition": "Medium philosophy is specified as a generation axis but has no described mapping to gameplay mechanics like composition type, evaluation weights, or inspiration channels",
+      "scenario": "The McLuhan medium philosophy axis generates civilization descriptions that read differently but produce mechanically identical effects",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Discovered techniques should expand the aesthetic palette without making pre-discovery art obsolete — new options, not better options",
+    "The traditionalist/radical split should be a specific stress test of the Tradition/Innovation axis, not a parallel system",
+    "Each comprehension tier (shallow/mid/deep) should produce qualitatively different gameplay, not just quantitatively different bonuses"
+  ],
+  "task_context": "Elf Revel has a 4-axis continuous aesthetic space, Diablo-style procedural art generation, typed 5-channel inspiration, and emergent cultural movements from audience alignment clustering. The brainstorm proposes injecting discovered civilizations and artifacts into this running simulation. The existing faction system emerges from aesthetic clustering — movements form when 3+ elves LOVE 3+ same compositions across 3+ revels."
+}

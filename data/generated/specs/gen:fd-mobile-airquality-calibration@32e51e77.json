@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-pavement-survey-cadence: that agent focuses on sampling density error; this agent focuses on whether the values being sampled are trustworthy",
+    "fd-agri-ndvi-aggregation: that agent focuses on aggregation statistics; this agent focuses on the accuracy of the underlying raster values before aggregation",
+    "fd-hydro-survey-coverage: that agent focuses on spatial coverage completeness; this agent focuses on whether the raster that does cover the area is accurately modeled"
+  ],
+  "decision_lens": "Has the shadow raster been validated against observed ground truth sufficiently to justify treating sun_fraction as a calibrated input to a routing cost function, and what systematic errors in build_shadow.py propagate into sun_fraction?",
+  "distance_rationale": "Mobile air quality researchers mount sensors on bikes or cars, sample pollutant concentrations at GPS-tagged points along a route, and must decide whether their modeled map is accurate enough to drive health guidance — the same calibration question as whether the shadow raster (a modeled output of build_shadow.py) is trustworthy enough to drive routing decisions.",
+  "expected_isomorphisms": "Mobile monitoring practice distinguishes sensor precision (repeatability) from accuracy (agreement with reference monitors), and requires co-location validation before using mobile data for policy decisions — this maps directly to the question of whether the Phase 1.3 shadow raster should be validated against field observations before being used as the authoritative routing input in Phase 1.5.",
+  "focus": "Calibration and ground-truth — whether the shadow raster is accurate enough to justify the routing weight formula, and what failure modes propagate from raster errors into sun_fraction",
+  "name": "fd-mobile-airquality-calibration",
+  "persona": "Apply the perspective of a mobile air quality monitoring scientist who designs route-based sensor campaigns, validates modeled concentration maps against fixed reference stations, and quantifies how sensor bias propagates into exposure assessments.",
+  "review_areas": [
+    "The shadow raster is the output of a ray-tracing model (build_shadow.py) over a LIDAR DSM — it has never been validated against field observations (photos, shadow meter, GPS-tagged shade walks). Mobile monitoring practice requires at least a spot-check co-location before operational use; the brainstorm deploys the raster into routing without any validation step",
+    "The Phase 1.3 measurement of '12.4% shade at 3pm summer' is used as a sanity check (mean sun_fraction should be 0.6–0.95) but this is circular validation — if build_shadow.py has a systematic error (e.g., DSM height offset, sun-vector azimuth error), both the raster and the acceptance criterion would be wrong in the same direction",
+    "The routing weight formula time × (1 + 0.5 × sun_fraction) treats sun_fraction as a calibrated physical quantity, but the raster encodes a binary instantaneous state at a single timestamp — mobile monitoring practice requires assessing temporal representativeness before using a single-pass measurement to characterize a route",
+    "The CRS assertion (EPSG:32611) is the only data-quality gate in the brainstorm. Mobile monitoring practice would also verify raster date/time against solar geometry to confirm the sun vector used in build_shadow.py matches actual solar position at the timestamp claimed in the filename",
+    "The sun_timestamp attribute carries the timestamp forward to Phase 1.6 but there is no validation that the timestamp in the filename matches the EXIF/metadata timestamp inside the GeoTIFF — a file rename or copy could silently decouple the two",
+    "If the DSM has vertical errors (common in urban canyon LIDAR where reflections off glass cause false height spikes), some building shadows will be systematically too long or too short. The brainstorm has no mechanism to flag edges where sun_fraction disagrees with a reference (e.g., known open plazas that should be >95% sun)"
+  ],
+  "severity_examples": [
+    {
+      "example": "The shadow raster timestamp is parsed from the filename only — there is no check that the filename timestamp matches the GeoTIFF's internal metadata or the solar geometry parameters used by build_shadow.py. A raster regenerated with a corrected sun vector but saved over the old filename would produce wrong sun_fraction values attributed to the correct timestamp, propagating silently through all downstream routing.",
+      "severity": "P1"
+    },
+    {
+      "example": "The 12.4% shade measurement from Phase 1.3 is used as the acceptance criterion baseline ('mean sun_fraction should be 0.6–0.95') but this is the model's own output, not a ground-truth observation. If build_shadow.py's sun-vector or DSM is systematically wrong, the raster and the acceptance test would both be wrong in the same direction, and the smoke test would pass while routing weights are meaningfully miscalibrated.",
+      "severity": "P2"
+    },
+    {
+      "example": "The brainstorm does not specify what a 'believable distribution' means beyond the range check. Mobile monitoring practice would require a reference segment — one known-sunny block and one known-shady block — with expected sun_fraction bounds as regression anchors. Without these, raster quality degrades silently across iterations of build_shadow.py.",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Mobile air quality monitoring along bicycle and vehicle routes",
+  "success_hints": [
+    "Add a --validate-reference flag that takes a GeoJSON of known-sunny/known-shady reference segments and reports sun_fraction on those as a calibration sanity check",
+    "Assert that the timestamp in the shadow filename matches solar elevation > 0 (i.e., daytime) using a lightweight sun-position library",
+    "Store the build_shadow.py git hash or raster MD5 in sun_raster_provenance edge attribute so routing results are traceable to a specific raster version"
+  ],
+  "task_context": "Phase 1.5 brainstorm for Solwend edge shadow sampling — fixed 5 m interval, vectorized NumPy raster lookup, NaN for no-coverage edges, sun_fraction drives felt-minute routing weight."
+}

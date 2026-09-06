@@ -1,0 +1,32 @@
+{
+  "anti_overlap": [
+    "Do NOT re-examine the validate-before-write ordering or session_id spoofing at the landing seam — that is the contract-validation agent's territory; you START from a validly-landed manifest and follow the field through the transfer/normalize rewrites.",
+    "Do NOT evaluate whether the surviving box actually produces redaction coverage or whether the recall floor holds — that is the recall agent's frame; you stop at 'the field is byte-identical in the manifest redact reads'.",
+    "Own the read-mutate-write and crash/reconcile mechanics; leave schema-shape and detector-cascade reasoning to the other two."
+  ],
+  "decision_lens": "For every manifest rewrite between receive_device_manifest and redact, ask: is the whole loaded dict written back, or is the manifest rebuilt from a subset of fields that could drop capture_face_regions? Rank P0 if a normal or crash/reconcile path silently drops or mutates the field (a real face box vanishes with no error), P1 if a plausible but non-default path (multi-segment, concurrent transfer, re-ingest) alters it, P2 if only a regression would drop it (untested invariant), P3 for durability/ordering polish.",
+  "focus": "Whether capture_face_regions survives the §8.1 device→node transfer, crash/reconcile, and normalize's lineage-append VERBATIM — the read-mutate-write manifest rewrites between landing and redact that could silently drop or alter the mk-74g boxes without any validation failure.",
+  "name": "fd-transfer-field-preservation",
+  "persona": "Apply the perspective of an engineer who specializes in crash-safe transfer protocols and manifest read-modify-write integrity — someone fluent in the failure modes of 'read the whole manifest, mutate one field, write the whole manifest back': lost updates, partial rewrites, field-stripping rebuilds, and idempotency keys. They think in terms of what each rewrite in the chain (transfer pending→in_flight→completed, failed→reconcile→completed, normalize lineage-append) touches versus preserves, and they distrust any code path that reconstructs a manifest from parts rather than mutating the loaded dict in place.",
+  "review_areas": [
+    "The transfer driver's read-mutate-write (reconcile.py _upsert_transfer): confirm it loads the whole manifest and rewrites the whole manifest, mutating ONLY transfers[] — and that no code path rebuilds the manifest from a field allowlist that would drop capture_face_regions",
+    "Crash/reconcile path: a failed send then reconcile rewrites the manifest 2+ more times; verify capture_face_regions survives every rewrite and that reconcile does not read a stale in-memory manifest (lost-update between the transfer's mutation and a concurrent landing/normalize)",
+    "normalize's lineage append (manifest.setdefault('lineage',...).append then durable_write_json of the whole manifest): confirm it read-mutate-writes the loaded dict and does not strip capture_face_regions, and that the source_artifacts/lineage-connectivity check still passes with the field present",
+    "Idempotency and duplication: transfer is keyed by (session_id, artifact_hash); a device manifest landed then re-landed, or a transfer replayed, must not strand/duplicate the field or the raw — the crash/reconcile protocol's 'never strand or duplicate raw' invariant (§8.1) extended to the manifest",
+    "byte-identity of the region ints: x1000/x100 integer quantization must round-trip through every JSON rewrite unchanged (canonical serialization: no floats, sorted keys) — a rewrite that reformats numbers could shift a box",
+    "Test coverage honesty: the E2E uses frame 6 / stride 4 and the transfer/reconcile tests assert the field byte-identical — verify the tests actually exercise the whole chain (real transfer state mutation, real normalize) and would FAIL on a field-dropping regression, not pass vacuously"
+  ],
+  "severity_examples": [
+    "P0: a manifest rewrite in the transfer or normalize path reconstructs the manifest from an explicit field list (rather than mutating the loaded dict), silently dropping capture_face_regions — the mk-74g box never reaches redact and no error fires.",
+    "P1: a crash between the transfer's manifest rewrite and reconcile reads a stale manifest snapshot, so a concurrent normalize's lineage append is lost together with (or instead of) the transfer update — a lost-update window that can drop the field under interleaving.",
+    "P2: the region integers are preserved by the tested path but nothing pins canonical numeric serialization across rewrites, so a future rewrite through a non-canonical encoder could reformat and shift a box (untested invariant)."
+  ],
+  "success_hints": [
+    "Read reconcile.py (_upsert_transfer, transfer, reconcile) and normalize.py end-to-end: for each durable_write_json, confirm the payload is the whole loaded manifest dict, not a freshly-built subset — name any rebuild site.",
+    "Trace the exact rewrite count from landing to redact for both the happy path and the crash→reconcile path, and confirm capture_face_regions is present in the dict at every write.",
+    "Check transfer.py idempotency (keyed by session_id, artifact_hash) and whether a re-landed device manifest or replayed transfer can duplicate raw or manifest state, tying back to the §8.1 'never strand or duplicate raw' rule.",
+    "Verify the new tests (TestTransferPreservesCaptureFaceRegions, the E2E) drive REAL state mutation (pending→in_flight→completed) and REAL normalize, and would fail on a stripping regression — flag if any assertion is satisfiable without the field truly round-tripping.",
+    "Note the multi-segment frame-index basis drift (mk-ybm) only insofar as it interacts with field preservation across rewrites; do not re-open it as its own finding unless the seam makes it worse."
+  ],
+  "task_context": "Find any path where receive_device_manifest lets a malformed or hostile device manifest land (a validation bypass, a clobber of an existing session, a session_id spoof), or where capture_face_regions can be silently dropped or altered across receive → transfer → normalize → redact. Verify the fail-closed 'validate before write' ordering can't be defeated. Rank by §8.5 redaction-recall risk. Center on FIELD PRESERVATION across the manifest read-mutate-write rewrites: the §8.1 transfer/reconcile state mutations and normalize's lineage append, and whether the capture_face_regions boxes survive every rewrite byte-identically."
+}

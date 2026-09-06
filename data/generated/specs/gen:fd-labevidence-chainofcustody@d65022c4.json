@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "fd-flightdatarecorder-integrity covers whether the recording itself is complete/recoverable — this agent covers what happens to already-recorded raw material through quarantine, custody transfer, and disposal",
+    "fd-wildlifetelemetry-fieldpower covers resource-driven degradation of ongoing capture — this agent covers post-capture custody and destruction discipline, not in-session degradation"
+  ],
+  "decision_lens": "Could every raw artifact's lifecycle — from capture through quarantine through reclaim or permanent dead-letter — be reconstructed and defended after the fact from the manifest alone, with no reliance on 'the operator probably did the right thing'?",
+  "distance_rationale": "Both systems must guarantee that raw material never enters a shared corpus without going through an irreversible, auditable transformation step, and must never silently destroy unconfirmed material — but forensic lab custody is built around legal admissibility and human specimen handling rather than software pipelines.",
+  "expected_isomorphisms": "Lab custody practice never destroys a specimen until a documented, checksummed chain confirms downstream receipt (parallels the verify-then-delete reclaim engine and 'never force-delete' policy), and requires every custody transfer to be logged with who/when/how rather than assumed (parallels the explicit-operator-only 'confirm drained' action and ReclaimEvent manifest logging).",
+  "focus": "Custody-transfer integrity, confirmation-before-destruction discipline, and dead-letter/exception handling for material stuck mid-chain",
+  "name": "fd-labevidence-chainofcustody",
+  "persona": "Apply the perspective of a forensic lab evidence custodian who manages sample intake, transfer, and disposal logs — they care about an unbroken, checksum-verified chain from collection to disposal, treat any confirmation step done by convention instead of protocol as a future audit failure, and always ask what happens to the specimen that never gets claimed.",
+  "review_areas": [
+    "Whether 'explicit-operator-only confirm drained' (decision 7) has any safeguard against an operator confirming drainage without actually verifying an offload occurred, and whether that gap is acceptable for M1 or needs a checksum-based verification step even in manual mode",
+    "Whether the dead-letter path for sessions whose stages never confirm is actually reachable/testable in M1 given no processing sinks exist yet, or whether it's a documented-but-unexercised code path",
+    "Whether the sessions list (age + state surfaced, decision 7) gives an operator enough signal to know when a session is at risk of becoming an orphaned dead-letter, or just shows raw state enum values",
+    "Whether checksum verification in the reclaim engine covers the full artifact set (video, stills, audio, sidecars) uniformly or has gaps for newly-added artifact types (HEIC stills, IMU JSONL)",
+    "Whether NSFileProtection .completeUnlessOpen (decision 6) actually protects quarantined material's integrity across a lock/unlock cycle mid-write, or only affects accessibility",
+    "Whether there's any process for an operator to reverse an accidental 'confirm drained' action before physical deletion actually occurs"
+  ],
+  "severity_examples": [
+    {
+      "condition": "confirm-drained action triggers deletion without any checksum/receipt verification against the destination, purely trusting the manual tap",
+      "scenario": "Operator taps 'confirm drained' before the offload to the node actually completed (e.g., cable disconnected mid-transfer); the reclaim engine treats this as confirmed and permanently deletes the only copy of a 60-minute session",
+      "severity": "P0"
+    },
+    {
+      "condition": "dead-letter classification exists in the data model per the project's §3 policy but has no corresponding UI/manual-drain affordance in M1",
+      "scenario": "A session enters a state where its only routed stage will never exist in M1 (no processing sinks), and the app has no rendered UI path showing this session as 'dead-letter — needs manual drain', so it just looks like an ordinary unconfirmed session forever",
+      "severity": "P1"
+    },
+    {
+      "condition": "age + state are technically present in the data model but not prioritized/sorted in the UI to prompt timely operator action",
+      "scenario": "Sessions list shows raw enum state (e.g., 'raw_quarantined') without surfacing age prominently, so an operator doesn't notice a session has sat unconfirmed for two weeks until storage pressure forces attention",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Forensic/clinical laboratory chain-of-custody and specimen-handling practice",
+  "success_hints": [
+    "References the specific decisions (5, 7) on quarantine/reclaim and proposes a concrete verification step or UI affordance rather than general 'add more logging' advice",
+    "Distinguishes between what the manifest schema can represent (dead-letter state) versus what the M1 app actually surfaces/exercises",
+    "Flags any point where human attestation substitutes for verifiable confirmation in a way that risks irreversible data loss"
+  ],
+  "task_context": "Reviewing a brainstorm for an iOS ambient-capture MVP covering on-device quarantine, a verify-then-delete reclaim engine with explicit-operator-only confirmation (no automatic sink confirmation until M2), and dead-letter handling for stuck sessions."
+}

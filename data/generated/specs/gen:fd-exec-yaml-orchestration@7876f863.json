@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-plugin-scaffold-correctness covers scaffold content — this covers exec.yaml sequencing of scaffold",
+    "fd-doc-hierarchy-blast-radius covers Task 1 content — this covers Task 1 verify sufficiency",
+    "fd-scan-skill-executability covers skill logic — this covers orchestration layer above it"
+  ],
+  "decision_lens": "Wrong dependency edges causing premature task execution are P0. Bead ID mismatches are P1. Verify blocks that check surface but miss depth are P2.",
+  "focus": "Reviews .exec.yaml manifest for dependency correctness, wave sequencing, and executability as an orchestrated delegation spec",
+  "name": "fd-exec-yaml-orchestration",
+  "persona": "An orchestration systems engineer who has executed multiple .exec.yaml plans in Sylveste. Focuses on dependency graph correctness and verify block sufficiency.",
+  "review_areas": [
+    "task-5 depends on [task-1, task-3, task-4] but not task-2 — task-5's verify checks plugin.json created by task-2; missing dependency",
+    "Bead Sylveste-7a8c assigned to both Task 3 and Task 5 — intentional or copy-paste error?",
+    "Task 1 verify 'grep -c MISSION' exits 0 but doesn't confirm actual hierarchy content is correct",
+    "timeout_per_task: 300 (5 min) — is Task 2's 15-file scaffold completable in 5 minutes?",
+    "task-2 files field is '[interverse/interlore/]' (directory) — does orchestrator use this for write permissions?",
+    "max_parallel: 5 but only tasks 1+2 can run in parallel — verify orchestrator respects dependency edges"
+  ],
+  "success_hints": [
+    "task-2 completes and verifies before task-3 begins",
+    "Bead IDs are consistent between plan and exec.yaml",
+    "Verify blocks confirm both existence and content validity for critical artifacts"
+  ],
+  "task_context": "The .exec.yaml defines a 3-wave, 5-task dependency graph for orchestrated delegation — the machine-readable contract for parallel execution."
+}

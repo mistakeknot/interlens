@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-queue-delivery-reliability covers how pending messages are drained from the queue after database writes succeed.",
+    "fd-container-lifecycle-management covers what happens to a running container when group configuration is stale.",
+    "fd-mount-security-wiring covers the allowlist load path and validation logic."
+  ],
+  "decision_lens": "Prioritizes findings where silent divergence causes behavioral differences — especially where one database is the source of truth for decisions (e.g., routing, trigger matching) but writes to it are not confirmed. Escalates any path where container_config, containerConfig, or requiresTrigger can be set in SQLite but not propagated to Postgres or vice versa.",
+  "focus": "State consistency between SQLite (Node host) and Postgres (Rust daemon) across all entity types",
+  "name": "fd-dual-database-state-divergence",
+  "persona": "A distributed systems engineer who specializes in dual-write patterns, eventual consistency, and the failure modes that emerge when two independent databases hold overlapping state. Approaches every write path asking: what happens if only one side succeeds?",
+  "review_areas": [
+    "Trace the register_group IPC flow end-to-end: Node calls setRegisteredGroup (SQLite only via db.ts), does it also call the intercomd /v1/db/registered-groups endpoint or writeToOutbox? Confirm whether container_config reaches Postgres.",
+    "Audit every callsite of setRegisteredGroup in db.ts — check whether the Postgres dual-write path is invoked for group registration, and whether containerConfig/runtime/model columns are included in the dual-write payload.",
+    "Check the outbox payload schema: writeToOutbox only handles 'message' and 'chat_metadata' payload types. Identify all entity types written to SQLite but with no outbox path and assess whether Rust reads authoritative data from Postgres or falls back to Node.",
+    "Examine the Telegram ingress path in intercomd: when Rust handles /v1/telegram/ingress, it reads registered groups from its own Postgres pool. Verify whether that Postgres table is populated for groups registered via Node IPC.",
+    "Inspect the fallback path when Postgres is unavailable: dualWriteToPostgres fires fire-and-forget HTTP. Confirm these endpoints exist and are wired in main.rs.",
+    "Check for schema drift: SQLite uses ALTER TABLE migrations; Postgres uses separate DDL. Confirm both schemas are in sync for container_config, context_mode, runtime, model columns."
+  ],
+  "success_hints": [
+    "Every entity write path has an outbox entry or documented reason why Postgres does not need it.",
+    "container_config is confirmed to reach Postgres for all registration paths.",
+    "The Rust daemon's registered_groups Postgres table is populated at startup or on group registration."
+  ],
+  "task_context": "Intercom is a dual-process system: a Node host handles WhatsApp/Telegram channels and writes to SQLite, while the Rust daemon (intercomd) handles orchestration and reads/writes Postgres. Known bugs include container_config only being stored in one database and the mount allowlist never being loaded in certain code paths."
+}

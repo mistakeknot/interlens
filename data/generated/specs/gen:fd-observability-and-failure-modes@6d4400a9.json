@@ -1,0 +1,27 @@
+{
+  "anti_overlap": "Does NOT review interface contracts, OODARC semantics, TUI threading, or sync primitive correctness.",
+  "decision_lens": "When one of N parallel tools fails, can an operator determine exactly which tool failed, why, and what the agent did in response?",
+  "focus": "Debuggability of parallel tool execution: tracing, error attribution, timeout handling, and partial-failure recovery.",
+  "name": "fd-observability-and-failure-modes",
+  "persona": "SRE who debugs concurrent systems by reading logs and traces under partial failure conditions.",
+  "review_areas": [
+    "Per-tool span/trace context: confirm each goroutine carries a labeled logger for error attribution",
+    "Panic recovery in goroutines: verify each goroutine has recover() converting panics to error values in result slots",
+    "Partial failure semantics: determine if plan specifies fail-fast or collect-all and confirm implementation matches",
+    "Timeout per tool vs per batch: check context derivation matches latency requirements",
+    "Log coherence under parallelism: confirm log lines include tool-call ID for parseability",
+    "Metrics instrumentation: verify parallel tool count and per-tool latency are recorded"
+  ],
+  "severity_examples": [
+    {
+      "condition": "A tool goroutine panics without recover(), killing the agent process with no error recorded",
+      "severity": "P0"
+    },
+    {
+      "condition": "All parallel tools share batch timeout; one slow tool causes silent cancellation of N-1 others",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": "Every goroutine has deferred recover(); each error carries tool name and call index; partial failure produces clear aggregate error message.",
+  "task_context": "Parallel execution multiplies failure modes. Without per-goroutine panic recovery, a single misbehaving tool becomes an opaque batch failure."
+}

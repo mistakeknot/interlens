@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-feedback-loop-effectiveness covers downstream behavior change",
+    "fd-privacy-sensitive-data covers storage and retention"
+  ],
+  "decision_lens": "Prioritizes findings where trigger timing, prompt phrasing, or rating granularity produces low-quality or biased signal. UX friction causing skipped feedback is also high priority.",
+  "focus": "Whether feedback UX yields high-quality signal without disrupting cognitive flow",
+  "name": "fd-ux-natural-feedback",
+  "persona": "A conversational UX designer who has shipped feedback collection in coaching apps. Believes signal quality degrades when users feel surveilled or interrupted.",
+  "review_areas": [
+    "Evaluate trigger points — does /feedback interrupt the Understand-Reframe-Act flow?",
+    "Check whether feedback prompts are concrete enough to elicit useful signal",
+    "Assess prompt injection surface of freeform /feedback text",
+    "Check whether design distinguishes lens-selection feedback from style feedback from outcome feedback",
+    "Evaluate whether asking about reframes breaks the lenses-invisible principle",
+    "Assess graceful degradation when users never give feedback"
+  ],
+  "success_hints": [
+    "Feedback prompts are specific enough that users interpret consistently",
+    "Trigger logic includes cooldown so no user gets nudged more than once per N sessions",
+    "Prompt injection from freeform text is addressed"
+  ],
+  "task_context": "Auraken applies conceptual frameworks invisibly. Key UX concerns: naturalness, cognitive flow, prompt injection safety."
+}

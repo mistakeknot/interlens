@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-scan-skill-executability covers whether skill implements schema correctly — this covers schema design soundness",
+    "fd-plugin-scaffold-correctness covers structural test suite — this covers runtime data contract",
+    "fd-doc-hierarchy-blast-radius covers project-level doc changes — this covers interlore-specific data format"
+  ],
+  "decision_lens": "States the skill can produce but schema cannot represent are P0. Transitions that lose information are P1. Defined but never-written fields are P2.",
+  "focus": "Reviews proposals-schema.md design and YAML lifecycle state machine for correctness and durability as shared state between scan and review",
+  "name": "fd-proposals-schema-integrity",
+  "persona": "A state machine designer who has debugged YAML-based proposal pipelines. Focuses on whether the schema represents all possible states and whether transitions are lossless.",
+  "review_areas": [
+    "Merge logic: scan adds evidence and recomputes unique_decisions — but schema has no evidence_history or version field for audit",
+    "Defer says 'Keep as pending' — so 'deferred' status is never written but Status Mode shows 'Deferred: N'. Is this always 0?",
+    "rejected_patterns has no schema version — future tradeoff_axis format changes make suppression silently useless",
+    "proposed_section is a string like 'Composition Over Capability' — fuzzy vs exact match when finding PHILOSOPHY.md section to append",
+    "conforming_patterns in scan_stats but no conforming entries in proposals array — verify Status Mode accounts for this",
+    "No scan_id or run provenance — are multiple scans mergeable or does each overwrite?"
+  ],
+  "success_hints": [
+    "After two sequential scans, evidence lists for matching axes contain evidence from both runs",
+    "Accepting a proposal writes decided_at and proposed_text matches exactly in PHILOSOPHY.md",
+    "Status counts sum correctly: pending + accepted + rejected equals total proposals generated"
+  ],
+  "task_context": "proposals-schema.md defines the YAML contract between scan (writer) and review/status (readers), plus the lifecycle state machine and rejected_patterns suppression list."
+}

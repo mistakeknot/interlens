@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-cli-arg-plumbing-correctness covers whether the --attention-budget flag reaches the sim binary — this agent covers whether the correct model is invoked and whether its spend behavior matches the calibration's stated criterion.",
+    "fd-trace-schema-year-boundary covers whether the trace emits year-end remaining values — this agent covers the semantic correctness of the agent-under-test, not the observability of its budget state.",
+    "fd-statistical-calibration-procedure covers the decision tree and pick rule — this agent covers whether the inputs to that tree (agent, criterion) are correct."
+  ],
+  "decision_lens": "Prioritizes findings where the calibration uses an agent that spends attention (directly or indirectly) during the calibration sweep, which would make the non-binding criterion trivially false at lower budgets for the wrong reason — not because the budget is too tight, but because the calibration agent is not inert. Also flags the script/brainstorm mismatch as a P0 protocol integrity issue.",
+  "focus": "Whether the null baseline (NullPlayer / 'null-player' strategy) is the correct agent to run calibration against, whether its spend behavior is genuinely inert, and whether the calibration script's actual model invocation (stability-maximizer) matches the brainstorm's stated criterion (null baseline)",
+  "name": "fd-null-baseline-semantic-validity",
+  "persona": "Apply the perspective of a benchmark protocol designer who has written pre-registration documents for LLM evaluations — they care about whether the calibration procedure's inputs match its stated purpose, measure the gap between 'what the procedure claims to test' and 'what it actually runs', and flag any mismatch between the calibration agent's behavior and the non-binding criterion.",
+  "review_areas": [
+    "Script vs. brainstorm mismatch: calibrate-attention-budget.sh line 23 runs --model stability-maximizer, but the brainstorm's calibration criterion is 'null baseline non-binding' (null-player in scripted.rs) — these are different strategies with different spend profiles; the script must be updated to --model null-player before the calibration has protocol validity.",
+    "NullPlayer spend semantics: scripted.rs lines 100 and 246–250 show NullPlayer returns an empty action slice and a 'deliberate non-intervention' response — verify that the decision gate's try_spend() is only called when the model requests an observation, not at every gate activation, so NullPlayer genuinely spends 0 attention tokens per year.",
+    "Script decision criterion mismatch: calibrate-attention-budget.sh checks 'max_pressure >= 0.7 in any PressureSnapshot' (crisis-reach) as the pick criterion, but the brainstorm's criterion is 'remaining > 0 at every sim-year boundary in every run' (non-binding) — these are categorically different; crisis-reach is a stability-maximizer concern, non-binding is a null-player concern.",
+    "Null-player observation budget interaction: decision_gate.rs line 361 shows BenchDecisionGate::new_zero() creates AttentionBudget::new(0, start_year), suggesting a separate zero-budget path; verify that the normal gate construction path (line 340) is what's used for null-player runs and that observation budget and attention budget are not conflated.",
+    "Spend path for scripted backends: confirm that the scripted adapter's decide_null() path does not inadvertently trigger attention budget try_spend() via the observation path (ObservationRecord trace events), which would cause the null player to bind even though it takes no actions.",
+    "Stability-maximizer spend rate at B=5: if the script is not corrected and stability-maximizer is used, verify that stability-maximizer's attention spend rate is documented so reviewers can assess whether B=5 binding for stability-maximizer is the intended signal — the current script pick rule ('lowest budget where >=2/3 runs reach crisis') is coherent for stability-maximizer but incoherent for the brainstorm's stated null-baseline purpose."
+  ],
+  "severity_examples": [
+    {
+      "condition": "The locked attention budget in PROTOCOL.md §7a is derived from the wrong agent's behavior; stability-maximizer spends attention to reach crises, null-player spends nothing; the 'non-binding for null' criterion is never tested; the locked value has no grounding in the stated protocol rationale",
+      "scenario": "calibrate-attention-budget.sh runs --model stability-maximizer while PROTOCOL.md §7a describes a null-baseline calibration criterion",
+      "severity": "P0"
+    },
+    {
+      "condition": "The null baseline appears to exhaust its attention budget at B=5 or B=10, causing the decision tree to promote to B=20; the locked value is unnecessarily high; frontier models at B=20 face no binding constraint either, defeating the purpose of the calibration entirely",
+      "scenario": "NullPlayer inadvertently triggers attention try_spend() via the observation budget path in the scripted adapter",
+      "severity": "P1"
+    },
+    {
+      "condition": "Even if the correct null-player model is used, the pick decision is based on crisis reach rather than budget non-binding; a null player that never reaches crisis (by definition) would produce 0/3 crisis-reached at all budgets, causing the script to fail to pick any value",
+      "scenario": "The Python analyzer in the script checks PressureSnapshot.max_pressure for the pick decision rather than AttentionBudget.remaining",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "calibrate-attention-budget.sh passes --model null-player (not stability-maximizer) for the non-binding calibration runs.",
+    "A code inspection of the scripted adapter's null-player path confirms that try_spend() on the attention budget is called zero times per run.",
+    "The Python analyzer checks AttentionBudget.remaining at year boundaries (not PressureSnapshot.max_pressure) for the non-binding criterion."
+  ],
+  "task_context": "The brainstorm specifies that calibration runs the null baseline (NullPlayer) against three budget levels to find the medium budget where the null does not exhaust its per-year attention. This review checks whether the calibration script and the brainstorm's stated criterion are consistent, and whether NullPlayer's spend semantics are genuinely inert."
+}

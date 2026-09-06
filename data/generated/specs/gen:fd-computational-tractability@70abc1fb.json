@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-composability-architecture covers pipeline decomposition",
+    "fd-ontological-mapping covers mapping correctness",
+    "fd-creative-gap-detection covers gap quality"
+  ],
+  "decision_lens": "Findings ranked by whether a cost is blocking (infeasible) vs. expensive (requires optimization). Approaches requiring the full ontology in a single prompt context are flagged as high risk.",
+  "focus": "Whether the approach can realistically execute as a multi-agent LLM workflow within acceptable token budgets, latency bounds, and reliability constraints",
+  "name": "fd-computational-tractability",
+  "persona": "A pragmatic LLM systems engineer who has built multi-agent pipelines with calibrated intuitions about prompt token costs, context window limits, LLM reliability on structured extraction, and failure modes of long multi-hop reasoning chains.",
+  "review_areas": [
+    "Does the approach estimate token budgets for each stage?",
+    "Are there stages requiring a single LLM call to reason over the full 80+ agent roster simultaneously?",
+    "Does the approach handle LLM hallucination of formal entity names?",
+    "Is cascade forward-simulation handled by Rust engine (correct) or LLM reasoning (high error rate)?",
+    "Does the approach define latency bounds and fallback strategies?",
+    "Are there redundant LLM calls that could be eliminated by caching?"
+  ],
+  "success_hints": [
+    "All cascade simulation routed to Rust engine, LLM used only for NL interpretation and gap explanation",
+    "Each LLM call has defined input size bound and structured output schema",
+    "Total pipeline cost is estimated with rough token count per stage"
+  ],
+  "task_context": "Shadow Work is a geopolitical simulation game. The formal model includes 12 pressure types, 5 emergence pillars, 80+ institutional agents, 18 issue types."
+}

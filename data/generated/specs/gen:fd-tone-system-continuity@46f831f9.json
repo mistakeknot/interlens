@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-complicity-reveal-mechanics covers whether the reveal narrative holds together",
+    "fd-async-event-integrity covers the event pipeline and FEED article generation",
+    "fd-session-architecture covers the mobile/desktop session loop performance constraints"
+  ],
+  "decision_lens": "Prioritizes issues where the tone variable either lacks sufficient input signal diversity (causing stalls), has threshold gates that create visible steps, or has output expressions (visual, audio, informational) that are not specified concretely enough to implement.",
+  "focus": "Whether the tone variable (0.0-1.0) is designed with enough input signals, output expressions, and threshold gates to behave as a continuous function rather than a mode switch",
+  "name": "fd-tone-system-continuity",
+  "persona": "A UI engineer and systems designer who thinks in state machines and interpolation curves. Has shipped dynamic theme systems and knows where continuous-variable designs collapse into step functions in practice.",
+  "review_areas": [
+    "Audit all tone input signals across documents: count them, check for coverage across session types (mobile 3-min, desktop 30-min), and identify gaps where a player type has no available signal to accumulate tone",
+    "Check whether C4 requirements specify enough distinct UI interpolation dimensions (palette, corner radius, audio, typography, animation timing) to make the shift imperceptible per-session but cumulative over two weeks per CUJ-03",
+    "Verify that the 0.3 and 0.5 thresholds in D3 are the only named gates — flag any implied binary switches in the documents",
+    "Check whether the 'per-player tone state' requirement in C4 is architecturally consistent with the async MMO shared database model — is tone stored server-side or client-side?",
+    "Identify any described tone effects that are informational unlocks (new data layers, confidence scores) rather than aesthetic changes — flag these as reveal-system dependencies that need sequencing coordination",
+    "Check CUJ-03 for any steps where the shift is described as crossing a perceptible threshold in a single session, which would violate the 'imperceptible per-session' success criterion"
+  ],
+  "success_hints": [
+    "A compliant player who plays daily for two weeks accumulates tone < 0.1 and never consciously notices any UI difference",
+    "Every tone input signal has a corresponding output expression that is specific enough to implement"
+  ],
+  "task_context": "The tone system is the primary narrative delivery mechanism. It must function as a smooth gradient, not a binary switch."
+}

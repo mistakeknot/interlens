@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Do not re-derive the statistical formulas or redesign the no-oracle protocol; the reference-free-validity reviewer owns operational transport and estimator validity.",
+    "Do not recommend tool, paper, or public-audit strategy; the research-positioning reviewer owns audiences, incentives, reputational exposure, and mission path dependence.",
+    "Do not decide the cognitive-core versus eval-methodology fork; identify which novelty claims are licensed so mk can make that taste call on corrected evidence."
+  ],
+  "decision_lens": "Judge differentiation by functional equivalence and evidentiary coverage: map each claimed asset to the decision it licenses, the failure it detects, and the nearest established control. Treat both false novelty and false equivalence as high-cost errors, and keep existence of a method separate from adoption or demand for it.",
+  "focus": "Whether Zahro's claimed gap is genuinely new benchmark metrology, a recombination of established validity controls under new names, or an artifact of searching arena repositories rather than the literatures and operating practices where those controls already live.",
+  "name": "fd-benchmark-metrology-priorart-cox",
+  "persona": "Apply the perspective of a specialist in agent-benchmark auditing and measurement science who can translate among psychometrics, software-testing oracles, reinforcement-learning environment validation, and execution-based LLM-agent evaluation without treating vocabulary differences as evidence of novelty.",
+  "review_areas": [
+    "Build a failure-family map separating task or grader correctness, reward gaming, contamination, metric resolution, nuisance sensitivity, paired-comparison sizing, and contract dependence; test whether the document's surviving gap remains distinct after this taxonomy is applied.",
+    "Search conceptually for functional precedents to SPAN, ARTIFACT, rule 16, and rule 17 under names such as positive-control sensitivity, known-groups validity, metamorphic testing, invariance testing, paired power analysis, measurement invariance, and multi-method replication.",
+    "Audit the evidentiary denominator behind the competitive claim: distinguish active benchmark maintainers, papers, issue trackers, private release gates, and repository-visible checks, and identify what an absence in each substrate can and cannot establish.",
+    "Test whether the narrower corrected claim in the target file — auditing exists but metric resolution is unexamined — survives strong counterexamples such as scripted ceilings, human upper bounds, gold traces, metamorphic prompt tests, or score-sensitivity studies.",
+    "Separate methodological novelty from packaging novelty and empirical contribution: determine whether Zahro's defensible claim is a new construct, a new admission table, a new cross-control composition, or unusually clear evidence from six killed claims.",
+    "Identify demand-side evidence independently of novelty, including whether practitioners already perform equivalent checks privately, whether invalid leaderboards impose costs on any identifiable decision-maker, and whether publication incentives systematically hide negative audit work."
+  ],
+  "severity_examples": [
+    {
+      "condition": "The precedent is functionally equivalent across the four assets, not merely similar in terminology or motivation.",
+      "scenario": "A mature adjacent literature or widely used benchmark release gate already composes the same resolution, nuisance, paired-sizing, and contract controls into an admission decision, leaving Zahro's central differentiation claim factually unsupported.",
+      "severity": "P0"
+    },
+    {
+      "condition": "The positioning decision proceeds before the search substrate and inclusion criteria are made explicit.",
+      "scenario": "The document infers field-wide absence from repository-visible evidence even though the relevant controls normally appear in papers, supplementary protocols, issue trackers, or internal benchmark release practice.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Strong component-level prior art exists while the composition itself remains plausibly differentiated.",
+      "scenario": "The work is novel only as a coherent package or decision table, but the document continues to imply that each constituent control is individually unprecedented.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "For every alleged precedent, state the functional mapping to a Zahro asset and the important mismatch; shared vocabulary alone is not equivalence.",
+    "Report novelty at four separate levels: construct, operationalization, composition, and empirical demonstration.",
+    "State what evidence would falsify the surviving claim that benchmark audits do not measure metric resolution relative to noise.",
+    "Treat the corrected BenchGuard, BenchJack, AgentRewardBench, SpecBench, and fort-gym facts in the target file as current constraints rather than reasserting the superseded nobody-audits claim."
+  ],
+  "task_context": "Settle what zahro differentiates on. The reframe: 22 stages of fort-bench produced zero capability measurements but built an eval-validity instrument with six killed claims to its name — the arena was the test subject, the instrument is the product. The competitive read is that 134 DF-agent/benchmark repos are building arenas since June 2026 and none appear to be auditing them; the most rigorous (lemoz/fort-gym) independently rediscovered three arena-registry rules and still has no SPAN and no artifact control. Four assets look unique and none are DF-specific: SPAN (can a metric see a perfect scripted policy — 5 of 7 cannot), ARTIFACT (how much range a content-preserving prompt permutation manufactures — moved a headline 3/18 to 18/18 with zero world effect), rule 16 paired-difference sizing (15x correction, infinite at temperature 0 where replicate sd is exactly 0), and rule 17 cross-contract replication (651 calls said capability, one call outside the contract said artifact). PRIMARY FORK TO SETTLE: does zahro's visible output become eval-validity methodology when MISSION.md says cognitive core? Arguments both ways are in the doc; this is mk's taste call and the session should sharpen it, not resolve it silently. Wanted: attack the 'nobody is auditing arenas' claim hard — is the gap real, or does it just look open because the checks are already standard practice under other names, or because auditing has no distribution and no demand? Stress-test whether SPAN/ARTIFACT survive contact with benchmarks that have no scripted-optimal policy available. Find the failure modes of shipping this as a tool (arena-lint) versus a paper versus a public audit of someone else's leaderboard. Name what I am not seeing. Out of scope: building a better fort-gym."
+}

@@ -1,0 +1,48 @@
+{
+  "anti_overlap": [
+    "fd-avfoundation-capture-pipeline owns AVCaptureSession/AVAssetWriter session lifecycle and video/audio writer synchronization at the session level; this agent owns the audio-signal-level fork, conversion, and drop-measurement correctness",
+    "fd-ios-power-thermal owns the thermal-state trigger and degrade-ordering policy; this agent owns whether the mechanism used to shed branch B is real-time-safe and cleanly reversible",
+    "fd-privacy-mobile-ux owns consent copy and what the user is told about raw audio; this agent owns whether the audio actually delivered to storage matches what the pipeline claims (i.e., truly raw, unprocessed samples)"
+  ],
+  "decision_lens": "If branch B (the sheddable analysis tap) is fully starved or crashes, does branch A (the never-shed mux path) provably continue unaffected, and does the recorded gap/drop metric actually correspond to what a listener would perceive as missing audio?",
+  "focus": "Real-time audio engineering — CMSampleBuffer to AVAudioPCMBuffer conversion, tap consumer contracts, and the measurable dropped-audio definition",
+  "name": "fd-realtime-audio-integrity",
+  "persona": "Apply the perspective of a real-time audio engineer who has built low-latency tap/analysis pipelines (e.g. for audio ML preprocessing or DAW plugins) — they care about buffer-format contracts, QoS/priority inversion between real-time and best-effort consumers, and whether a 'drop' definition is actually measurable at the point where drops occur, not just plausible-sounding in prose.",
+  "review_areas": [
+    "CMSampleBuffer -> AVAudioPCMBuffer conversion cost and failure modes (format mismatches, non-interleaved vs interleaved, sample rate conversion) on the TapHealthMeter consumer path, and whether conversion errors can throw/block back onto the shared audio callback",
+    "Whether AudioTapConsumer protocol dispatch is decoupled (separate queue, lower QoS, bounded buffer/backpressure) from the branch-A asset-writer path such that a slow or misbehaving consumer (RMS/continuity stats now, BirdNET model in M3) cannot apply backpressure to the real-time audio callback thread",
+    "Precision of the 'dropped audio' definition: whether 'one audio buffer duration' PTS-gap threshold accounts for variable buffer durations (AVAudioSession preferred vs. actual IOBufferDuration), buffer-duration changes on route change, and whether the gap detector runs on the same timeline/clock as the written audio to avoid false positives/negatives",
+    "AVAudioSession category/mode/options selection (e.g. .playAndRecord vs .record, .mixWithOthers, echo cancellation, voice processing) and its interaction with a chest-mounted always-recording use case — wrong mode can silently apply AGC/noise suppression that corrupts BirdNET-relevant audio in M3 or degrades RMS-based health metrics now",
+    "Interruption/route-change recovery specifics: whether 'pause -> reconfigure -> resume' preserves sample-accurate continuity in the branch-A written track (no resampling artifacts, no duplicated buffers at the resume boundary) versus merely resuming the session at the API level",
+    "Thread/QoS priority inversion risk: sheddable branch B explicitly given lower QoS per the design — verify the shedding mechanism (queue suspension, buffer drop, consumer unsubscribe) is specified concretely enough to be testable, not just asserted as a policy"
+  ],
+  "severity_examples": [
+    {
+      "condition": "the design doesn't specify a queue/dispatch boundary between the fork point and each branch's consumer",
+      "scenario": "TapHealthMeter's CMSampleBuffer-to-AVAudioPCMBuffer conversion runs synchronously inside the same didOutputSampleBuffer callback that feeds branch A, so a conversion hiccup (format renegotiation, allocation stall) directly delays or drops the never-shed branch's samples — the fork exists in name only because both branches share one execution context.",
+      "severity": "P0"
+    },
+    {
+      "condition": "no explicit AVAudioSession category/mode/option is specified, or the chosen mode is known to enable adaptive processing",
+      "scenario": "The AVAudioSession category chosen implicitly enables voice-processing/AGC (common default for .playAndRecord with voice chat options), which alters the raw audio samples before they ever reach branch A's asset-writer input — the 'raw audio' contributors consented to is actually processed, and this is unrecoverable after the fact.",
+      "severity": "P0"
+    },
+    {
+      "condition": "gap threshold is a hardcoded constant rather than derived from the session's live audio format/buffer duration",
+      "scenario": "The gap detector measures inter-buffer PTS gaps against a fixed nominal buffer duration constant, but the actual IOBufferDuration shifts after a route change (e.g. Bluetooth negotiates a larger buffer), causing every post-route-change buffer to register as a false-positive 'drop' for the remainder of the session, corrupting the acceptance metric.",
+      "severity": "P1"
+    },
+    {
+      "condition": "no explicit resume path is defined for a shed branch-B consumer",
+      "scenario": "Branch B shedding is described as 'lower QoS' with no defined resume/backpressure behavior — when thermal pressure clears, there's no specified mechanism to resume TapHealthMeter cleanly (re-subscribe, buffer drain, cold-start stats), so the session-stats artifact may show a permanently degraded FrameGate/audio-health signal even after recovery.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "References concrete AVAudioSession/AVAudioPCMBuffer/CMSampleBuffer API behavior, not generic audio advice",
+    "Treats the never-shed guarantee as requiring queue/thread isolation proof, not just a labeling convention",
+    "Checks whether the drop-detection threshold is derived from live session buffer duration rather than a hardcoded constant",
+    "Flags any audio session configuration that could silently alter raw samples (AGC, noise suppression, voice processing)"
+  ],
+  "task_context": "Reviewing a brainstorm/design document describing a forked audio capture architecture for an iOS ambient-recording app: a never-shed mux branch feeding AVAssetWriter, and a sheddable analysis branch (TapHealthMeter now, BirdNET model later) behind an AudioTapConsumer protocol, plus a specific measurable definition of 'dropped audio' based on PTS gaps. Goal is to find real-time-audio-specific correctness gaps a generalist iOS reviewer would miss."
+}

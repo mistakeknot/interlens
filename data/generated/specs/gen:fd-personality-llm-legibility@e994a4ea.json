@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "fd-personality-axis-orthogonality covers axis design; this covers how axes are communicated to the AI layer",
+  "decision_lens": "Curator utility — personality must be representable in the state message such that the LLM can reason about it and reference it in decisions",
+  "focus": "Whether personality data is legible and actionable for the LLM curator",
+  "name": "fd-personality-llm-legibility",
+  "persona": "LLM prompt engineer who designs structured data formats for AI advisors in simulation games",
+  "review_areas": [
+    "Evaluate how personality will be rendered in the state message (build_state_message in prompt.rs) — axis values vs labels vs behavioral summaries",
+    "Check whether 7 axes total (4 aesthetic + 3 personality) exceeds what an LLM can meaningfully track across 8-20 elves",
+    "Assess whether the curator system prompt needs personality-specific guidance (like the Name Etymology section for meanings)",
+    "Verify that personality provides the curator with actionable levers — can it recommend role changes or revel scheduling based on personality?",
+    "Check whether personality labels (e.g., 'impulsive, proud') are distinct enough from aesthetic labels (e.g., 'avant-garde, emotional') to avoid confusion"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Field exists on snapshot but not in prompt output",
+      "scenario": "Personality data is added to ElfSnapshot but never rendered in build_state_message, making it invisible to the curator (same bug class as syllable meanings)",
+      "severity": "P1"
+    },
+    {
+      "condition": "Curator messages never reference personality traits",
+      "scenario": "7 continuous axes per elf overwhelm the curator context, causing it to ignore personality in its reasoning",
+      "severity": "P2"
+    },
+    {
+      "condition": "Same word used for aesthetic and personality axes",
+      "scenario": "Personality and aesthetic labels use overlapping vocabulary (both use 'social', 'emotional') causing curator confusion",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "The curator references personality naturally in its reasoning: 'Assigning Lirael as Composer — she's introverted and patient, ideal for workshop solitude.'",
+  "task_context": "The game has a novel LLM curator that reads structured state and issues cultural policy commands. Every new elf attribute must be legible to this system."
+}

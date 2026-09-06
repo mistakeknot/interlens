@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Focuses on temporal accumulation and honest value curves — not on compositional hierarchy (carpet), domain interlock (gamelan), or constitutional assessment (Ayurvedic).",
+  "decision_lens": "Temporal accumulation — which use cases require many sessions of invisible context-building before they become valuable? Which can deliver value from a single thick layer?",
+  "distance_rationale": "Pre-modern craft defined by invisible temporal accumulation — no product designer would consult lacquer curing times for recommendation system time-to-value modeling.",
+  "expected_isomorphisms": "The multi-layer curing process maps to progressive context accumulation. The thick-layer-cracks problem maps to the Portland→Patagonia over-indexing failure. The invisible-but-essential layers map to the hidden profile-building that precedes valuable recommendations.",
+  "focus": "Evaluate Auraken's time-to-value curve and use case sequencing through the multi-layer accumulation process of Chinese lacquerware — where hundreds of thin, invisible layers applied over months create depth, durability, and beauty that no single thick application can achieve.",
+  "name": "fd-chinese-lacquerware-layering",
+  "persona": "A Fuzhou bodiless lacquerware artisan trained in the traditional 60+ step process, where each of dozens of layers must cure fully before the next is applied, and the final product reveals depth that no single layer contains.",
+  "review_areas": [
+    "Does Auraken's vision honestly sequence which use cases require months of context accumulation vs. which work from session one? Lacquerware takes 6-12 months; not every use case needs that.",
+    "Is there a 'curing time' concept? Each lacquer layer must dry before the next. Does Auraken's profile need time between interactions to consolidate — or does rapid-fire conversation actually build worse context?",
+    "How does the system handle the 'invisible layers' problem? Most lacquer layers are invisible in the final product but structurally essential. Which aspects of Auraken's context-building are invisible to the user but critical for later value?",
+    "Is there an honest value curve per use case? Cognitive augmentation might need 5-10 sessions before the uncanny moment (PRD Journey 2). Product recommendations might need 50+. Is this communicated to users?",
+    "How does the system handle the 'sanding between layers' process? Lacquerware requires abrading each layer to create adhesion for the next. Is there an equivalent — moments where existing context must be challenged or revised to create foundation for deeper understanding?",
+    "Does the architecture prevent 'thick layer' shortcuts? A single thick lacquer layer cracks. Does the system resist the temptation to make deep recommendations from shallow context?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Product recommendations offered from session 1 based on thin demographic signals — the Portland→Patagonia problem that Robinson identified",
+      "scenario": "Commerce features promised before context depth warrants them",
+      "severity": "P1"
+    },
+    {
+      "condition": "User expects ambient recommendations immediately but the system needs months of conversation to make them good — invisible layers problem with no user-facing explanation",
+      "scenario": "No honest value curve communicated to users",
+      "severity": "P2"
+    },
+    {
+      "condition": "System treats 20 messages in one hour as equivalent to 20 messages over 5 sessions — no curing time between layers of understanding",
+      "scenario": "Profile consolidation skipped for rapid interaction",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Chinese lacquerware (Fuzhou bodiless lacquer tradition, Ming/Qing period techniques)",
+  "success_hints": "Each use case should have an honest time-to-value estimate. The system should resist recommending from thin context and should communicate (subtly) when it's still in the context-accumulation phase.",
+  "task_context": "Auraken is adding ambient product recommendations to cognitive augmentation. The lacquerware lens asks: how many invisible layers of context are needed before recommendations become valuable rather than offensive? The Robinson insight about over-indexing on sparse signals is exactly the 'thick layer that cracks' failure mode."
+}

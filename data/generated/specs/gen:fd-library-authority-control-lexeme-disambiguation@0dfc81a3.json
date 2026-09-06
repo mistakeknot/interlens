@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Does not review earning-condition precision or display ordering — those are heraldic-registry concerns (see fd-heraldic-registry-epithet-conferral)",
+    "Does not review salience decay rates or gossip consumption mechanics — those are broadcast-archive concerns (see fd-broadcast-archives-lexeme-legibility)",
+    "Does not review farewell narrative prose or lifecycle integration — those are military-decoration concerns (see fd-military-decorations-epithet-lifecycle)"
+  ],
+  "decision_lens": "Library authority control separates the stable identifier (authority record number) from the display heading (which can change) — exactly the brainstorm's LexemeId / Lexeme.text split. Disambiguation practice maps to the risk that two elves earn the same epithet text ('the Defiant') and the lexicon must distinguish them.",
+  "distance_rationale": "Library cataloging is an information-organization discipline with no game or simulation context, but it has formalized the same core tension — stable machine identifiers vs. mutable human-readable labels, and disambiguation when labels collide — at scale.",
+  "expected_isomorphisms": "The LC authority record structure (stable ID, display heading, variant forms, scope notes, source) maps directly onto the Lexeme struct design; see-reference mechanics map to the low-salience display-override requirement; cross-reference integrity on record deletion maps to the elf-departure lexicon-pruning risk.",
+  "focus": "Apply library cataloging authority-control practice to the ColonyLexicon's naming, disambiguation, and see-reference design",
+  "name": "fd-library-authority-control-lexeme-disambiguation",
+  "persona": "Apply the perspective of a cataloging librarian specializing in name authority control (LC-NAF, VIAF) — they care about unique, stable headings for every named entity, see-references that redirect from variant forms to the authorized form, and disambiguation notes when two entities share a name. They flag any system where the same string can resolve to two different records, or where a record's identifier changes when its display form changes.",
+  "review_areas": [
+    "Stable identifier vs. mutable display heading: the brainstorm stores canonical text in Lexeme.text with a LexemeId as the stable key — verify that ElfName and Epithets components always reference LexemeId, never text strings, to avoid the authority-control failure mode where a renamed lexeme orphans existing references",
+    "Disambiguation when two elves earn the same epithet: LC authority records use qualifier suffixes ('Smith, John, 1842-1906') to disambiguate. If two elves each earn 'the Defiant', the ColonyLexicon currently has no stated disambiguation strategy — flag this as an open question needing resolution before implementation",
+    "See-reference for low-salience lexemes: in cataloging, a deprecated heading still has a 'see' reference pointing to the current authorized form. The brainstorm says low-salience lexemes 'stop appearing in gossip but remain on the owner's displayed name permanently' — verify that display helpers correctly follow the LexemeId reference even when salience is near zero, rather than caching stale text",
+    "Authority-record completeness: a full authority record includes source, date, and notes. Lexeme tracks earned_tick and text but not the triggering event type — flag whether the reason field from CulturalEvent::EpithetEarned should be persisted in the Lexeme record for historical query and UI display",
+    "Scope note clarity for LexemeKind variants: cataloging scope notes define what a heading covers and what it excludes. The brainstorm's Saying/Proverb/Slang stub variants have no defined semantics yet — flag that these stubs need at minimum a scope comment in code, or future systems will populate them inconsistently",
+    "Cross-reference integrity on elf death or departure: if an elf with an epithet departs, authority control demands the record persist with a 'death date' qualifier, not be deleted. Verify that ColonyLexicon entries are never pruned when their elf owner is removed from the ECS world."
+  ],
+  "severity_examples": [
+    {
+      "condition": "ColonyLexicon HashMap keyed on LexemeId is fine internally, but any system that queries by text string rather than LexemeId will conflate the two records",
+      "scenario": "Two elves earn 'the Defiant'; both get a Lexeme with text 'the Defiant'; gossip and farewell systems cannot distinguish which elf's epithet they are referencing",
+      "severity": "P1"
+    },
+    {
+      "condition": "Occurs if display_with_epithets copies text into a local String rather than reading through the LexemeId reference at render time",
+      "scenario": "Display helper caches Lexeme.text at earn time and does not re-query the lexicon; if text is ever patched or corrected, the cached version is stale",
+      "severity": "P2"
+    },
+    {
+      "condition": "Lexeme struct as described has no reason/source field; UI developers later have to reconstruct cause from event history, if it is still available",
+      "scenario": "The reason field from EpithetEarned event is emitted but not persisted into the Lexeme record, so historical UI cannot explain why an elf earned their epithet",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Library cataloging / authority control",
+  "success_hints": [
+    "Add an optional elf_display_name snapshot and reason string to the Lexeme struct at earn time, so the record is self-contained for historical display",
+    "Define the disambiguation strategy for duplicate epithet text before implementation: either allow duplicates (two separate LexemeIds with identical text) or suffix with elf id in the stored text",
+    "Ensure all query paths into ColonyLexicon go through LexemeId, never through text-string equality, to preserve authority-control integrity",
+    "Add a scope comment block above each LexemeKind variant stub explaining what kind of string it will hold and what systems will write/read it"
+  ],
+  "task_context": "Review the ColonyLexicon primitive's identifier, disambiguation, and reference-integrity design decisions in the brainstorm, applying library authority-control standards for stable headings, see-references, and record completeness."
+}

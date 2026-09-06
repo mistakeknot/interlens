@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "fd-insurance-risk-scoring: that agent focuses on parameter auditability and provenance within a formula instance; this agent focuses on the boundary contract between the formula and its consumers",
+    "fd-portfolio-risk-sensitivity: that agent focuses on comparing multiple formula instances and sensitivity analysis; this agent focuses on whether a single Protocol contract is stable enough to serve diverse implementors",
+    "fd-pid-tuner-hotswap: that agent focuses on runtime replacement mechanics; this agent focuses on the compile-time and type-system properties of the pluggability boundary"
+  ],
+  "decision_lens": "Is the EdgeWeight Protocol's input (edge_attrs dict) and output (float) contract stable enough to serve as an SDK boundary for Phase 2 UTCI and future formulas without requiring Protocol changes?",
+  "distance_rationale": "Synthesizer designers define typed signal contracts between DSP modules (oscillator → filter → VCA) so that any conforming module can be patched in without breaking downstream consumers — the same pluggability boundary as the EdgeWeight Protocol decoupling FeltMinutesV0 from Phase 1.7's A* routing consumer.",
+  "expected_isomorphisms": "The Eurorack CV voltage standard (a scalar float in a defined range) maps to EdgeWeight's return contract (non-negative float, +inf for un-routable) — both are typed scalars with sentinel values that downstream processors must handle. The synthesizer 'patch cable' maps to the Protocol: any module with the right jack type connects, regardless of internal implementation. The 'modulation source overriding a base parameter' maps to persona-tier pace overrides: FeltMinutesV0(pace_mps=1.1) is a different module instance, not a schema change.",
+  "focus": "Pluggability boundary completeness — whether the EdgeWeight Protocol is narrow enough to be implementable by diverse future formulas and wide enough to carry all information those formulas need",
+  "name": "fd-synth-signal-chain",
+  "persona": "Apply the perspective of a modular synthesizer firmware engineer who designs typed signal contracts between DSP processing blocks, ensuring that any conforming module can be substituted without patching downstream consumers.",
+  "review_areas": [
+    "The Protocol accepts edge_attrs: dict[str, Any] — an open dict rather than a typed schema. Synthesizer signal contracts specify exact voltage ranges and semantics per pin; a dict contract defers all type safety to the implementor. Phase 2's UTCI formula will silently compile even if it reads a misspelled key from the dict (e.g., 'sun_franction'). A TypedDict for the canonical edge attributes would catch this at type-check time.",
+    "Open Question 1 (should the Protocol accept (u, v, k, attrs) instead of attrs-only) is deferred to Phase 2, but the brainstorm acknowledges that elevation cost 'wants source/target node altitudes.' In synthesizer terms, this is deciding now whether the output jack carries audio-rate or control-rate signal — changing it later requires re-patching every downstream consumer. The Protocol signature is a breaking change for Phase 1.7 if this is revisited after A* is written.",
+    "The Protocol has no method for a formula to declare which edge attributes it consumes. Synthesizer modules document their CV input pins; a Phase 2 formula that silently consumes 'air_temp' will produce wrong results on a graph that lacks it, with no error until runtime. A required_attrs: frozenset[str] class variable on conforming implementations would allow apply_weight to validate graph completeness before the hot loop.",
+    "The Protocol is @runtime_checkable (Open Question 4 leans yes), but isinstance(fn, EdgeWeight) only checks that __call__ exists, not that its signature matches. A plain lambda would pass the isinstance check. Synthesizer jacks enforce voltage range, not just socket shape — the Protocol should document that signature conformance is the actual contract, and that isinstance is a convenience, not a guarantee.",
+    "The return type is float, but the contract says 'non-negative float or +inf, never NaN, never negative.' These invariants are in the docstring but not enforced. A misbehaving Phase 2 formula that returns NaN or a negative felt_minutes will corrupt A* silently. Synthesizer firmware validates CV inputs at module boundaries; a debug-mode assertion in apply_weight checking the return value would catch this early.",
+    "The apply_weight helper signature is apply_weight(graph, weight, *, attr='felt_minutes') — the attr parameter enables A/B runs, but the Protocol itself has no concept of versioning or identity. Two weight instances with identical parameters but different formula logic (FeltMinutesV0 vs FeltMinutesV1) produce identically-named output attributes. Synthesizer patch bays label cables by signal type and source module — the Protocol should expose an identifier."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Because edge_attrs is dict[str, Any], a Phase 2 formula that does edge_attrs.get('utci_air_temp', 20.0) compiles and runs without error even when the graph has no 'utci_air_temp' attribute — it uses the fallback silently, producing plausible-looking but wrong felt_minutes. A TypedDict contract or required_attrs class variable would surface this as a type error or a startup validation failure.",
+      "scenario": "A Phase 2 UTCI formula silently reads a misspelled or missing key from edge_attrs",
+      "severity": "P1"
+    },
+    {
+      "condition": "If elevation cost in Phase 2 requires node altitudes and the Protocol is updated to (u, v, k, attrs), Phase 1.7's A* must be rewritten. The cost is one downstream, but the brainstorm flags it as a 'breaking change for one downstream which is easy to update' — this understates the risk if Phase 1.7 has integration tests and callers that pass weight callables by duck-typing.",
+      "scenario": "Protocol signature change from attrs-only to (u, v, k, attrs) after Phase 1.7 is written",
+      "severity": "P2"
+    },
+    {
+      "condition": "A formula returning NaN (e.g., due to a divide-by-zero for a zero-pace edge) will write NaN to the edge dict. Dijkstra/A* behavior on NaN weights is undefined per NetworkX's documentation — some implementations may treat NaN < any float and route through it preferentially. A single assert not math.isnan(result) and result >= 0 in apply_weight (behind a debug flag) would catch this class of bug.",
+      "scenario": "apply_weight does not validate Protocol return values in any mode",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Modular music synthesizer DSP signal-chain design",
+  "success_hints": [
+    "Define a ShadedEdgeAttrs TypedDict with the canonical Phase 1.5 keys and update the Protocol to accept it — this makes missing-key bugs into type errors",
+    "Add required_attrs: frozenset[str] = frozenset() as a Protocol class variable so apply_weight can assert graph completeness before the edge loop",
+    "Document that isinstance(x, EdgeWeight) checks __call__ presence only, not signature — the real contract is the type annotation"
+  ],
+  "task_context": "Phase 1.6 brainstorm for Solwend felt-minute edge weight — Protocol + frozen dataclass architecture, FeltMinutesV0 with sun_coefficient and nan_fallback_policy, apply_weight helper, per-quality dispatch for shade_data_quality values."
+}

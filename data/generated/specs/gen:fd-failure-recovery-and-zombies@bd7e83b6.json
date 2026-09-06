@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-claiming-protocol-atomicity covers normal-path claiming",
+    "fd-trigger-and-idle-detection covers healthy idle agents",
+    "fd-feedback-loops covers aggregate factory health"
+  ],
+  "decision_lens": "Prefers safe-by-default recovery (leave unclaimed over double-execute). Integrates with intermux stuck/crashed detection.",
+  "focus": "Detection and recovery of stuck, crashed, or abandoned work items — zombie claims, reassignment, escalation",
+  "name": "fd-failure-recovery-and-zombies",
+  "persona": "A site reliability engineer who debugs distributed systems failures and writes runbooks for partial-failure recovery.",
+  "review_areas": [
+    "Temporal saga-pattern compensation and retry policies distinguishing retriable vs terminal failures",
+    "Intermux health monitor: what additional state transitions enable automatic bead unclaim + reassignment",
+    "Kubernetes pod disruption budgets limiting cascading failures when multiple workers fail",
+    "Heartbeat liveness: claimed_at + bead-heartbeat for watchdog stale-claim declaration",
+    "Manufacturing andon cord: escalation to human review rather than auto-retry after N failures",
+    "Failure classification: agent crash (safe to retry) vs ambiguous spec (needs human clarification)"
+  ],
+  "success_hints": [
+    "Concrete stale-claim detection: what key, what TTL, what process checks",
+    "Retry limit and escalation path compatible with bd primitives",
+    "Distinguish recoverable vs terminal failure modes in bead state"
+  ],
+  "task_context": "Sylveste AI factory uses beads (Dolt-backed) with bd update --claim and bd set-state. Agents in tmux panes via intermux. Goal: Phase 1 self-dispatching loop."
+}

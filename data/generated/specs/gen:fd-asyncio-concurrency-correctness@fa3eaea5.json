@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does not cover SQL schema (fd-sqlalchemy), CLI reliability (fd-claude-cli), or lens scoring (fd-lens-evolution)",
+  "decision_lens": "Every shared mutable state access is a potential race; every spawned task is a potential leak",
+  "focus": "Race conditions and task lifecycle leaks in burst-deduplication and extraction pipeline",
+  "name": "fd-asyncio-concurrency-correctness",
+  "persona": "Asyncio concurrency specialist who has debugged production event loops",
+  "review_areas": [
+    "TOCTOU hazards in _pending_extractions and _pending_lenses dicts under concurrent user messages",
+    "Uncancelled subprocess orphans when burst window resets mid-extraction",
+    "Async session leaks: are DB sessions properly closed on handler exceptions?",
+    "Task cancellation propagation: does cancelling a burst task cancel its scheduled extraction?",
+    "Fire-and-forget asyncio.create_task calls without error handlers or result collection",
+    "Signal bus emit() concurrency: what happens when two signals emit simultaneously?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Two Telegram updates arrive within burst window, both modify history list",
+      "scenario": "Concurrent messages from same user corrupt _sessions dict",
+      "severity": "P0"
+    },
+    {
+      "condition": "User sends rapid messages, earlier extraction task cancelled but subprocess keeps running",
+      "scenario": "Extraction subprocess orphaned after burst cancellation",
+      "severity": "P1"
+    },
+    {
+      "condition": "Haiku returns malformed JSON, exception bypasses session cleanup",
+      "scenario": "DB session not returned to pool on extraction error",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Focus on telegram.py burst collection and extraction.py schedule_extraction interaction",
+  "task_context": "Preparing for signal-first refactor where all side effects become async subscribers"
+}

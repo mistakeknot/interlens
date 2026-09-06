@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-batch-dependency-order covers ordering correctness",
+    "fd-port-strategy-fidelity covers semantic correctness",
+    "fd-new-system-integration-risk covers ECS tick loop"
+  ],
+  "decision_lens": "Prioritize batches with multiple novel systems in one pass (overscoped) or no testable integration point (underscoped).",
+  "focus": "Whether each batch is correctly scoped — not overloaded or underloaded for its day estimate",
+  "name": "fd-batch-scope-calibration",
+  "persona": "An experienced technical PM who has shipped Rust simulation games. Uses LOC, test count, and interaction complexity as proxies.",
+  "review_areas": [
+    "Batch 3 (3 days) introduces 5 novel subsystems simultaneously — is 3 days realistic?",
+    "Batch 1 (1 day) adds many new component types alongside all AF port work — too high?",
+    "Batch 8 includes save/load — should that be earlier to protect integration tests?",
+    "Batch 5 (3 days) implements 6-state revel machine + 4 emergent events — correctly estimated?",
+    "Batch 9 (2 days) asks for integration tests + tuning + data expansion — realistic?",
+    "Batch 6 (2 days) covers DummyCurator + trait + policies + events + state_export — fits?"
+  ],
+  "success_hints": [
+    "No batch has more than 2 novel systems alongside porting work",
+    "Each batch has an integration test catching regressions from the next batch",
+    "Day estimates sum ≤25 and critical path ≤20 days"
+  ],
+  "task_context": "MVP plan ports agent-fortress to elf-revel across 10 batches, each claimed independently testable."
+}

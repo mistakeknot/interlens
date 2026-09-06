@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Focuses on capability detection and protocol negotiation — not Unicode glyph selection (fd-unicode-density-aesthetics), image conversion pipelines (fd-image-to-ascii-pipeline), roguelike UI composition (fd-roguelike-ui-layer-architecture), or procedural ASCII generation (fd-procgen-ascii-texture)",
+  "decision_lens": "Does the rendering pipeline correctly probe for capabilities at runtime and degrade gracefully? Can the WASM target ever access pixel protocols, or is it permanently gated to crossterm primitives?",
+  "focus": "Runtime terminal capability detection: sixel/kitty protocol negotiation, graceful fallback chains, WASM browser target constraints",
+  "name": "fd-terminal-protocol-capability-negotiation",
+  "persona": "Terminal emulator internals engineer who has worked on VTE, notcurses, and libtickit; knows which capability queries hang on which terminals",
+  "review_areas": [
+    "Capability probe ordering: XTSMGRAPHICS (sixel), APC Gc query (kitty), DA2 response parsing — each probe requires a roundtrip read; does the detection path handle terminal read timeouts without blocking the game loop?",
+    "WASM browser target constraints: crossterm in WASM targets xterm.js or the browser's built-in terminal emulator; neither supports sixel or kitty — is this hardcoded or detected at compile time via cfg(target_arch = 'wasm32')?",
+    "Fallback chain correctness: sixel → kitty → half-block → basic ANSI — does each tier's renderer produce a coherent output or does a partial capability match produce corrupted frames?",
+    "rust_pixel framework layer: does rust_pixel already abstract terminal capabilities, or does adding sixel/kitty require bypassing its rendering abstraction and writing raw escape sequences?",
+    "iTerm2 inline image protocol: distinct from kitty, uses base64 ESC ] 1337; — if a user is in iTerm2, the kitty probe will fail but inline images still work; is iTerm2 probed separately?",
+    "Cell-vs-pixel coordinate mismatch: sixel images are positioned in pixel coordinates while TUI layout is in cell coordinates; a rendering layer that mixes both risks subpixel misalignment artifacts"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No timeout on terminal capability query reads; game waits indefinitely for escape sequence response",
+      "scenario": "Capability probe issues blocking terminal read hangs the game loop on SSH connections where XTSMGRAPHICS response never arrives",
+      "severity": "P0"
+    },
+    {
+      "condition": "No cfg(target_arch) gate around pixel protocol code paths",
+      "scenario": "WASM build attempts to emit sixel escape sequences into browser console output, corrupting all log output and breaking the dev workflow",
+      "severity": "P1"
+    },
+    {
+      "condition": "Protocol negotiation trusts DA2 response alone without validating an actual image roundtrip",
+      "scenario": "Capability detected as 'kitty supported' on a terminal that partially implements the spec, producing garbled overlapping image frames",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "The real test is: does the native TUI build degrade cleanly to pure ASCII on a dumb terminal (TERM=dumb), and does the WASM build never attempt any pixel protocol path? These two boundary conditions catch most negotiation failures.",
+  "task_context": "Elf Revel — Rust colony sim with dual native TUI (crossterm/rust_pixel) and WASM browser targets; exploring sixel/kitty/half-block rendering enrichment without breaking existing ASCII aesthetic"
+}

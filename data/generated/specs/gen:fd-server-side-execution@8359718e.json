@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-wasm-threading-feasibility covers in-browser WASM execution including SharedArrayBuffer threading",
+    "fd-webgpu-compute covers GPU compute shader approaches",
+    "fd-hybrid-architecture covers split approaches and novel compilation targets like WASM component model"
+  ],
+  "decision_lens": "Prioritizes findings that determine whether the 42ms tick interval and the SimulationTickEvent (country deltas, performance metrics, status light) can be delivered with acceptable latency over a WebSocket at realistic network conditions. Flags infrastructure cost as a go/no-go factor for the discovery use case where free-tier or low-cost hosting is expected.",
+  "focus": "Production-readiness of server-hosted simulation with WebSocket bridge: latency budget analysis, infrastructure cost at scale, and protocol design for the 42ms tick / 1768-agent state update stream",
+  "name": "fd-server-side-execution",
+  "persona": "A distributed systems engineer who has designed real-time game server infrastructure and WebSocket-based state synchronization at scale. Evaluates round-trip latency against tick budgets, state delta compression strategies, and cloud cost models for compute-intensive workloads.",
+  "review_areas": [
+    "Whether the SimulationTickEvent payload (country deltas + performance metrics serialized via serde_json) can be reliably delivered within the 42ms tick window over a WebSocket on a 50ms-RTT connection, and what happens when ticks queue up under load",
+    "The existing MissedTickBehavior::Delay pattern in runner.rs and how it interacts with WebSocket backpressure — whether the server loop would drift or accumulate lag for clients with higher-latency connections",
+    "State synchronization strategies: whether the current delta-tracking logic (prev_country_versions diff) is sufficient for a WebSocket protocol or needs sequence numbers, acks, and reconnection state recovery",
+    "Infrastructure cost model for running a Rayon-based 1768-agent simulation on cloud compute (AWS/GCP/Fly.io) for concurrent discovery users — CPU core requirements, memory footprint, and cost per concurrent session",
+    "Production-ready WebSocket server options in 2026 for a Rust simulation backend: axum with tokio-tungstenite, warp, or purpose-built game server frameworks, and their operational maturity",
+    "Whether the input_bus deterministic command ordering (drain_all before tick) can be preserved across a WebSocket boundary without introducing ordering vulnerabilities under packet reordering"
+  ],
+  "success_hints": [
+    "A concrete latency budget analysis: RTT ceiling below which server-hosted simulation meets the sub-50ms tick requirement for a smooth client experience",
+    "A cost estimate per concurrent user session on the cheapest viable cloud tier that can run the Rayon workload without throttling",
+    "Identification of whether the existing SimulationTickEvent serialization overhead (serde_json) is acceptable for WebSocket transport or requires a binary protocol like bincode/MessagePack"
+  ],
+  "task_context": "The simulation runs 1768+ institutional agents using Rayon par_iter_mut at a 42ms tick interval inside a Tauri/Tokio async runtime. The goal is to evaluate web distribution feasibility without significant performance loss."
+}

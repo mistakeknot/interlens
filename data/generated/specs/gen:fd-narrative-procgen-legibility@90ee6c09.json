@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-rust-ecs-determinism-plumbing covers whether the surrounding Rust code compiles/borrow-checks and whether the single-mutation-site invariant is structurally enforced — not template content",
+    "fd-colony-worldstate-integration covers save/load backfill, cross-panel consistency, and acceptance-criteria/test coverage gaps — not prose quality or template variety"
+  ],
+  "decision_lens": "Prioritizes findings where the SAME template/anchor combination will visibly recur across multiple masterworks within one realistic playthrough (the core mad-libs risk) over cosmetic wording preferences; within that, weighs combinatorial poverty (few variants gated behind a narrow priority cascade) above single-instance grammar nits.",
+  "focus": "The woven self-reference template library and priority-cascade selection logic — whether the output reads as DF-artifact-grade legible history or degrades to mad-libs across a real playthrough",
+  "name": "fd-narrative-procgen-legibility",
+  "persona": "Apply the perspective of a procedural narrative / flavor-text systems designer with deep experience in template-driven self-describing content (Dwarf Fortress artifact descriptions, roguelike item flavor text, procedural obituary/epitaph generators) — someone who has personally chased and fixed the 'menaces with spikes' repetition failure mode.",
+  "review_areas": [
+    "Anchor priority cascade (mourned > partner > rival > master > friend > legacy > none): does a composer whose state is stable across several compositions necessarily re-select the same anchor category and, with only 2-3 template variants per category, converge on near-identical phrasing for a colony's 2nd/3rd/4th masterwork?",
+    "Sub-seed derivation via bit-shifting one fnv1a hash (seed, seed>>16, seed>>24, seed>>32, seed>>40) feeding independent pick() calls: are these shifted views of a single 64-bit hash independent enough to avoid correlated variant pairing, or could low-entropy correlation make certain anchor+context combinations always co-occur?",
+    "Grammatical robustness of the template strings across the full cross-product of substituted names (possessives, names ending in 's', sentence-initial capitalization of a substituted token, apostrophe handling) — the plan shows only worked examples, not a systematic check",
+    "Context-clause selection breadth (revel, prior naming, colony year) and whether the 'at most two, one after an anchor' rule (ruling 1: woven 2-3 entities) is actually enough raw material to avoid the colony-year floor clause becoming the de facto universal filler once revel/prior-naming facts run dry in a long playthrough",
+    "Register/tone consistency across the ~20 template variants (does 'and the composer has never said so out loud' style intimacy read consistently with the more distant 'the salon will argue about whether it surpasses...' register, or does tone whiplash undercut the felt realism)",
+    "Whether the no-anchor floor (new colony, all facts None) produces text indistinguishable across different colonies beyond the swapped colony name — i.e. does year-1-of-a-fresh-colony always read the same regardless of which colony it is"
+  ],
+  "success_hints": [
+    "The plan (or its templates) shows evidence that repeated masterworks from the same composer, or across many masterworks in one colony's run, will read as recognizably different rather than same-template-different-name",
+    "Template strings are shown to hold up grammatically for a representative range of substituted name shapes, not just the example names used in the plan",
+    "The context-clause pool is deep enough relative to expected masterwork frequency that the colony-year floor clause isn't the default outcome for most masterworks past the colony's first year"
+  ],
+  "task_context": "Stress the self-describing-masterworks plan before build: do the woven self-reference templates, fact gathering, and colony-naming beat deliver DF-artifact-grade legible history rather than mad-libs, and where does the frozen-text rule or the deterministic colony naming leak? The four rulings recorded in docs/brainstorms/2026-06-23-self-describing-masterworks.md are canon and not up for review; attack the plan's execution details and its blind spots. Target plan: docs/plans/2026-09-01-self-describing-masterworks.md (Elf Revel, a Rust/WASM elven colony sim with Dwarf-Fortress-depth social/artistic simulation; crates/er-sim/src/sim/art.rs holds the new generate_self_reference renderer and its template pools)."
+}

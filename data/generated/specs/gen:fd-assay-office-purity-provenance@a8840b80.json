@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Focus on classification-as-assayed-property and provenance traceability; leave the closed-vs-open enum boundary and default-strict semantics to fd-kashrut-separation-flow-law.",
+    "Do not review tier x privacy_class egress gating mechanics or dead-letter transitions — that is fd-canal-lock-tier-gating's territory.",
+    "Leave cross-language Swift/Python agreement and schema-as-authentic-text to fd-treaty-translation-conformance."
+  ],
+  "decision_lens": "Does each privacy_class correspond to a testable material property rather than a self-asserted label, is the class-stamp irreversible and only granted after the transforming test confirms, and does the provenance lineage let any downstream artifact be traced back to the exact stage/model/redaction event that produced its classification?",
+  "distance_rationale": "Metallurgical assay is a pre-modern physical-materials craft with no connection to software schemas, cross-language type systems, or on-device ML pipelines.",
+  "expected_isomorphisms": "An assay office assigns each ingot a discrete fineness class (24k/22k/18k...) via a one-way destructive test, stamps an irreversible hallmark, and records maker's-mark provenance so any later object can be traced to its assay event — structurally identical to assigning a closed privacy_class, an irreversible verify-then-delete reclaim, and manifest-level provenance lineage (stage version, model checkpoint, redaction-implementation id) that jawndex records reference.",
+  "focus": "Purity-class integrity and chain-of-custody in the privacy_class enum + provenance lineage",
+  "name": "fd-assay-office-purity-provenance",
+  "persona": "Apply the perspective of a master assayer at a hallmarking office — they care that every classification maps to a physically real, testable property (not a declared one), that a purity stamp can never be forged upward or applied before the assay completes, and that the maker's mark makes every finished object traceable to its assay event. They measure classification against destructive ground truth, flag any purity claim that outruns its test, and reject provenance chains with a missing link.",
+  "review_areas": [
+    "Whether privacy_class is treated as an assayed property (verifiable from the artifact + its lineage) versus a declared attribute a stage can simply assert without a confirming test — and whether the contract can even express the confirming test",
+    "Provenance lineage completeness as a hallmark chain: does the manifest capture stage version, model checkpoint, source-artifact hashes, and redaction-implementation id in a way where a single missing field breaks traceability, and does the schema make each field required rather than optional",
+    "Irreversibility and ordering of class transitions: whether the contract prevents a raw_quarantined artifact from being stamped derived_redacted before the redaction stage confirms (the assay-before-stamp rule), analogous to verify-then-delete reclaim",
+    "Whether privacy_class can only ever move toward more-restricted-egress (up in fineness) and never be silently downgraded, and whether the flow-rule data file encodes that monotonicity",
+    "Fixture vectors as reference standards (trial plate / touchstone): do the conformance vectors include a canonical known-good manifest with a complete lineage that both runtimes must accept, plus lineage-tampered manifests both must reject",
+    "Whether jawndex records' reference to the provenance lineage is a durable link (content-addressed hash) or a fragile pointer that can dangle when the source artifact is reclaimed"
+  ],
+  "severity_examples": [
+    {
+      "condition": "A privacy_class value can be asserted independently of a completed, recorded transforming stage — the stamp can be applied before (or without) the assay.",
+      "scenario": "The contract lets a stage set privacy_class as a free-form declared field with no schema linkage to the lineage that produced it, so a stage could stamp derived_redacted on an artifact the redaction stage never touched.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Any lineage field named in §12 is not marked required in the JSON Schema, or the fixtures don't include an invalid vector that omits it.",
+      "scenario": "Provenance lineage fields (model checkpoint, redaction-implementation id) are schema-optional, so a conformance-valid manifest can omit which redaction implementation struck a record, breaking traceability required by §12.",
+      "severity": "P1"
+    },
+    {
+      "condition": "No monotonicity or transition-provenance constraint on privacy_class changes exists in the flow-rule table or its schema.",
+      "scenario": "The flow-rule data file allows a privacy_class to be re-declared to a less-restricted class downstream without any recorded re-classification event, permitting silent purity downgrade.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Precious-metal assaying and hallmarking (cupellation, fire assay, and the assay-office chain of custody as refined by hallmarking guilds since the medieval Goldsmiths' Company)",
+  "success_hints": [
+    "Trace one artifact end-to-end: quarantine -> redaction -> jawndex, and check the manifest can prove at each hop which stage/model produced the current privacy_class.",
+    "Read the JSON Schema required-fields lists for the manifest and lineage sub-object; flag every §12 provenance field that is optional.",
+    "Check the fixtures dir for a 'known-good complete-lineage' golden vector and its tampered/omitted counterparts.",
+    "Look for whether privacy_class transitions are constrained by ordering rules or are freely settable on any artifact."
+  ],
+  "task_context": "Reviewing the M0 brainstorm for JawnScope, which defines a schema-first pipeline contract with a closed privacy_class enum, machine-checkable flow rules as a data file, and a required manifest-level provenance lineage. The review goal is to surface gaps in how classification integrity and traceability are structurally guaranteed rather than merely declared."
+}

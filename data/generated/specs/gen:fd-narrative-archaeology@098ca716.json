@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-procgen-geology covers whether the generation pipeline is technically sound and varied",
+    "fd-cultural-contamination covers how discoveries affect the living colony faction dynamics",
+    "fd-surface-ecology covers geological realism and physical plausibility"
+  ],
+  "decision_lens": "Prioritize findings where the generation system claims literary depth but produces generic fantasy output. The test: can the system generate a civilization that would feel at home in Book of the New Sun (incomprehensible deep-time technology read as magic) vs. one that is just ancient dwarves but with crystals? A civilization generator that only produces variations on ancient craftspeople who liked X material is P1. Lore that contradicts its own implied timeline is P2.",
+  "focus": "Whether the procedurally generated civilizations produce genuinely evocative lore and whether the literary inspirations (Gene Wolfe, Jack Vance, Italo Calvino, McLuhan) translate into concrete generation rules rather than remaining aspirational flavor text",
+  "name": "fd-narrative-archaeology",
+  "persona": "A narrative designer and interactive fiction author who has built procedural lore systems — experienced with Caves of Qud procedural history, Ultima Ratio Regum cultural generation, and Epitaph archaeological storytelling. Has read the cited literary works and understands the specific qualities they bring: Wolfe layered unreliable history, Vance dying-earth aesthetic exhaustion, Calvino cities-as-philosophical-arguments, McLuhan medium-shapes-thought thesis. Evaluates whether generation axes can actually produce output that evokes these qualities.",
+  "review_areas": [
+    "Evaluate whether the 6 generation axes (era, material, medium philosophy, aesthetic mode, fate, scale) can produce civilizations that embody the cited inspirations — can the system generate a Wolfe-style technology indistinguishable from magic civilization? A Calvino-style city as philosophical argument? A Vance-style culture exhausted by its own sophistication?",
+    "Check whether the fate axis (how civilizations ended) generates narratively coherent histories — does transcendence at deep layers feel different from transcendence at shallow layers? Does the fate connect logically to the civilization material and medium?",
+    "Assess the depth-as-time metaphor: layer 1-2 = recent, 3-4 = foreign, 5+ = alien. Does the generation system enforce increasing strangeness with depth, or can a perfectly mundane civilization appear at layer 6?",
+    "Verify that the civilizations transformed geology concept (vitrified stone, petrified organic lattices, grown crystal formations) generates descriptions that are specific and evocative rather than generic magical residue",
+    "Evaluate artifact naming and lore text generation: what is the template? Can artifacts from the same civilization feel related while artifacts from different civilizations feel distinct?",
+    "Check whether the McLuhan axis (medium philosophy shapes thought) produces observable differences in what a civilization left behind — does an oral culture leave fundamentally different artifacts than a literate culture or an architectural culture?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The generation axes are independent but their outputs are combined through simple concatenation rather than cross-axis interaction rules",
+      "scenario": "All generated civilizations reduce to ancient people who were good at [material] and liked [aesthetic mode] regardless of era, medium philosophy, or fate",
+      "severity": "P1"
+    },
+    {
+      "condition": "No qualitative shift in generation approach at depth thresholds — same axes, same templates, just different enum values",
+      "scenario": "Deep-layer civilizations (5+) described as truly alien are generated from the same template as shallow civilizations with minor parameter changes",
+      "severity": "P2"
+    },
+    {
+      "condition": "Fate axis is used for lore flavor but does not modify the artifact generation pipeline",
+      "scenario": "Civilization fates do not influence what artifacts remain — a civilization that ended by voluntary dissolution leaves the same artifact types as one destroyed by war",
+      "severity": "P3"
+    }
+  ],
+  "success_hints": [
+    "A generated civilization should be describable in terms of its literary inspiration without explicitly naming it — a culture whose buildings were instruments evokes Calvino without citation",
+    "Deep-layer civilizations should produce artifacts that genuinely resist interpretation — not just unknown purpose labels but descriptions where the player cannot tell if it is art, tool, or sacred object",
+    "The fate of a civilization should be legible in what it left behind — volcanic glass everywhere implies fire-related end, absence of personal items implies orderly departure"
+  ],
+  "task_context": "The brainstorm explicitly cites Gene Wolfe (deep-time incomprehensible technology), Jack Vance (exhausted sophistication), Italo Calvino (cities as philosophical lenses), and Marshall McLuhan (medium determines thought). It proposes 6 generation axes for civilizations and a depth-dependent comprehension model where deeper = more alien. The elven colony sim is primarily about aesthetic experience and cultural dynamics, not combat or survival."
+}

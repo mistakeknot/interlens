@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-friction-completeness checks whether friction points are complete.",
+    "fd-cross-cuj-coherence checks for consistency across CUJs.",
+    "fd-success-signal-integrity checks whether signals are measurable."
+  ],
+  "decision_lens": "Prioritize journey steps where a command is invoked without showing how it was configured, feedback that requires capabilities not yet described as implemented, and sequences where the actor could not proceed without unsurfaced information.",
+  "focus": "Whether the journey narratives describe realistic developer workflows or construct idealized sequences that obscure essential steps",
+  "name": "fd-workflow-realism",
+  "persona": "A senior developer who has used autonomous coding tools extensively and reads product specs asking: would I actually do it this way?",
+  "review_areas": [
+    "Quality-gates: '/flux-gen must be run first' is in friction but the journey narrative auto-selects agents without mentioning this prerequisite.",
+    "Parallel-dispatch: 'They run /clavain:work <plan>' — what form does <plan> take? File path? YAML? Natural language?",
+    "Skaffen-sovereign-session: Orient output implies codebase indexing. When does indexing happen?",
+    "Multi-agent-coordination: '/interlock:join registers the agent explicitly' — no description of what command or context invokes this.",
+    "Skaffen-sovereign-session: print mode is 'go run ./cmd/skaffen --mode print' — this runs from source, not a published binary.",
+    "Check all five CUJs for commands presented as current without indication of implementation status."
+  ],
+  "success_hints": [
+    "Every command or slash-invocation should either exist today or be clearly marked as target state.",
+    "Every implicit prerequisite should surface in the journey before it is relied upon.",
+    "The actor's information at each step should be traceable."
+  ],
+  "task_context": "These are product specification CUJs for the Sylveste autonomous development platform. They describe target user experiences across quality gates, multi-agent coordination, parallel dispatch, and Skaffen agent runtime. Review is for specification quality, not implementation."
+}

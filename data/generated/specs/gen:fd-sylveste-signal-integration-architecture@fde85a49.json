@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Focuses on architectural coupling, not correctness of individual modules (covered by other agents)",
+  "decision_lens": "Every direct call is a future signal; every missing correlation ID is lost causality",
+  "focus": "Integration readiness for the signal-first refactor and Sylveste ecosystem wiring",
+  "name": "fd-sylveste-signal-integration-architecture",
+  "persona": "Platform architect who has migrated imperative codebases to event-driven architectures",
+  "review_areas": [
+    "Fire-and-forget extraction tasks lack turn correlation IDs (causal reconstruction impossible)",
+    "Domain logic in telegram.py command handlers: /forget and /deleteall bypass agent.py entirely",
+    "Lens name vs lens ID mismatch across signal and DB layers (LensUsage uses lens_id, evolution uses lens names)",
+    "No session lifecycle events: when does a session start/end? (SessionStarted/SessionEnded signals need anchors)",
+    "Style and extraction subscribers need user_id context — how does signal bus carry it?",
+    "De-AI scanner is synchronous in conversation flow — converting to subscriber changes response timing"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Command handler directly calls DB, bypasses agent.py and signal bus",
+      "scenario": "/forget cascade never emits signals, Intercore bridge has no visibility",
+      "severity": "P1"
+    },
+    {
+      "condition": "store_pending_lenses uses names, record_lens_event uses IDs, no mapping validated",
+      "scenario": "Lens name in evolution tracking doesn't match lens_id in LensUsage table",
+      "severity": "P1"
+    },
+    {
+      "condition": "Subscriber processes ResponseReady, needs to block before transport sends",
+      "scenario": "De-AI re-prompt as subscriber introduces observable latency increase",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Map every current direct call in agent.py and telegram.py to its future signal equivalent",
+  "task_context": "This is the most important agent for the refactor — it identifies what breaks when we add the signal bus"
+}

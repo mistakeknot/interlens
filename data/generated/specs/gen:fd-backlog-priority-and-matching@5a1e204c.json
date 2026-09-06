@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-claiming-protocol-atomicity covers claiming the selected bead",
+    "fd-trigger-and-idle-detection covers when to start looking",
+    "fd-failure-recovery-and-zombies covers reassignment after abandonment"
+  ],
+  "decision_lens": "Favors stateless selection rules computable from bead metadata alone via bd list sort/filter.",
+  "focus": "How agents score, filter, and select which bead to claim from a prioritized backlog",
+  "name": "fd-backlog-priority-and-matching",
+  "persona": "An operations research engineer with experience in multi-agent task allocation and auction theory.",
+  "review_areas": [
+    "Multi-agent task allocation: market-based vs role-based vs capability-matching for heterogeneous fleets",
+    "Nomad bin-packing and Kubernetes scheduler predicates/priorities mapped to bead fields",
+    "Toyota kanban WIP limits and Little's Law for preventing thrashing",
+    "Existing lib-discovery.sh top-3 ranking and simple improvements like weighted random for thundering herd",
+    "Rideshare batched matching for multiple idle agents seeing same top bead",
+    "Dependency-aware scheduling: prefer beads whose dependencies are already closed"
+  ],
+  "success_hints": [
+    "Concrete selection function as bd list sort/filter + optional jitter",
+    "Thundering-herd mitigation compatible with optimistic claiming",
+    "Which bead metadata fields factor into selection and in what order"
+  ],
+  "task_context": "Sylveste AI factory uses beads (Dolt-backed) with bd update --claim and bd set-state. Agents in tmux panes via intermux. Goal: Phase 1 self-dispatching loop."
+}

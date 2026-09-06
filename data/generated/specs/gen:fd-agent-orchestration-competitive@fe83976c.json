@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-customer-zero-fit covers customer archetype selection",
+    "fd-borg-to-kubernetes-dynamics covers OSS transition precedents",
+    "fd-architecture-vertical-coupling covers L1/L2 technical separation"
+  ],
+  "decision_lens": "Prioritizes non-obvious competitive threats — especially incumbents in different categories whose roadmaps converge on 'datacenter of geniuses' primitives. Flags differentiation claims that a well-funded competitor could replicate in 6 months.",
+  "focus": "Maps the current AI agent orchestration platform competitive landscape to identify genuine differentiation versus collision with well-funded incumbents",
+  "name": "fd-agent-orchestration-competitive",
+  "persona": "A competitive intelligence analyst who tracks AI infrastructure startups, enterprise AI platform vendors, and research lab infrastructure projects in terms of agent coordination primitives.",
+  "review_areas": [
+    "Map Anthropic's own tooling investments (Claude Code, claude_agent_sdk) against Sylveste's primitives — identify where Anthropic could become a competitor rather than customer",
+    "Assess LangGraph, CrewAI, AutoGen, Haystack: which Sylveste coordination primitives are already commoditized",
+    "Evaluate enterprise AI vendors (Salesforce Agentforce, ServiceNow AI, Microsoft AutoGen Enterprise) on orchestration roadmaps",
+    "Examine whether 'datacenter of geniuses' positioning has been claimed by any competitor (Cognition, Poolside, Magic.dev)",
+    "Identify which competitors have achieved Anthropic-as-customer relationships",
+    "Assess the OSS agent orchestration landscape for community size, velocity, and extensibility"
+  ],
+  "success_hints": [
+    "Produces a 3-column table: competitor, overlap with Sylveste, time-to-parity estimate",
+    "Identifies the single capability no well-funded competitor has shipped and assesses defensibility",
+    "Flags any competitor that has already executed Anthropic-first or Borg-to-K8s strategy in AI orchestration"
+  ],
+  "task_context": "Sylveste is pivoting from 'autonomous software development agency platform' to 'infrastructure for running a datacenter of geniuses'. Layered architecture: domain-agnostic Intercore/Intermute at L1, software dev via Clavain at L2."
+}

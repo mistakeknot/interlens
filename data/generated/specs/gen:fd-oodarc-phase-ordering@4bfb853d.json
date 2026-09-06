@@ -1,0 +1,27 @@
+{
+  "anti_overlap": "Does NOT review goroutine sync, TUI threading, or interface definitions.",
+  "decision_lens": "Does parallelizing Act-phase tools ever allow side effects to be observed by Reflect before all Act tools complete?",
+  "focus": "Preservation of OODARC phase semantics when tool calls execute in parallel within the Act phase.",
+  "name": "fd-oodarc-phase-ordering",
+  "persona": "AI agent runtime architect familiar with OODA loop theory and phase-gated execution models.",
+  "review_areas": [
+    "Phase barrier enforcement: confirm agentloop waits for all parallel Act tools before transitioning to Reflect",
+    "Tool classification scope: verify only Act-phase tools are eligible for parallel execution",
+    "Result ordering guarantees: confirm pre-allocated slots preserve invocation order",
+    "Re-entry safety: check parallel Act tools cannot enqueue new Decide actions mid-cycle",
+    "Error handling phase transition: verify tool failure during parallel Act halts the phase correctly",
+    "PhasedTool gate interaction: confirm PhasedTool 'not ready' is handled before parallel dispatch"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Reflect phase starts while one Act-phase goroutine is still running, causing decisions based on partial action set",
+      "severity": "P0"
+    },
+    {
+      "condition": "Tool results delivered in completion order rather than invocation order, causing misattribution",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": "Phase transitions gated on WaitGroup.Wait; Reflect receives complete, ordered result slice; PhasedTool handled before dispatch.",
+  "task_context": "OODARC is Skaffen's architectural invariant. Parallel execution within Act is safe only if phase boundaries remain hard."
+}

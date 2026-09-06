@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-null-baseline-semantic-validity covers whether NullPlayer's spend behavior is genuinely inert — this agent covers whether the statistical design distinguishes binding from near-binding regardless of the agent's spend profile.",
+    "fd-trace-schema-year-boundary covers whether the trace emits the data needed for the analysis — this agent covers whether the analysis logic and pick rule are correct given that the data is available.",
+    "fd-protocol-lock-integrity covers whether the locked value is correctly recorded in PROTOCOL.md and the tarball — this agent covers whether the value that gets locked is the right value."
+  ],
+  "decision_lens": "Prioritizes findings where the pick rule is deterministic but fragile: if a null player at B=10 exhausts its budget in exactly 1 of 10 runs, the binding criterion (any run, any year) triggers and promotes to B=20, but that single event may be a low-probability artifact that would not replicate under a different seed. Secondary priority is the interaction between fixed-seed determinism and the claim that N=10 provides coverage.",
+  "focus": "Whether the calibration decision tree (pick medium where null doesn't bind), the N and seed configuration, and the pass/fail rules are statistically sound and produce a locked value that is robust to run-to-run variance at the boundary budgets",
+  "name": "fd-statistical-calibration-procedure",
+  "persona": "Apply the perspective of a statistician who designs calibration procedures for psychophysical thresholds — they care about whether the selected budget is robust to sampling error, measure whether N=10 at a single seed is sufficient to distinguish binding from near-binding at the boundary levels, and flag any decision tree that produces a different pick if one seed-equivalent run is removed.",
+  "review_areas": [
+    "Fixed-seed N=10 vs. variance coverage: the brainstorm specifies N=10 runs at seed=42 with per-run seed derived as base_seed + run_index; this produces 10 deterministic runs, but all 10 runs are correlated through the same scenario structure — assess whether this design distinguishes 'null binds at B=10' from 'null nearly-binds at B=10 but one seed variant happens to exhaust' without multi-seed validation.",
+    "Pick-rule boundary sensitivity: the brainstorm's criterion 'binding[B] = any(year_end_remaining == 0 for any run for any year)' is an OR over all runs and all years — a single year in a single run exhausting budget triggers binding; this is maximally sensitive and may over-promote to B=20 due to edge-case years near the boundary; assess whether a threshold (e.g., binding if >10% of year-ends exhaust) would be more appropriate.",
+    "Protocol lock churn risk from re-calibration: once PROTOCOL.md §7a is locked to the picked value, any future re-run of the calibration (e.g., after a sim change) may produce a different pick, triggering a scope-amendment under §9; assess whether the calibration procedure should include a tolerance band (e.g., 'pick 10 unless ≥2 of 10 runs bind in ≥2 years') that makes the locked value stable under minor sim variation.",
+    "FAIL path completeness: the brainstorm's decision tree FAIL case ('all three bind') is flagged as indicating broken spend semantics; but there is no provision for the case where none of the three levels bind even at B=5, which would suggest the null player spends zero tokens regardless of budget — this is a silent success that should trigger a warning, not a quiet pick of 5.",
+    "Interaction with H4 noise-floor criterion: PROTOCOL.md §6 states frontier-model mean diff must exceed 1.5× baseline noise floor; if the calibration picks B=20 (because 10 binds null), the noise floor computation at B=20 may differ from what was used in the pre-pilot null-baseline runs that established the between-baseline σ — assess whether the noise floor must be re-measured at the picked budget level.",
+    "Seed-42 reproducibility guarantee: the calibration specifies seed=42 but the orchestrator derives per-run seeds as base+index; confirm that the calibration tarball records the effective per-run seeds (not just the base seed) so a reviewer can verify exactly which sim states were observed and reconstruct the binding decision from first principles."
+  ],
+  "severity_examples": [
+    {
+      "condition": "The protocol locks B=20, but B=10 would not bind under a different set of 10 seeds; the locked value is over-conservative; frontier models at B=20 have effectively unlimited attention, making the calibration meaningless for cross-provider parity",
+      "scenario": "The any() binding criterion triggers because one run at B=10 exhausts budget in year 2029 due to a low-probability cascade that does not replicate at seed variants",
+      "severity": "P1"
+    },
+    {
+      "condition": "The calibration silent-succeeds with B=5 as the pick without surfacing a warning that zero spend was observed; B=5 may be too tight for frontier models even though it is trivially non-binding for null; the calibration conflates 'null doesn't exhaust' with 'B is appropriately calibrated'",
+      "scenario": "NullPlayer spends zero attention at all three budget levels (B=5, B=10, B=20) and the decision tree picks B=5 by default (medium of {5} candidates)",
+      "severity": "P1"
+    },
+    {
+      "condition": "The H4 criterion (frontier diff > 1.5× noise floor) applies the wrong noise floor; if attention budget affects variance in the null baseline, the noise floor at B=20 may differ from the noise floor at B=10; the kill gate threshold is mis-calibrated relative to the actual run conditions",
+      "scenario": "The between-baseline noise floor (PROTOCOL.md §6) was measured at B=10 (the sim default) but the calibration locks B=20",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "The calibration decision tree includes an explicit zero-spend warning path that fires when null-player remaining equals per_year at every year boundary across all runs, indicating the budget was never tested.",
+    "The locked value in PROTOCOL.md §7a includes a calibration summary note: N runs, seed base, binding counts per level, so reviewers can assess pick-rule sensitivity.",
+    "The noise floor computation script (scripts/compute_noise_floor.py) is run at the locked budget value, not at the sim default, to ensure H4 criterion alignment."
+  ],
+  "task_context": "The brainstorm specifies a three-level calibration procedure with a deterministic pick rule. This review checks whether the statistical design (N, seed, binding criterion, decision tree) produces a locked value that is robust to sampling variance, correct for the null-baseline rationale, and compatible with the broader protocol's noise-floor and kill-gate criteria."
+}

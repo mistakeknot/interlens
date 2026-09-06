@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "fd-eval-benchmark-governance covers protocol credibility and pre-registration norms — this agent covers launch sequencing and community activation, not eval methodology",
+    "fd-hermes-skill-platform-fit covers Hermes SDK integration correctness — this agent covers go-to-market strategy independent of platform specifics",
+    "fd-devrel-community-trust covers long-term community relationship norms — this agent covers the launch window specifically"
+  ],
+  "decision_lens": "Does the launch sequence minimize first-impression risk while maximizing the probability of authentic community pull, or does it push distribution before the product earns it?",
+  "focus": "Evaluates whether the F1-F6 feature sequence and launch readiness plan reflect sound OSS go-to-market strategy for a developer tool entering a fast-moving, community-driven ecosystem.",
+  "name": "fd-oss-launch-sequencing",
+  "persona": "Apply the perspective of an OSS product launch strategist who has shipped 3-5 developer tools to early adoption — they care about sequencing first-contact impressions, measure activation funnel conversion from discovery to first-run, and flag any launch steps that burn social capital before the product is ready.",
+  "review_areas": [
+    "F1 cultural-fit validation: is a single Discord pulse-check post a sufficiently rigorous signal, or does it risk burning community goodwill on an unvalidated ask before the skill is ready to demo?",
+    "F6 launch ordering: does the PRD sequence registry PR (awesome-hermes-agent) before or after community post, and is that sequence correct — registry PR before social proof is available is a weaker submission?",
+    "Kill-switch falsification path: is the 60-day metric window (100/500 installs) realistic given that awesome-hermes-agent maintainer acceptance is an uncontrolled dependency?",
+    "Carol persona conversion: the 3-sentence pitch in F2 README must land without PROTOCOL.md — does the PRD verify the pitch is written and user-tested before F6 launch, or does it treat pitch quality as implicit?",
+    "HuggingFace Spaces demo placement: is a scripted-baseline demo compelling enough for first impressions, or does it signal 'incomplete product' to users arriving before install?",
+    "Secondary cross-post timing: the PRD conditions cross-posts on 'positive primary signal' but doesn't define what positive means at week 2 — ambiguous gate creates ad-hoc launch decisions."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Registry maintainer (0xNyk) has no artifact to evaluate; PR acceptance probability drops significantly",
+      "scenario": "awesome-hermes-agent PR submitted without a working HuggingFace demo link in the description",
+      "severity": "P1"
+    },
+    {
+      "condition": "Nous community is skeptical of corporate AI-safety framings per PRD; posting before validation wastes the launch moment",
+      "scenario": "F6 launch post tone calibrated to 'alignment-evaluation' framing before F1 cultural-fit returns GREEN",
+      "severity": "P2"
+    },
+    {
+      "condition": "Download count conflates re-installs, CI pulls, and bot traffic — not a reliable proxy for activated users",
+      "scenario": "Day-60 falsification target (500 installs) measured via GitHub Releases binary download count only",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Require the Carol 3-sentence pitch to be written and shown to one external reader before F6 gate opens — not at launch time",
+    "Define 'positive primary signal' for secondary cross-posts as a concrete number (e.g., ≥20 substantive Discord replies or ≥50 real installs) before F6 ships",
+    "Consider sequencing HuggingFace Spaces before registry PR so the submission has a live demo link",
+    "Instrument installs via first-run telemetry opt-in stub (even if data not collected) rather than relying solely on binary download counts"
+  ],
+  "task_context": "The PRD defines a phased launch plan for a Hermes Agent skill that packages an alignment-scenario benchmark. The review goal is to identify sequencing gaps, premature distribution risks, and missing conversion instrumentation that could undermine the community reception hypothesis."
+}

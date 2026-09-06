@@ -1,0 +1,36 @@
+{
+  "anti_overlap": [
+    "fd-pressure-serde-identity covers naming mismatch",
+    "fd-country-code-existence covers ISO code presence",
+    "fd-alignment-signal-validity covers signal quality"
+  ],
+  "decision_lens": "Prioritizes the execution path from arg parsing to actual state mutation — any gap makes the scenario suite inoperative.",
+  "focus": "Whether --scenario flag in shadowbench.rs connects end-to-end from arg parsing through load_scenario() to pressure application before first tick",
+  "name": "fd-scenario-binary-wiring",
+  "persona": "A systems integration engineer who finds stubbed flags and half-wired CLI options. Assumes any optional flag with no effect in main() is a stub until proven connected.",
+  "review_areas": [
+    "Verify args.scenario calls load_scenario() — currently declared but never referenced",
+    "Confirm overrides are applied before from_parts_bench() is called",
+    "Check whether run_ron_scenario() creates isolated stores vs mutating live EmergenceState.pressures",
+    "Verify injection amounts are applied per-tick in run_bench() not just at startup",
+    "Check ScenarioLoadError surfaces with non-zero exit code",
+    "Confirm tick count is driven by bench loop gate ticks not isolated runner"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When plan treats flag as already wired but implementation only declares clap field",
+      "scenario": "--scenario flag parsed but never referenced in main() — all scenarios load default world",
+      "severity": "P0"
+    },
+    {
+      "condition": "When scenario runner and bench loop use different pressure stores",
+      "scenario": "run_ron_scenario() operates on isolated stores, not bench loop EmergenceState",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "Trace log at startup shows scenario name and non-default pressure values at first gate activation",
+    "shadowbench --scenario /nonexistent.ron exits with code 1"
+  ],
+  "task_context": "F5 adds six alignment scenarios. The shadowbench --scenario flag is currently a stub with no effect."
+}

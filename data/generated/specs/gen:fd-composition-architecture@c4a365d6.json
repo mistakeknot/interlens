@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-dependency-ordering covers F10 timing",
+    "fd-experiment-feasibility covers individual visual buildability",
+    "fd-scope-containment covers F10 scope sizing"
+  ],
+  "decision_lens": "Prioritizes where plugin contract assumptions break across six independently developed experiments, and where data source switching creates lifecycle problems.",
+  "focus": "Architectural risks in F10 composition shell — plugin interface, routing, lazy loading, data source switching",
+  "name": "fd-composition-architecture",
+  "persona": "A frontend architect who has built plugin-based shell applications. Evaluates whether the plugin contract, hash router, and lazy loading compose experiments built independently.",
+  "review_areas": [
+    "Plugin interface: mount(container, dataPipe) sufficient for experiments with different init requirements (Hydra canvas, Cytoscape div dimensions)?",
+    "Lazy loading: dynamic import() for self-contained HTML files — need refactoring from inline init to mount() call?",
+    "Data pipe switching: unmount+remount with new DataPipe — experiments accumulating history (F5, F7) lose state?",
+    "Shared header collision: F2 has own header, shell has header — visual collision when F2 mounted in shell?",
+    "URL param namespace: flat query string mixes shell params and experiment params — collision risk?",
+    "Thumbnail strip: static images for generative/animated content — realistic?"
+  ],
+  "success_hints": [
+    "mount(container, dataPipe) implementable by all six visuals without modifying core rendering",
+    "Data source switch doesn't require full page reload or lose more than one update of history",
+    "Shell testable against two stubs before any real visual is complete"
+  ],
+  "task_context": "F10 is the integration point. Architectural flaws in plugin contract or lifecycle surface only when independently-developed experiments are first combined — at sprint end when least time to fix."
+}

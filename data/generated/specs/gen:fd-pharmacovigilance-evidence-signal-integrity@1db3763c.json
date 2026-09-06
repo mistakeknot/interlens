@@ -1,0 +1,30 @@
+{
+  "anti_overlap": [
+    "fd-clearing-publication-finality-reconciliation owns crash windows, Git push/revert recovery, deployment ordering, shared-lock scheduling, and reconciliation among DB, local receipts, Git, and the live site.",
+    "Do not perform a general shell-security or code-style review; flag execution mechanics only when they corrupt the meaning, independence, completeness, or revocability of evidence."
+  ],
+  "decision_lens": "Treat receipt count as meaningless until common provenance, reporting opportunity, and missingness are resolved. Prioritize failure modes where nominally sufficient evidence can promote a model despite correlated sources, favorable-only coverage, an unreachable sentinel source, or an upstream correction that the patrol cannot retract.",
+  "focus": "Whether the patrol can distinguish genuinely independent, current evidence from duplicated, correlated, selectively reported, stale, or later-retracted signals before changing a production recommendation.",
+  "name": "fd-pharmacovigilance-evidence-signal-integrity",
+  "persona": "Review as a pharmacovigilance signal assessor who must decide whether multiple reports constitute independent evidence, whether the reporting denominator changed, and whether missing or corrected reports alter the safety conclusion. Translate those controls directly into source lineage, coverage, retraction, and promotion invariants rather than using clinical terminology as decoration.",
+  "review_areas": [
+    "Trace how SourceReceipt records establish evidentiary independence: verify whether two URLs, benchmark-owner pages, mirrors, or provider announcements derived from the same underlying submission can satisfy minIndependentSources, and require lineage or case-linkage fields where URL-plus-content-hash de-duplication cannot detect correlated reports.",
+    "Audit the evidence denominator behind minObservedBenchmarks, minDomains, and minObservedShare: test whether selective publication on favorable benchmarks, changes in the eligible benchmark set, or missing incumbent results can make a thin candidate appear mature without any real increase in comparable coverage.",
+    "Test source silence and registry blindness: distinguish a valid no-change response from a frozen proxy, stale ETag, expired feed, parser that still returns a plausible subset, or a curated registry that never learns a newly important provider or benchmark; require expected-heartbeat, volume-distribution, and registry-coverage checks in addition to zero-row detection.",
+    "Model corrections, withdrawals, and negative signals end to end: verify that retracted benchmark rows, revoked general availability, price changes, successor-claim corrections, or benchmark-owner errata can demote or block a current pick and invalidate prior promotion receipts instead of leaving an append-only false conclusion.",
+    "Challenge partial-run semantics: when one pick-relevant source is partial or structurally blocked, determine whether the evaluator can still auto-publish using the surviving subset; require a declared completeness rule that prevents missing adverse or contradictory evidence from being treated as absence of evidence.",
+    "Verify alert calibration and learning from near misses: repeated parser drift, correlated-receipt rejection, and proposal-only discoveries should produce bounded actionable signals and update coverage expectations without training operators to ignore alerts or silently broadening source trust."
+  ],
+  "severity_examples": [
+    "P0: Three nominally independent receipts all derive from one vendor-submitted benchmark result, satisfy the challenger threshold, and automatically replace a production pick even though no independent performance evidence exists.",
+    "P1: A benchmark owner retracts or corrects a result, but receipts have no supersession or invalidation path, so the recommendation remains promoted indefinitely from evidence the source no longer stands behind.",
+    "P2: A feed continues returning HTTP 304 from a stale intermediary and therefore looks healthy forever; no heartbeat or expected-volume control detects that AgMoDB has stopped seeing new releases."
+  ],
+  "source_domain": "Post-market pharmacovigilance signal detection, case de-duplication, and safety-label revision control",
+  "success_hints": [
+    "Require an explicit evidence-lineage and supersession model, not just authority labels, URLs, and content hashes.",
+    "Prove promotion thresholds against adversarial fixtures for correlated reports, favorable-only coverage, missing contradictory sources, and upstream retractions.",
+    "Make source completeness observable with per-source heartbeat, expected coverage, and a fail-closed rule for pick-relevant partial data."
+  ],
+  "task_context": "Review /Users/sma/projects/agmodb/docs/plans/2026-07-25-autonomous-catalog-recommendation-refresh.md. The goal is to find and verify implementation-plan failure modes that could make AgMoDB's autonomous catalog, benchmark, and homepage recommendation refresh stale, unsafe, silently wrong, operationally fragile, or unable to recover on the zklw runner without paid GitHub Actions."
+}

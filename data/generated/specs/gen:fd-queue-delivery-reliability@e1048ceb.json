@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-dual-database-state-divergence covers whether message rows reach Postgres at all.",
+    "fd-container-lifecycle-management covers container spawn failures and cleanup.",
+    "fd-mount-security-wiring covers allowlist loading and mount validation."
+  ],
+  "decision_lens": "Prioritizes paths where pendingMessages=true is set but the drain that clears it is never triggered, or where the outbox drain calls queue.enqueue_message_check but the group has no registered process_messages_fn yet. Treats any silent drop after max retries as high-severity.",
+  "focus": "End-to-end message delivery from inbound receipt through outbox drain to GroupQueue dispatch, with emphasis on pending-message drain failures",
+  "name": "fd-queue-delivery-reliability",
+  "persona": "A reliability engineer who traces message flows through async systems and looks for places where a message can be acknowledged but never processed, or where a retry loop can starve or permanently drop work. Reads code with queuing theory intuitions: what is the source of truth for 'pending', and who clears it?",
+  "review_areas": [
+    "Audit the Rust retry path in queue.rs run_for_group: on failure, the retry spawns an async task that sets state.pending_messages=true after a delay — confirm whether this deferred flag will ever be picked up without a new inbound message.",
+    "Check the Node GroupQueue retry path: after MAX_RETRIES, retryCount resets and function returns. Verify whether a group can get stuck with no further retry trigger.",
+    "Trace the outbox drain signal path: LISTEN/NOTIFY to drain_tx to enqueue_message_check. Verify process_messages_fn is wired before the outbox drain starts in main.rs startup ordering.",
+    "Examine drain_pending (queue.rs): after reset_group, does it correctly iterate all groups with pending work? Check for concurrency limit enforcement mid-loop.",
+    "Check the DRAIN_FALLBACK_INTERVAL vs STALE_RECOVERY_INTERVAL timing: confirm 30-second fallback polling actually fires drain cycles that call enqueue_message_check.",
+    "Inspect Node GroupQueue shutdown behavior: shuttingDown=true prevents new enqueues, but pending retries (setTimeout) may fire after shutdown. Confirm callbacks guard against shuttingDown."
+  ],
+  "success_hints": [
+    "Every pending_messages=true transition has a guaranteed corresponding drain trigger.",
+    "After max-retry exhaustion, there is a defined recovery path that does not require a new inbound message.",
+    "process_messages_fn is confirmed wired before the outbox drain loop starts."
+  ],
+  "task_context": "Intercom is a dual-process system with a known bug where the queue does not drain pending messages in certain failure scenarios after container completion."
+}

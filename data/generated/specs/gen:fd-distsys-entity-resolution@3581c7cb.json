@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Does not evaluate the Zod/TypeScript ergonomics of union vs array vs sidecar-file shapes on their own terms (parse behavior, type exhaustiveness, migration file count) — that is the schema/data-modeling reviewer's territory; this reviewer cares only about what identity the stored value actually pins down.",
+    "Does not evaluate whether the public site UI communicates the mapping to readers, or whether missing/stale/zero states are visually distinguishable — that is the observability reviewer's territory.",
+    "Does not weigh in on admin-form input-widget design except where the widget itself would let an author type an unresolvable or non-canonical reference with no feedback."
+  ],
+  "decision_lens": "For each variant, ask: what happens to every existing mapping value the day a referenced repo is renamed, forked, merged, or archived — does the field stay silently correct, silently wrong, or does something force a re-check? A field that stores a URL or slug as a bare string is storing a snapshot of an identity claim at write-time, not a live binding to the identity itself, and the review must judge how far that snapshot can drift before anyone notices.",
+  "focus": "Whether each variant's stored value actually pins down a stable repository entity across the identity-mutation events repos undergo (rename, fork, split, archive) and across the two-machine reality of Clavain and zklw, given the document's own proof that string-based mapping already collides in this corpus.",
+  "name": "fd-distsys-entity-resolution",
+  "persona": "Apply the perspective of a distributed-systems and master-data reviewer whose specialty is identity resolution — canonicalizing references to the same real-world entity across sources that each mint their own identifiers, and diagnosing the ways string-typed foreign keys silently point at the wrong, or a since-moved, target.",
+  "review_areas": [
+    "Canonicalization: none of the four variants specify a canonical form for the repository reference (owner/name vs full URL vs ssh vs https, trailing .git, case) — does that ambiguity let two content files reference 'the same' repo with strings that don't compare equal, silently splitting one repo's activity across two slate items or dropping it from both?",
+    "Rename/fork/archive resilience: a GitHub rename preserves a redirect for HTTPS clone/API access but the redirect is neither permanent nor visible in a static string field — does any variant (or should the fifth option) have a mechanism to detect that a stored reference now 404s or now points at an archived/renamed target, versus quietly returning zero commits and being indistinguishable from a dormant-but-correct repo?",
+    "Multi-machine addressing: Clavain and zklw both host checkouts, sometimes under different directory names, with a mix of ssh and https remotes — does the field's value assume a single canonical addressing scheme, and what must be re-resolved by hand when the metric-computation job runs from a machine whose local clone uses a different remote form than what's stored?",
+    "The demonstrated collision case: with unc-rancher/solwend vs uncrancher as unrelated histories, does the variant's shape (and the admin UI built on it) make it structurally hard to declare the wrong repo, or does it rely entirely on the author independently getting the string right with no round-trip verification against a real, resolvable repository?",
+    "Split/multi-repo semantics: for items that genuinely map to more than one repository, does the variant distinguish an additive multi-repo (both count toward days-touched) from a migration multi-repo (old repo retired, new repo now authoritative) — collapsing both into the same array shape risks the wrong aggregation being silently applied.",
+    "Staleness as an identity problem, not just a freshness problem: pattern-royale's true zero (dormant, last commit 2026-03-04) must read differently from a broken mapping — does any variant carry enough information (a last-validated timestamp, a resolvable canonical ID) to let the system or a human tell 'checked and just quiet' apart from 'silently rotted since an unrecorded rename or archive'?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Applies whenever the accepted string format is unconstrained (no canonical-form validation or normalization at parse or read time).",
+      "scenario": "Two content files store github.com/mistakeknot/uncrancher and git@github.com:mistakeknot/uncrancher.git respectively as 'the same' repository per human intent, but no variant's schema or accessor normalizes them — the fidelity metric treats them as different keys, or the code that fetches commit history fails to resolve one form on whichever machine runs the job, and one of the two slate items silently reads zero days-touched despite an actively-committed repo — exactly reproducing the failure mode this document opens with.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Applies whenever the metric-computation path reads from a local clone rather than resolving identity through a canonical, rename-aware source.",
+      "scenario": "A repository referenced by an existing mapping gets renamed on GitHub; the stored string still resolves via GitHub's redirect today but the local multi-machine checkout on zklw was cloned under the pre-rename remote and never updated — the metric job silently reads zero for that item on one machine and a real number on the other, and nothing about the variant's shape surfaces the discrepancy for audit.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Applies to any array-shaped multi-repo variant (A, B, C) that stores a flat list with no role tagging.",
+      "scenario": "The variant's multi-repo array has no ordering or role semantics, so a 'primary + component repos' item and a 'primary repo replaced by a new one' item are stored in visually identical shapes — a future maintainer reading the frontmatter cannot tell additive from migratory intent without reading git history or asking the original author.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Explicitly tests each variant against the unc-rancher/uncrancher collision and the jawnfit/jawnfit-proto and auraken/auraken-web ambiguity cases named in the document, rather than reasoning about identity stability in the abstract.",
+    "Proposes a concrete canonicalization rule (e.g., normalize to owner/name, resolve ssh/https at read time, or store a resolved identifier) as part of any fifth-option answer, not just a warning that canonicalization is missing.",
+    "Distinguishes rename, fork, split, and archive as four different failure mechanisms with different detection strategies, rather than treating 'identity instability' as one undifferentiated risk.",
+    "Addresses the multi-machine (Clavain/zklw) angle concretely — what value would actually be stored, and what has to happen at read time on each machine — rather than gesturing at 'the machines might differ.'"
+  ],
+  "task_context": "Four variants for expressing an item-to-repository mapping in projectSchema have been prototyped and measured (A union repo:str|str[], B repos:str[] only, C repo+repos, D unchanged+sidecar). Find the options these four do NOT represent, and stress-test all of them against the real failure mode this field exists to prevent: a slate item silently reading zero days-touched because its mapping was wrong, missing, ambiguous, or stale. Consider identity-stability (repos get renamed, forked, split, archived; GitHub URLs are not stable identifiers), multi-machine reality (Clavain + zklw, same repo under different directory names, ssh vs https remotes), auditability (the site must publicly render what it measures), and the admin write path. Recommend one, with the tradeoff that decides it. Within that goal, this review's lens is entity identity specifically: given that unc-rancher already declares repo: .../solwend while a separate, unrelated uncrancher repo exists locally with its own 26 days of activity, does any variant's shape make that class of mismatch structurally harder to introduce, easier to detect, or does every variant depend entirely on the author independently getting an unverified string right?"
+}

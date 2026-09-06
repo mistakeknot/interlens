@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Does not cover per-encounter ritual ceremony or catch-weight design — that is fd-monster-collection-loop.",
+    "Does not cover GPS session shape or real-world walk-length distributions — that is fd-location-game-ops.",
+    "Does not cover slow-game pacing or negative space design — that is fd-cozy-game-pacing."
+  ],
+  "decision_lens": "Six months after launch, which density option has produced players who walk because they want to, and which has produced players who have stopped because the game ran out of reasons to keep them?",
+  "focus": "Mobile retention lifecycle: D1/D7/D30 churn curves, the cost of empty-walk sessions, the cost of over-frequent encounters, lure-reuse behavior, and the six-month behavioral trajectory of each density option",
+  "name": "fd-mobile-retention-lifecycle",
+  "persona": "Apply the perspective of a mobile-game retention analyst with experience reading cohort curves for walking and collection games — they care about which density option produces the most durable engagement curve without a metrics treadmill, measure success by whether the game's D30 retention is driven by intrinsic walk motivation rather than fear of missing encounters, and flag any density option whose short-term engagement pattern produces a long-term churn cliff.",
+  "review_areas": [
+    "Empty-walk churn risk (Options A/D): location games that produce empty sessions — walks where the player gets no Unc — risk training players that the game is unreliable. Analyze the Option D probability distribution: a 50% common-lure encounter rate means that a new player doing 3 walks in their first week has a 12.5% chance of getting nothing across all three sessions, a first-week churn risk that is unusually high for an onboarding period.",
+    "Over-frequency churn risk (Option C): retention analysis of Pokémon GO shows that engagement spikes at launch then drops sharply when the 'collection complete' feeling arrives. Option C's 3–4 encounters per walk at 5km means a dedicated walker accumulates 20–25 Uncs per week — assess the implied 'felt-complete' timeline and whether the game's Unc variety space can sustain that pace.",
+    "Lure-reuse behavior shapes long-term density differently than first-session density — a player who has 50 songs/films in their media library will cycle lures more slowly than a player who only uses their current favorite album. Assess whether any density option creates a 'lure treadmill' pressure (needing to consume new media to unlock new Unc families) that conflicts with the game's no-microtransaction/no-spam ethos.",
+    "The 'reversibility' criterion from the brief — which option is hardest to reverse? — has a specific retention implication: if players build habits around Option A's 'guaranteed one per walk' promise and the team later shifts to Option C, existing players experience a density reduction as a loss even if new players find it generous. Assess which option creates the most durable commitment at the habit level.",
+    "D7 retention in walking games is strongly predicted by whether players return for a second and third walk in the first week. Assess which density option best supports a first-week habit formation loop: Option A's guaranteed satisfaction may be optimal for D7 even if it is less engaging at D30; Option D's probabilistic structure may produce higher D30 among players who survive D7 but higher D7 churn among players who don't.",
+    "The 'no notification spam' design principle (from the brief) constrains re-engagement mechanics — the game cannot pull players back with push notifications about waiting Uncs. Assess whether any density option creates a natural re-engagement trigger that does not require notifications (e.g., Option B's wildcard creating 'I wonder if the walk was long enough' anticipation, or Option D's lure-quality system creating 'I have a good lure saved' holding behavior)."
+  ],
+  "severity_examples": [
+    {
+      "condition": "A new player who walks three times in their first week with common lures has a 12.5% chance of three empty sessions — this is a quantifiable onboarding failure rate that will manifest as visible D7 churn for a significant cohort. Without a consolation mechanism (a 'near miss' signal, a lore reason for failure), these players attribute failure to the app rather than to the design.",
+      "scenario": "Option D first-week triple empty-walk churn cliff",
+      "severity": "P1"
+    },
+    {
+      "condition": "If v0 ships with N Unc families and Option C produces 20–25 encounters per week for dedicated walkers, the expected time to 'I've seen everything' is N/20 weeks — if that number is under 8 weeks, the game needs either a content update schedule or a density reduction to sustain D60+ retention, and content updates at that cadence are a v0 cost commitment the brief explicitly wants to minimize.",
+      "scenario": "Option C 'felt-complete' arc too short for v0 Unc variety space",
+      "severity": "P1"
+    },
+    {
+      "condition": "If encounter outcomes are strongly tied to lure novelty (new lures = new Unc families, repeated lures = same Unc families), players who exhaust their media library face implicit pressure to consume new media to unlock new encounters — this is a soft microtransaction substitute that conflicts with the no-treadmill design principle.",
+      "scenario": "Lure-reuse pressure creates implicit consumption treadmill",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Model three player archetypes: the casual walker (3 walks/week, 1km average), the regular walker (5 walks/week, 3km average), and the dedicated walker (daily, 5km+). Each density option should produce a satisfying 6-month curve for at least two of the three archetypes without optimization pressure.",
+    "The no-notification constraint is a design forcing function — the game's re-engagement loop must be intrinsic. Identify whether each density option creates a natural 'reason to return' that does not rely on push mechanics (anticipation, held lures, route familiarity).",
+    "Option A's reversibility risk: if guaranteed-one-per-walk becomes the player's mental contract with the game, downgrading to Option C later is perceived as a nerf even if the average encounters-per-week is the same. Flag this as a commitment the team makes at launch."
+  ],
+  "task_context": "Reviewing the four encounter density options (A/B/C/D) for Unc Rancher v0 through a mobile retention lifecycle lens — modeling first-week habit formation, six-month behavioral trajectories, lure-reuse dynamics, and which density option produces the most durable engagement without a metrics treadmill."
+}

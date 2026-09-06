@@ -1,0 +1,32 @@
+{
+  "anti_overlap": "Handoff safety and context preservation, not state machine correctness (fd-air-traffic) or async lifecycle (fd-asyncio)",
+  "decision_lens": "Every handoff is a moment of maximum risk — the outgoing party knows things the incoming party doesn't, and vice versa",
+  "distance_rationale": "Pilotage handoffs involve transferring situational awareness of a dynamic system between parties who can't fully communicate their mental model — the same challenge as session boundary management",
+  "expected_isomorphisms": "Pilot card (ship characteristics briefing) maps to user profile at session start; pilotage limit (territorial boundary) maps to context window boundary; master-pilot information exchange maps to Transport→agent Context handoff",
+  "focus": "Context handoff safety between components and across session boundaries",
+  "name": "fd-maritime-pilotage-handoff",
+  "persona": "Maritime pilot who boards ships to navigate them through dangerous waters, then hands control back to the captain",
+  "review_areas": [
+    "Session boundary handoff: what context survives /new and what is properly discarded?",
+    "Transport → agent handoff: does Context carry everything agent.py needs or does it query DB?",
+    "Extraction → profile handoff: delay between entity creation and profile regeneration",
+    "Multi-turn context window: MAX_CONTEXT_TURNS=10 is a hard cutoff — what context is lost at turn 11?",
+    "Mode switch handoff: does /mode explorer→advisor carry conversation context or reset?",
+    "Crash recovery: if process restarts mid-conversation, what state is recoverable vs lost?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "User mentioned deadline constraint early, falls out of 10-turn window, agent makes suggestions ignoring it",
+      "scenario": "Context window cutoff loses critical constraint mentioned 12 turns ago",
+      "severity": "P1"
+    },
+    {
+      "condition": "_sessions dict cleared but Session table still has messages, next load uses stale DB data",
+      "scenario": "/new clears in-memory history but not DB session, creating ghost context",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Maritime Pilotage / Harbor Navigation",
+  "success_hints": "Focus on agent.py history management, telegram.py /new handler, and config.py MAX_CONTEXT_TURNS",
+  "task_context": "F8 (state checkpoint) and the Transport refactor both involve handoff redesign"
+}

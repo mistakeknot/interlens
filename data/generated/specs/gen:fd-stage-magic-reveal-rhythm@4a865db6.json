@@ -1,0 +1,50 @@
+{
+  "anti_overlap": [
+    "Do not address long-term retention or life-list psychology — this agent focuses on within-session attention arc and reveal mechanics",
+    "Do not address lure seeding or Unc variety — focus on the structural rhythm of encounter delivery, not encounter content",
+    "Do not duplicate tasting-menu's course-pacing analysis — this agent focuses on anticipation pressure and the psychology of the reveal event, not attention recovery between events"
+  ],
+  "decision_lens": "Each Unc encounter is a reveal. Magicians know that one strong reveal per act is more powerful than three smaller ones. Option A is one prepared effect per show. Option C is a close-up table-hopper working every 10 minutes. Option D is an evening where the headliner might not go on. Which produces the right anticipation pressure for a vibe-driven slow game?",
+  "distance_rationale": "Orthogonal — professional stage magic is a discipline with formalised best practices around reveal density, anticipation architecture, and the ceremony cost of over-delivering effects. Same abstraction level (a session with curated peak moments and an attention arc) but entirely outside game design or walking.",
+  "expected_isomorphisms": [
+    "Reveal frequency vs. ceremony ↔ encounter density vs. taming-ritual weight: the magic profession's empirical finding that one strong reveal outperforms three moderate ones maps directly to the A vs. C decision",
+    "Misdirection arc ↔ the walk itself: the physical walk between encounters functions as misdirection (building anticipation, occupying attention); each density option allocates a different length of misdirection per reveal",
+    "Topper requirement ↔ encounter ordering in multi-Unc options: magic's structural rule that each successive effect must top the previous one creates a design obligation that Option C/B do not currently address"
+  ],
+  "focus": "Stage magic and carny craft as a model for reveal-density discipline — when premature or excessive climaxes kill audience attention, how misdirection budgets work, and what 'the trick' costs if performed too frequently",
+  "name": "fd-stage-magic-reveal-rhythm",
+  "persona": "Apply the perspective of a professional stage magician and mentalist who has designed full-evening shows — they care about the attention arc across a performance, the cost of spending a reveal too early, and the structural rule that a trick shown twice in one show is a trick that no longer exists.",
+  "review_areas": [
+    "Reveal frequency vs. attention pressure: how does each density option calibrate the anticipation window before an encounter, and what happens to that pressure if the player 'knows' a second encounter is coming?",
+    "The 'seen it twice' problem with Option C: does repeated exposure to the taming ritual (3-beat dialog tree) within a single walk session erode the sense that each encounter is singular and unrepeatable?",
+    "Misdirection budget in Option B: the walk (physical activity, lure contemplation, ambient world) is the misdirection; the encounter is the reveal. Does a second encounter require a second misdirection arc, or does it free-ride on the first?",
+    "Option D's no-show risk as a professional gamble: stage magicians who don't deliver a headlining effect get walk-outs; Option D's 50% miss rate on common lures is the equivalent risk — what is the acceptable miss-rate ceiling for this audience?",
+    "The 'topper' problem: in magic, a second effect must top the first or the show ends badly. If Option B/C produces two encounters, what ensures the second doesn't feel like a lesser trick than the first?",
+    "Audience segmentation in venue magic: walk-up trade-show magic (high density, quick reveals, anyone passing by) vs. seated theater magic (single long arc, committed audience). Does Unc Rancher's mobile-casual audience match one of these formats?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "If players learn the encounter cadence within 2–3 sessions (which they will), the 'surprise' is fully neutralized and the taming ritual becomes a routine rather than a revelation",
+      "scenario": "Option C's ~1 Unc/km structure gives players who have walked 1.5km the foreknowledge that another encounter is imminent, removing the anticipation pressure that makes the reveal work — equivalent to a magician telegraphing the trick",
+      "severity": "P1"
+    },
+    {
+      "condition": "Without a structural misdirection arc preceding the wildcard (something the walk or lure sets up), the second Unc arrives as noise, not signal",
+      "scenario": "Option B's wildcard produces a second reveal that was not set up by prior misdirection — the player's attention was not in the right state — making the second encounter feel like a dropped extra trick rather than a earned climax",
+      "severity": "P2"
+    },
+    {
+      "condition": "Single-effect shows require the effect to be calibrated to the full attention budget of the audience; v0 should validate that a single 60–90s encounter is sufficient 'show' for a 20–45 min walk",
+      "scenario": "Option A's single-reveal format requires that the reveal itself be strong enough to carry the entire walk — if the taming ritual is short or the Unc feels underpowered, there is no recovery mechanism within the session",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Stage magic, mentalism, and carny performance craft",
+  "success_hints": [
+    "Professional magicians never repeat an effect in the same show for the same audience — this is the strongest argument against Option C's distance-gated multi-encounter in a session with the same lure",
+    "The anticipation window (time between 'something might happen' and 'it happened') is where all the emotional value accumulates — measure this window for each density option",
+    "Close-up magic (high frequency, low ceremony) and stage magic (low frequency, high ceremony) are both valid formats but not interchangeable — confirm which format Unc Rancher is committed to before defending encounter density",
+    "Magicians who work walk-around events learn quickly that 3 reveals in 10 minutes produces less remembered satisfaction than 1 reveal in 10 minutes with better build-up"
+  ],
+  "task_context": "Reviewing encounter density options A/B/C/D for Unc Rancher v0 — a walking game where players attach a media lure, walk GPS routes, and encounter avuncular cryptid characters in a ~60–90s taming ritual. Success criteria: ceremony × durability × v0 cost."
+}

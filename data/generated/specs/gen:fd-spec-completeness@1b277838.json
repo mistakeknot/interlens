@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-aesthetic-space-coherence covers design self-consistency",
+    "fd-balance-tuning covers whether constants produce good feel",
+    "fd-emergence-dynamics covers whether interactions produce emergent outcomes"
+  ],
+  "decision_lens": "Prioritize gaps where a system in PHILOSOPHY.md or deep-dive is absent from the mechanics spec. Flag decisions a developer would have to make without guidance.",
+  "focus": "Whether the mechanics spec covers all systems needed for implementation and flags gaps between design docs",
+  "name": "fd-spec-completeness",
+  "persona": "A senior technical designer bridging design documentation and engineering implementation. Identifies underspecified systems that will cause implementation ambiguity.",
+  "review_areas": [
+    "Audit relationship affixes (Tested, Fragile, etc.): conditions exist but faction-split behavior algorithm is unspecified",
+    "Check 4th axis (Social/Personal) integration: spec evaluation formula uses only 3 axes — intentional MVP deferral or oversight?",
+    "Identify missing cultural movement clustering algorithm: philosophy promises it, spec has no algorithm",
+    "Verify mentor/student bond produces game effects beyond relationship label",
+    "Check DummyCurator references to post-MVP systems (reputation tiers)",
+    "Verify moddability: does every data table have a corresponding RON file path?"
+  ],
+  "success_hints": [
+    "A developer should implement MVP without making unspecified design decisions",
+    "Systems in PHILOSOPHY.md but absent from spec should be explicitly marked as post-MVP",
+    "Every data table should map to a named external data file"
+  ],
+  "task_context": "Design spans 3 docs: PHILOSOPHY.md (intent), game-mechanics-spec.md (numbers), deep-dive-procedural-systems.md (decisions after spec). Gaps between them are implementation risk."
+}

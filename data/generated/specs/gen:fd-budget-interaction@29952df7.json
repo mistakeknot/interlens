@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Defers to fd-crisis-action-gating on availability timing; focuses on budget/cost mechanics",
+  "decision_lens": "Budget fairness — deployment actions should compete fairly with policy actions for budget slots without creating dominant strategies",
+  "focus": "How do deploy/withdraw actions interact with the observation/action budget — crowding, zero-cost gaming, portfolio allocation?",
+  "name": "fd-budget-interaction",
+  "persona": "Resource economics analyst who models budget allocation strategies under constraints and identifies dominant strategies",
+  "review_areas": [
+    "Do deployment actions consume the same action budget as policy actions?",
+    "Can a model exhaust its budget purely on deployments, starving policy actions?",
+    "Is there a separate deployment budget, and if so how does it interact with the main budget?",
+    "Could zero-cost deployments (if any) be exploited to game the scoring system?",
+    "Does the budget system need rebalancing for the expanded action space?",
+    "What's the optimal deploy-to-policy ratio, and can models converge on it trivially?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No cost creates dominant strategy",
+      "scenario": "Deploy actions are free (don't consume budget), so rational models always deploy everywhere",
+      "severity": "P1"
+    },
+    {
+      "condition": "Budget creates false tradeoff that doesn't reflect strategic thinking",
+      "scenario": "Budget is so tight that adding deploy/withdraw means models can't do both policy AND deployment",
+      "severity": "P2"
+    },
+    {
+      "condition": "No genuine tradeoff between action types",
+      "scenario": "Optimal strategy is always 'deploy first, policy second' making budget allocation trivial",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Deployment actions create a genuine portfolio allocation challenge where models must balance deployment vs. policy investments",
+  "task_context": "Open question from brainstorm: how do deployments interact with the existing observation/action budget?"
+}

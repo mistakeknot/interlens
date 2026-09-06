@@ -1,0 +1,33 @@
+# fd-chronobiology-drift
+**Focus:** Evaluate whether ObliqBench accounts for temporal rhythms and calibration drift in its scoring pipeline, drawing from chronobiology's discovery that measurement sensitivity itself has circadian, ultradian, and infradian cycles.
+**Persona:** A chronobiologist specializing in biological rhythm entrainment and the temporal structure of sensory thresholds, expert in how organisms' ability to detect signals varies systematically with endogenous oscillators rather than remaining constant.
+**Decision lens:** Temporal coherence and drift compensation: does the scoring pipeline account for the fact that its own sensitivity to 'surprise' and 'usefulness' will oscillate and drift over time?
+
+**Source domain:** Chronobiology (biological rhythm entrainment, circadian/ultradian/infradian oscillators, zeitgeber theory, and the temporal structure of sensory detection thresholds — specifically the work of Aschoff, Pittendrigh, and modern chronotype research)
+**Distance rationale:** The study of biological clocks in fruit flies and hamsters is maximally distant from AI benchmark design, yet chronobiology's core discovery — that detection sensitivity is not constant but rhythmically oscillating — exposes a fundamental assumption in any calibration-dependent scoring pipeline.
+**Expected isomorphisms:** The zeitgeber mechanism (external cue that re-entrains a free-running oscillator) maps precisely to the need for periodic re-calibration of the LLM judge against fresh expert data. The ultradian rhythm of attention maps to within-session rating fatigue that creates systematic position bias in expert scores.
+
+## Review Areas
+- Does the benchmark account for 'judge fatigue' as a chronobiological phenomenon — expert raters' threshold for 'would you change something' will systematically shift within a rating session (ultradian rhythm) and across sessions (infradian drift)?
+- Is the LLM-as-judge calibration a one-time synchronization or does it include a 'zeitgeber' (time-giver) — periodic re-calibration against fresh expert ratings to prevent the judge from free-running away from human ground truth?
+- Does the fine-tuned classifier exhibit 'phase drift' as the models it evaluates evolve? A classifier trained on Opus 4.6 findings may be miscalibrated for Opus 5.0 findings — the benchmark needs a re-entrainment protocol.
+- Are rating sessions designed with chronobiological awareness — session length, finding order, break points — or does the design assume constant expert attention and consistent thresholds throughout?
+- Does the pinned model snapshot (top 20 AGMoDB per benchmark version) create a 'free-running' benchmark that loses synchronization with the actual model landscape, like a circadian rhythm decoupled from the light-dark cycle?
+- Is there a 'photoperiod' effect in the baseline ladder — do certain types of findings become seasonally surprising (novel when first encountered, obvious after the field absorbs them) and does the benchmark version pinning account for this?
+
+## Severity Calibration
+- **P1**: The LLM-as-judge is calibrated once against expert ratings and never re-calibrated, causing progressive phase drift as both the models being evaluated and the judge's own model are updated. Within 6 months the judge's usefulness scores decorrelate from expert judgment.
+  - Condition: No scheduled re-calibration protocol exists in the distillation chain design.
+- **P2**: Expert rating sessions are designed as variable-length unbounded tasks with no attention to fatigue rhythms, causing systematic bias where findings rated later in a session receive harsher scores (the expert's 'useful' threshold rises with fatigue).
+  - Condition: Rating session UX has no session length limits, break prompts, or position-randomization of findings.
+- **P3**: The benchmark version pinning creates stale surprise baselines — findings that were genuinely surprising against March 2026 models become obvious against December 2026 models, but the pinned baseline still classifies them as surprising.
+  - Condition: No protocol for baseline refresh or cross-version surprise recalibration.
+
+## Success Hints
+The benchmark includes explicit re-calibration protocols (zeitgebers) at each stage of the distillation chain, designs rating sessions with chronobiological awareness of human attention rhythms, and has a versioning strategy that re-entrains baselines with the evolving model landscape rather than free-running on stale snapshots.
+
+## Task Context
+ObliqBench uses a three-stage distillation chain (expert ratings to prompted LLM judge to fine-tuned classifier/reward model) calibrated at each stage. Expert ratings are collected via a web app with binary yes/no buttons. Model baselines are pinned per benchmark version as snapshots of top 20 AGMoDB models. The system is designed for longitudinal use across benchmark versions.
+
+## Anti-Overlap
+Does NOT cover: interpretive plurality in scoring (see fd-talmudic-dialectics), measurement stratification artifacts (see fd-soil-pedology). Focuses exclusively on how temporal drift, calibration decay, and rhythmic variation in human and machine sensitivity affect scoring reliability over time.

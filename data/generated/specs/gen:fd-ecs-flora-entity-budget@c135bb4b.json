@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "Focuses on entity count and ECS performance — not species generation (fd-botanical-procgen), terrain migration (fd-terrain-migration), beauty computation (fd-observer-beauty), or garden scope (fd-garden-art-sprint-scope)",
+  "decision_lens": "Does the entity density model stay within the ECS performance budget? Where do entity count spikes break assumptions?",
+  "focus": "Flora entity density: SmallVec sizing, day-boundary system budget, groundcover/entity succession, DeadWood spikes",
+  "name": "fd-ecs-flora-entity-budget",
+  "persona": "ECS performance engineer with expertise in entity budget management, archetype fragmentation, and batch system optimization",
+  "review_areas": [
+    "Q5 entity count: Option A (~600 entities) vs Option B (~200 trees + groundcover grid) vs Option C (~50 notable only) — archetype memory and query cost at each tier",
+    "SmallVec<Entity, 4> sizing in EntitySpatialIndex: ancient groves with 5+ plants per tile (tree + understory + groundcover + dead wood + seedling) overflow the inline buffer",
+    "Day-boundary system budget: 7 flora systems × 600 entities at 10x game speed — is this still microseconds or does it become milliseconds?",
+    "DeadWood entity count spikes: a fire event could create 50+ DeadWood entities simultaneously — does the ECS handle bulk spawns gracefully?",
+    "Groundcover-to-entity succession: if Q5 Option B chosen, when does groundcover (grid) become a tree (entity)? The succession boundary needs clear rules."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Dense tiles exceed SmallVec inline capacity",
+      "scenario": "SmallVec overflow causes heap allocation per tile lookup, destroying O(1) spatial query guarantee",
+      "severity": "P1"
+    },
+    {
+      "condition": "No bulk spawn amortization for catastrophic events",
+      "scenario": "Fire event spawns 100 DeadWood entities in one tick, causing frame stutter",
+      "severity": "P2"
+    },
+    {
+      "condition": "Flora components not grouped into a single archetype bundle",
+      "scenario": "600 flora entities with 6 components each fragments hecs archetypes, slowing unrelated queries",
+      "severity": "P3"
+    }
+  ],
+  "success_hints": "Profile the actual entity count on a generated map. If tiles average 0.5 flora entities, 600 is fine. If forest tiles average 3+ entities (tree + undergrowth + seedling), the real count is 1800.",
+  "task_context": "Flora design for Elf Revel — hecs ECS, 40×30 map (1200 tiles), WASM target, current entity count ~30-50 (elves + buildings + resources)"
+}

@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-evolutionary-infrastructure-fit covers whether Interspect/flux-drive infrastructure can structurally host a verification filter component — this agent covers whether the filter concept applies at all to review workflows and what its false-negative profile is",
+    "fd-population-cost-tradeoff covers overall cost economics of population dynamics — this agent focuses on the specific cost-vs-recall tradeoff of pre-mutation filtering in the review dispatch context",
+    "fd-adopt-adapt-avoid covers the final classification of all four patterns — this agent provides the detailed applicability analysis for the verification filter specifically"
+  ],
+  "decision_lens": "Prioritize findings about false-negative risk over cost savings. A verification filter that prevents a real architectural issue from reaching fd-architecture review is worse than no filter. The cost case for filtering is only valid after the recall floor is established.",
+  "focus": "Whether the post-mutation verification filter pattern applies to Interflux's review dispatch, and what the false-negative risk is of pre-filtering code changes before expensive multi-agent review",
+  "name": "fd-verification-filter-applicability",
+  "persona": "You are a quality assurance systems designer with expertise in cost-quality tradeoffs for automated analysis pipelines. You specialize in pre-filter design: knowing when cheap upfront checks save expensive downstream work without sacrificing coverage. You are deeply skeptical of filters that optimize cost at the expense of finding real issues.",
+  "review_areas": [
+    "Evaluate whether the ARC-style verification criterion ('does the mutated code produce different output on any input?') has a meaningful analog for code review pre-filtering — what would 'trivially unchanged' mean for a diff reaching flux-drive, given that whitespace-only changes vs. logic changes are already detectable via diff statistics?",
+    "Assess the false-negative risk: Imbue's verification filter rejects mutations with identical outputs, but for code review, some high-severity issues (security misconfigurations, subtle race conditions, documentation inconsistencies) could pass a behavioral equivalence filter while still being P0 findings",
+    "Check whether flux-drive's existing pre-filtering (fd-correctness skip unless DB/migrations/concurrency, fd-user-product skip unless PRD/user-facing, budget-constrained agent deselection) already implements the core insight of the verification filter without the population dynamics framing",
+    "Evaluate whether the verification filter applies differently to flux-drive's two review categories: technical agents (where behavioral change is detectable) vs. cognitive agents (fd-systems, fd-decisions, fd-resilience — where 'trivial' is much harder to define for document changes)",
+    "Assess whether a diff-size heuristic (small-diff budget tier in flux-drive, < 500 lines) is already a proxy for verification filtering, and whether adding a semantic substantiveness check would provide marginal value over the existing structural heuristic",
+    "Identify the minimal viable implementation: what would a flux-drive pre-check that classifies changes as 'trivial' vs. 'substantive' look like, and how does it interact with the existing flux-gen precheck PRD (docs/prds/2026-02-22-flux-gen-precheck.md)?"
+  ],
+  "success_hints": [
+    "The review establishes a recall floor: what category of real findings would be missed by a verification filter, and whether that category is acceptable given the cost savings",
+    "The review determines whether the verification filter is a new concept for Sylveste or a reframing of existing pre-filter logic already present in flux-drive's agent triage scoring"
+  ],
+  "task_context": "This review batch evaluates whether Imbue's Darwinian Evolver evolutionary optimization patterns should be adopted into Sylveste's autonomous software agency platform. The primary review target is the research synthesis document and four child beads covering model routing, learning logs, verification filters, and agent strategy evolution."
+}

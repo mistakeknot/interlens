@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Do NOT redesign the 9 bias families or the tier-DAG — those are scoped OUT per PRD-r2",
+    "Do NOT critique the locked cell membership in Joint-Cell Membership or Vocation × Politics tables — magnitudes only",
+    "Focus on the marginal-budget closure + nitya/kāmya tier discipline + sparse-cell shrinkage — leave functional-form curve-shape (Deliverable 6) and RollStrategy (Deliverable 8) primarily to the calendrical-magnitude and changing-line agents respectively"
+  ],
+  "decision_lens": "marginal-budget conservation under named locked-cell magnitudes, with shrinkage discipline for sūtra-silent cells",
+  "distance_rationale": "Pre-industrial South Asian ritual-procedural literature ~2,500 years old. No software engineer, voting-behavior scholar, or data engineer would think to consult Śrauta-Sūtra cup-allocation discipline when calibrating a probability matrix. Yet the structural mapping is mechanically tight: a FIXED-TOTAL measure (dronakalaśa = 100% marginal budget) distributed across NAMED LOCKED STATIONS (seven graha = seven politics_posture values), with a literature-vs-patron-specific tier distinction (nitya vs kāmya = literature-tier vs estimate-tier), commentarial-convergence shrinkage for sūtra-silent cells (= sparse-cell credibility_weight ≤ 0.5), and a per-rite composition-law selection (samuccaya/vikalpa/utpatti = additive/last-wins/multiplicative). Pre-industrial, non-Western, never analogized in the AI-cliche corpus.",
+  "expected_isomorphisms": "(1) Dronakalaśa-closure ↔ marginal-budget conservation (the 7 graha portions must sum to the pressed measure; the 7 politics_posture marginals must sum to 100%). (2) Nitya/kāmya tier distinction ↔ literature/estimate source_tier (sūtra-prescribed vs patron-intention-specific). (3) Sāyaṇa-style commentarial shrinkage ↔ credibility_weight ≤ 0.5 for sūtra-silent cells. (4) Samuccaya/vikalpa/utpatti per-rite composition selection ↔ additive/last-wins/multiplicative per-family composition law. (5) Joint-graha mass-extraction (where one cup feeds two deity-stations) ↔ joint_cell mass-withdrawal from the marginal budget.",
+  "focus": "Marginal-budget allocation across the seven priest-station soma-cups (graha) of the Agniṣṭoma sacrifice — proposing magnitudes for the 9 bias families as if they were graha-portions that must sum to a fixed measure",
+  "name": "fd-vedic-srauta-soma-graha-magnitudes",
+  "persona": "Examines the bias-roll matrix through the lens of Vedic Śrauta-Sūtra liturgical accounting. In the Agniṣṭoma — the prototypical one-day soma sacrifice described in Āpastamba, Baudhāyana, and Kātyāyana Śrauta-Sūtras — the pressed soma juice is distributed across precisely fixed cup-vessels (graha) belonging to named deity-stations: Upāṃśu, Antaryāma, Aindra-Vāyava, Maitrāvaruṇa, Āśvina, Śukra-Manthin, and Āgrayaṇa. The total pressed measure is fixed (the dronakalaśa is a defined vessel), so allocating to one graha withdraws from another — exactly the marginal-budget constraint solwend-var faces on politics_posture. Sūtra prescriptions further distinguish 'nitya' (invariant) magnitudes that hold across all soma-sacrifices versus 'kāmya' magnitudes that vary by patron's intention (kāma), giving a built-in distinction between literature-tier locked allocations and estimate-tier patron-specific tuning. The Kalpa-Sūtra commentarial layer (Sāyaṇa, Karka) further introduces a credibility-shrinkage discipline: where the mūla-sūtra is silent on a graha's exact ladle-count, later commentators converge toward the median of attested patron-cases rather than over-claiming a point value — directly parallel to sparse-cell credibility_weight ≤ 0.5 for estimate-tier entries. Approaches each deliverable by asking: which cells are 'nitya' (cite achen-bartels/ghitza-gelman/inglehart with confidence), which are 'kāmya' (estimate-tier with rationale), and how do the magnitudes interlock so the dronakalaśa (the 100% marginal budget) remains exactly filled.",
+  "review_areas": [
+    "Marginal-budget closure: do the 7 politics_posture range-midpoints actually sum to 100% ±0.5%, or does the synthesis require asymmetric pulls (e.g., taking from 'peripheral' to fund a generous 'vocationally-absorbed') that mirror the Maitrāvaruṇa-versus-Āśvina pull-pattern in soma allocation?",
+    "Naming the 7th-posture-tbd: parallel to the way the Śukra-Manthin pair is sometimes counted as one graha and sometimes two — does the proposed name describe a posture that is genuinely structurally distinct from the other six, or is it a redundant sub-partition that should be merged?",
+    "Nitya-vs-kāmya tier discipline: are estimate-tier cells confined to genuinely patron-specific (i.e., synthesis-2026-05-* + estimate) magnitudes, or has the synthesis quietly pushed achen-bartels-2016 territory into estimate-tier without justification?",
+    "Sparse-cell shrinkage: for cells like working-class × convicted (Family 6 dignity-floor) or non-modal cells in Family 8 trajectory-weights, does the magnitude proposal shrink toward the row/column median (the commentarial-convergence pattern) or does it over-claim point values the literature can't support?",
+    "Joint-cell budget-extraction: Joe-Rogan and Sears joint-cells (Families 3 and 4) bypass the per-axis multiplier composition but still pull mass from the marginal budget — does the synthesis account for this withdrawal, or does the budget silently over-fill once joint cells fire?",
+    "Composition-law per-family selection (Deliverable 4): which families are 'samuccaya' (additive accumulation, like dignity-floor amplitude damping) vs 'vikalpa' (last-wins alternation, rare in Śrauta) vs 'utpatti' (multiplicative chain, the default samhitā-pāṭha-style chaining) — does the proposed law match the family's mechanism?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Synthesis ships marginals that don't close the dronakalaśa — schema accepts ranges but the runtime sampler will produce off-distribution character populations",
+      "scenario": "the 7 politics_posture marginals sum to 102% or 97% rather than 100% ±0.5%, OR Family 6 dignity-floor magnitudes mechanically violate the max/median ≤ 2.0 constraint at the proposed values",
+      "severity": "P0"
+    },
+    {
+      "condition": "Schema rejection at load time — bias-roll.draft.yaml fails loadBiasMatrix and the synthesis is non-shippable",
+      "scenario": "more than 20% of cells are source_tier: estimate (violating max_estimate_fraction: 0.2) OR estimate-tier cells lack ≥20-char rationale strings",
+      "severity": "P1"
+    },
+    {
+      "condition": "Sparse-cell shrinkage discipline violated — credibility weights mis-stratified",
+      "scenario": "Joe-Rogan joint-cell ships at joint_cell_credibility > 0.5 without sears-style literature backing OR Sears joint-cell uses estimate-tier when sears-2018 ch.3 directly supports it",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Vedic Śrauta-Sūtra liturgical accounting — specifically the Agniṣṭoma soma-pressing portion-tables (graha allocation across the seven priest-stations) prescribed in Āpastamba, Baudhāyana, and Kātyāyana Śrauta-Sūtras (~800–400 BCE), with the Kalpa-Sūtra commentarial layer (Sāyaṇa, Karka) governing magnitude-tuning for sūtra-silent cases",
+  "success_hints": [
+    "Treat the Marginal-Budget Table as a dronakalaśa-closure problem: enumerate the 7 range-midpoints, compute the sum, and prescribe explicit pull-from-where moves to reach 100%",
+    "For each of the 9 families, label cells as nitya (literature-backed, credibility 0.8–1.0) vs kāmya (estimate-tier, credibility ≤ 0.5) before proposing magnitudes — this enforces the schema's max_estimate_fraction discipline",
+    "When the literature gives a range, propose the midpoint and document the range explicitly — never a fabricated point estimate",
+    "Verify that joint-cell mass-extraction (Joe-Rogan, Sears) reconciles with the marginal-budget closure — joint cells fire AFTER per-axis multipliers, so their withdrawal must be accounted for"
+  ],
+  "task_context": "solwend-var = solwend-1ke-A: empirical-convergence flux-review for the bias-roll matrix's 9 deliverables. The schema and cell membership are LOCKED (F1+F2+F3 shipped on origin/main as of 2026-05-28); reviewers propose magnitudes + names + functional forms. Target output: docs/research/flux-review/uncrancher-bias-roll-numbers/2026-05-28-synthesis.md + apps/uncrancher/data/bias-roll.draft.yaml."
+}

@@ -1,0 +1,40 @@
+{
+  "anti_overlap": [
+    "fd-media-ecology-medium-bias focuses on the McLuhan/Postman medium-form/epistemology-ceiling question (what KIND of discourse a medium permits); fd-societal-layer-gap-ranking focuses on ranking media ecology as a category against other missing societal-dynamics layers and the cheapest introduction path"
+  ],
+  "decision_lens": "LegitimacyCrisis and EliteFracture in the current lattice are pressure levels that rise from economic/political inputs; they do not have a mechanism for the specific Meyrowitz channel — authority eroding because the audience that used to be walled off from backstage behavior (negotiations, leader fallibility, institutional process) can now see it directly, regardless of whether that visibility is 'true' (disinformation) or 'accurate' (press freedom). This is a structural information-access/segregation variable, not a content-quality variable, and it operates on institutions and elites specifically (not the general public sphere), making it distinct from the medium-form ceiling described in narrative_coherence. If there's no state for 'information-access segregation between roles' (public/private boundary strength, backstage exposure rate) the sim cannot express authority collapsing purely from transparency/visibility dynamics.",
+  "focus": "Whether the simulation can express Meyrowitz's core claim that electronic media dissolve the tie between physical place and social situation, restructuring institutional authority, front/back-stage boundaries, and group identity independent of any content or economic channel",
+  "name": "fd-place-authority-dissolution",
+  "persona": "Apply the perspective of a media-and-social-situation theorist in the Meyrowitz (No Sense of Place) tradition, extending Goffman's front-stage/back-stage dramaturgy to electronic media. The claim under review is structural: electronic (and now networked/algorithmic) media merge previously segregated 'information systems' (audiences that used to be separated by physical walls/distance now share the same informational access), which collapses the back-stage secrecy that authority (parental, political, institutional, expert) depended on, flattens hierarchical group distinctions (child/adult, layperson/expert, citizen/leader), and produces 'no sense of place' — behavior no longer tied to physical location.",
+  "review_areas": [
+    "Whether any existing signal (GovernanceSignals, InstitutionSignals, LegitimacyCrisis pressure) captures backstage-exposure — the rate at which previously-privileged/elite/institutional behavior becomes visible to the general public via electronic/networked media, independent of whether that exposure is truthful or distorted",
+    "Whether EliteFracture and LegitimacyCrisis can be driven purely by a rise in cross-role visibility (e.g. leaders' private deliberations, elite lifestyle, institutional failures becoming common knowledge) as opposed to the existing economic-strain/political-instability/ideological-polarization inputs — i.e. is there a distinct causal channel for 'the curtain came down' vs. 'conditions got worse'",
+    "Whether group-identity/generational or hierarchical distinctions (which Meyrowitz argues are place-dependent — children shielded from adult information, citizens shielded from elite negotiation) have any representable erosion mechanic tied to media modality, as opposed to being purely a function of education/culture signals",
+    "Whether the model conflates 'no sense of place' (behavior/authority decoupling from physical location — e.g. a national leader's local backstage behavior instantly becoming globally visible, or diaspora/online communities behaving as if co-located) with existing migration/diplomacy/cascade contagion mechanics, which model movement of people/shocks across borders, not movement of information across role-boundaries at zero physical distance",
+    "Whether structural_profile.rs's per-country exposure/sensitivity/adaptive-capacity axes have any natural extension point for an 'institutional opacity' or 'backstage/frontstage boundary strength' parameter, or whether this would require a genuinely new per-country structural axis (like the demographic profile) rather than a coupling on an existing pressure"
+  ],
+  "severity_examples": [
+    {
+      "condition": "LegitimacyCrisis's only upstream drivers are economic/political/ideological pressures and the information module's disinfo/coherence channel — there is no backstage-visibility variable independent of information quality",
+      "scenario": "A country with strong institutions, high press freedom, low disinformation, and stable economics can never show elite/institutional legitimacy collapsing purely because electronic media exposed normal-but-previously-invisible backstage governance behavior (e.g. routine negotiation, compromise, fallibility) to a public that had only ever seen curated front-stage performance",
+      "severity": "P0"
+    },
+    {
+      "condition": "Conflates 'no sense of place' with literal geographic mobility rather than the collapse of situational/role-based information boundaries",
+      "scenario": "A design proposal for 'place dissolution' is scoped as a migration/diaspora mechanic (physical movement) rather than an information-access/role-segregation mechanic (Meyrowitz's actual claim), missing the theory entirely while appearing to address it",
+      "severity": "P1"
+    },
+    {
+      "condition": "No distinct, ledgerable signal separates 'authority eroded by visibility' from 'authority eroded by performance failure'",
+      "scenario": "EliteFracture pressure can rise from elite backstage exposure but the effect is indistinguishable in the model from ordinary ideological polarization, so post-hoc analysis of a Jackpot run cannot attribute causation to a Meyrowitz-style authority-transparency dynamic vs. any other legitimacy driver",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Reward a proposal that clearly distinguishes role-boundary/backstage-visibility dynamics from both (a) content-quality/disinfo dynamics and (b) physical migration/diaspora dynamics — these are three different mechanisms that could all superficially look like 'information stuff'",
+    "Reward identification of a minimal coupling: e.g. a per-country backstage_exposure or institutional_opacity_erosion signal that feeds LegitimacyCrisis and EliteFracture couplings directly, gated by social_media_penetration/algorithmic_amplification as the delivery mechanism",
+    "Reward explicit connection to the structural_profile.rs per-country axis precedent — is this best modeled as a structural (slow-moving, demographic-like) axis or a fast-coupling modulation, and why",
+    "Penalize treatment of Meyrowitz's thesis as merely 'more transparency = more instability' without the specific front-stage/back-stage segregation-collapse mechanism"
+  ],
+  "task_context": "what pressure layers and systems are we missing? I feel like media ecology is very significant; c.f. McLuhan/Mir's four laws of media + Mir's digital reversal + Joshua Meyrowitz's No sense of place + Postman's Amusing Ourselves to Death"
+}

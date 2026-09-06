@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Does not review LoRA training configuration or loss function design — those belong to fd-lora-distillation-pipeline.",
+    "Does not review the routing.yaml resolver integration or failure modes — those belong to fd-routing-cascade-design.",
+    "Does not review production shadow-mode operational safety or rollback procedures — those belong to fd-production-rollout-safety."
+  ],
+  "decision_lens": "Will the eval matrix produce honest estimates of production performance, or are there leakage or distribution-mismatch paths that will make the microrouter appear better in evaluation than it performs live?",
+  "focus": "Evaluation methodology rigor — holdout design, offline-online gap, label leakage from the calibration feedback loop, and workload representativeness in the microrouter eval matrix.",
+  "name": "fd-eval-methodology-holdout",
+  "persona": "Apply the perspective of an ML evaluation methodologist who has designed offline-online evaluation frameworks for production ranking and routing systems. They care about whether offline evaluation metrics predict online behavior, whether holdout splits are contaminated by the very calibration signal used to generate labels, and whether the workload distribution in the eval matrix matches the actual sprint execution distribution. They measure evaluation quality by checking temporal holdout integrity, distribution shift between train and eval populations, and whether comparator baselines are constructed fairly (same data access, same feature set). They flag temporal leakage through calibration feedback loops, distribution mismatch between LCB v6 code problems and actual bead-history routing decisions, and oracle comparators that use post-hoc labels unavailable at inference time.",
+  "review_areas": [
+    "Examine the calibration feedback loop for label leakage: routing-calibration.json is written by interspect from verdict outcomes and is also used as a training signal for the microrouter — if calibration data from the test period contaminates training labels (e.g., through judge augmentation that uses current calibration scores), the holdout is not clean.",
+    "Validate that the by-time holdout split (last 2 weeks) is strictly enforced across all data sources — interspect evidence files, sprint JSONLs, and bead history — not just the primary JSONL, and that any counterfactual augmentation from shadow logs is also excluded from the test window.",
+    "Assess distribution mismatch between the three eval workloads: LCB v6 code reasoning problems, replayed bead-history tasks, and synthetic adversarial tasks — the first is structured competitive benchmark data while real sprint tasks are agent-directed; conflating these in a single matrix metric masks per-distribution performance differences that matter for the ≥ 20% reroute gate.",
+    "Check whether the oracle-upper-bound comparator is constructed from the same holdout period and uses only information available at inference time (task features, not post-hoc verdicts) — if it uses actual pass/fail outcomes to route perfectly, it establishes an unreachable ceiling that misleads the gap analysis.",
+    "Verify the pass@1 measurement methodology: when the microrouter routes a task to Haiku and the task passes, does the eval harness confirm this is the same Haiku run (not a re-run at Sonnet that happened to pass), ensuring no silent re-routing inflates the pass@1 number.",
+    "Flag whether the ≥ 90% agreement with calibrated baseline metric conflates two distinct things: agreement on tier choice and agreement on pass outcome — a router that disagrees with the baseline tier but achieves the same pass rate is actually better, not merely equivalent."
+  ],
+  "severity_examples": [
+    {
+      "condition": "When the judge augmentation step (bead .19.3) calls the calibration file to determine 'which tier would interspect recommend?' and the calibration file has been updated since the holdout cut date.",
+      "scenario": "Label leakage: routing-calibration.json written after the holdout window incorporates verdict outcomes from the test period, and those calibration scores are used as features in judge augmentation prompts, allowing the model to see test-period signal during training.",
+      "severity": "P0"
+    },
+    {
+      "condition": "When the eval matrix aggregates all workloads into a single reroute percentage rather than reporting per-workload breakdown.",
+      "scenario": "The ≥ 20% reroute rate gate for shadow→enforce promotion is measured only on LCB v6 problems, which have a different complexity distribution than real sprint tasks — the router achieves 25% reroute on code benchmarks but only 8% on actual sprint traffic, and the gate passes based on an unrepresentative distribution.",
+      "severity": "P1"
+    },
+    {
+      "condition": "When the agreement metric is computed over all examples without stratification by tier, masking per-tier precision.",
+      "scenario": "The ≥ 90% agreement threshold counts cases where both microrouter and baseline route to Sonnet as agreements, inflating the metric on the majority class — a router that agrees on every Sonnet case and is random on Haiku/local cases can exceed 90% agreement while providing no routing intelligence.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Holdout integrity is verified by checking that no calibration file update after the holdout cut date contributed to any training label.",
+    "Agreement and reroute rate metrics are reported stratified by tier, not just as aggregate numbers.",
+    "Per-workload pass@1 is reported separately for LCB v6, bead-history replay, and adversarial tasks.",
+    "The oracle comparator construction method is documented with explicit statement of what information it accesses."
+  ],
+  "task_context": "Bead .19.4 specifies the eval harness measuring router accuracy, downstream pass@1, latency, and reroute rate against four comparators (none/shadow/enforce/oracle). Bead .19.2 specifies dataset construction including counterfactual augmentation and holdout strategy. This review covers evaluation methodology, leakage detection, and whether the promotion gates (off→shadow, shadow→enforce) will produce honest estimates of production behavior."
+}

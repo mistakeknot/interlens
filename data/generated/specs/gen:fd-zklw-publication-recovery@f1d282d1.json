@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-patrol-workflow-atomicity owns the application-level run state machine, database leases, idempotency keys, and receipt-bundle reconciliation",
+    "fd-benchmark-evidence-metrology owns scientific evidence validity, source independence, benchmark identity, and recommendation comparability",
+    "Do not redesign scoring thresholds or run-row schemas except where they prevent operational detection, publication, or recovery"
+  ],
+  "decision_lens": "Approve autonomy only when a failed or delayed zklw run cannot wedge main, publish an untested artifact, lose its alert, or leave production on an unverified deployment lineage.",
+  "focus": "Reviews zklw-owned scheduling, Git publication, production verification, rollback, alerting, and host-level recovery without relying on scheduled GitHub Actions.",
+  "name": "fd-zklw-publication-recovery",
+  "persona": "Apply the perspective of a release SRE responsible for a single self-hosted production runner, asynchronous deployments, Git safety, missed schedules, and recoverable unattended operation.",
+  "review_areas": [
+    "Verify cron provides persistent catch-up after host downtime, reboot, clock change, or lock collision rather than depending on one daily nonblocking opportunity",
+    "Audit the policy-only Git transaction for pre-existing index state, ignored candidate files, trap failures, local-ahead commits, push rejection, and safe next-run recovery",
+    "Model external origin/main advances while the local flock is held and prove fetch, commit ancestry, push, and revert remain race-safe",
+    "Test asynchronous and out-of-order deployments so a late bad deployment cannot supersede its revert and the reverted fingerprint is also verified live",
+    "Require alerts to have a tested delivery path, retry and deduplication semantics, secret redaction, and enough public identifiers to investigate without runner access",
+    "Assess single-host failure, log and receipt retention, environment or dependency drift, and operational recovery while GitHub Actions remain manual-only"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Rollback pushes a revert but does not verify deployment ordering and the reverted fingerprint as the final live state.",
+      "scenario": "A bad patrol deployment finishes after the revert deployment and becomes production again while the run remains recorded as reverted.",
+      "severity": "P0"
+    },
+    {
+      "condition": "The runbook documents manual repair but the next autonomous cycle has no explicit recovery state or safe retry path.",
+      "scenario": "A tested local commit fails to push and permanently wedges the shared runner in a local-ahead state that future pull-only jobs cannot resolve.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Cron is non-persistent, lock acquisition is nonblocking, and health or alerting only changes after a patrol process starts.",
+      "scenario": "A reboot or long ingestion run causes the daily patrol to be missed indefinitely with no notification.",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "Provides a failure matrix from scheduled invocation through final live fingerprint, including missed-run and out-of-order-deployment cases",
+    "Demonstrates exact Git ancestry and worktree or index invariants for no-op, push failure, external advance, revert, and resumed operation",
+    "Defines a zklw-native watchdog and durable alert path that detects never-started jobs without consuming hosted Actions minutes"
+  ],
+  "task_context": "Review docs/plans/2026-07-25-autonomous-catalog-recommendation-refresh.md plus current scripts/sync-cron.sh, scripts/verify-cron.sh, scripts/install-zklw-cron.ts, and src/lib/zklw-scheduler.test.ts. Goal: Find and verify implementation-plan failure modes that could make AgMoDB's autonomous refresh stale, unsafe, silently wrong, operationally fragile, or unable to recover without paid GitHub Actions. Focus only on Tasks 6-8 and production operations on the dedicated zklw main worktree."
+}

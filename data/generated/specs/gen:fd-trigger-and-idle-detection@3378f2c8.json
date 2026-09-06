@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-claiming-protocol-atomicity covers the claiming transaction",
+    "fd-backlog-priority-and-matching covers bead selection",
+    "fd-failure-recovery-and-zombies covers crash detection"
+  ],
+  "decision_lens": "Prefers solutions reusing existing hooks infrastructure and intermux tmux-monitoring. Downgrades external polling daemons.",
+  "focus": "How and when an agent decides it is idle and should pull new work — trigger mechanisms and session lifecycle hooks",
+  "name": "fd-trigger-and-idle-detection",
+  "persona": "A platform engineer who has built autoscaling systems and event-driven worker pools.",
+  "review_areas": [
+    "Kubernetes HPA/KEDA idle detection from metrics vs event-push models",
+    "Toyota TPS pull signal (kanban card) mechanics translated to software agents",
+    "Game engine job systems (Unity DOTS, Unreal TaskGraph) completion callbacks vs polling",
+    "What intermux tmux watcher goroutine already exposes and whether 10s scan is sufficient",
+    "Claude Code hook lifecycle: which hook (Stop, SessionStart, PostToolUse) is correct for injecting next-work check",
+    "Behavior tree selector nodes and utility AI idle consideration patterns"
+  ],
+  "success_hints": [
+    "Specific hook type and invocation pattern for pull-based dispatch without external polling",
+    "Whether 10s intermux scan is adequate or finer-grained signal needed",
+    "Agent state machine: working/idle/claiming/blocked with transitions"
+  ],
+  "task_context": "Sylveste AI factory uses beads (Dolt-backed) with bd update --claim and bd set-state. Agents in tmux panes via intermux. Goal: Phase 1 self-dispatching loop."
+}

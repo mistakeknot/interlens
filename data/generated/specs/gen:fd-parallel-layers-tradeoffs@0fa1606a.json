@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-identity-resolution covers the mechanics of how a join would be implemented if chosen",
+    "fd-source-emission-design covers changes to factory-status.go as one join strategy",
+    "fd-viz-layer-contracts covers the API contract between the data pipe and the visualization layer"
+  ],
+  "decision_lens": "Treats the no-join option as a legitimate design choice, not a compromise. Flags cases where a join is necessary for a specific visualization experiment versus cases where parallel rendering is sufficient.",
+  "focus": "Whether the parallel-layers (no-join) approach is a first-class option or a fallback, and what visualization fidelity is lost by keeping sources separate",
+  "name": "fd-parallel-layers-tradeoffs",
+  "persona": "An information design researcher who has worked on multi-source dashboards where premature joins introduced more bugs than they solved. They evaluate data architecture decisions by asking what questions become unanswerable with each approach.",
+  "review_areas": [
+    "Map each of the 6 visual experiments (split-flap, ambient WebGL, force graph, heatmap, causal loops, process replay) to whether they require a joined record or can render meaningfully from one source alone",
+    "Identify which visualization questions require cross-source correlation (e.g., which agent on this bead is in which project?) versus which can be answered from a single source",
+    "Assess whether parallel layers with visual proximity (side-by-side or overlaid panels) could substitute for a data join for human observers, and under what conditions this breaks down",
+    "Evaluate the operational complexity of maintaining two independent polling/refresh cycles versus a single joined feed, especially for the process-replay experiment which implies temporal ordering",
+    "Check whether the force graph experiment's edge semantics require agent-to-project links (which need a join) or can be derived from bead co-occurrence alone",
+    "Determine if the heatmap and causal-loops experiments have any cross-source aggregation requirements that would make parallel layers produce misleading results"
+  ],
+  "success_hints": [
+    "If >=4 of the 6 experiments can render usefully from a single source, parallel layers is a valid MVP strategy",
+    "The decision to join or not should be made per-experiment, not as a global architecture choice"
+  ],
+  "task_context": "Two data sources must be combined for a visualization pipeline: a Notion-sourced IdeaGUI roster (85 agent sessions with project/terminal/agent-type/sync-mode) and clavain-cli live ops (fleet counts, queue by priority, WIP agent-to-bead mappings). The core challenge is that bead IDs encode the DB prefix (Sylveste-), not the sub-project, and tmux session names are human-readable but not linked to hex session IDs in WIP output."
+}

@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-manufacturing-disposition-taxonomy covers MRB/CAPA",
+    "fd-film-vfx-revision-pipelines covers VFX patterns",
+    "fd-authority-rework-routing covers authority integration"
+  ],
+  "decision_lens": "Software delivery has implicit disposition decisions already — formalize into explicit taxonomy matching manufacturing rigor.",
+  "focus": "Catalog CI/CD failure taxonomies and existing disposition strategies",
+  "name": "fd-cicd-failure-modes",
+  "persona": "Senior platform engineer with reliability pipeline experience at scale.",
+  "review_areas": [
+    "Flaky test disposition: quarantine buckets, deflake SLAs, known-bad registries",
+    "Partial deployment failures: blue-green rollback, canary abort, forward-fix decisions",
+    "Build artifact promotion gates and implicit use-as-is decisions",
+    "CI failure triage in large orgs (Google TAP, Meta Sandcastle)",
+    "Rollback cost modeling: when rollback is cheap vs costly",
+    "Feature flags as runtime deviations with audit trails"
+  ],
+  "success_hints": [
+    "Flaky test quarantine as analog to manufacturing quarantine",
+    "Forward-fix vs rollback criteria mapping to rework vs scrap",
+    "Artifact promotion models approximating use-as-is disposition"
+  ],
+  "task_context": "Sylveste beads flow through agent pipelines with CUJ gates. Extract CI/CD disposition patterns and map to formal taxonomy."
+}

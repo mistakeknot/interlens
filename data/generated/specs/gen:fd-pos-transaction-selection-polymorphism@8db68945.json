@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "Focus is on Selection enum exclusivity, tooltip content freshness and priority-order consistency, and dismiss condition precision — not gate predicate correctness (nuclear/restaurant domain), not layer-toggle immediacy or z-layering (ATC domain), not keymap ergonomics (DAW domain)"
+  ],
+  "decision_lens": "Does the Selection enum and tooltip design handle each entity type as an explicitly typed transaction — with no ambiguity about which variant is active, priority rules that resolve conflicts on stacked entities, a sticky display that survives state transitions, and a clean recall-vs-active distinction when the player right-clicks a tile with multiple entities?",
+  "distance_rationale": "POS systems architects have solved the exact problem of polymorphic transaction state with priority resolution, sticky receipt display that persists through physical context changes, and the requirement that displayed priority order match the system's execution priority — isomorphisms that map without loss onto the Selection enum, sticky tooltip, and priority-order consistency requirements of the renderer input system.",
+  "expected_isomorphisms": "Transaction type → Selection enum variant. Barcode collision priority → Elf > Building > Flora priority. Suspended transaction display → sticky tooltip. Receipt refresh → tooltip content rebuilt from current snapshot each tick. Floor movement during receipt → camera pan not dismissing tooltip. Tender-type priority display → tooltip entity ordering matching left-click priority. Void vs. return type → tooltip entity type labels before click commits selection.",
+  "focus": "Transaction type polymorphism, tender-type priority resolution, suspended-transaction recall, and sticky receipt display in retail point-of-sale systems",
+  "name": "fd-pos-transaction-selection-polymorphism",
+  "persona": "Apply the perspective of a retail POS systems architect and loss-prevention specialist with experience designing and auditing transaction flows for multi-department retail — they care about the unambiguous typing of every transaction (sale, return, void, exchange, suspended), the priority rules for resolving which item wins when multiple items share a barcode scan, the sticky receipt display that persists through camera/floor movement, and the correct behavior when an operator recalls a suspended transaction over a live-register state.",
+  "review_areas": [
+    "Transaction type exclusivity: a POS register can only be in one transaction type at a time — a return and a sale cannot coexist in the same transaction; the Selection enum enforces this (only one variant active), but verify that the picking system never produces a compound selection where Elf AND Building are simultaneously selected, even transiently during the priority-resolution sequence",
+    "Barcode collision priority: when two items share a UPC (manufacturer error), the POS applies a priority rule (most recent receipt, highest department priority) — the Elf > Building > Flora > None priority is this rule; verify that the priority is applied in a single sequential check (not in parallel systems that could produce non-deterministic results) and that the priority order matches the locked decision",
+    "Suspended transaction recall: POS systems can suspend a transaction and recall it later — the sticky tooltip is the renderer analog; verify that the tooltip content is refreshed from the current snapshot on each sim tick (entities that moved off-tile drop out) and that the tooltip correctly dismisses itself if all entities vacate the tile, not continuing to show stale entity data",
+    "Receipt display persistence through floor movement: a cashier can walk the register to a different counter while a receipt is printing — the sticky tooltip surviving camera pan is this pattern; verify that TooltipState is independent of camera/viewport state and that pan/zoom inputs do not trigger a tooltip dismiss",
+    "Void vs. return type distinction: POS systems distinguish voiding an in-progress transaction (pre-tender) from returning a completed one (post-tender) — the sticky tooltip's content distinguishes entity types (elf, building, flora) before left-click commits a selection; verify that the tooltip shows entity type labels clearly enough for the player to identify which entity they are about to select before clicking",
+    "Tender-type priority in mixed tender: POS systems resolve priority when multiple tender types are presented (cash + card) — the right-click tooltip showing all entities in priority order (Elf > Building > Flora > Terrain) is this resolution display; verify that the tooltip renders all entities present on a tile in the correct priority order and that the priority order matches the left-click selection priority"
+  ],
+  "severity_examples": [
+    {
+      "condition": "TooltipState stores a snapshot of entities at right-click time; refresh-on-tick logic not implemented; tooltip content diverges from live snapshot state",
+      "scenario": "The sticky tooltip continues to show an elf who walked off the tile two ticks ago — the tooltip content is not refreshed against the current snapshot, showing stale entity data; the player left-clicks the tile expecting to select the elf shown in the tooltip, but the elf is no longer there and the selection produces Selection::None or selects a different entity",
+      "severity": "P1"
+    },
+    {
+      "condition": "Tooltip entity ordering and left-click priority order are implemented independently and drift — tooltip ordering not guaranteed to match Selection priority",
+      "scenario": "Right-click tooltip shows 'Mira — weaving / Saplinghood azalea — flowering' but the priority order in the tooltip is reversed from the left-click priority — tooltip shows Flora first, left-click selects Elf first; the player reads the tooltip top-to-bottom and expects the first item to be what clicking will select",
+      "severity": "P1"
+    },
+    {
+      "condition": "Tooltip dismiss logic is attached to a generic 'any key/click' handler rather than specifically gated to left-click, right-click, or Esc/backtick as specified",
+      "scenario": "Camera pan (WASD) triggers tooltip dismiss because the camera pan handler checks for any mouse or key input and calls a generic 'dismiss transient UI' function that includes TooltipState — the sticky tooltip should survive camera pan but doesn't",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Retail point-of-sale transaction flow design and loss-prevention audit practice",
+  "success_hints": [
+    "Verify that tooltip entity list is rebuilt from the current sim snapshot on every tick while the tooltip is open — not cached from the right-click moment",
+    "Confirm that tooltip entity ordering matches the left-click priority order exactly: Elf first, then Building, then Flora, then Terrain — the player should be able to predict what clicking will select by reading the tooltip top",
+    "Check that the tooltip dismiss conditions are precisely: left-click, right-click on same or different tile, Esc, backtick — NOT camera pan, NOT WASD, NOT sim ticks, NOT overlay open/close",
+    "Verify that Selection never has a compound state — after a left-click, exactly one variant is set; no intermediate frame where two variants are simultaneously active"
+  ],
+  "task_context": "Reviewing polymorphic Selection enum design (None/Elf(u64)/Building(u64)/Flora(u64)), sticky tooltip with all-entities-priority-order, tooltip refresh on sim tick, tooltip dismiss conditions (click/Esc/backtick but not camera pan), and priority-order consistency between tooltip display and left-click selection for a Bevy 0.18 native renderer."
+}

@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "Does not cover GraphML type round-trip or SHADED_GRAPH_EDGE_DTYPES import — that is fd-graphml-attribute-hygiene.",
+    "Does not cover Dijkstra/A* preconditions or NetworkX API adapter — that is fd-routing-algorithm-correctness.",
+    "Does not cover pedestrian formula UX semantics or sun_coefficient calibration — that is fd-pedestrian-routing-formula."
+  ],
+  "decision_lens": "What input combinations cause the felt-minute formula or NaN fallback dispatch to produce NaN, negative, or undefined float outputs that would violate the EdgeWeight contract without raising an exception?",
+  "focus": "Numerical correctness: division-by-zero guards, float arithmetic precision, NaN propagation paths, pace_mps=0 guard, sun_coefficient boundary values, unit conversion consistency",
+  "name": "fd-numerical-edge-correctness",
+  "persona": "Apply the perspective of a numerical software engineer who reviews floating-point pipelines for silent precision loss and undefined behavior — they care about whether the formula handles all IEEE 754 edge cases (NaN, inf, -0.0, subnormal) without silently producing wrong weights, measure correctness by substituting boundary values (pace=0, length=0, sun_fraction=exactly 1.0, sun_coefficient=0.0) into the formula and checking outputs, and flag anywhere that Python float division semantics, math.inf arithmetic, or missing input guards could produce unexpected weight values without raising errors.",
+  "review_areas": [
+    "The formula computes (length_m / self.pace_mps) / 60.0 — if pace_mps = 0.0 (a misconfigured instance), this produces ZeroDivisionError in Python (not IEEE 754 inf, because Python float division by zero raises). The brainstorm specifies frozen=True prevents mutation after construction but no validation on __post_init__ prevents FeltMinutesV0(pace_mps=0.0) — the error surfaces at runtime during A*, not at construction time, making it hard to trace.",
+    "The contract states 'Never NaN, never negative — these break Dijkstra/A* preconditions.' The NaN fallback dispatch branches on math.isnan(sf) where sf comes from edge_attrs.get('sun_fraction', ???). The brainstorm's pseudocode uses edge_attrs.get('sun_fraction', 0.0) as the default — if the key is absent and the fallback is 0.0, the NaN policy is never invoked, and the edge is treated as fully shaded (multiplier = 1.0) rather than unknown — the brainstorm should document whether absent sun_fraction should trigger the NaN fallback or default to shaded.",
+    "For NaN fallback policy 'constant', _effective_sun_fraction returns nan_fallback_value (default 0.5). If a caller passes FeltMinutesV0(nan_fallback_value=float('nan')), the NaN fallback produces NaN — a NaN that bypasses the isnan check because it is not from the edge attribute, violating the contract. The brainstorm does not guard nan_fallback_value against NaN.",
+    "sun_coefficient * effective_sun_fraction where both are valid floats in [0,1] is safe — but the brainstorm uses 1.0 + sun_coefficient * sf without bounding sun_coefficient. A caller passing sun_coefficient=-1.0 produces a multiplier of 1 + (-1)(0.5) = 0.5, resulting in felt_minutes < walking_minutes — a weight that rewards sun exposure, inverting the formula. No guard is specified.",
+    "The brainstorm's smoke test asserts 'felt_minutes == inf for degenerate_zero_length edges' using == comparison — math.inf == math.inf is True in Python (unlike NaN), so this is numerically correct. However, the smoke test also checks 'wall-clock < 2s on the 12,880-edge DTLA graph' — this is not a deterministic assertion (depends on machine load) and the brainstorm does not specify what to do if the smoke test fails this timing constraint in CI."
+  ],
+  "severity_examples": [
+    {
+      "condition": "A misconfigured FeltMinutesV0(pace_mps=0.0) is passed to apply_weight. The first edge call raises ZeroDivisionError with a stack trace pointing to the formula line, not the construction site. In a multi-threaded Phase 1.7 server, this crashes the request thread with no indication that the weight function was misconfigured at startup.",
+      "scenario": "pace_mps=0.0 raises ZeroDivisionError mid-route",
+      "severity": "P1"
+    },
+    {
+      "condition": "An edge in the Phase 1.5 output graph is missing the sun_fraction key entirely (e.g., due to a Phase 1.5 bug or partial run). edge_attrs.get('sun_fraction', 0.0) returns 0.0, math.isnan(0.0) is False, the NaN policy is never invoked, and the edge is treated as fully shaded — silently biasing routes toward edges with missing data.",
+      "scenario": "Absent sun_fraction key defaults to 0.0, bypasses NaN policy",
+      "severity": "P1"
+    },
+    {
+      "condition": "FeltMinutesV0(nan_fallback_policy='constant', nan_fallback_value=float('nan')) is constructed without error (frozen=True, no __post_init__ guard). For any no_coverage edge, _effective_sun_fraction returns nan, and felt_minutes = walking_minutes * (1.0 + 0.5 * nan) = nan — violating the EdgeWeight contract that felt_minutes is never NaN.",
+      "scenario": "nan_fallback_value=float('nan') produces NaN weight output",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Add a __post_init__ validator that asserts pace_mps > 0, sun_coefficient >= 0, and not math.isnan(nan_fallback_value) — frozen dataclasses support __post_init__ and the validator runs before the instance is returned to the caller.",
+    "Document the absent-key behavior explicitly: either treat absent sun_fraction as NaN (invoke the fallback policy) or as 0.0 (fully shaded) — whichever is chosen, add a test that exercises an edge without the sun_fraction key.",
+    "Replace the wall-clock smoke test timing assertion with a performance benchmark separate from correctness tests, or mark it as xfail in slow CI environments rather than failing the correctness gate."
+  ],
+  "task_context": "Reviewing the brainstorm's numerical formula and fallback dispatch for IEEE 754 edge cases, missing-input behavior, and boundary values that violate the EdgeWeight 'never NaN, never negative' contract."
+}

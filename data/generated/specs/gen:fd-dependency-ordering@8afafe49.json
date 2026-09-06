@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-experiment-feasibility covers technical viability",
+    "fd-composition-architecture covers F10 internals",
+    "fd-scope-containment covers intra-experiment scope"
+  ],
+  "decision_lens": "Prioritizes findings where a stated parallel experiment has a hidden dependency that would block, or critical path is misstated.",
+  "focus": "Correctness of dependency graph, batch sequencing, and parallelization claims",
+  "name": "fd-dependency-ordering",
+  "persona": "A technical program manager who maps stated dependencies to actual runtime coupling and identifies hidden sequencing constraints.",
+  "review_areas": [
+    "F1 critical path: do F2-F7 truly depend on F1 being complete, or could they use hardcoded fixtures",
+    "F8 vs F1 coupling: runtime import vs compatible interface — could F8 develop against a stub",
+    "F9 extends F8: does F9 SSE diff logic depend on F8 client ring buffer implementation",
+    "Batch 2 parallelization: any shared utility code creating implicit merge conflict risk",
+    "F10 prerequisites: plugin interface (mount/unmount) must be agreed before visuals start — hidden ordering constraint",
+    "Commit strategy: batch boundaries vs dependency graph alignment"
+  ],
+  "success_hints": [
+    "Every parallel experiment can genuinely start immediately after stated prerequisite",
+    "Plugin interface contract defined before visual experiments begin",
+    "Dependency graph matches actual import relationships"
+  ],
+  "task_context": "10 experiments in 4 batches with stated dependency graph. F1 is critical path. Six visuals claimed fully parallelizable."
+}

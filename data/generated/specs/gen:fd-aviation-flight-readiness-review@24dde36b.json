@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Does not evaluate the technical correctness of the Rust implementation choices (e.g. whether selective cache invalidation is correctly implemented)",
+    "Does not assess whether the domain concepts (Soul, FacetValue, SoulEvent) are well-designed — only whether the gate criteria for them are evidence-backed",
+    "Does not review the migration epic itself, only the preflight gate structure defined by this PRD"
+  ],
+  "decision_lens": "A gate is a question with a binary answer: Go or No-Go. Every acceptance criterion in a gate document must map to observable evidence that can be presented at the review table. Acceptance criteria that depend on judgment calls not made in advance of the gate are not acceptance criteria — they are deferred decisions disguised as criteria. The gate fails if any criterion is missing evidence, even if everything else is green.",
+  "distance_rationale": "NASA's gate review sequence — Requirements Review, PDR, CDR, FRR, Launch Readiness Review — is the practitioner-tested model for sequential gate-based development where each phase must close on evidence before the next opens, directly isomorphic to the F1→F2/F3→F4→migration-epic sequence this PRD defines.",
+  "expected_isomorphisms": "The NASA FRR 'Go/No-Go poll' discipline, where each subsystem lead must affirm readiness on the record, maps onto the PRD's acceptance criteria: each criterion is a subsystem poll, and a criterion that can be satisfied by any artifact regardless of its content is a poll that cannot produce No-Go. The CDR 'design must be complete enough to begin fabrication' threshold maps onto the migration-epic boundary question: F4's implementation scope may be large enough that the PRD is committing to fabrication (engine code) before the design (F1-F3 decisions) has matured to CDR standard.",
+  "focus": "NASA-style Flight Readiness Review and Program/Critical Design Review gate discipline applied to the migration-blockers PRD's four-feature gate structure and acceptance criteria load-bearing quality",
+  "name": "fd-aviation-flight-readiness-review",
+  "persona": "A systems engineer with a background in launch vehicle program management who has run PDR, CDR, and FRR gate reviews for flight-safety-critical systems, and has learned that gate criteria become theater the moment a team treats them as checklists rather than as genuine 'are we ready to fly?' decisions backed by evidence",
+  "review_areas": [
+    "Gate sequence completeness — F1 unblocks F2/F3 in parallel, F3 unblocks F4: the PRD's dependency graph is stated correctly but the dependency of F4b on F3's identity-constitutive event class is a hard gate, not a soft ordering preference; if F3 closes with a trülku decision that does not define an identity-constitutive event class (because trülku has no such class), F4b's stratification design has an unresolved input; the gate criterion for F4b must state what happens when F3's answer eliminates the concept F4b depends on",
+    "Acceptance criteria load-bearing vs. theater — F2 playtest-card test: the F2 acceptance criterion 'one Contact mission description can be written against a civ-Soul' is the strongest criterion in the PRD — it is a concrete falsifiability test, not a prose judgment; however, it is immediately qualified by 'the card does not need to be a fun game mechanic'; an FRR engineer asks whether the criterion has a rejection threshold: what specific failure of the playtest card falsifies the F2 design? Without a rejection threshold, the criterion can be satisfied by any card at all, including one that reveals the design is incoherent",
+    "F1 gate: trivial build criterion is necessary but not sufficient — 'cargo check --workspace passes from a clean clone' verifies syntax but not that the chosen topology is actually usable for the migration; a CDR gate would require a thin integration prototype (a stub consumer that compiles against the chosen shape), not just a type-check; F1's gate as written cannot distinguish between a topology that works and one that fails only when the migration code is added",
+    "F3 yangsi recognition-test definition: the acceptance criterion 'the test is written as a property-based assertion or a specific scenario, not just prose' is well-formed, but the PRD defers the actual test implementation to a follow-on; an FRR reviewer asks whether a gate criterion that accepts a written specification of a test (but not a passing test) is a real gate or a gate on a plan to gate; if yangsi is chosen and the recognition test is wrong, the migration epoch can open and close before the error surfaces",
+    "Migration-epic-boundary: the PRD claims the migration epic cannot open until all four features close; but F4 includes substantive engine code (selective cache invalidation, stratification tiers, a benchmark) — the scope of F4 may be large enough to delay the epic opening significantly; a program manager asks whether F4 should be structured as a gate precondition (acceptance criteria only, no code) plus a parallel migration-epic subtask, rather than a blocking preflight with implementation",
+    "Open Question completeness at gate close: the PRD requires that 'Open Questions 1-3 + Expansion Item 0 are updated to point at their resolutions' as the whole-PRD acceptance criterion; an FRR reviewer notes this is a documentation check, not an evidence check — there is no stated requirement that the artifacts referenced by those updates actually resolve the questions to a specific answer, only that they exist and are pointed at"
+  ],
+  "severity_examples": [
+    {
+      "condition": "If F3 closes with trülku, F3's acceptance criteria do not include defining an identity-constitutive event class (that clause only applies to yangsi). F4b's acceptance criterion states 'identity-constitutive events from F3 are tagged at write time and are never compacted past warm' — if F3 produced trülku, F4b's criterion references a concept that F3 never defined. The gate cannot close on a criterion that references an undefined input.",
+      "scenario": "F4b gate depends on F3 identity-constitutive event class that may not exist",
+      "severity": "P1"
+    },
+    {
+      "condition": "The F2 acceptance criterion requires a playtest card but names no conditions under which the card falsifies the design. A card that produces contradictory reads and writes — revealing the aggregation operator is underspecified — would satisfy the criterion as written while demonstrating the design is not concrete enough for migration use.",
+      "scenario": "F2 playtest-card criterion lacks a rejection threshold",
+      "severity": "P2"
+    },
+    {
+      "condition": "'cargo check --workspace passes from a clean clone' is a necessary but not sufficient gate: it confirms the workspace parses but does not confirm that a migration consumer can actually depend on the chosen topology. A CDR-grade gate would require demonstrating that a stub consumer compiles against the chosen extraction shape, not only that the workspace itself checks.",
+      "scenario": "F1 build gate does not gate the integration topology",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Aviation / spaceflight program management (NASA PDR/CDR/FRR gate discipline)",
+  "success_hints": [
+    "F4b's acceptance criterion is conditioned on F3's outcome: 'if F3 chose yangsi, identity-constitutive events defined in F3 are tagged and exempt from compaction past warm; if F3 chose trülku, F4b defines its own compaction-exempt class or declares none'",
+    "F2's playtest-card criterion gains a rejection threshold: name at least one class of card failure (e.g. 'the card requires a read of a facet the aggregation operator does not produce') that would falsify the design and trigger an iteration before F2 closes",
+    "F1's build acceptance criterion is extended with a thin integration check: a stub crate that declares a dependency on the chosen extraction shape compiles against the workspace, demonstrating the topology works for a downstream consumer",
+    "The PRD-level acceptance criterion is strengthened: the four artifacts must not only exist and be referenced by the brainstorm updates, but must each contain an explicit answer to the question they were commissioned to resolve"
+  ],
+  "task_context": "Review /Users/sma/projects/palettice/docs/prds/2026-05-25-migration-blockers-and-event-log-stratification.md in its entirety. Apply an aviation flight-readiness / gate-review lens: each feature is a gate that must produce Go/No-Go evidence before the migration epic opens. Evaluate whether each acceptance criterion is load-bearing (backed by concrete, falsifiable evidence) or theater (satisfied by any artifact). Focus on F1-F4 acceptance criteria, the dependency graph, and the PRD-level closure condition."
+}

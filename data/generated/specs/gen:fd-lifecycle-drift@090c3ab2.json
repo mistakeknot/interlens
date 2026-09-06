@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "fd-ecosystem-consolidation owns duplicated workflow/script content, not version metadata",
+    "fd-kernel-contract owns the semantic quality of the ic CLI/event contract, not its packaging or distribution",
+    "Flag stale-but-working duplicates to fd-ecosystem-consolidation; keep version-drift findings here"
+  ],
+  "decision_lens": "Trace a real user journey — fresh install, upgrade, host switch, uninstall — through the actual scripts and manifests. Flag any step where the system can silently end up in a mixed-version or partially-installed state, or where version truth lives in more than one place.",
+  "focus": "Plugin lifecycle coherence: install, upgrade, versioning, manifest, and binary-freshness drift across 40+ interverse plugins plus Clavain's multi-host (Claude Code / Codex / Kimi) install paths and intercore's prebuilt-binary distribution",
+  "name": "fd-lifecycle-drift",
+  "persona": "Apply the perspective of a release-engineering lead responsible for a 40-package plugin ecosystem installed on heterogeneous hosts — they care about whether a user who installed last month gets a coherent, upgradeable system today, measure lifecycle health by the gap between declared versions/manifests and what install scripts actually place on disk, and flag any install path that can leave half-upgraded state (new skill markdown, old binary, stale prompt wrappers) with no detection or recovery.",
+  "review_areas": [
+    "Audit manifest/version truth across /Users/sma/projects/Sylveste/interverse/*/kimi.plugin.json, /Users/sma/projects/Sylveste/os/Clavain/kimi.plugin.json and agent-rig.json — are versions bumped consistently, is there a single source of truth, do CHANGELOGs track actual changes",
+    "Trace Clavain's multi-host install paths (npx agent-rig, claude plugin install, Codex curl bootstrap, make codex-refresh, scripts/uninstall.sh) for divergence: which paths install companions, env vars, MCP servers, and which leave gaps",
+    "Check binary freshness handling: clavain-cli (built from source, Go 1.22+ prerequisite) and intercore's prebuilt ic/ic.exe — how do consumers detect a stale binary relative to the markdown that calls it, and is there any version handshake",
+    "Review upgrade/migration safety: the Codex bootstrap's removal of legacy wrappers and ~/.codex/skills artifacts (backup-first under ~/.codex/.clavain-backups/) — is rollback actually possible, and are there upgrade paths for the other hosts",
+    "Examine upstream-sync (Clavain commands/upstream-sync.md, skills/upstream-sync-engine) and upstreams.json as the drift-detection mechanism — what does it cover, what does it miss across the 40+ interverse plugins",
+    "Assess intercore's COMPATIBILITY.md and MIGRATION.md against the reality of consumers: how are schema/CLI changes versioned and announced to the plugins that shell out to ic"
+  ],
+  "severity_examples": [
+    {
+      "condition": "A realistic upgrade sequence leads to data loss or an unbootable plugin state with no working recovery",
+      "scenario": "An upgrade path can delete or overwrite user state (e.g. legacy wrapper removal in the Codex bootstrap) with a backup step that fails silently or cannot actually be restored",
+      "severity": "P0"
+    },
+    {
+      "condition": "Any markdown workflow invokes a binary capability without a freshness gate or a clear build/error path",
+      "scenario": "clavain-cli or the prebuilt ic binary is older than the skills/commands that invoke it, and new flags or subcommands fail at runtime with no version check anywhere in the chain",
+      "severity": "P1"
+    },
+    {
+      "condition": "Declared manifest version and latest CHANGELOG/commit content disagree for a shipped plugin",
+      "scenario": "kimi.plugin.json versions across interverse plugins are stale or inconsistently bumped, so the marketplace installs a different artifact than the repo HEAD implies",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Walk the actual install/upgrade scripts, not just the README instructions",
+    "Identify every place version truth is stored and whether they can disagree",
+    "Distinguish 'missing feature' from 'silent mixed-version state' — the latter is the high-severity class",
+    "Propose the cheapest detection mechanism (version probe, freshness gate, checksum) for each gap"
+  ],
+  "task_context": "Review the Sylveste plugin ecosystem: Clavain (/Users/sma/projects/Sylveste/os/Clavain — installs on Claude Code, Codex, and Kimi Code via multiple paths, plus a Go binary clavain-cli), intercore (/Users/sma/projects/Sylveste/core/intercore — Go CLI 'ic', distributed as prebuilt binary and source), and interverse (/Users/sma/projects/Sylveste/interverse — ~40 companion plugins installed via the interagency marketplace). Goal: identify high leverage opportunities for improvement across the Clavain, intercore, and interverse plugins. Your specific lens is plugin lifecycle coherence: install, upgrade, uninstall, version management, manifest accuracy, binary freshness, and drift detection across the whole fleet, on every supported host."
+}

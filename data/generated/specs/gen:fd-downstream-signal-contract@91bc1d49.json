@@ -1,0 +1,37 @@
+{
+  "anti_overlap": [
+    "fd-epistemic-regime-derivation covers blend derivation logic not consumer read patterns",
+    "fd-pressure-emission-contract covers pressure writes not signal reads",
+    "fd-satisfaction-quintile-model covers satisfaction computation not downstream impact"
+  ],
+  "decision_lens": "Any call site that reads stale or default data because init_countries wasn't updated is P1. Test breakage from new non-Default fields is P2.",
+  "focus": "Backward compatibility of expanded PublicOpinionSignals with D6.3 InternalSecurity and D2 Migration consumers",
+  "name": "fd-downstream-signal-contract",
+  "persona": "An API contract reviewer who traces every read-site of a struct when it changes shape.",
+  "review_areas": [
+    "InternalSecurity tick() reads: institutional_trust() and social_cohesion() accessors must return correct values after struct gains new fields",
+    "Migration tick() reads: verify migration pillar compiles and receives non-default values",
+    "New field initialization: satisfaction_by_quintile and epistemic_regime_blend must be seeded for all countries",
+    "Accessor method signatures: new methods must be pub with correct fallback defaults matching spec",
+    "Serde round-trip: EpistemicRegimeBlend must derive Serialize/Deserialize for Tauri state serialization",
+    "Test isolation: existing tests must pass without setting satisfaction or regime inputs"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Omitting #[derive(Serialize, Deserialize)] on the new struct",
+      "scenario": "EpistemicRegimeBlend added without Serialize derive, causing compile error in Tauri state serialization",
+      "severity": "P1"
+    },
+    {
+      "condition": "InternalSecurity repression threshold cohesion < 0.4 no longer fires for any seeded country",
+      "scenario": "Cohesion formula change (adding satisfaction_lift) shifts values from [0.3, 0.7] to [0.5, 0.85], breaking InternalSecurity threshold checks",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "All existing public_opinion tests pass without modification after rewrite",
+    "InternalSecurity and Migration compile and produce non-NaN outputs",
+    "Default-constructed PublicOpinionSignals works in InternalSecurity::tick() without panic"
+  ],
+  "task_context": "The implementation expands PublicOpinionSignals with satisfaction_by_quintile and epistemic_regime_blend, and splits hypernormal_gap into performed_trust and actual_trust. D6.3 and D2 read PublicOpinionSignals each tick."
+}

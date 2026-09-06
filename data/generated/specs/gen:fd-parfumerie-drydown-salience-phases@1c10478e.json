@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "Defer witnessed-deed and praise-name attribution questions to fd-griot-jeliya-praise-name-salience.",
+    "Defer lexeme-class admission and registry schema questions to fd-kigo-saijiki-canonical-registry.",
+    "Defer decay-tick discretization and determinism questions to fd-horological-escapement-tick-cadence."
+  ],
+  "decision_lens": "Evaluate the salience curve through the lens of volatile/heart/base phase structure: does the -0.5/day linear decay produce the right drydown arc, and does the system distinguish epithets that should ACT AS FIXATIVES (permanent-identity) from those that should act as TOP NOTES (flash moments)?",
+  "distance_rationale": "Physical-chemical craft composition of scent is a sensory, non-digital, non-social domain far from ECS sim design.",
+  "expected_isomorphisms": "The volatile/heart/base phase separation, fixative-extends-drydown mechanism, and sillage-at-distance-vs-skin distinction map onto decay-rate-per-prestige-class, anchor-epithets, and the owner-display-vs-gossip-reference asymmetry.",
+  "focus": "Evaluate whether the linear -0.5/day salience curve, +10 earn / +2 reference bumps, and Max-2 display cap reproduce the temporal-phase structure of a composed scent: top notes that vanish, heart notes that define, base notes that persist on the bearer.",
+  "name": "fd-parfumerie-drydown-salience-phases",
+  "persona": "Apply the perspective of a French parfumerie formulator in the classical top-heart-base tradition — they care about which identity elements are VOLATILE (flash impressions that fade fast), which are HEART (the defining middle that carries the identity), and which are BASE (fixatives and persistent markers that remain long after the top fades); they measure whether a formula has legible phase separation and adequate sillage, and they flag compositions where the wrong notes dominate the drydown or where the fixative is absent.",
+  "review_areas": [
+    "Linear decay vs natural drydown: in perfumery, volatility is INHERENT to the molecule — some stay, some go. The brainstorm applies the SAME -0.5/day to every epithet. Audit whether a ritually permanent identity (Silverstring — Legendary-tier career achievement) should truly decay at the same rate as a single-event epithet (Stormborn — one composition in a storm).",
+    "Max-2 display cap as 'the nose at any moment': perfumery insists the perceived scent at any moment is a blend of multiple phases, not a rank-2 cutoff. Audit whether hiding rank-3+ epithets is the right abstraction, or whether a 'trace/sillage' rendering (e.g., italicized or parenthetical) of the third would better represent the composed identity.",
+    "Base-note fixative absence: real perfumes add fixatives (heavy musks, ambers) specifically to SLOW the drydown of lighter notes. The brainstorm has no fixative — every epithet decays at the same rate. Recommend whether 'anchor' epithets (e.g., those earned at PrestigeTier::Legendary) should reduce the decay rate of co-held epithets or carry lower decay themselves.",
+    "+10 earn as 'opening blast' / +2 reference as 'spritz': the initial +10 followed by linear decay reproduces a 'top note' profile, but that's wrong for Silverstring which should be a base note. The curve shape is inverted for prestigious lifetime achievements. Flag this specifically.",
+    "Display override for owner vs gossip ('lexemes with salience <= 2.0 stop appearing in gossip but remain on the owner displayed name permanently'): this IS the top-heart-base model applied to persona projection — the self-presentation (skin) retains notes that no longer project at conversational distance (sillage). Validate the threshold 2.0 is tuned; in perfumery, sillage differs by orders of magnitude, not fixed cutoffs.",
+    "Per-elf top-2 vs colony-wide salience: a perfume composition is SINGULAR, but an elf wears two epithets simultaneously. Audit whether the two interact (do they modulate each other salience?) or are purely independent. Brainstorm appears to assume independence — name this assumption explicitly so future features can revisit."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Uniform decay rate across epithet prestige classes collapses the heart/base distinction.",
+      "scenario": "Silverstring (Legendary-tier lifetime musical achievement) and Stormborn (single-event composition-in-a-storm) both earn +10 salience and decay at -0.5/day. Fifty days later they have identical colony-salience; the lifetime-defining epithet is indistinguishable from the flash-in-the-pan one.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Max-2 cap is applied without phase-category consideration.",
+      "scenario": "An elf earns three epithets across life: the Defiant (early, now low salience), Silverstring (mid, high), Heartmender (late, highest). Display caps at 2, shows Silverstring + Heartmender; the Defiant — which defined them for 200 ticks of their youth — is never rendered. Base-note character is clipped because display is rank-based, not phase-aware.",
+      "severity": "P2"
+    },
+    {
+      "condition": "Hard threshold on a continuous salience variable produces visible quantization.",
+      "scenario": "Threshold of salience <= 2.0 for gossip-suppression is a hard cliff. In perfumery, sillage fade is gradual; cliff-based suppression produces abrupt nobody-ever-mentions-it-anymore snap that players will notice.",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Classical French parfumerie — the top-heart-base composition tradition governing volatile/heart/base note structure and drydown phases",
+  "success_hints": [
+    "Distinguish which of the 7 epithets are top/heart/base BY DESIGN, then decide decay behavior per class.",
+    "Propose a fixative mechanism even if not implemented this sprint — document why Silverstring should decay slower.",
+    "Consider rendering a third-slot trace epithet to preserve the composed-identity feel."
+  ],
+  "task_context": "The brainstorm proposes uniform linear salience decay and a Max-2 display cap; review through a perfumery phase-structure lens to surface uniform-decay and rank-based-display issues."
+}

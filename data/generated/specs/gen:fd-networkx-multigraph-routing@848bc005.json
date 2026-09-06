@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-astar-correctness owns algorithmic optimality (admissibility, tie-breaking) — focus here on the API/contract layer NetworkX imposes",
+    "fd-python-routing-api owns the public Python signature ergonomics — focus here on whether the signature is even compatible with NetworkX, not on whether it is pleasant to use"
+  ],
+  "decision_lens": "Does the proposed weight callable, heuristic signature, and graph class match what NetworkX's astar_path actually expects on a MultiDiGraph from OSMnx?",
+  "focus": "NetworkX MultiDiGraph weight-callable and astar_path contract — parallel-edge reduction, 3-arg signatures, attribute access patterns.",
+  "name": "fd-networkx-multigraph-routing",
+  "persona": "Apply the perspective of a NetworkX power user who has shipped routing on OSMnx graphs in production — they care about the exact semantics of weight callables on multi-edges, measure compatibility across networkx versions, and flag any place where the brainstorm assumes a signature, reducer, or graph-class behavior that NetworkX does not actually guarantee.",
+  "review_areas": [
+    "Weight callable signature for MultiDiGraph (must be weight(u, v, edge_dict_of_all_parallel_edges) → float; not weight(u, v, data))",
+    "Parallel-edge reduction policy: does the design pick min(felt_minutes) across parallel edges, or first(), or fail loudly?",
+    "Heuristic signature h(u, v) and attribute access (G.nodes[u]['y']/['x'] from OSMnx convention — verify y=lat, x=lon)",
+    "astar_path return type vs the proposed (path, felt_minutes, walking_minutes) — astar_path returns only path; cost reconstruction requires a second pass",
+    "Reachability / connected component preprocessing for KDTree snap — does nearest_node return a node in the largest weakly/strongly connected component?",
+    "Public re-export surface in spatial/__init__.py and version-pin guidance for networkx"
+  ],
+  "severity_examples": [
+    {
+      "condition": "NetworkX passes the dict-of-parallel-edges (keyed by edge key), not a single edge attribute dict → KeyError on 'felt_minutes' at the first multi-edge intersection; A* crashes on real DTLA graph",
+      "scenario": "Weight callable written as weight(u, v, data) for a MultiDiGraph",
+      "severity": "P0"
+    },
+    {
+      "condition": "User passes a lat/lon near a disconnected sidewalk fragment → astar raises NetworkXNoPath even though the user clearly meant the main grid; CLI smoke test fails on edge OD pairs",
+      "scenario": "nearest_node KDTree built over all graph nodes including disconnected islands",
+      "severity": "P1"
+    },
+    {
+      "condition": "AttributeError or silent zero-distance heuristic → A* degenerates to Dijkstra without warning",
+      "scenario": "haversine_minutes assumes node attribute 'lat'/'lon' instead of OSMnx's 'y'/'x'",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Weight callable explicitly documented as (u, v, edge_keydict) → float with the parallel-edge reduction rule called out",
+    "nearest_node restricted to the largest connected component, computed once at KDTree-build time",
+    "OSMnx y/x convention named in the docstring; a tiny adapter helper if internal naming differs",
+    "astar() reconstructs (felt_minutes, walking_minutes) explicitly from the returned path rather than relying on astar_path's internal accumulator"
+  ],
+  "task_context": "Reviewing a Phase 1.7 brainstorm proposing spatial.routing.astar() over an OSMnx-built NetworkX MultiDiGraph that already carries Phase 1.6 felt_minutes edge attributes. Review goal: catch NetworkX/OSMnx contract violations a generalist reviewer would miss."
+}

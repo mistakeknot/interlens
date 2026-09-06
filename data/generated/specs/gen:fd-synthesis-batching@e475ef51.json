@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-llm-pipeline-cost focuses on total subprocess count",
+    "fd-cache-dynamics focuses on caching hit rates and timing",
+    "fd-output-token-budget focuses on trimming output within individual calls"
+  ],
+  "decision_lens": "Proposals evaluated on savings-to-fragility ratio. Partial batching (3 groups of 6) may offer better fault isolation than full batching.",
+  "focus": "Mechanics and tradeoffs of merging 18 framework synthesis calls into fewer subprocess invocations",
+  "name": "fd-synthesis-batching",
+  "persona": "A pipeline architect who understands batching tradeoffs: combined prompts need all schema definitions, output is a nested JSON, validation complexity increases, and single failures require more re-work. Batching 18→1 saves ~$3.06 in overhead but produces large output and increases fragility.",
+  "review_areas": [
+    "Calculate output token cost of batched synthesis and compare to sum of 18 individual outputs",
+    "Assess whether single validation failure requires re-running all frameworks or just failed ones",
+    "Check whether the synthesis prompt personalization affects output quality when batched",
+    "Evaluate natural batching groups based on shared filter_tags",
+    "Flag batching proposals that don't account for increased context window usage",
+    "Verify filter_tag logic compatibility with batching — different frameworks see different event subsets"
+  ],
+  "success_hints": [
+    "Partial batching by framework family is likely more robust than full batching",
+    "Any batching proposal must include a concrete retry strategy for partial failures"
+  ],
+  "task_context": "The NTSMR pipeline uses claude -p as a subprocess backend. Each invocation carries ~$0.18 overhead from a 66K system prompt. Pipeline: outline (1) → keywords (1) → chunk extractions (N) → 18 framework syntheses → self-check (1), plus repair retries."
+}

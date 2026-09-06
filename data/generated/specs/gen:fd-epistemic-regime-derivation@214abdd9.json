@@ -1,0 +1,37 @@
+{
+  "anti_overlap": [
+    "fd-hypernormal-gap-dynamics covers performed_trust/actual_trust convergence mechanics",
+    "fd-downstream-signal-contract covers how D6.3 and D2 read the new PublicOpinionSignals fields",
+    "fd-satisfaction-quintile-model covers the Meyrowitz visibility_coeff derived from the regime blend"
+  ],
+  "decision_lens": "Any arithmetic path that can produce NaN or a blend vector that doesn't sum to 1.0 is P0. Formulas that are numerically correct but causally wrong (e.g., social_media_penetration pulling broadcast weight up instead of down) are P1.",
+  "focus": "Correctness, numeric stability, and edge-case handling of the 5-element EpistemicRegimeBlend derivation from D4 signals",
+  "name": "fd-epistemic-regime-derivation",
+  "persona": "A numerical methods specialist who has implemented weighted-blend systems in real-time simulations. Thinks first about divide-by-zero and denormalized-float conditions, then about whether the blend formula faithfully encodes the spec's causal model.",
+  "review_areas": [
+    "Zero-guard on normalization: if all five weights compute to exactly 0.0, the fallback must produce a valid blend (literate: 1.0) without a division by zero or panic",
+    "Sign correctness in broadcast_weight: spec uses displacement_factor subtraction for social_media_penetration — verify the implementation subtracts, not adds",
+    "Clamp order: raw weights can go negative (e.g., broadcast_weight when social_media_penetration is high) — verify they are clamped to [0, inf) before normalization, not after",
+    "Quarterly-tick gate: the spec updates regime blend quarterly; verify the implementation does not run this derivation every daily tick",
+    "Input field availability: verify all five weight inputs are read from live D4 signals, not stale seed values",
+    "Sum-to-1.0 invariant enforcement: after normalization, verify a debug_assert or test checks that oral+literate+broadcast+networked+secondary_oral is within 1e-5 of 1.0"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Occurs on first tick for any country whose D4 pillar hasn't run yet, or after an internet shutdown sets social_media_penetration and algorithmic_amplification to 0.0",
+      "scenario": "When all four D4 input signals are 0.0 for a newly-seeded country, all five raw weights are 0.0, and normalization divides by zero, producing NaN in every downstream channel",
+      "severity": "P0"
+    },
+    {
+      "condition": "Manifests at steady state for USA, DEU, JPN and would cause trust ceilings to be too high and convergence rates to be too low in all Core archetypes",
+      "scenario": "broadcast_weight formula adds social_media_penetration instead of subtracting it, making high-internet countries show high broadcast weight and low networked weight",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "For any country seed, oral+literate+broadcast+networked+secondary_oral == 1.0 ± 1e-5 after every tick",
+    "USA (high internet) shows networked_weight > broadcast_weight; SAU (high state media) shows broadcast_weight > networked_weight",
+    "Regime blend changes by no more than 0.05 per component per quarterly tick even under large D4 signal shocks"
+  ],
+  "task_context": "The implementation rewrites PublicOpinionPillar::tick() to derive a 5-element EpistemicRegimeBlend from D4 InformationNarrativeSignals plus country seed parameters. This blend is the structural keystone that gates trust ceilings and hypernormal convergence rates downstream."
+}

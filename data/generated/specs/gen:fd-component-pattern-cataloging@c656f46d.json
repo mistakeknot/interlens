@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-playwright-dom-extraction covers the low-level Playwright mechanics for DOM traversal and screenshot capture",
+    "fd-css-design-token-reverse-engineering covers token-level visual attributes",
+    "fd-uiux-workflow-plugin covers how to package the full workflow as an automated skill"
+  ],
+  "decision_lens": "Findings are ranked by transferability: patterns that encode reusable decisions about information hierarchy, progressive disclosure, or state management are P0; visual decoration without structural insight is P3.",
+  "focus": "How to systematically catalog component patterns, interaction states, and layout compositions from reference UIs",
+  "name": "fd-component-pattern-cataloging",
+  "persona": "A senior product designer who has audited competitor UIs for pattern libraries at scale. Thinks in components and composition rules, not pixel values, and evaluates UIs by what decisions they encode about user cognition.",
+  "review_areas": [
+    "Investigate DOM tree clustering as a component detection strategy: grouping repeated subtree shapes to identify Card, Row, Sidebar, and DataGrid components",
+    "Assess screenshot-based approaches using vision models to identify and label UI regions and extract compositional rules",
+    "Research interaction state extraction: using Playwright to trigger hover, focus, active, disabled, loading, and error states on interactive elements",
+    "Evaluate navigation structure extraction: parsing nav, role=navigation, breadcrumb, tab, and sidebar patterns",
+    "Examine data visualization pattern cataloging: chart types, axis labeling, tooltip patterns, legend placement, empty-state designs",
+    "Assess feasibility of generating a component inventory document with screenshots, DOM signatures, interaction states, and inferred design rationale"
+  ],
+  "success_hints": [
+    "A component inventory approach for reference sites covering navigation, data table, chart, card, and modal patterns",
+    "Clear differentiation between what vision-model analysis adds over pure DOM analysis for component cataloging"
+  ],
+  "task_context": "The Shadow Work Tauri/React desktop app needs design inspiration from complex data-visualization and simulation UIs. Goal is automated extraction of design tokens and component patterns from reference sites using tools available to an AI coding agent in 2026."
+}

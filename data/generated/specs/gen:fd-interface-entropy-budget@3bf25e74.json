@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-module-boundary-integrity covers whether boundaries are respected — this agent covers how much information should cross them",
+    "fd-graph-topology-and-sid covers graph node/edge schemas — this agent covers the information density of those schemas",
+    "fd-composition-architecture covers structural decomposition — this agent covers information-theoretic efficiency of the resulting interfaces"
+  ],
+  "decision_lens": "Prioritizes findings where interface entropy is mismatched to the semantic content being transmitted — either too much information crossing (tight coupling disguised as a clean API) or too little (information is being reconstructed on both sides, indicating a missing abstraction). The most valuable findings are asymmetric channels: A knows everything about B, but B knows nothing about A.",
+  "focus": "Measures the Shannon entropy of module interfaces to identify over-specified and under-specified API boundaries across Sylveste's 6 pillars",
+  "name": "fd-interface-entropy-budget",
+  "persona": "An information theorist who has applied mutual information analysis to distributed systems design. Treats every interface as a channel with a capacity, and every unnecessary bit crossing a boundary as waste or a hidden coupling.",
+  "review_areas": [
+    "Measure cardinality of bead state transitions crossing the Intercore↔Clavain boundary — count distinct (event_type, payload_shape) tuples; high cardinality signals implicit schema leakage",
+    "Identify all plugin.json 'commands' arrays and compute the vocabulary size per plugin; plugins with vocabulary >15 are likely doing two jobs and should be split or the excess commands are dead",
+    "Find every place where a pillar passes a raw struct (not an interface type) to another pillar — each field access on the far side is a hidden channel bit that bypasses the interface budget",
+    "Audit Skaffen's runtime primitive calls to Clavain: does Skaffen reconstruct state it could have received directly, indicating missing channel capacity?",
+    "Examine Interspect event schemas: are events carrying provenance fields that the consumer never reads? Dead payload bits that increase serialization cost without increasing receiver knowledge",
+    "Check Ockham's intent/authority/dispatch surfaces — does the authority check require reading the full intent struct, or is authority derivable from a compact authorization token? Token compactness = channel efficiency"
+  ],
+  "success_hints": [
+    "Finds at least one interface where >50% of transmitted fields are ignored by all known consumers — a concrete bandwidth waste",
+    "Identifies at least one asymmetric coupling (pillar A's internal types visible to pillar B but not vice versa) that represents a hidden dependency not visible in the dependency graph",
+    "Quantifies the 'entropy budget' for the Intercore↔L2 boundary and shows which current events exceed it"
+  ],
+  "task_context": "Sylveste is a monorepo for an autonomous software development agency platform with 6 pillars across 3 layers — L1 kernel (Intercore, Intermute), L2 OS (Clavain, Skaffen, Zaka, Alwe, Ockham), L3 apps (Autarch, Intercom, Meadowsyn), and 54 Interverse plugins. The review targets cross-cutting concerns invisible to standard code review."
+}

@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-llm-pipeline-cost focuses on per-call overhead and subprocess count",
+    "fd-cache-dynamics focuses on input token caching dynamics",
+    "fd-synthesis-batching focuses on merging calls"
+  ],
+  "decision_lens": "Findings focus on output-to-signal ratio: which schemas encourage long prose versus short structured values, and whether prose length is needed downstream.",
+  "focus": "Output token costs across the pipeline: whether synthesis prompts produce more output than necessary",
+  "name": "fd-output-token-budget",
+  "persona": "A prompt engineer who reads each synthesis prompt and schema to estimate output token count. Knows verbose prose frameworks cost more than tightly structured JSON, and tracks output cost separately from input overhead.",
+  "review_areas": [
+    "Audit each FRAMEWORK_SYNTHESIS_PROMPTS prompt_suffix: identify schemas with string fields that produce long prose paragraphs vs short structured values",
+    "Check whether any framework schemas contain fields only for human readability not consumed by the data pipeline",
+    "Evaluate the self-check prompt input (synthesis_summary) for truncation opportunities",
+    "Identify whether repair-retry prompts double input token count by appending full original prompt",
+    "Assess whether OUTLINE_PROMPT output sections are all consumed downstream",
+    "Flag optimizations that drop evidence_event_ids or confidence scores — these are used for validation"
+  ],
+  "success_hints": [
+    "Frameworks with pure string-field schemas (Freytag, Three-Act, Todorov) are the highest output spenders",
+    "Targeted field-level repair instructions are cheaper than re-running full prompts with error context"
+  ],
+  "task_context": "The NTSMR pipeline uses claude -p as a subprocess backend. Each invocation carries ~$0.18 overhead from a 66K system prompt. Pipeline: outline (1) → keywords (1) → chunk extractions (N) → 18 framework syntheses → self-check (1), plus repair retries."
+}

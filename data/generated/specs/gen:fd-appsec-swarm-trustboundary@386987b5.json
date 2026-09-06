@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Leave the logical correctness of retry/circuit-breaker/glob-overlap/negotiation-protocol liveness and safety properties to fd-distsys-coordination-protocol; only raise a coordination-logic topic here if a security property (authentication, authorization, confidentiality) rather than a correctness/liveness property is at stake.",
+    "Leave LICENSE/CONTRIBUTING/CI/versioning/tagging hygiene and cross-repo install feasibility to fd-ossrelease-launch-readiness, except where a hygiene gap is itself the security finding (e.g., unpinned releases as a dependency-confusion/tag-hijack risk).",
+    "Do not re-litigate the Demarch/jargon/internal-artifact cleanup list from the audit's systemic findings; only surface an internal artifact here if it leaks a credential, token, or exploitable path, not as a general hygiene note."
+  ],
+  "decision_lens": "Can an unprivileged local process, or an untrusted/compromised peer agent, forge, hijack, or eavesdrop on another agent's coordination state or terminal session through this surface — and if the audit already named the exposure, does its proposed fix actually close it, or only narrow the window?",
+  "focus": "Whether intermute's, interlock's, and intermux's coordination and visibility surfaces — tmux pane injection, terminal-output exposure, MCP tool call authorization, predictable /tmp files, and the negotiation protocol's caller identity model — can be abused by a co-resident process or a malicious/compromised peer agent, and whether the audit's proposed security fixes actually close that exposure before Wave 1 ships publicly.",
+  "name": "fd-appsec-swarm-trustboundary",
+  "persona": "Apply the perspective of a security engineer specializing in multi-tenant and multi-agent trust boundaries — someone who reviews agent-to-agent protocols, terminal/session-sharing tools, and local IPC surfaces for the privilege boundaries a green functional-test suite is never built to exercise.",
+  "review_areas": [
+    "livetransport's tmux pane injection (intermute internal/livetransport/transport.go, load-buffer/paste-buffer into a peer's pane): identify what authenticates the sender, and what stops an arbitrary local process — or a compromised peer using the same mechanism — from injecting shell commands into another agent's live terminal.",
+    "intermux's exposure of other agents' terminal output (peek_agent, search_output) and predictable /tmp/intermux-mapping-*.json names: verify whether the audit's proposed fix (randomize/scope the filenames) actually closes the read-or-plant risk, or only narrows it if file permissions and MCP-call authorization are unchanged.",
+    "interlock's negotiation protocol caller identity: determine whether anything authenticates who may call negotiate_release / force_release_negotiation — i.e., can any MCP client claiming an agent identity issue those calls against a reservation it does not own.",
+    "MCP server network exposure: intermute's manifests hardcode 127.0.0.1:7338 — verify in the actual listener code (not the default or the docs) that this is loopback-only, and check whether any of the three servers' MCP tools accept calls from any local process without verifying which agent identity is calling, which matters once 'a stranger runs the two-agent demo' on a shared or CI machine.",
+    "Secrets/redaction parity: the audit flags unredacted transcript export elsewhere (Alwe's export_session) — check intermux/interlock/intermute specifically for an equivalent unredacted-secret exposure path through activity_feed, search_output, list_agents, or the tmux-paste transport.",
+    "Supply-chain exposure for a public launch: with zero tags/releases across the Wave 1 repos, a go install ...@latest install path installs whatever HEAD happens to be at clone time with no pinning or provenance check — assess whether this becomes a tag-hijack or dependency-confusion risk once READMEs and GitHub descriptions actively invite public install."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Any MCP client with local access to intermute's or interlock's socket/port can invoke these tools without presenting or having verified an agent credential distinct from 'I am whichever agent I claim to be in the request body.'",
+      "scenario": "Neither livetransport's tmux-paste mechanism nor interlock's negotiate_release/force_release_negotiation RPCs verify that the caller is the agent identity it claims to be; a second local process (or a compromised peer using the published MCP tool surface) can inject keystrokes into another agent's terminal or force-release/claim a reservation it does not own.",
+      "severity": "P0"
+    },
+    {
+      "condition": "The mapping files are created with default umask permissions rather than 0600, and no code path restricts read access by owner.",
+      "scenario": "The audit's proposed fix for intermux's /tmp/intermux-mapping-*.json is to randomize or scope the filename, but if file permissions remain world-or-group-readable on a shared host, any local user can still enumerate /tmp and read the mapping regardless of how unpredictable the name is — the stated fix doesn't close the actual read exposure, only the plant-by-guessing variant of it.",
+      "severity": "P1"
+    },
+    {
+      "condition": "No git tags exist and no CHANGELOG or release notes pin a specific commit as the 'installable' version, per the audit's systemic finding #3.",
+      "scenario": "All three Wave 1 repos have zero tags and recommend go install @latest as their install path; a public repo with no pinned releases means every stranger's install silently tracks whatever HEAD is at clone time, with no way to verify they got the code the README describes.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Names the actual caller/permission model — or its explicit absence — for each coordination RPC or IPC surface it flags, rather than asserting 'this seems insecure' without tracing the code.",
+    "For every exposure the audit already named, verifies whether the audit's own proposed remediation actually closes the underlying gap before re-flagging or endorsing it, rather than repeating the same line.",
+    "Explicitly separates the local-multi-user threat model (shared host, other local processes/users) from the network threat model (anything reachable off-loopback), since the audit blends both without naming which one applies to each finding.",
+    "Reserves P0 for findings that let an unprivileged local actor corrupt cross-agent state or exfiltrate credentials/terminal output — does not inflate every unauthenticated local IPC call to P0 without checking whether the actual deployment (trusted single-user machine) makes it reachable."
+  ],
+  "task_context": "This is the plan for taking intermute, interlock, and intermux public together as one coordination-plus-visibility stack (Wave 1 of the recommended program: security fixes first, one mechanical sweep, one real fix per repo, a two-agent demo a stranger can run from a clean clone). Find what makes that Wave 1 program fail, what it is missing, and where the audit's claims are wrong or unverified. The three repos live at /Users/sma/projects/Sylveste/core/intermute, /Users/sma/projects/Sylveste/interverse/interlock, and /Users/sma/projects/Sylveste/interverse/intermux; attp is cloned at /private/tmp/claude-501/-Users-sma-projects/376b47df-d178-4275-921e-b4fc80b33ed0/scratchpad/attp. Verify claims against the code, not the report. This lens's scope within that goal is narrow: whether the coordination and visibility surfaces these repos expose can be abused across a trust boundary — by another local process, an untrusted peer agent, or a stranger installing an unpinned public build — and whether the audit's 'security first' remediation list actually closes what it names, given the audit already flags this as the top-priority track before any publicity."
+}

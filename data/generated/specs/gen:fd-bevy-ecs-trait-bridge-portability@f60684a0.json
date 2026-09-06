@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Focuses on cross-project code reuse and trait bridge portability — not Bevy 2D sprite batching internals (fd-bevy-sprite-instancing-glyph-atlas), GPU text rendering techniques (fd-gpu-glyph-rendering-text-pipeline), wgpu raw pipeline design (fd-wgpu-raw-pipeline-control), or WASM deployment constraints (fd-wasm-webgpu-browser-target)",
+  "decision_lens": "Is the SimStateProvider trait abstraction in shadow-work genuinely portable — can Elf Revel's hecs ECS implement it without a rewrite? Does porting Option A (direct reuse) actually save time, or does the impedance mismatch between shadow-work's country-pressure domain and Elf Revel's glyph-grid-colony domain cost more than a fresh build? Does the benchmark harness transfer without modification?",
+  "focus": "Cross-project Rust code reuse patterns: porting the proven Bevy 0.18 rendering-only crate from shadow-work (SimStateProvider trait bridge, bevy_metalfx, benchmark harness) into Elf Revel's hecs ECS simulation without coupling the renderer to either ECS implementation",
+  "name": "fd-bevy-ecs-trait-bridge-portability",
+  "persona": "Rust workspace architect who has shipped multiple Rust game projects sharing a renderer crate across a Cargo workspace; intimately familiar with trait-object bridges between simulation state and Bevy Resources, workspace dependency graph management, Bevy 0.18 plugin system internals, and the failure modes of version lock when two crates both pull Bevy but at different patch versions",
+  "review_areas": [
+    "SimStateProvider trait portability audit: shadow-work's trait exposes pressure_values(), country_count(), pressure_type_count() — none of these map to Elf Revel's colony grid (tile data, glyph layers, entity positions, flora state); evaluate whether the trait must be redesigned or can be extended with a second trait (ColonyStateProvider) without breaking shadow-work",
+    "Cargo workspace version lock risk: if Elf Revel and shadow-work share sw-renderer as a path dependency or git dependency, any Bevy 0.18 patch update must be coordinated across both projects; assess whether Bevy 0.18 API surface in sw-renderer is large enough to create a maintenance burden when Bevy releases a patch",
+    "bevy_metalfx portability: the MetalFX upscaling crate targets macOS 13+ via objc2-metal-fx FFI; verify this constraint is explicitly documented and that the WASM build path disables it cleanly via Cargo features rather than cfg blocks scattered through rendering code",
+    "Plugin system coupling: sw-renderer likely registers Bevy plugins that assume a 3D globe scene (GlobePlugin, OrbitCameraPlugin, HeatmapPlugin); does porting to Elf Revel require either stripping these or maintaining a hollow stub, and what is the binary size cost of unused Bevy plugin infrastructure?",
+    "Benchmark harness reusability: shadow-work has a proven benchmark harness for renderer performance; verify it can be pointed at a 2D glyph-grid workload (100K glyphs, instanced sprite rendering) without architectural changes, or document what must change",
+    "ECS isolation guarantee: the key promise of the trait bridge pattern is that Bevy's ECS never sees hecs entities and vice versa; verify no accidental coupling exists where hecs entity IDs are passed as Bevy component data or where Bevy schedules fire hecs queries"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Cargo.toml does not pin Bevy to an exact version across the workspace; patch versions differ between sw-renderer and Elf Revel dependencies",
+      "scenario": "Porting sw-renderer as a workspace dependency causes a Bevy version conflict because Elf Revel's direct dependencies (bevy_ecs, bevy_render pulled transitively) resolve to a different Bevy 0.18.x patch than sw-renderer expects, producing duplicate type registrations and a linker error",
+      "severity": "P0"
+    },
+    {
+      "condition": "SimStateProvider was designed for scalar pressure heatmap data, not structured per-cell grid data; the impedance mismatch forces a new trait that shares only the name with shadow-work's version",
+      "scenario": "The SimStateProvider trait cannot express the data Elf Revel's renderer needs (per-tile glyph character, foreground color, background color, entity layer, flora lifecycle stage) without adding 8 new trait methods, invalidating the 'proven' claim and requiring as much design work as a fresh build",
+      "severity": "P1"
+    },
+    {
+      "condition": "No Cargo feature flag for metalfx; platform exclusion is runtime cfg rather than compile-time feature gating",
+      "scenario": "The MetalFX WASM exclusion is handled by a #[cfg(not(target_arch = \"wasm32\"))] block inside the renderer plugin's build() method, causing the WASM build to silently skip upscaling without a compile-time error when MetalFX-dependent code paths are accidentally reached",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "The portability test: write a ColonyStateProvider impl for a dummy struct that returns a 50x50 grid of random glyphs. If sw-renderer can render it at 60fps with no hecs dependency in its Cargo.toml, the trait bridge pattern holds. If the trait requires redesign to accept grid data, document the exact diff between shadow-work's SimStateProvider and what Elf Revel needs — that diff is the true cost of Option A.",
+  "task_context": "Elf Revel native full-screen Rust colony sim evaluating 6 rendering stack options. Option A is porting shadow-work's proven Bevy 0.18 rendering-only crate (sw-renderer) including SimStateProvider trait bridge and bevy_metalfx. Elf Revel uses hecs ECS for simulation, needs ASCII-aesthetic multi-layer glyph grid rendering at 100K+ glyphs/60fps. WASM is a secondary target."
+}

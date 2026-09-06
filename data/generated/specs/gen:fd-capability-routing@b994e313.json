@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-coordination-state-model covers CRDT/gossip infrastructure and interlock replacement, not capability routing or agent-model matching",
+    "fd-autonomous-work-loop covers the general research pipeline and mutation-based improvement for Skaffen/Autarch code work, not capability declarations or routing weight mechanics",
+    "fd-plugin-evolution covers the Skills & Tools domain and WASM sandboxing, not the general capability routing layer"
+  ],
+  "decision_lens": "Prioritize capability routing changes that improve Clavain's agent-model matching without adding configuration burden. Flag cases where Hyperspace's capability model assumes infrastructure Sylveste doesn't have (network-wide capability discovery).",
+  "focus": "Evaluate Hyperspace's 9-capability model, weight-based scoring, and capability-weighted routing against Clavain's lib-routing.sh and agent-model matching",
+  "name": "fd-capability-routing",
+  "persona": "A platform engineer who specializes in heterogeneous compute routing and has experience designing capability registries for multi-agent systems. Focuses on how capability declarations, runtime evidence, and routing weights interact and where each approach breaks down.",
+  "review_areas": [
+    "Map Hyperspace's 9 capabilities (Inference, Research, Proxy, Storage, Embedding, Memory, Orchestration, Validation, Relay) onto Sylveste's agent roles and identify which have direct analogs in Clavain's routing model",
+    "Evaluate the weight-based capability scoring (+10% inference, +12% research) as a model for extending lib-routing.sh beyond evidence-only routing to include capability declarations",
+    "Assess whether Sylveste agents should declare capabilities explicitly (like Hyperspace nodes) vs. inferring them from evidence (current Clavain approach), and what the migration cost is",
+    "Analyze the uptime bonus formula U(t) = 1 + 0.2 * ln(1 + t/12) as a model for Clavain's agent-trust weighting — does longevity/reliability belong in Sylveste's routing model?",
+    "Evaluate Hyperspace's automatic hardware adaptation (browser/laptop/H100 → different experiment scales) against Clavain's current model-tier (Haiku/Sonnet/Opus) awareness and where the two models diverge",
+    "Check whether the Orchestration capability (+5%) and its description ('multi-step task decomposition + routing') creates a recursive routing problem in Sylveste's architecture that doesn't exist in Hyperspace's flat peer model"
+  ],
+  "success_hints": [
+    "Agent identifies whether lib-routing.sh should add a capability declaration step before evidence scoring, and what format those declarations should take",
+    "Agent maps at least 5 of Hyperspace's 9 capabilities to concrete Sylveste agent roles with specific routing weight recommendations",
+    "Agent flags any Hyperspace routing assumptions that would break in Sylveste's single-machine, human-operator context without modification"
+  ],
+  "task_context": "Hyperspace AGI is a P2P autonomous AI research network using GossipSub, Loro CRDTs, and GitHub as a 3-layer coordination stack. Sylveste is a single-operator multi-agent platform where Clavain orchestrates agents via interlock (file-based reservations) and beads (Dolt-backed issue tracking). The analysis must identify adoptable coordination patterns for a local, single-machine context."
+}

@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-compute-module-architecture covers Rust architecture and tick integration",
+    "fd-compute-supply-chain-realism covers real-world accuracy of the semiconductor model",
+    "fd-compute-signal-consumer-contracts covers the technical signal contracts between compute and consumer modules"
+  ],
+  "decision_lens": "Flag anything that makes compute either irrelevant (no player decision changes because of it) or lock-in dominant (whoever gets ahead of the compute curve wins and cannot be caught). The bottleneck should create tension, not determinism.",
+  "focus": "Whether the compute module functions as both a strategic bottleneck AND a compounding multiplier that produces interesting player decisions without creating a dominant strategy or a runaway winner",
+  "name": "fd-compute-strategic-bottleneck-balance",
+  "persona": "A strategy game designer who shipped Offworld Trading Company and spent years studying resource economy lock-in. Obsessed with the question: at what point does compute advantage become so decisive that the player stops making interesting choices?",
+  "review_areas": [
+    "Audit the compounding rate: if compute_capacity_index feeds technology_adoption_rate which feeds R&D output which feeds compute investment, quantify the doubling time at maximum advantage — verify it is measured in years of sim-time (24-48 months), not quarters, to allow counterplay windows",
+    "Check whether non-compute paths to military/economic advantage remain viable: a country without advanced compute should have at least one credible alternative path (manpower, resource exports, conventional military) so compute advantage is one of several routes, not the only route",
+    "Evaluate the export control player action: imposing export controls on an adversary should have a measurable cost to the imposing country (loss of export revenue, tech decoupling cost) — verify this cost is modeled, not just the benefit, so the action is a real tradeoff",
+    "Assess the catch-up mechanic: once a country falls behind in compute capacity, what allows re-entry? Verify at least one mechanism exists — technology transfer, fab construction investment with long lead time, or espionage deployment — that gives lagging countries a viable (not easy) path back",
+    "Check the pressure event legibility: when compute scarcity triggers a TechnologicalStagnation issue, verify the event narrative attributes causation to compute (not generic 'technology pressure') so players can form causal models and make strategic responses",
+    "Evaluate the 30-minute demo session horizon: with typical pressure decay rates and cascade propagation, estimate how many sim-months a demo session covers — verify the compute bottleneck becomes visible (compute_capacity_index drops, issues fire) within that window for the Prometheus scenario starting conditions"
+  ],
+  "success_hints": [
+    "In a 30-minute demo session, at least one country experiences a compute-driven TechnologicalStagnation or MilitaryCapabilityDegradation issue with a narrative attribution to semiconductor supply chain, visible to the player in the event feed",
+    "A country with maximum compute advantage cannot achieve decisive military or economic dominance before other countries have at least 2-3 intervention opportunities"
+  ],
+  "task_context": "Shadow Work is a geopolitical simulation targeting a 'Prometheus Crisis' demo. The compute sub-system is designed as both a strategic bottleneck (TSMC concentration, export controls) and a compounding multiplier (compute → AI → military/science/economy). The player controls agents deployed against institutions; compute scarcity should surface as pressure events that create deployment opportunities. Demo sessions run approximately 30 minutes."
+}

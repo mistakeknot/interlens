@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-autonomy-ux-hierarchy covers how modes are presented in the UX — not how the delegation protocol is signaled or structured",
+    "fd-recursive-ring-architecture covers whether the ring model is compatible with Intercore primitives — not the protocol state machine for escalation within rings",
+    "fd-vision-coherence covers whether the document's internal logic is consistent — not whether the escalation protocol is operationally complete"
+  ],
+  "decision_lens": "Prioritizes any part of the proposed protocol that lacks a concrete state machine, trigger condition, or fallback. The highest-value findings are places where the document describes delegation or escalation in aspirational terms ('the supervisor handles this') without specifying who initiates, what the signal looks like, what happens on timeout, and what the recovery path is.",
+  "focus": "Critiques the concreteness and completeness of the proposed delegation and escalation protocol, which addresses gap 7 (no delegation/escalation protocol)",
+  "name": "fd-delegation-escalation-protocol",
+  "persona": "A protocol designer with experience in distributed systems where agents must hand off work and escalate failures across trust boundaries. Reviews proposals by asking: given a specific failure scenario, what exactly happens step by step, and where does the protocol break down.",
+  "review_areas": [
+    "Check whether the document specifies a concrete escalation trigger — what conditions cause an Operator-level agent to escalate to Supervisor, and is the trigger a structured signal or an implicit failure state",
+    "Evaluate whether delegation is defined as a pull model (outer ring accepts work from inner ring) or push model (inner ring requests acceptance from outer ring), and whether the document is consistent about this",
+    "Assess whether the protocol handles timeout and non-response — if an inner ring agent fails to respond, does the outer ring have a defined recovery path or does the document leave this unspecified",
+    "Verify whether the escalation protocol integrates with Intercore's gate model — specifically whether an escalation can block phase advancement until resolved, or whether escalations are advisory and non-blocking",
+    "Check whether the document addresses circular escalation — an Operator escalates to Supervisor, who escalates back to a different Operator, creating an escalation loop",
+    "Examine whether the delegation protocol accounts for partial delegation — handing off a subset of responsibilities while retaining others — vs full delegation where the delegating agent is no longer responsible"
+  ],
+  "success_hints": [
+    "A strong review produces a concrete failure scenario (e.g., inner ring stalls, outer ring timeout expires, escalation signal sent) and traces whether the proposed protocol handles each step",
+    "The best finding identifies whether the protocol is stateless (each escalation is independent) or stateful (escalations accumulate into a history that informs future decisions) — and flags if the document assumes statefulness without specifying where state lives",
+    "Flag any escalation path that terminates in 'human review required' without specifying which human, in which mode, via which UX surface — that's an incomplete protocol"
+  ],
+  "task_context": "The document is a strategic architecture analysis evaluating how Autarch's four TUI apps (Bigend, Gurgeh, Coldwine, Pollard) must evolve to support increasing agent autonomy in Sylveste. The analysis proposes a three-mode hierarchy (Executive/Supervisor/Operator) and a recursive ring model for autonomous agencies, grounded in seven identified gaps between current and target state."
+}

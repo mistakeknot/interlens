@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-scenario-validation covers what's being evaluated (scenario definitions), not how it's scored",
+    "fd-evidence-pipeline covers evidence production and storage, not consumption by the judge",
+    "fd-capability-policy covers tool access restrictions, not scoring outcomes"
+  ],
+  "decision_lens": "Prioritizes findings where non-determinism or LLM failure could block agent work, create false confidence, or make the system more expensive than the value it provides.",
+  "focus": "Review the LLM-as-judge satisfaction scoring design and its integration as sprint gates",
+  "name": "fd-llm-judge-gates",
+  "persona": "A reliability engineer who has operated LLM-based evaluation systems in production. Skeptical of non-deterministic gates blocking CI/CD and focused on calibration, cost, latency, and failure handling.",
+  "review_areas": [
+    "How does the system handle LLM judge non-determinism — same evidence scored differently on retry? Is there averaging, majority vote, or single-shot?",
+    "What model serves as judge, and is there a cost/latency budget? Scoring every sprint action with Opus would be expensive — is there tiering?",
+    "Sprint gate integration: what happens when the judge is unavailable (API down, rate limited)? Does the sprint block, timeout, or bypass?",
+    "Calibration: how are judge scores validated against human judgment? Is there a bootstrapping plan or golden set?",
+    "Does the PRD define the scoring rubric concretely — what maps to 'satisfied' vs 'partially satisfied' vs 'failed'? Vague rubrics produce noisy scores",
+    "Can agents contest or appeal judge scores? What's the feedback loop when the judge is wrong?"
+  ],
+  "success_hints": [
+    "The PRD specifies concrete failure/timeout behavior for the judge — sprints don't hang on LLM availability",
+    "Scoring rubric has at least one worked example showing how evidence maps to a score",
+    "Cost and latency expectations are stated with a model selection rationale"
+  ],
+  "task_context": "LLM-as-judge scoring is the feedback loop that turns evidence into authority. Sprint gates use these scores to control agent progression. If the judge is unreliable or too expensive, it undermines the entire validation-first premise."
+}

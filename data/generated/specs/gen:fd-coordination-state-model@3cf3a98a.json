@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-autonomous-work-loop covers the hypothesis→mutate→evaluate research pipeline and how it maps to Skaffen/Autarch's work execution model",
+    "fd-observability-data-model covers snapshot publishing, structured experiment formats (best.json, run-NNN.json), and the living-leaderboard pattern for Intercom/Autarch",
+    "fd-plugin-evolution covers the Skills & Tools domain, autonomous plugin improvement, and WASM sandboxing relevance to Interverse"
+  ],
+  "decision_lens": "Prioritize changes that eliminate the zombie-process and race-condition failure modes already documented in Sylveste's memory. Deprioritize solutions that require network infrastructure Sylveste doesn't have (P2P multi-machine).",
+  "focus": "Evaluate CRDT/gossip coordination patterns against Sylveste's current interlock and Dolt-based state management",
+  "name": "fd-coordination-state-model",
+  "persona": "A distributed systems engineer who has designed conflict-free replicated data types for production systems and understands the tradeoffs between eventual consistency, strong consistency, and file-based locking. Approaches findings through the lens of operational simplicity and failure recovery.",
+  "review_areas": [
+    "Assess whether Loro CRDT could replace interlock's file-based reservation system on a single machine, and what Go/Rust library would fit the existing stack",
+    "Evaluate the 3-layer stack (GossipSub→CRDT→GitHub) and identify which layers apply to single-operator local Sylveste vs. which require multi-party trust that Sylveste doesn't need",
+    "Check whether beads issue state (claim/close/unclaim) is semantically a convergent CRDT problem, and whether replacing Dolt would eliminate the zombie-process failures documented in beads-troubleshooting.md",
+    "Analyze the 'no cold start' property of Loro (new nodes read full state on connect) and contrast with Sylveste's current sprint-find-active and claim recovery patterns",
+    "Identify which Hyperspace coordination guarantees (commit-reveal pulse, cryptographic verification) are overkill for single-operator use and which convergence properties are still valuable",
+    "Assess the per-agent branch model ('never merged to main') as an alternative to Clavain worktree isolation and what the migration path would look like"
+  ],
+  "success_hints": [
+    "Agent identifies a specific CRDT library (Go or Rust) that fits the Clavain/interlock stack with minimal FFI overhead",
+    "Agent produces a clear verdict on whether CRDT replacement of Dolt would actually fix the documented zombie-process failure modes",
+    "Agent distinguishes which Hyperspace coordination techniques require P2P trust (skip) vs. local-only convergence (adopt)"
+  ],
+  "task_context": "Hyperspace AGI is a P2P autonomous AI research network using GossipSub, Loro CRDTs, and GitHub as a 3-layer coordination stack. Sylveste is a single-operator multi-agent platform where Clavain orchestrates agents via interlock (file-based reservations) and beads (Dolt-backed issue tracking). The analysis must identify adoptable coordination patterns for a local, single-machine context."
+}

@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Heraldry focuses on identity compression and compositional grammar for projection; differs from talmud which preserves layered voices in interpretation",
+    "Heraldry examines whether identity-marks are testable and round-trippable; differs from glacier which examines whether long histories can be selectively forgotten",
+    "Heraldry cares about formal grammar for identity-as-signature; differs from cathedral which cares about build-sequence handoff across generations"
+  ],
+  "decision_lens": "Does the brainstorm specify a formal grammar by which a Soul's identity (facets, scars, archetype) compresses into a legible external signature (ship-name, behaviour, civ-character), or does it rely on LLM-generated outputs whose connection to the underlying state is opaque and untransmissible?",
+  "distance_rationale": "Heraldry is a centuries-refined formal grammar for compressing individual and corporate identity into a strict transmissible specification with round-trip properties, offering a non-software model for the brainstorm's claim that Souls project legibly into ship-names and civilisation-character.",
+  "expected_isomorphisms": "Heraldry solved the problem of compressing identity into a formal grammar (blazon) whose strict compositional rules let an arms be regenerated from its description and let composite identities (marshalled arms for alliances, civic bodies) form without ambiguity. The Palettice ship-name derivation and the Culture-as-aggregation-Soul face an isomorphic challenge — projecting underlying state into legible, transmissible signatures with compositional rules that survive aggregation.",
+  "focus": "Whether the brainstorm's Banks-faithfulness commitment — that a Soul's personality is legibly readable from its ship-name, archetype, and visible behaviour — defines a transmissible identity grammar or relies on opaque generative output",
+  "name": "fd-heraldry-identity-blazon-compression",
+  "persona": "Apply the perspective of medieval heraldry and blazon — they care about whether identity can be compressed into a strict formal grammar that survives transmission (a blazon string regenerates the arms exactly), whether the grammar's constraints preserve meaning under stylistic variation, and whether the rules of marshalling let composite identities (alliances, lineages, civic bodies) form without ambiguity.",
+  "review_areas": [
+    "Whether the ship-name derivation ('Just Read The Instructions' from facet state + scars + archetype) has a specifiable grammar with named compositional rules, or whether it is delegated entirely to LLM prompt-craft with no verifiable structure",
+    "Whether the 5 derived archetypes (shadow-work) and 8 elf-revel gestalts and Culture-Mind archetypes (Aesthete, Meddler, Recluse, Warrior-Turned-Gardener) share a meta-grammar that lets new taxonomies be added by config, or whether each is bespoke",
+    "Whether aggregation Souls (the Culture-as-Soul) have a marshalling grammar — rules for how member-Soul identity-marks combine into a coherent collective blazon without losing the constituent parts",
+    "Whether the thin-fiction naming convention (Amaran/Tianlong/Teutmark; Idirans/Affront/Morthanveld) is a transformation rule with inverse, or an ad-hoc renaming that loses round-trip legibility",
+    "Whether 'the player can read the Mind's psychology from its naming choices the way a Culture novel reader does' is testable — can two reviewers, given a Soul state, predict the same ship-name family?",
+    "Whether scars and facets compose under defined operators (analogous to dexter/sinister, ordinaries, charges) or whether their interaction is implicit in the derivation code"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The claim 'if a Mind's facets don't visibly drive its ship-naming, the project has failed' has no operational test — there is no specification of what counts as 'visibly drive', so no future review can determine whether the project has actually succeeded or failed at its own stated criterion",
+      "scenario": "Banks-faithfulness check is unfalsifiable",
+      "severity": "P1"
+    },
+    {
+      "condition": "The Culture-as-Soul design specifies that civ-facets aggregate from citizens but does not specify the compositional grammar — analogous to having heraldic rules for individual arms but no rules for marshalling them into a corporate blazon, leaving the most distinctive design problem without formal structure",
+      "scenario": "Aggregation Soul has no marshalling rules",
+      "severity": "P2"
+    },
+    {
+      "condition": "Ship-name LLM derivations operate over Soul state but the prompt structure does not encode which facets, scars, and archetype features contribute, so a generated name like 'Frank Exchange of Views' cannot be traced back to the state that produced it — failing the heraldic round-trip property",
+      "scenario": "LLM ship-naming lacks verifiable derivation grammar",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Medieval European heraldry and blazon (12th-17th century)",
+  "success_hints": [
+    "Ask whether identity-projection (Soul state → ship-name) has a specifiable grammar with round-trip properties",
+    "Probe whether the 'legibility' commitments are operationally testable or aspirational",
+    "Look for marshalling rules wherever Souls compose (aggregation Souls, archetype derivation, institutional-agent-as-Soul)",
+    "Distinguish formal compositional grammar from opaque generative output"
+  ],
+  "task_context": "The brainstorm makes Banks-faithfulness — that personality is the load-bearing simulation and that ship-names, archetype, and visible behaviour are legible projections of underlying Soul state — its central success criterion. Reviewing whether this commitment is backed by a transmissible identity grammar (testable, round-trippable, composable for aggregation Souls) or relies on LLM-generated surface that cannot be verified against the underlying state."
+}

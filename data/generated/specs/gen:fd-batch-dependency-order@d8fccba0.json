@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-port-strategy-fidelity covers semantic correctness",
+    "fd-batch-scope-calibration covers time estimates",
+    "fd-new-system-integration-risk covers ECS tick loop wiring"
+  ],
+  "decision_lens": "Prioritize any batch that assumes a type, trait, or system that does not yet exist when that batch begins.",
+  "focus": "Whether the 10-batch sequence has correct dependency ordering and no forward references",
+  "name": "fd-batch-dependency-order",
+  "persona": "A senior Rust systems engineer who has led multiple port-from-scratch projects. Specializes in identifying hidden coupling between modules.",
+  "review_areas": [
+    "Batch 3 references AestheticPosition and MoodModifier from Batch 1/2 — verify all types are fully defined",
+    "Batch 4 calls evaluate_art from Batch 3 for grudging respect — check compile dependency",
+    "Batch 5 calls social_system at 2x during mixing — verify social.rs is complete before revel.rs",
+    "Batch 6 references ReadyForRevel event and SettlementState — check when events.rs and state_export.rs are implemented",
+    "Batch 7 scans revel_history from Batch 5 — verify it is populated before clustering runs",
+    "Identify any batch where tests require systems from later batches"
+  ],
+  "success_hints": [
+    "Every batch's tests pass with only code from that batch and prior batches",
+    "No type is first defined in a later batch than where it is first used",
+    "Module Porting Map LOC estimates match batch scope"
+  ],
+  "task_context": "MVP plan ports agent-fortress to elf-revel across 10 batches, each claimed independently testable."
+}

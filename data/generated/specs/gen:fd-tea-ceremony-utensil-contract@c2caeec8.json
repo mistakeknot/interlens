@@ -1,0 +1,48 @@
+{
+  "anti_overlap": [
+    "Do NOT review the formula `(time) × (1 + k × sf)` or its dimensional structure",
+    "Do NOT review the four-policy NaN fallback taxonomy or the 'neutral' default",
+    "Do NOT review pace_mps=1.4 calibration or persona-specific pace overrides",
+    "Stay focused on the Protocol contract, the dataclass shape, the helper's composability, and the package layout"
+  ],
+  "decision_lens": "Is the Protocol contract rich enough that Phase 2's authors can write a conforming weight without back-channel knowledge of FeltMinutesV0's internals? Is the frozen dataclass the right utensil shape, or is it a premature commitment that forecloses simpler alternatives (a plain configured callable, a closure over parameters)? Does the apply_weight helper presuppose a one-weight-per-graph mitate, or does it leave room for Phase 2's multi-weight composition?",
+  "distance_rationale": "A ritualized aesthetic practice for composing a coherent set of mutually-substitutable utensils under canonical conventions is several disciplines removed from Python Protocol typing and frozen-dataclass design, yet shares the deep structure of defining a contract under which independent implementations are interchangeable.",
+  "expected_isomorphisms": "A chanoyu host composes a chakai by selecting a kettle, water-jar, tea-bowl, scoop, and whisk — each from a different artisan and era — and the gathering succeeds when each utensil honors the canonical role (yakuwari) and the host's mitate (selective re-purposing) for that occasion. The contract is structural, not nominal: a bowl is a chawan if it serves chawan's role, not because it inherits from a chawan-base-class. Mapped: the brainstorm's choice of `Protocol` over `ABC` is exactly this distinction — Phase 2's UTCI weight is a chawan because it serves the role, not because it inherits from FeltMinutesV0. The framework asks whether the role (the Protocol contract) is specified richly enough to support mitate (substitution at A*'s call site), whether the frozen dataclass is the right utensil shape for the role, and whether the gathering (the platform across phases) is composable across artisans (independent implementations).",
+  "focus": "Whether the `Protocol`-plus-frozen-dataclass architecture chosen in Decisions 1, 2, 6, and 7 fits the platform's actual needs — whether the Protocol is rich enough for Phase 2's UTCI and other future weights, whether the frozen dataclass is the right utensil shape (vs callable, partial, configured-function), and whether the apply_weight helper composes cleanly with future weight combinators.",
+  "name": "fd-tea-ceremony-utensil-contract",
+  "persona": "Apply the perspective of a chanoyu master composing a chakai with utensils from many artisans across many eras — for whom the contract is the role each utensil serves, not the lineage it descends from, and for whom every commitment to a utensil shape forecloses some future mitate. The framework treats `EdgeWeight` as a yakuwari (role), `FeltMinutesV0` as a chawan honoring that role, and asks whether the role is specified at the right level of abstraction and whether future utensils (UTCI, checkpoint-bonus, elevation) can honor it without strain.",
+  "review_areas": [
+    "Protocol richness: `__call__(edge_attrs: dict[str, Any]) -> float` is the entire contract. UTCI weight will need air-temp, humidity, wind-speed — these are NOT on `edge_attrs`. How does Phase 2's UTCI receive them? Through the dataclass init (each FeltMinutesV0-like instance carries its weather lookup)? Through a global? The Protocol's narrow signature pushes all environmental context into per-instance state, which is fine for cohesion but invisible from the Protocol — the contract under-specifies what the weight can need",
+    "Mitate at A*'s call site: A* will receive `weight: EdgeWeight` and call `weight(edge_attrs)`. If a future weight needs `(u, v, k, attrs)` (Open Question 1 in the brainstorm), the Protocol must change and Phase 1.7 must adapt. The brainstorm explicitly leans 'attrs-only for v0, revisit later' — but the substitution semantics break the moment the second utensil needs topology. A more permissive Protocol now is a small cost; a Protocol change later is a breaking change",
+    "Frozen-dataclass as utensil shape: the cohesion argument (parameters travel with the callable) is strong; the slots-frozen-replace argument is strong. But a closure (`make_felt_minutes(pace_mps=1.4, k=0.5) -> Callable`) achieves the same cohesion with less ceremony — what does the dataclass buy that a closure does not? `replace()` for tuning is the answer the brainstorm gives, but tuning notebooks could equally write `make_felt_minutes(pace_mps=2.0, ...)`. The brainstorm should name the introspection-and-repr argument explicitly",
+    "apply_weight's commitment to one-weight-per-attr: the helper writes a single `felt_minutes` attribute. Phase 2's UTCI weight will write `utci_minutes` (different attr name — good, configurable). But how does A* CHOOSE which attr to route on? Phase 1.7 will hardcode `felt_minutes`. When UTCI lands, will it replace felt_minutes or coexist? The brainstorm punts this to Phase 1.7 — fair — but the apply_weight signature could pre-anticipate a `combinator: Callable[[list[EdgeWeight]], EdgeWeight]` pattern",
+    "Package layout commitment: introducing `spatial/` as the import root is the first library-shape commitment in `platform/spatial/`. Once Phase 1.7 imports from `spatial.weights`, the layout is sticky. Is the `spatial/spatial/` doubled name a quirk of the pyproject `package = solwend-spatial` setting, or is it intentional and documented? Future contributors will trip on it",
+    "Re-export discipline in `__init__.py`: Decision 7 says re-export EdgeWeight, FeltMinutesV0, apply_weight from the package init. Re-exports establish the public API surface — what is NOT re-exported (e.g., `_effective_sun_fraction`, NanFallback Literal) is also a contract choice. The brainstorm names the re-exports but not the non-exports; the non-exports are equally a commitment",
+    "`runtime_checkable` decision (Open Question 4): leaning yes. The cost is a single decorator; the benefit is `isinstance(w, EdgeWeight)` works in REPL and the unit test. The hidden cost is `runtime_checkable` only checks method names, not signatures — a function with the wrong signature passes isinstance and fails at call time. This is a known Protocol pitfall and deserves a one-line acknowledgment in the docstring"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Open Question 1 acknowledges that elevation-cost or UTCI may need (u, v, k, attrs); the brainstorm leans 'ship attrs-only for v0, revisit later'. But revising the Protocol is a breaking change for Phase 1.7's import. A more permissive signature now — e.g., `__call__(u, v, k, attrs, /)` with FeltMinutesV0 ignoring the first three — is cheap insurance and the brainstorm does not weigh this trade explicitly.",
+      "scenario": "Protocol signature locks in attrs-only, forecloses topology-aware weights",
+      "severity": "P1"
+    },
+    {
+      "condition": "The brainstorm gives three reasons for the dataclass shape (cohesion, replace(), introspection), but does not compare to a configured-closure alternative that achieves all three with less ceremony. A platform decision of this kind deserves a paragraph of comparison, even if the conclusion stands.",
+      "scenario": "Frozen-dataclass-vs-closure trade is asserted, not argued",
+      "severity": "P2"
+    },
+    {
+      "condition": "Open Question 4 leans yes on @runtime_checkable; the brainstorm should note that runtime_checkable checks method names only, not signatures, so the isinstance check is partial and the unit test should not be over-trusted as a contract enforcement.",
+      "scenario": "runtime_checkable pitfall not acknowledged",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Edo-period Japanese chanoyu utensil-set composition (16th–19th c. tea-ceremony tradition)",
+  "success_hints": [
+    "Treat the Protocol as a yakuwari (role) specification; the right level of abstraction is what Phase 2 can honor without strain, not what Phase 1.6 minimally needs",
+    "Pressure-test substitution semantics at A*'s call site against Open Question 1's elevation-cost example",
+    "Acknowledge the dataclass shape is defensible; demand only that the trade against simpler alternatives is named",
+    "Do not propose abandoning the Protocol+dataclass choice — Decision 1 is settled. Propose only refinements within that shape."
+  ],
+  "task_context": "Review the Phase 1.6 felt-minute edge weight brainstorm focusing exclusively on the Protocol+frozen-dataclass architecture (Decisions 1, 2, 6, 7) and its readiness to host Phase 2's UTCI, checkpoint-bonus, and elevation weights without breaking changes. Examine the Protocol signature, the dataclass-vs-closure trade, the apply_weight helper's combinator-readiness, the package layout commitment, and the runtime_checkable decision. Do not address the multiplicative formula shape, the NaN fallback policy taxonomy, the pace_mps calibration, or the smoke-test design — other reviewers cover those."
+}

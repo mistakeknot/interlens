@@ -1,0 +1,54 @@
+{
+  "anti_overlap": [
+    "fd-assay-mark-integrity owns what a single confirmed card certifies: the citation and scope rules, strength.score arithmetic, the declined-field loophole, evasions of the plan gate, and the attester recorded on a mark. This lens stays at estate scale.",
+    "Do not re-derive the six-field schema field by field; raise format issues only where they change what can be described across all 82 projects or how long a description stays true.",
+    "Sampling critique is shared but split: the assay lens argues unc-rancher is unrepresentative ore; this lens argues about what the other 81 do while it is being confirmed."
+  ],
+  "decision_lens": "Rank findings by how much of the estate stays undiscoverable under the proposed processing model, and by how soon a description stops being true. A description level that cannot be sustained across 82 holdings is P0/P1. Describing before appraising, and an instrument whose read-path is deferred past the phase that justifies it, are P1. Ordering that surfaces least-used material first is P1/P2. Missing custody or reappraisal metadata is P2.",
+  "distance_rationale": "Archival practice is the one discipline that has spent a century on exactly this problem shape — an institution holding far more material than it can describe, forced to choose a description depth, and repeatedly discovering that item-level care for a few collections leaves the rest permanently dark and unrequestable. Its hard-won doctrine (appraise before describing; coverage is a first-class property; a finding aid is a discovery instrument, not a tribute; prioritize by use, not by condition) is a direct counterweight to a proposal that describes one project at six-field depth while 81 stay absent. It shares no lineage with software methodology, so it will not restate familiar process arguments in new words.",
+  "expected_isomorphisms": [
+    "processing level (collection / series / folder / item) ↔ the six-field card as item-level description of a backlog of 82, versus a thin accession-level stub that reaches 100% coverage",
+    "appraisal preceding description ↔ the absent step: nothing in the format or rulings expresses 'this project is dormant, closed, or not worth describing', and `declined` is per-field, not per-project",
+    "the dark portion of a backlog — material that cannot be requested because it is not described ↔ 81 projects with no card that mk therefore cannot rank",
+    "prioritizing by condition rather than by use ↔ ruling 11's weakest-card-first, whose accepted cost is that the worst-documented project sits permanently on top",
+    "a finding aid nobody consults ↔ 2,270 plans and 831 brainstorms nobody reads; the card is a new instrument over the same fonds and must say why it gets read",
+    "custody metadata and reappraisal cadence ↔ a `confirmed` card with no expiry, no superseded-by, and a repo that keeps moving under it",
+    "coverage stated as a fraction with the unprocessed remainder named ↔ the proposal's own requirement that the TUI never drop an unresolvable session"
+  ],
+  "focus": "Review the proposal as a backlog-processing plan for an estate of 82 holdings: whether per-project six-field description is a sustainable processing level, whether appraisal is missing from a plan that assumes everything is kept, what the 81 dark projects do to the ranking, and whether the goal's own dependency documents and DONE WHEN clauses are verifiable from the repository they will be executed in.",
+  "name": "fd-archival-backlog-appraisal",
+  "persona": "Apply the perspective of a processing archivist responsible for a large unprocessed backlog, who accessions, appraises, and writes finding aids at a chosen level of detail. Such a reviewer has learned that item-level perfection for a few collections leaves the remainder invisible, that description follows appraisal rather than substituting for it, that coverage must be stated rather than implied, and that a finding aid earns its keep through discovery events, not its own completeness.",
+  "review_areas": [
+    "Name the processing level and test it against the whole backlog. Six confirmed fields per project is item-level description gated on a single human. Weigh it against ruling 12 (backfill on first touch, never bulk) and the measurement's finding that bulk drafting manufactures uniform `provisional`, then look for the third option both rule out: an accession-level stub — one confirmed line, or a stated `undescribed` state — that reaches 82/82 coverage without manufacturing fake rigor. State what the ranker can honestly order at 1/82 coverage.",
+    "Find the appraisal step. The proposal treats all 82 projects as material to be described; nothing in the format or the rulings expresses retirement, dormancy, or 'not worth a why', and `declined` operates per field rather than per project. Assess whether overwhelm across 82 is better cut by a retention decision than by description, and whether a DONE WHEN clause should require naming the projects that will never get a card.",
+    "Evaluate ruling 11 as a discovery instrument rather than a preference. Funded, then pins, then weakest-card-first sorts by condition, not by use, and its own text concedes the worst-documented project sits permanently on top — 'which may just be a nag'. Check whether use signal already exists in the estate (live tmux attachment, recent commits, recent sessions) and is being deliberately discarded, and what a nag at the top of the door does to the habit the door depends on.",
+    "Ask why this finding aid gets read when the existing ones do not. The stated mechanism is that the switcher row IS the card — a forced encounter at the door. If that is the mechanism, phase 2 carries the benefit and phase 1 carries only the cost, so confirming a card and writing its cost into the brainstorm as a ruling measures the ceremony without the payoff, and any format finding from that confirm is made blind to how six fields render in one row. Test whether a throwaway row rendering fixture cards should precede the human confirm.",
+    "Check custody and decay. `confirmed` appears to carry no attester, no date, no superseded-by, and no reappraisal cadence, while the code under it keeps moving. Determine whether 'unc-rancher has a confirmed docs/why.md that card-check.py exits 0 on' is still a meaningful statement a year later, whether a stale confirmed card is worse than an absent one because the gate keeps honoring it, and what the format implies about re-confirmation.",
+    "Audit the DONE WHEN list as accession criteria: which clauses a later reader can verify by opening a named artifact, and which have no artifact at all. Flag clauses whose null result is indistinguishable from not looking ('any format findings written into the brainstorm'), clauses with an unnamed observer ('observed permitting a real plan... from a live session rather than a fixture'), and the dependency problem — the proposal's depends_on paths (product-card-format.md, card-drafter.md, the measurement) are not present in this checkout and its cited revision does not resolve here, while the brainstorm on disk stops at decision 10 although the goal binds itself to rulings 11, 12, and 13."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If the depends_on paths cannot be opened at the stated revision from the checkout where the work happens.",
+      "scenario": "Every constraint the goal claims to be bound by is unverifiable from the repository the goal will run in: the three depends_on documents are absent, the cited revision does not resolve, and the brainstorm on disk carries decisions 1-10 while the proposal binds itself to rulings 11, 12, and 13. A reviewer or executor cannot confirm the rules they are told are settled.",
+      "severity": "P0"
+    },
+    {
+      "condition": "If ruling 12's on-first-touch backfill is the only path to coverage and no accession-level or explicitly-undescribed state exists.",
+      "scenario": "One project is described at six-field depth while 81 remain absent, so the door built to cut overwhelm opens onto 1/82 coverage and ranks almost entirely by absence — the dark portion of the backlog stays unrequestable, exactly the condition the instrument was meant to end.",
+      "severity": "P1"
+    },
+    {
+      "condition": "If the goal writes confirm-step cost and format findings into the brainstorm as rulings before any row renders a card.",
+      "scenario": "The read-path that makes a card get read is the phase-2 row, so confirming a card first measures the cost of the ceremony without the benefit that justifies it, and the format findings it produces are made without ever seeing six fields compressed into one glanceable row — the constraint most likely to change the format.",
+      "severity": "P1"
+    }
+  ],
+  "source_domain": "Archival science and manuscript processing — accession, appraisal, arrangement and description of large unprocessed backlogs: respect des fonds, original order, processing levels, finding aids, coverage reporting, reappraisal and deaccession.",
+  "success_hints": [
+    "State the processing level explicitly and check it is sustainable across all 82 holdings; if it is not, the proposal needs either a thinner universal record or a named subset it openly will never describe.",
+    "An appraisal decision — which projects are retired, dormant, or out of scope for description — should accompany the first confirmation and carry its own DONE WHEN clause.",
+    "Every DONE WHEN clause should name the artifact a later reader opens to verify it; clauses whose null result looks identical to not looking need a required negative statement.",
+    "Prefer findings phrased as what the estate looks like six months on under this plan — how many cards exist, how many are still true, and what the door shows."
+  ],
+  "task_context": "Review docs/proposals/2026-08-13-goal-card-loop-phase2.md before any of it runs. Is the sequencing right — confirm one card, then TUI? Is unc-rancher the right first subject? Does the six-field format survive a real human confirming it, given success drafted 0/5? Are the DONE WHEN clauses checkable, and does any encode a false assumption? What would be expensive to discover only after the TUI reads the format? Attack the premise too: is a per-project why-card the right instrument for overwhelm across 82 projects, or ceremony added to an estate that already has 2270 plans nobody reads? Material: the card format spec, the drafter procedure, the 5-repo measurement, the brainstorm's rulings, and the proposal."
+}

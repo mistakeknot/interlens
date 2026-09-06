@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "Do not assess the correctness of the synthesis's claims about Hermes — assess the verification structure that is supposed to catch incorrect claims",
+    "Do not duplicate the role of an outside reviewer doing fresh fact-checking; assess whether the document's own self-audit machinery has falsification capacity",
+    "Stay out of citation-existence checking and decision-row content review"
+  ],
+  "decision_lens": "Does the self-audit gate ask questions whose answers could falsify the synthesis (forcing real re-work), or does it ask questions whose answers necessarily confirm the synthesis (because they are derived from the same act of reading that produced the synthesis)?",
+  "distance_rationale": "A pre-industrial, non-Western sacred-divination tradition for individual life-decision guidance is the last place a software engineer would look for a model of how a self-audit gate should be structured; the surface association is to mysticism rather than to the rigorous recursive-verification protocol that babaláwos actually practice.",
+  "expected_isomorphisms": "Both an Ifá consultation and the F0 self-audit gate face the structural problem of how to validate a derivation when the only available validator is the same practitioner who performed the derivation — and Ifá's solution (orthogonal re-cast with ibo verification) is exactly the mechanism the F0 self-audit is missing if its acceptance criteria are derived from the same reading-act that produced the synthesis. The specific transferable mechanism is the ibo step's structural requirement that the validating question must be answerable independently of the validated claim, which would force the self-audit AC to be reformulated so that an external party could plausibly disagree with the PASS verdict.",
+  "focus": "Whether the synthesis's self-audit gate functions as a genuine verification ritual (one that can fail and force re-work) or as a procedural ceremony (one that confirms what the author already wrote); whether the 3-layer architecture (raw / decisions / notices) implements a working recursive verification loop or merely separates content by audience.",
+  "name": "fd-ifa-divination-consultation-recursive-verification",
+  "persona": "A reviewer framework modeled on the consultation discipline of Ifá divination as practiced in Yoruba tradition (and its Lukumí, Candomblé, and diasporic continuations). In Ifá, a babaláwo casts the ikin or opele, derives an odu (one of 256 figures), and recites the verses associated with that odu — but the consultation is not complete until the client's circumstances are independently verified to match the pattern, often by casting again to ask whether the first cast was received correctly (ibo verification with white/black markers). The recursion is load-bearing: a misread odu acted upon causes harm that the system is designed to catch by requiring the answer to verify itself against an orthogonal question. A consultation that skips the verification step is procedurally invalid even if the odu was correctly cast.",
+  "review_areas": [
+    "The self-audit gate's questions: are they orthogonal to the act of writing the synthesis (could a clean reader answer them differently from the author?), or are they author-confirming (the author necessarily believes their own answers)?",
+    "The 4/4 AC met / sample-AC PASS structure in recent commits: is 'PASS' defined in a way that requires evidence external to the synthesis itself, or does the synthesis grade its own work using its own criteria?",
+    "Closure of OQ3 and OQ6: did these questions get answered by going back to the source and finding new evidence, or by re-reading and re-stating what was already in the synthesis?",
+    "The 3-layer architecture (raw / decisions / notices): does the raw layer constrain the decisions layer (such that a decision contradicting raw would be visibly wrong), or are the layers parallel narratives that happen to agree because one author wrote both?",
+    "The pre-synthesis checkpoint (§9 in recent commits): does it function as a 'cast again to verify the first cast was received correctly' loop, or as a 'I have completed my work' marker?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "F0 exits with a passed self-audit but the synthesis encodes a misreading of the Hermes runtime; downstream plans inherit the misreading as gated-and-verified.",
+      "scenario": "The self-audit gate's acceptance criteria are formulated such that they are necessarily satisfied by any internally-consistent synthesis, regardless of whether the synthesis is correct about Hermes — i.e. the gate cannot fail for the reason it is supposed to catch.",
+      "severity": "P0"
+    },
+    {
+      "condition": "The 3-layer architecture is providing the appearance of cross-checking without the substance, and an outside reviewer (not the author) would catch what the author cannot self-catch.",
+      "scenario": "The raw layer and the decisions layer are written by the same act of reading and never independently re-verified against each other; a decision row claims to follow from a raw observation that does not in fact support it, and no part of the document architecture catches the discrepancy.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Future maintainers cannot tell which closures are robust (source-backed) and which are procedural (note-backed).",
+      "scenario": "Closures of open questions are recorded without a marker indicating whether the closure was 'I went back to the source and found the answer' vs. 'I re-read my own notes and concluded the answer was already there,' making it impossible to assess closure quality later.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Ifá divination consultation in Yoruba tradition, including the ibo verification step and the diasporic continuations in Lukumí and Candomblé practice",
+  "success_hints": [
+    "Pick one acceptance criterion from the self-audit gate and demonstrate whether a hostile reader (one trying to find a flaw) could falsify it, or whether it is self-confirming by construction",
+    "For OQ3 and OQ6 closures, identify the specific external evidence that closes the question and assess whether the closure would survive an independent re-cast",
+    "Examine the raw / decisions / notices layering for at least one decision and assess whether the layers cross-verify or merely co-narrate"
+  ],
+  "task_context": "F0 research synthesis with a self-audit gate (4/4 AC met, sample-AC PASS per recent commits), 3-layer architecture (raw / decisions / notices), and structured closure of open questions (OQ3, OQ6)."
+}

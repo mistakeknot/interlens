@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Do not conduct the prior-art census or decide whether BenchGuard, BenchJack, AgentRewardBench, SpecBench, or RL environment checks already occupy the niche; leave novelty and naming to the assurance-landscape lens.",
+    "Do not recommend a product, publication, or branding strategy; leave channel economics and mission optionality to the research-program lens.",
+    "Do not resolve mk's cognitive-core versus eval-validity taste call; report only which measurement claims are strong enough to support either branch."
+  ],
+  "decision_lens": "Treat every validity verdict as a claim about an estimand, a reference contrast, and an uncertainty budget. Prioritize failures that make the claimed quantity unidentified or make KEEP possible for reasons unrelated to true policy quality; distinguish absence of a gold oracle from absence of any defensible reference intervention.",
+  "focus": "Whether SPAN, ARTIFACT, paired-difference sizing, and cross-contract replication constitute an identifiable measurement-validity methodology across heterogeneous agent benchmarks, especially when no exact oracle or scripted-optimal policy exists.",
+  "name": "fd-metrology-identifiability-hex",
+  "persona": "Apply the perspective of a computational metrologist and psychometrician working at the boundary of experimental design, software benchmarking, and agent evaluation, with deep familiarity in construct validity, reference standards, uncertainty budgets, generalizability theory, sensitivity analysis, paired estimands, and partial-identification arguments.",
+  "review_areas": [
+    "Formalize what SPAN estimates: separate an exact scripted optimum, a strong executable reference policy, a human ceiling, a gold artifact, and a constructive lower bound; test which substitutions preserve the inference that a metric has usable dynamic range.",
+    "Stress-test SPAN for open-ended, stochastic, partially observable, multi-objective, or judge-mediated benchmarks where optimality is undefined, intractable, or observer-relative; identify when the honest verdict is NO-SPAN versus when a bounded reference contrast remains informative.",
+    "Interrogate ARTIFACT's content-preservation premise: require an invariance relation, admissible transformation family, and equivalence check rather than intuitive prompt similarity, and examine whether transformations can alter pragmatics, salience, tokenization, or action affordances while preserving denotation.",
+    "Audit rule 16 at the estimand level: determine when paired-difference variance is the correct power quantity, when dependence or deterministic inference invalidates classical sizing, and whether 'infinite at temperature 0' describes a broken estimator rather than literally infinite sample need.",
+    "Examine rule 17 as an identification test across contracts: specify which contract dimensions must vary, what must remain invariant, and whether one out-of-contract call can localize causality to the contract rather than model-contract interaction or an uncontrolled prompt change.",
+    "Check whether the MDD/SPAN/ARTIFACT verdict table propagates uncertainty and missingness honestly, including the repaired NO-SPAN state, multiplicity across metrics, and the risk that aggregate scores hide blind sub-metrics."
+  ],
+  "severity_examples": [
+    {
+      "condition": "The classifier treats missing or incomparable SPAN evidence as sufficient for a headline-capable verdict, or silently substitutes an aggregate score for per-metric observability.",
+      "scenario": "The portable instrument licenses KEEP without an identified reference contrast, so a metric can be certified on a benchmark where neither an oracle nor a defensible lower-bound policy establishes that score movement corresponds to capability.",
+      "severity": "P0"
+    },
+    {
+      "condition": "The methodology attributes score movement to artifact while semantic, pragmatic, or action-space equivalence remains untested.",
+      "scenario": "ARTIFACT labels a permutation content-preserving without a specified invariance relation, making the control indistinguishable from a legitimate intervention on task difficulty or interface affordance.",
+      "severity": "P1"
+    },
+    {
+      "condition": "The writeup preserves the infinity headline without stating the model and variance assumptions under which it is meaningful.",
+      "scenario": "Rule 16 states an infinite sample requirement at deterministic decoding when the actual conclusion is that replicate variance cannot identify the paired estimand, overstating a diagnostic failure as a numerical result.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Express critiques in terms of estimand, intervention, reference standard, and uncertainty source rather than generic calls for more data.",
+    "Give at least two concrete non-oracle SPAN analogues and state exactly which inference each can and cannot support.",
+    "Separate a method that declines certification honestly from a method that is unusable; NO-SPAN may be a valid output rather than a defect.",
+    "Use the fort-gym G2 aggregate scripted ceiling as a sharp test of whether per-metric SPAN adds information beyond an arena-level gate."
+  ],
+  "task_context": "Settle what zahro differentiates on. The reframe: 22 stages of fort-bench produced zero capability measurements but built an eval-validity instrument with six killed claims to its name — the arena was the test subject, the instrument is the product. The competitive read is that 134 DF-agent/benchmark repos are building arenas since June 2026 and none appear to be auditing them; the most rigorous (lemoz/fort-gym) independently rediscovered three arena-registry rules and still has no SPAN and no artifact control. Four assets look unique and none are DF-specific: SPAN (can a metric see a perfect scripted policy — 5 of 7 cannot), ARTIFACT (how much range a content-preserving prompt permutation manufactures — moved a headline 3/18 to 18/18 with zero world effect), rule 16 paired-difference sizing (15x correction, infinite at temperature 0 where replicate sd is exactly 0), and rule 17 cross-contract replication (651 calls said capability, one call outside the contract said artifact). PRIMARY FORK TO SETTLE: does zahro's visible output become eval-validity methodology when MISSION.md says cognitive core? Arguments both ways are in the doc; this is mk's taste call and the session should sharpen it, not resolve it silently. Wanted: attack the 'nobody is auditing arenas' claim hard — is the gap real, or does it just look open because the checks are already standard practice under other names, or because auditing has no distribution and no demand? Stress-test whether SPAN/ARTIFACT survive contact with benchmarks that have no scripted-optimal policy available. Find the failure modes of shipping this as a tool (arena-lint) versus a paper versus a public audit of someone else's leaderboard. Name what I am not seeing. Out of scope: building a better fort-gym."
+}

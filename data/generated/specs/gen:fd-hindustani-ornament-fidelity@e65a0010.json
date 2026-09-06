@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Does not review the audition protocol's falsifiability (see fd-perceptual-audio-falsifiability)",
+    "Does not review the mutation pipeline's technical ordering or determinism (see fd-color-grade-pipeline-coherence)",
+    "Does not review the two-PRD contract boundary or caller/callee coordination (see fd-surgical-handoff-contract)"
+  ],
+  "decision_lens": "Would a trained Hindustani musician recognize the output as a specific rāg under a specific patch, or as 'vaguely Hindustani'? Is the ornament model specific enough to be wrong in a diagnosable way, or so generic that it can't be falsified musically?",
+  "distance_rationale": "Hindustani music theory is the target domain's source material, not a parallel discipline — but its practitioner perspective (recognizability, grammaticality, idiomatic placement) is orthogonal to the implementer's perspective (counts, pipeline passes, determinism).",
+  "expected_isomorphisms": "The rāg grammar's authority structure (what the tradition permits vs forbids) maps directly to the PRD's modal-field authority model. The tradition's ornament placement rules (structural position, phrase role) map directly to the ornament-density and instrument-role gating in Pass 4.",
+  "focus": "Music theory grounding — do the ornament definitions (meend, gamak, murki) and modal-field authority model reflect actual Hindustani classical practice closely enough to avoid caricature output?",
+  "name": "fd-hindustani-ornament-fidelity",
+  "persona": "Apply the perspective of a Hindustani classical music theorist and ethnomusicologist — they care about the internal logic of rāg grammar, the difference between structural (vādī/samvādī) and ornamental (gamak/murki) functions, and the competence-signal risk of algorithmic approximations that produce 'sounds Indian' without satisfying any real grammatical constraint. They measure whether a system's output would be recognizable to a trained listener as a specific rāg, or merely as 'microtonal and ornamental'. They flag when a modal-field-as-authority assumption substitutes for actual rāg competence, and when ornament rendering reduces tradition-specific gestures to generic pitch curves.",
+  "review_areas": [
+    "Meend is defined as '3 grace notes connecting source and target pitch over last 1/16 of held duration.' Is this interval range (1–3 semitones) and timing model consistent with how meend functions in actual Hindustani practice — a continuous glide, not a staircase of equal-tempered steps?",
+    "Gamak is defined as '4 grace notes alternating ±1 semitone.' In Hindustani practice, gamak is a heavy oscillation with specific rhythmic drive and breath control that varies by instrument and gharānā. Does a fixed ±1 semitone model with fixed note count produce anything recognizable, or does it reduce gamak to generic vibrato?",
+    "Murki is correctly identified as a rapid triplet at phrase entries. Does the PRD specify which phrase positions trigger murki, or is it random within the density parameter? In practice, murki occurs at specific structural moments (sam, divisional boundaries) — random insertion may produce ungrammatical placements.",
+    "The modal-field-as-authority assumption (§ 2.3 load-bearing decision #3) removes rāg theory from the tool's responsibility. Does the PRD acknowledge that this shifts the competence burden entirely to the grammar author, and that an operator without Hindustani training can produce a grammar that is internally consistent but musically invalid?",
+    "Ascent/descent asymmetry (§ 3.3) is a real feature of many rāgs (e.g., different Ga or Ni in āroha vs avaroha). Does the PRD's pitch-substitution model correctly handle the case where a note is legal in both directions but with different cent offsets?",
+    "The emphasis velocity lift (§ 3.6, vādī/samvādī) treats vādī/samvādī as velocity targets. In actual performance, vādī/samvādī emphasis is time-durational (longer note stays, more ornament elaboration) as much as dynamic. Does velocity alone produce a recognizable emphasis signal, or does it produce unidiomatic accents?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Gamak grace notes are not checked against the modal field's legal_pitches. The ornament pass runs after forbidden-note enforcement but inserts notes that bypass Pass 1.",
+      "scenario": "The gamak implementation alternates ±1 equal-tempered semitone, but the rāg's working grammar has komal (flat) pitches whose microtonal cent offset puts them well within 1 semitone of the next pitch. The gamak oscillation passes through a pitch that is explicitly illegal in the rāg, producing a violation on every gamak beat.",
+      "severity": "P1"
+    },
+    {
+      "condition": "The PRD does not constrain murki insertion to phrase-entry positions; ornament_density alone controls placement with no rhythmic or structural gating.",
+      "scenario": "Murki is inserted at random positions within any long-held note on a melodic-lead instrument. The output has murki at phrase interiors, mid-measure, on structurally weak beats — a placement pattern that no Hindustani musician would use. The result sounds procedurally ornamented but musically ungrammatical.",
+      "severity": "P2"
+    },
+    {
+      "condition": "Velocity clamping at 127 is specified, but the interaction between emphasis_velocity_lift and ornament subordination is not specified when the parent note clips.",
+      "scenario": "The velocity lift for vādī produces meend accents — the ornamented version of the emphasized pitch is actually quieter (ornament velocity = parent × 0.6, and parent was boosted to 127, clipping). The emphasis signal is inverted on clipped notes.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Hindustani classical music theory, ethnomusicology, and computational musicology of Indian classical traditions",
+  "success_hints": [
+    "Ornament grace notes are checked against legal_pitches so gamak oscillation cannot introduce illegal pitches",
+    "Murki is gated on metric position or phrase boundary detection, not just note duration and random density",
+    "The PRD explicitly names the competence-transfer risk: a grammar author without Hindustani training can produce a well-formed but musically invalid grammar, and the tool will faithfully execute caricature",
+    "The cent-offset model distinguishes ascending vs descending pitch variants so a komal Ga with different tuning in aroha/avaroha is rendered correctly"
+  ],
+  "task_context": "Reviewing the PRD for apply_tonal_grammar, which defines how ornaments (meend, gamak, murki), microtonal cent offsets, and ascent/descent substitutions are applied to MIDI. This review evaluates whether the ornament definitions are specific enough to the Hindustani tradition to produce recognizable output."
+}

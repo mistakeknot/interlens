@@ -1,0 +1,29 @@
+{
+  "anti_overlap": "Focuses on infrastructure and deployment, not design or content",
+  "decision_lens": "Operational simplicity — can a solo dev manage both sites without DevOps overhead?",
+  "focus": "Deployment architecture for two Cloudflare Pages projects sharing a domain — DNS, routing, HTTPS, and CI/CD",
+  "name": "fd-cloudflare-deployment-architecture",
+  "persona": "Platform engineer who manages multi-site Cloudflare deployments for content-heavy organizations",
+  "review_areas": [
+    "Two Pages projects on the same Cloudflare account — apex domain vs subdomain routing",
+    "HTTPS certificate provisioning for both elfrevel.com and wiki.elfrevel.com",
+    "GitHub Actions deployment for two independent sites from one repo",
+    "Cache invalidation — do wiki deploys bust landing page cache or vice versa?",
+    "og:image and social preview metadata for both sites",
+    "Fallback behavior — what happens if one site is down?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "DNS misconfiguration causes the landing page to be unreachable",
+      "scenario": "Apex domain (elfrevel.com) cannot use CNAME — needs A record or Cloudflare proxy",
+      "severity": "P0"
+    },
+    {
+      "condition": "Missing Open Graph metadata on both sites",
+      "scenario": "No og:image tags means social shares look like generic links",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Both sites deploy independently, HTTPS works on both domains, GitHub Actions are separate workflows, cache is isolated between sites",
+  "task_context": "The wiki is already deployed at wiki.elfrevel.com — the landing page adds a second deployment target on the same domain"
+}

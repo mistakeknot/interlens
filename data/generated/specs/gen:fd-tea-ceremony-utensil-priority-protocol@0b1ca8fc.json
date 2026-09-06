@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "Defers fold-mode/flat-foldability to fd-origami-crease-pattern-modal-fold",
+    "Defers invocation/dismissal LIFO mechanics to fd-vedic-ritual-layered-invocation",
+    "Defers HUD strip glanceability mechanics to fd-lighthouse-keeper-logbook"
+  ],
+  "decision_lens": "When multiple entities co-occupy a tile, is the displayed priority order the same as the click-cycle order? Is that order encoded once or duplicated across systems?",
+  "distance_rationale": "Chanoyu is a 500-year-old hospitality discipline focused on physical object placement and gesture sequencing, with no overlap to software UI, yet its utensil-priority and dismissal protocols map directly to selection-priority and tooltip-dismissal design.",
+  "expected_isomorphisms": "Utensil priority on tray = entity priority on tile; temae sequence ambiguity resolution = click-cycle ordering; haiken inspection order = tooltip display order; placement-with-both-hands special case = polymorphic Selection variant handling.",
+  "focus": "Chanoyu utensil placement priority, sequential hand-resolution, and dismissal ceremony as a structural model for sticky tooltip priority and selection cycling",
+  "name": "fd-tea-ceremony-utensil-priority-protocol",
+  "persona": "A tea-ceremony (chanoyu) procedural specialist analyzes the input system through the lens of dōgu placement protocol. On a tray, every utensil has an assigned position and a strict order of pickup-and-replace; when multiple utensils could be reached for the same gesture, the protocol specifies an unambiguous priority (chashaku before chasen, chawan handled with both hands). The 'temae' procedure resolves ambiguity in the same way the sticky right-click tooltip must resolve when multiple entities co-occupy a tile (an elf standing on a flora tile in front of a building). The closing 'haiken' inspection has a fixed sequence — the user examines utensils in defined order, not arbitrary order. The reviewer evaluates whether the priority order is explicit, stable, and surfaced consistently to the user.",
+  "review_areas": [
+    "Whether the sticky right-click tooltip's 'all entities in priority order' uses the same priority function as left-click selection — duplication risks divergence",
+    "Whether priority among Selection variants (Elf > Building > Flora? or context-dependent?) is documented, stable, and resilient to new entity types being added",
+    "Whether the tooltip's stickiness (does not auto-dismiss) has a well-defined dismissal ceremony — what closes it: another right-click, Esc, click elsewhere, opening an overlay? — and whether that ceremony respects the modal stack",
+    "Whether the persistent HUD legend strip lists keybindings in a stable, glanceable priority order (most-frequently-used leftmost? grouped by mode?) consistent with how players scan it",
+    "Whether selection cycling (if the user repeatedly clicks the same tile) advances through entities in tooltip-display order, or in some other order — UI inconsistency would be a defect",
+    "Whether the polymorphic Selection's None variant has a defined visual representation (no tooltip? empty tooltip? default 'nothing here'?) — the absence of a selection should be as ceremonial as a present one"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Priority must be a single pure function consumed by both render and selection paths",
+      "scenario": "Tooltip shows 'Elf, Building, Flora' but click-cycle goes 'Flora, Elf, Building' because two functions encode priority differently",
+      "severity": "P1"
+    },
+    {
+      "condition": "Tooltip dismissal must compose with stack push — opening any overlay should dismiss or hide tooltips",
+      "scenario": "Sticky tooltip persists after pause menu opens, occluding part of the menu",
+      "severity": "P2"
+    },
+    {
+      "condition": "Priority extensibility should be data-driven, not hard-coded across three sites",
+      "scenario": "Adding a new entity type (e.g. Animal) requires editing tooltip render, click-cycle, and selection match-arms separately, with no central registry",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Japanese tea ceremony (chanoyu) utensil placement and temae procedure",
+  "success_hints": [
+    "Define a single fn entity_priority(tile) -> Vec<Entity> used by tooltip render, click-cycle, and any selection action",
+    "Specify tooltip dismissal triggers explicitly: list every event that closes a sticky tooltip and verify each fires the dismissal",
+    "For HUD legend: order keybindings by frequency-of-use, not alphabetically — match the player's scan pattern"
+  ],
+  "task_context": "Reviewing 9 locked decisions for native renderer input system in a Bevy 0.18 elven colony sim — modal stack, polymorphic Selection, sticky tooltip, persistent HUD, two-predicate gate, Direct overlay switching, hybrid camera gating"
+}

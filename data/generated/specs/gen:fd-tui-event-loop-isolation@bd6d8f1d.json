@@ -1,0 +1,26 @@
+{
+  "anti_overlap": "Does NOT review goroutine sync primitives, interface contracts, or OODARC phase ordering.",
+  "decision_lens": "Does any code path allow a goroutine outside the Bubble Tea update loop to mutate model state or call methods that assume single-threaded access?",
+  "focus": "Preservation of Bubble Tea's single-threaded event loop invariant when concurrent tool goroutines send results back to the TUI.",
+  "name": "fd-tui-event-loop-isolation",
+  "persona": "Bubble Tea / Elm-architecture practitioner who has debugged concurrent message send races in terminal UIs.",
+  "review_areas": [
+    "Result delivery mechanism: verify goroutines send results via tea.Cmd or channel, never by directly mutating model struct",
+    "Progress/streaming updates from parallel tools: confirm emissions go through tea.Msg dispatch",
+    "Error surfacing path: check errors from goroutines are collected and delivered as tea.Msg",
+    "Shutdown/cancel interaction: confirm TUI teardown waits for or cleanly abandons in-flight goroutines",
+    "Spinner or progress indicator updates: verify advancement is from Bubble Tea Update function, not from goroutine directly"
+  ],
+  "severity_examples": [
+    {
+      "condition": "A tool goroutine writes to a shared model field concurrently with Bubble Tea Update reading it, causing data race",
+      "severity": "P0"
+    },
+    {
+      "condition": "Tool goroutines write to stderr during parallel execution, breaking terminal state",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": "No goroutine outside tea.Program touches the model struct; all results arrive as typed tea.Msg values; go test -race is clean.",
+  "task_context": "Parallel tool goroutines are the first code in Skaffen to run outside the event loop while results must flow back into it."
+}

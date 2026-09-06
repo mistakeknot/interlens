@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "Does not cover MIDI channel-global pitch-bend semantics or note-event ordering — that is fd-midi-pitch-bend-channel-semantics's domain",
+    "Does not evaluate whether the test count of 25 is sufficient to cover all pipeline passes — that is fd-test-falsifiability-coverage's domain",
+    "Does not assess the two-PRD boundary for reserved fields or TrackMutationResult redefinition — that is fd-two-prd-contract-interlock's domain"
+  ],
+  "decision_lens": "Load-bearing decision #2 in the PRD: same (grammar, patch, track, salt) must produce byte-identical MIDI output. Any crack in that guarantee makes the M1 audition meaningless — the operator cannot attribute 'they sound different' or 'they sound the same' to the patch rather than to RNG variance. Treat every entropy source as a P0 unless the PRD explicitly closes it.",
+  "focus": "Seed derivation correctness, per-note RNG state isolation across passes, and byte-identical reproducibility as the M1 audition's falsifiability precondition",
+  "name": "fd-determinism-rng-seed-propagation",
+  "persona": "Apply the perspective of a reproducible-builds engineer who routinely debugs 'works on my machine' test failures caused by non-deterministic iteration, hash instability across Python versions, and hidden entropy sources. They measure determinism empirically — 'run it twice, diff the output' — and flag any code path where the same inputs could produce different outputs across interpreter versions, OS scheduling, or execution order.",
+  "review_areas": [
+    "§3.7 seed computation uses sha256(f'{sha256_of_file(grammar_path)}|{patch_name}|{track_index}|{seed_salt}'.encode()).digest()[:8] — 'sha256_of_file' is not defined: does it hash the raw bytes, the decoded text, or the parsed AST? If the grammar file has a trailing newline added by an editor, the file hash changes and all seeds for that grammar are invalidated, breaking A/B comparability between sessions",
+    "§3.7 'per-pass, per-note decisions use random.Random(seed).random() sampled in iteration order' — a single random.Random instance shared across Pass 3 and Pass 4 means Pass 4's RNG state depends on how many notes Pass 3 consumed. If Pass 3 skips a note (e.g., because it was a forbidden note that got replaced in Pass 1), the RNG stream for Pass 4 shifts. The PRD must specify whether the RNG instance is reset between passes or whether cross-pass state coupling is intentional",
+    "§3.7 hash_to_int is called on 8 bytes of SHA-256 digest — the PRD does not specify endianness. int.from_bytes(digest, 'big') vs. int.from_bytes(digest, 'little') gives different seeds. This is a hidden entropy source if the implementation is left unspecified and two developers make different choices",
+    "§3.7 seed_salt='' as default — if the grammar file changes between an initial render and a re-render (e.g., the operator adds a comment to the working grammar), the sha256_of_file changes and the seed changes, making the two renders non-comparable even without explicit salt. The PRD should acknowledge this and specify whether grammar-file-hash is intentional (mutations respond to grammar edits) or whether only semantic content (the parsed patch/modal field) should be hashed",
+    "§5.1 test 8 (determinism): 'call twice with same args; assert byte-identical output MIDI' — this test only detects non-determinism within one Python process. It does not catch cross-process non-determinism (e.g., PYTHONHASHSEED-dependent dict ordering in the resolved_knobs computation). The test contract should specify that determinism must hold across subprocess invocations with PYTHONHASHSEED unset"
+  ],
+  "severity_examples": [
+    {
+      "condition": "If sha256_of_file hashes raw bytes and the operator's editor adds a trailing newline to tonal-grammar-working.md between the first and second patch render, the seed changes. The three patches no longer share a common grammar hash baseline, so A/B comparison of ornament placement between patches is confounded by RNG drift — the M1 audition cannot falsify the knob layer.",
+      "scenario": "Grammar file trailing-newline causes seed mismatch between operator's first and second render",
+      "severity": "P0"
+    },
+    {
+      "condition": "If Pass 1 replaces 3 forbidden notes in the bansuri track (changing the note list that Pass 3 iterates), and Pass 3 and Pass 4 share one random.Random instance, then Pass 4's ornament positions are different from what they would be if no replacements occurred — even for notes that were not touched by Pass 1. This means that fixing a grammar error (reducing forbidden notes) silently repositions ornaments in a different pass.",
+      "scenario": "Shared RNG instance across Pass 3 and Pass 4 causes ornament positions to shift when forbidden-note replacements change note count",
+      "severity": "P1"
+    },
+    {
+      "condition": "If the patch override merging (§1.2 step 2) uses dict iteration order to resolve conflicts, and PYTHONHASHSEED is not fixed, resolved_knobs may have different orderings across subprocess runs, causing different values to 'win' when keys collide — and therefore different mutation behavior with identical inputs.",
+      "scenario": "PYTHONHASHSEED causes dict ordering non-determinism in resolved_knobs",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "The PRD correctly identifies determinism as load-bearing and specifies the seed construction formula — this is precise enough to implement",
+    "The seed_salt escape valve is a good design: it gives the operator a reproducible variant without breaking the determinism contract",
+    "The 25-test contract includes a determinism test (§5.1 test 8) — but it should be strengthened to cover cross-process execution"
+  ],
+  "task_context": "Reviewing the apply_tonal_grammar PRD's RNG seed derivation (§3.7) and the 25-test contract's determinism coverage (§5.1 test 8) for completeness, correctness, and hidden entropy sources that would undermine the M1 audition's ability to attribute audible differences to patch behavior rather than RNG variance."
+}

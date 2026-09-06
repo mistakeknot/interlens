@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Does not review dataset construction methodology, holdout split design, or temporal leakage — those belong to fd-eval-methodology-holdout.",
+    "Does not review the routing.yaml resolver integration or failure-mode handling — those belong to fd-routing-cascade-design.",
+    "Does not review shadow-mode promotion criteria or production rollout safety — those belong to fd-production-rollout-safety."
+  ],
+  "decision_lens": "Will the proposed training configuration produce a non-collapsed, calibrated routing classifier, or will it silently learn to always predict the majority tier (Sonnet) while appearing to meet the holdout accuracy threshold?",
+  "focus": "LoRA fine-tuning correctness on MLX/Apple Silicon — adapter configuration, loss function design, judge-augmentation quality, and inference-time latency feasibility for the Qwen3.5-3B-Instruct microrouter.",
+  "name": "fd-lora-distillation-pipeline",
+  "persona": "Apply the perspective of a practitioner who has shipped LoRA adapters on mlx-lm on Apple Silicon, is familiar with rank/alpha sensitivity for classification tasks, and has debugged distillation collapse (where a student model collapses to the majority class). They care about whether the loss function is calibrated for class imbalance, whether rank-8/16 with alpha-32 is appropriate for a routing classifier (versus a generative task), and whether GPT-5.5 judge augmentation introduces systematic bias toward the majority tier. They measure pipeline quality by checking that val curves diverge predictably from train curves (no overfit) and that per-tier confusion matrices show non-trivial precision on the minority tiers. They flag naive cross-entropy over an imbalanced corpus, uncalibrated judge prompts, and missing ablations that distinguish distillation wins from dataset-size wins.",
+  "review_areas": [
+    "Check whether the ≥ 0.85 holdout accuracy target is sufficient to detect collapse — if 85% of the training corpus is Sonnet-routed, a collapsed model predicts Sonnet always and trivially meets the threshold; the spec should require minimum per-tier recall (e.g., ≥ 0.60 recall on Haiku class) as an additional gate.",
+    "Validate that the rank-8/16, alpha-32 LoRA configuration is appropriate for a routing classifier task on Qwen3.5-3B — encoding-only fine-tunes (smaller, faster) are mentioned as a Phase 2 option but deferred without quantitative motivation; flag if 3B decoder latency at p95 threatens the < 100ms ceiling on M5 Max.",
+    "Assess the GPT-5.5 judge augmentation strategy for systematic bias — if the judge is prompted with (task, model_options) → 'which tier?' without access to the actual agent execution context or calibration history, it may systematically over-recommend Sonnet for ambiguous cases, amplifying the existing class imbalance.",
+    "Check the cost-weighted regret loss described in the RouteLLM pattern is correctly adapted for the Sylveste pricing model — cloud delegation via Codex OAuth is described as 'free at point of use', which breaks standard FrugalGPT cost assumptions; the loss should use latency-proxy or quality-proxy weighting rather than monetary cost.",
+    "Verify that adapter weights are saved at a path that the interfer serving layer (endpoint: localhost:8421/route) can discover without manual intervention, and that the checkpoint naming convention supports rollback (delete the adapter file, per B3/B4 escape-hatch pattern).",
+    "Flag whether the open question about encoder-only Phase 2 (ModernBERT or similar) has a concrete decision criterion — without one, the 3B decoder will be used indefinitely even if latency proves problematic, because there is no defined threshold that triggers the architectural switch."
+  ],
+  "severity_examples": [
+    {
+      "condition": "When class imbalance is severe (e.g., 90% Sonnet in training data) and the loss is standard cross-entropy without per-tier weighting or explicit minority-class recall gates.",
+      "scenario": "Holdout accuracy of ≥ 0.85 is met by a model that predicts Sonnet for 100% of inputs because Sonnet is the majority class in a heavily imbalanced corpus — the router ships to shadow mode, logs show 0% reroute rate, and the ≥ 20% reroute success criterion for shadow→enforce promotion is never met.",
+      "severity": "P1"
+    },
+    {
+      "condition": "When the < 100ms latency benchmark in the training bead is measured in isolation without concurrent local-model memory pressure from the B5 local_models layer.",
+      "scenario": "p95 router inference latency on M5 Max exceeds 100ms under realistic memory pressure from concurrent Qwen3.6-35B-A3B operation, causing the Go resolver to hit the timeout_ms ceiling on the majority of calls and silently fall through to B3 — microrouter is effectively dead in enforce mode.",
+      "severity": "P1"
+    },
+    {
+      "condition": "When judge augmentation is applied to the long tail of examples missing ground truth, and the judge prompt does not include calibration data or complexity-tier context that would allow it to distinguish genuinely easy tasks.",
+      "scenario": "GPT-5.5 judge fills label gaps with a Sonnet-biased prior, increasing Sonnet representation in the training set from 70% to 85%, amplifying the class imbalance problem in proportion to how many examples needed judge augmentation.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Per-tier recall gates (not just overall accuracy) are specified for the holdout evaluation.",
+    "Latency benchmark is run under concurrent B5 local-model memory pressure, not in isolation.",
+    "A concrete criterion exists for triggering the encoder-only Phase 2 architectural switch.",
+    "Cost-weighted loss is adapted for latency/quality proxies rather than assuming monetary cost differences."
+  ],
+  "task_context": "Bead .19.3 specifies the LoRA distillation pipeline for training the microrouter on Qwen3.5-3B-Instruct via mlx-lm, with judge augmentation from GPT-5.5 for examples missing ground truth. Bead .19.2 provides the labeled dataset. The pipeline runs inside interlab and produces adapter weights consumed by the interfer serving layer. This review focuses on training configuration correctness, loss design, collapse detection, and inference feasibility."
+}

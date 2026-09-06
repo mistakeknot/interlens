@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Does not review the audition protocol's falsifiability (see fd-perceptual-audio-falsifiability)",
+    "Does not review Hindustani ornament fidelity (see fd-hindustani-ornament-fidelity)",
+    "Does not review the mutation pipeline's internal pass ordering or coherence (see fd-color-grade-pipeline-coherence)"
+  ],
+  "decision_lens": "If the caller and callee were written by different teams who only communicated through the PRD boundary document, would the integration work on first contact? What implicit assumptions cross the boundary without being named?",
+  "distance_rationale": "Surgical handoff protocols operate at the same abstraction level as a two-PRD software contract — both define what information must be transmitted at a specialty boundary, what error states must be enumerated in advance, and what happens when the receiving party encounters an unexpected condition — but the stakes and professional practices are entirely different.",
+  "expected_isomorphisms": "The I-PASS handoff's 'read-back' step (receiver confirms understanding before acting) maps to the callee's input validation before any mutation pass runs. The surgical handoff's pre-enumerated error catalog (known complications and their escalation paths) maps to the PRD's four error types and the fail-fast behavior — both require that unexpected conditions be named before the procedure begins, not discovered during it.",
+  "focus": "Two-PRD interlock integrity — does the caller/callee contract boundary have the properties required for safe specialty handoffs: explicit read-back, error catalog completeness, and no silent state assumptions across the boundary?",
+  "name": "fd-surgical-handoff-contract",
+  "persona": "Apply the perspective of a clinical handoff protocol designer (e.g., SBAR/I-PASS framework in surgical or ICU handoffs) — they care about the completeness of the information transferred at a specialty boundary, whether the receiving party can reconstruct the sender's intent from the handoff data alone, whether error conditions are enumerated in advance rather than discovered at runtime, and whether the handoff protocol has a 'read-back' step where the callee confirms understanding before acting. They measure whether a handoff can fail silently — a callee that proceeds with incomplete or contradictory information without flagging it. They flag when a contract boundary assumes shared implicit context that is not transmitted.",
+  "review_areas": [
+    "The companion PRD's § 2.4 TrackMutationResult shape is 'imported verbatim' by this PRD. Does this PRD specify a read-back verification step — i.e., does the callee check that its return value matches the expected shape before returning, or does shape conformance rely on the caller's error handling?",
+    "The forbidden_note_replacements counter is a forward-compatible addition (§ 1.3) that this PRD reserves but the companion PRD's owner has not signed off on. Is the 'emit and consumers should ignore unknown keys' posture safe under the companion PRD's fail-fast semantics — could an unknown key in the mutations block cause the caller's result parser to error rather than ignore?",
+    "The instrument_spec argument is a dict derived from the roster. Is the dict's required key set specified in this PRD, or does the callee have to infer it from the companion PRD's roster schema? A handoff with an underspecified input type is a silent failure waiting to happen.",
+    "The error catalog (§ 4) specifies four error types. Is there a guarantee that the callee only ever returns one of these four types? If a future pass raises an unexpected exception (e.g., a YAML parsing edge case not covered by 'schema_error'), does the callee wrap it in live_api_error, or does it propagate an uncaught exception that bypasses the TrackMutationResult contract entirely?",
+    "The 'dry_run' mode (§ 1.1) computes mutations but does not call Live. Does the companion PRD's caller have a corresponding dry_run flag that would cause it to pass dry_run=True to this tool? If not, the dry_run parameter is untestable from the caller side — an orphaned contract feature.",
+    "The reset-controllers sweep (§ 3.1) is described as satisfying companion-PRD § 2.8's forward-dependency requirement. Does this PRD reproduce the § 2.8 requirement verbatim, or does it reference it by section number? If the companion PRD renumbers its sections, this cross-reference silently breaks."
+  ],
+  "severity_examples": [
+    {
+      "condition": "The PRD does not specify input validation for instrument_spec's required keys before any business logic runs, and does not require that all exceptions be wrapped into the error contract.",
+      "scenario": "The callee raises an uncaught KeyError when instrument_spec is missing a key it expected (e.g., 'preset_path' absent from a manual_program instrument whose roster row omitted it). The exception propagates past the TrackMutationResult return shape, and realize_ensemble receives an exception rather than a structured error — its fail-fast logic expects a dict with 'status', not a Python exception, and crashes without a locatable error.",
+      "severity": "P0"
+    },
+    {
+      "condition": "The 'emit and consumers should ignore unknown keys' assumption in § 1.3 is not verified against the actual caller implementation — which may use strict schema validation rather than permissive parsing.",
+      "scenario": "The caller's result parser treats any unknown key under 'mutations' as a schema_error (strict JSON schema validation). The callee emits forbidden_note_replacements unconditionally. Every call returns a result that the caller rejects as schema_error, and realize_ensemble fails fast on every track.",
+      "severity": "P1"
+    },
+    {
+      "condition": "The cross-reference uses a section number rather than a quoted requirement statement or a stable anchor string.",
+      "scenario": "The companion PRD is updated and § 2.8's forward-dependency requirement is reworded or renumbered. This PRD's § 3.1 continues to cite '§ 2.8' as the authority for the reset-controllers sweep, but the reference now points to a different requirement. The reset sweep's justification is silently orphaned.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Clinical handoff protocols (SBAR, I-PASS, surgical specialty handoffs) and safety-critical interface contract design",
+  "success_hints": [
+    "instrument_spec's required keys are enumerated in this PRD, not just referenced from the companion PRD's roster schema",
+    "All exceptions from any pass are caught and wrapped into the four-type error catalog — no uncaught exception can escape the TrackMutationResult return boundary",
+    "The forbidden_note_replacements addition is confirmed safe under the caller's actual parsing behavior before M1 ship, not assumed to be safe",
+    "The companion PRD's § 2.8 requirement is quoted verbatim in § 3.1 rather than referenced by section number, so renumbering cannot silently break the cross-reference"
+  ],
+  "task_context": "Reviewing the PRD for apply_tonal_grammar as the callee side of a two-PRD interlock. This review evaluates whether the contract boundary (input spec, return shape, error catalog, cross-PRD references) is complete enough for safe integration with the companion caller PRD."
+}

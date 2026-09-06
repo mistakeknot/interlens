@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-coordination-state-model covers CRDT/gossip coordination infrastructure, interlock replacement, and the 3-layer stack applicability",
+    "fd-observability-data-model covers structured experiment file formats (best.json, run-NNN.json), snapshot publishing, and leaderboard generation for Intercom/Autarch reporting",
+    "fd-capability-routing covers capability declarations, weight-based agent matching, and how Hyperspace's 9-capability model maps to Clavain's lib-routing.sh"
+  ],
+  "decision_lens": "Prioritize patterns that make Skaffen's autonomous work loop more systematic and compound-learning-aware. Flag philosophical mismatches where Hyperspace's narrow-metric optimization diverges from Sylveste's broad software-quality goals.",
+  "focus": "Evaluate Hyperspace's mutation-based research pipeline (hypothesis→train→evaluate→critique→discover) as a model for Skaffen and Autarch's autonomous work execution",
+  "name": "fd-autonomous-work-loop",
+  "persona": "An AI systems architect who has designed autonomous agent work loops and understands the difference between goal-directed planning, mutation-based search, and reactive execution. Thinks carefully about how feedback loops close and where human judgment must remain in the loop.",
+  "review_areas": [
+    "Map Hyperspace's 5-stage pipeline (hypothesis→train→paper→critique→discovery) onto Skaffen's current work loop and identify which stages are missing or implicit",
+    "Evaluate the 'mutation over regeneration' principle: whether Skaffen/Autarch should maintain a best.json equivalent per task type and mutate it rather than starting from scratch each cycle",
+    "Assess the 'inspiration-before-hypothesis' pattern (agents read peers' discoveries before generating next hypothesis) and how this maps to Skaffen checking auto-memory + intersearch before planning",
+    "Evaluate the agent JOURNAL.md cognitive journal pattern as a structured alternative to Sylveste's auto-memory conventions, and whether the two should be unified",
+    "Identify the philosophical gap between Hyperspace's single-metric optimization (val_loss, NDCG@10) and Sylveste's multi-dimensional code quality, and what richer metrics Autarch should use instead",
+    "Assess DiLoCo's 'work locally, share deltas periodically' pattern as a coordination model for multiple Skaffen instances working on the same codebase from different angles"
+  ],
+  "success_hints": [
+    "Agent produces a concrete proposal for what Skaffen's 'mutation history' (best approach per task type) should look like as a data structure",
+    "Agent identifies the specific feedback loop closure mechanism Sylveste is missing that Hyperspace has (what triggers the next hypothesis in Skaffen's loop)",
+    "Agent makes a clear recommendation on whether the agent JOURNAL.md pattern should replace, extend, or remain separate from Sylveste's auto-memory conventions"
+  ],
+  "task_context": "Hyperspace AGI is a P2P autonomous AI research network using GossipSub, Loro CRDTs, and GitHub as a 3-layer coordination stack. Sylveste is a single-operator multi-agent platform where Clavain orchestrates agents via interlock (file-based reservations) and beads (Dolt-backed issue tracking). The analysis must identify adoptable coordination patterns for a local, single-machine context."
+}

@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Focuses on WASM browser deployment constraints, WebGPU/WebGL2 support matrix, and WASM memory budgets — not Bevy sprite batching architecture (fd-bevy-sprite-instancing-glyph-atlas), cross-project trait bridge portability (fd-bevy-ecs-trait-bridge-portability), GPU glyph rasterization algorithms (fd-gpu-glyph-rendering-text-pipeline), or raw wgpu pipeline design decisions (fd-wgpu-raw-pipeline-control)",
+  "decision_lens": "Given that WASM is a secondary target for Elf Revel, what is the minimum viable WASM path for each rendering option — and which options impose a WASM compatibility tax so large it influences the primary native architecture decision? Is the 'render the same code to both targets' promise of wgpu actually reliable in 2026, or are there enough browser API gaps to require significant conditional compilation?",
+  "focus": "WASM browser deployment of a Rust native-first colony sim renderer: WebGPU vs WebGL2 backend selection, wasm-bindgen memory budgets for glyph atlases and tile state, browser-specific performance constraints, and the engineering cost of maintaining a dual native+WASM build for Bevy 0.18 vs raw wgpu vs macroquad",
+  "name": "fd-wasm-webgpu-browser-target",
+  "persona": "Rust/WASM game developer who has shipped both Bevy WASM games and raw wgpu WASM applications; knows the WebGPU browser support matrix (Chrome 113+, Firefox 124+, Safari 18+ behind flag as of early 2026), the wasm-bindgen JS interop overhead, WASM linear memory limits, and the specific ways each Rust rendering stack behaves differently in the browser — Bevy's wasm feature flags, wgpu's WebGL2 fallback path, macroquad's WASM maturity",
+  "review_areas": [
+    "WebGPU browser support reality check as of April 2026: Chrome 113+ ships WebGPU; Firefox 124+ ships it behind a flag (may be stable by 2026); Safari 18+ ships it on iOS/macOS but with known gaps in compute shaders and WGSL feature parity; evaluate what fraction of Elf Revel's target audience can use WebGPU natively vs requiring the wgpu WebGL2 fallback backend",
+    "wgpu WebGL2 fallback completeness: wgpu's webgl2 Cargo feature enables a WebGL2 backend that covers most 2D rendering needs; evaluate whether Elf Revel's required features (instanced rendering, custom vertex attributes, atlas texture sampling, potentially compute shaders for tile preprocessing) are fully supported on WebGL2 or whether the fallback silently degrades",
+    "WASM memory budget for colony sim: a 200x200 colony grid with per-tile glyph state (char: u8, fg_color: u32, bg_color: u32, layer: u8) = 14 bytes × 40K tiles = 560KB; a 512x512 RGBA glyph atlas = 1MB; hecs simulation state at colony scale = estimate 2-10MB; wgpu texture/buffer allocations = estimate 5-20MB; verify total WASM linear memory footprint stays under 256MB default, with a clear path to the 4GB maximum if needed",
+    "Bevy WASM build complexity: Bevy 0.18 WASM support requires specific feature flags (bevy/webgpu or bevy/webgl2), wasm-bindgen, wasm-pack or trunk build tooling, and async initialization because WebGPU adapter acquisition is async in browsers; evaluate whether the WASM build of a Bevy-based renderer requires a significantly different code path from the native build, or if a single Cargo.toml feature controls the difference cleanly",
+    "macroquad WASM maturity: macroquad has first-class WASM support via its own web platform abstraction; however, known issues include texture memory leaks on long sessions and performance degradation on mobile browsers; evaluate whether macroquad's simpler WASM story justifies its limitations for Elf Revel's secondary WASM target use case",
+    "Binary size and load time: Bevy WASM binaries are large (commonly 15-40MB uncompressed); raw wgpu with a minimal 2D renderer can be 3-8MB; macroquad is typically 5-12MB; evaluate whether Elf Revel's target audience (likely desktop-primary) tolerates a 30+ second load on a slow connection, and whether WASM binary size is a constraint worth optimizing for"
+  ],
+  "severity_examples": [
+    {
+      "condition": "WASM async initialization not handled; no wasm-bindgen(start) async entry point or equivalent; GPU adapter acquisition failure not surfaced to the user",
+      "scenario": "The chosen rendering stack (Bevy 0.18 with WebGPU) requires async GPU adapter initialization but the WASM entry point uses a synchronous wasm_bindgen main function — the game initializes without a GPU context, rendering nothing, with no error displayed to the user",
+      "severity": "P0"
+    },
+    {
+      "condition": "Instanced rendering not verified on WebGL2 backend; ANGLE instanced arrays extension assumed present but not checked; no fallback rendering strategy for non-instancing browsers",
+      "scenario": "The WebGL2 fallback path silently disables instanced rendering for browsers that don't support WebGPU, causing the WASM build to fall back to one draw call per glyph — 100K draw calls per frame produces <1fps in every non-Chrome browser",
+      "severity": "P1"
+    },
+    {
+      "condition": "WASM memory limit not calculated or enforced; colony size allowed to grow without checking remaining WASM heap; no memory pressure telemetry",
+      "scenario": "The WASM build of the colony sim allocates 150MB of WASM linear memory for a large colony, exceeding the default 256MB limit when combined with the Bevy/wgpu texture allocations and hecs simulation state — the game crashes with an out-of-memory error on large saves in Firefox which has a tighter WASM memory limit than Chrome",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "The WASM viability test: build the renderer's WASM target with `cargo build --target wasm32-unknown-unknown --release` and serve it locally. Open in Chrome (WebGPU), Firefox (WebGL2 fallback), and Safari (WebGL2 fallback). All three should render a 50x50 demo colony at >30fps within 5 seconds of page load. Check browser memory tab — play for 5 minutes and verify memory does not grow. If all three pass, the secondary WASM target is viable with the chosen primary rendering stack.",
+  "task_context": "Elf Revel is native-first (full-screen Rust, Apple Silicon primary target) with WASM browser as a secondary target. Evaluating 6 rendering stacks: Bevy 0.18 port from shadow-work, fresh Bevy 0.18, fresh Bevy latest, raw wgpu, macroquad prototype, and Bevy/macroquad hybrid. WASM support quality varies significantly across these options. hecs ECS simulation, 100K+ glyphs at 60fps."
+}

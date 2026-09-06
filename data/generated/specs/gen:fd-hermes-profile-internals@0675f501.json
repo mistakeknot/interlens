@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Do not review systemd unit file syntax or daemon-reload sequencing — that is fd-systemd-lifecycle's domain.",
+    "Do not review SQLite WAL checkpoint correctness — that is fd-sqlite-wal-safety's domain.",
+    "Do not review Discord/Telegram reconnect or token conflict behavior — that is fd-gateway-reconnect's domain."
+  ],
+  "decision_lens": "Rank by whether a path resolution error silently sends state writes to the wrong directory (data loss class) vs causes an immediate startup error (recoverable). The worst case is a gateway that starts successfully but writes to the archived root location.",
+  "focus": "Hermes profile-system path resolution: HERMES_HOME env var semantics, active_profile sticky file behavior, profile create/clone mechanics, wrapper script correctness, and -p flag resolution paths.",
+  "name": "fd-hermes-profile-internals",
+  "persona": "Apply the perspective of a Python application internals reviewer who has read the Hermes profile resolution source — they care about whether HERMES_HOME overrides propagate correctly through all code paths, measure whether the active_profile sticky file in the root vs profile dir creates ambiguity during startup, and flag wrapper scripts that rely on -p flag resolution when HERMES_HOME points to a non-standard root.",
+  "review_areas": [
+    "Verify that the new wrapper script `exec env HERMES_HOME=/home/mk/.hermes-amtiskaw/profiles/amtiskaw hermes \"$@\"` is correct — specifically confirm that when HERMES_HOME is set to a profile directory, Hermes does not additionally look for a profiles/ subdirectory inside it or try to load active_profile relative to HERMES_HOME.",
+    "Check whether the active_profile sticky file remaining in the archived root (`/home/mk/.hermes-amtiskaw/active_profile`) creates confusion if any Hermes invocation still uses HERMES_HOME=/home/mk/.hermes-amtiskaw — the file names 'amtiskaw', but the profile directory it references will have been moved to _archive_pre_migration; confirm the archived root's active_profile won't trigger a profile auto-load that bypasses the unit's explicit HERMES_HOME.",
+    "Validate that `_CLONE_ALL_STRIP` strips gateway.pid, gateway_state.json, and processes.json from the profile copy — these files hold PID references and in-flight process state that are meaningless in the new profile context and would cause immediate confusion on gateway start.",
+    "Confirm that the profile create --clone-all command (step 6) is invoked with HERMES_HOME pointing at the root, not the profile — if HERMES_HOME is already pointing at the profile directory (e.g., leftover from a previous failed attempt), create_profile may create a profiles/ subdirectory inside the profile, causing recursive nesting.",
+    "Check whether hermes_cli.main gateway run --replace reads the --replace flag against the profile's own gateway.pid or the root's — with HERMES_HOME set to the profile dir, --replace should look for the pid file in the profile dir; confirm there is no stale gateway.pid in the profile from the brief 20:31 touch during the failed restart.",
+    "Verify that the broken `hermes -p amtiskaw` form in the old wrapper is explicitly removed or overwritten — if both the old and new wrapper coexist (e.g., old wrapper in PATH before new), the broken -p form will be used, causing a startup failure that looks like a profile resolution error."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Hermes profile resolution code walks .parent.name == 'profiles' to detect whether it is already inside a profile dir; if this detection fails or is not implemented, setting HERMES_HOME to a profile dir breaks the invariant.",
+      "scenario": "HERMES_HOME in the unit file points at the profile dir, but Hermes treats HERMES_HOME as the root and looks for profiles/amtiskaw/ inside it — gateway starts with an empty or wrong data directory, all state reads return empty, user-facing memory and channel routing is gone.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Step 6 create_profile copies gateway.pid before _CLONE_ALL_STRIP removes it, but the brief 20:31 state.db touch may have also written a fresh gateway.pid to the profile; step 7 only removes channel_directory.json and discord_threads.json.",
+      "scenario": "Stale gateway.pid file exists in the profile directory from the 20:31 failed restart attempt; --replace reads it, tries to SIGTERM PID N, which no longer exists or belongs to an unrelated process, and gateway exits with 'failed to replace existing gateway' error.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Active_profile file is moved to archive in step 10 but any future operator who sets HERMES_HOME to the root manually will get confusing profile auto-selection behavior.",
+      "scenario": "active_profile sticky file in the archived root still names 'amtiskaw'; a future manual `hermes` invocation with HERMES_HOME=/home/mk/.hermes-amtiskaw auto-loads the profile by name, resolves the path as profiles/amtiskaw/ which now points at the archive, and silently operates on archived state.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Check whether the plan explicitly verifies that Hermes' profile-detection logic handles HERMES_HOME pointing directly at a profile directory.",
+    "Flag whether gateway.pid in the profile dir from the 20:31 touch is explicitly cleaned up before start.",
+    "Verify the old broken wrapper is fully replaced, not shadowed."
+  ],
+  "task_context": "Reviewing the Hermes Amtiskaw migration plan (hermes-amtiskaw-migration-plan.md) for correctness of Hermes profile-system path resolution. The plan re-runs profile create --clone-all, rewrites the ~/.local/bin/amtiskaw wrapper to use HERMES_HOME env var instead of -p flag, and updates the systemd unit's Environment= to point HERMES_HOME at the profile directory. The existing broken wrapper used `hermes -p amtiskaw` which fails because -p resolves under ~/.hermes/profiles, not the custom root."
+}

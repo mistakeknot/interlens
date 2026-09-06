@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-scan-skill-executability covers SKILL.md logic — this agent only checks scaffold structure",
+    "fd-doc-hierarchy-blast-radius covers MISSION.md migration — this agent only checks plugin files",
+    "fd-exec-yaml-orchestration covers wave sequencing — this agent only checks plugin-standard.md conformance"
+  ],
+  "decision_lens": "Findings that would cause Claude Code to silently not load the plugin are P0. Findings that cause test failures are P1. Style deviations are P3.",
+  "focus": "Validates that the plugin scaffold (Task 2) strictly conforms to plugin-standard.md and will load without error in Claude Code",
+  "name": "fd-plugin-scaffold-correctness",
+  "persona": "A plugin ecosystem engineer who has reviewed 40+ Interverse plugin scaffolds and knows every loader edge case. Approaches the plan by treating plugin-standard.md as an executable specification.",
+  "review_areas": [
+    "plugin.json declares commands as './commands/scan.md' etc. — verify this format is correct vs. the skills subdirectory convention",
+    "AGENTS.md canonical references point to '../../MISSION.md' and '../../PHILOSOPHY.md' — verify relative paths resolve from interverse/interlore/",
+    "CLAUDE.md content boundary — verify Design Decisions don't constitute project knowledge that belongs in AGENTS.md",
+    "test_skills.py imports from 'helpers' with bare import — verify this works with pytest's discovery when pyproject.toml is in tests/structural/",
+    "The plan's test_structure.py uses pytest fixtures from conftest.py — verify fixture-based approach works vs module-level constant pattern used by other plugins",
+    "No hooks declared in plugin.json — verify this is correct for a hookless plugin"
+  ],
+  "success_hints": [
+    "uv run pytest tests/structural/ -v exits 0 with all tests passing on first attempt",
+    "plugin.json contains exactly the fields plugin-standard.md marks as required",
+    "Claude Code plugin loader finds the plugin via autodiscovery without collision"
+  ],
+  "task_context": "The plan scaffolds interlore at interverse/interlore/ with one skill (observe), three commands, and a pytest structural test suite conforming to plugin-standard.md."
+}

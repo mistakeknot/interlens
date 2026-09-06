@@ -1,0 +1,32 @@
+{
+  "anti_overlap": [
+    "Do not review the CV/ML redaction model choices, detector accuracy, or tracking algorithms (YOLO/SCRFD/ByteTrack/inpainting) — that is covered by the CV/ML pipeline reviewer.",
+    "Do not review the pipeline-contract schema, trust-boundary data flow, k-anonymity gate, or Tailscale node-transfer privacy posture — that is covered by the trust-boundary/data-governance reviewer.",
+    "Focus strictly on device-side capture-app engineering: AVFoundation/session lifecycle, BackgroundTasks, thermal/power management, storage/quarantine mechanics, and device-agnostic capture abstraction."
+  ],
+  "decision_lens": "For every capture-path claim in the brief, ask: what interrupts this in the field (phone call, Siri, low-power mode, thermal state transition, storage-full, screen lock, backgrounding), and does the brief specify the recovery/degradation behavior — or does it just name the happy path?",
+  "focus": "iOS/AVFoundation capture-app engineering: session lifecycle, background execution, thermal/power management, and device-agnostic capture module design for a retired-phone chest-mount rig",
+  "name": "fd-ios-capture-lifecycle",
+  "persona": "Apply the perspective of a senior iOS systems engineer who has shipped long-running AVFoundation capture apps (dashcam, action-cam companion, or field-research telemetry apps) through App Store review, and who has been burned by BackgroundTasks scheduling limits, thermal throttling, and AVAudioSession interruption edge cases in production.",
+  "review_areas": [
+    "AVAudioSession/AVAudioEngine tap fork (branch A video mux, branch B SoundAnalysis) under interruptions: phone calls, Siri, route changes (headphones plugging in mid-run), and what happens to the BirdNET tap and the video mux independently when one branch fails",
+    "BackgroundTasks reality check: BGProcessingTask/BGAppRefreshTask budgets, OS-imposed scheduling opacity, and whether 'deferred, docked/charging' processing can actually be guaranteed to run promptly on iOS 17+ without explicit fallback (foreground-triggered catch-up, user-visible 'processing pending' state)",
+    "Thermal state transition handling as a state machine, not a single 'degrade gracefully' sentence: what exactly changes at each `ProcessInfo.thermalState` level (nominal/fair/serious/critical), is there hysteresis to avoid flapping, and what happens if `.critical` is reached mid-recording (brief says never degrade capture quality — but iOS itself can throttle/kill the process; is there a documented last-resort behavior)",
+    "Storage-full and quarantine-reclaim race conditions: what happens when 'aggressively reclaim raw' collides with 'reclaim only after every routed stage confirms outputs' — device-storage-critical scenarios (mid-run, no Wi-Fi/Tailscale reachable to node) aren't reconciled with the always-quarantine-until-confirmed rule, and there's no explicit device-only fallback path for redaction if node is unreachable for days",
+    "Device-agnostic capture module assumption: the brief asks to design for 'future contributor devices with different cameras' but the entire tier-scheduler defaults, thermal assumptions, and bitrate/FOV specifics are hard-tuned to the A15/13-mini — no abstraction boundary specified between capture-module capability probing and stage-scheduling that would actually let a different device (different chip generation, no ultra-wide, no barometer) plug in",
+    "App lifecycle vs. long recording session: is the capture session designed to survive app termination (crash, OS jetsam under memory pressure, forced-quit) with partial-session recovery, or is an interrupted 60-minute run just lost — the M1 acceptance criterion only tests thermal/audio-drop, not process-death resilience"
+  ],
+  "severity_examples": [
+    "P0: No documented behavior for `thermalState == .critical` during active 4K30 recording — if iOS itself intervenes (frame drops, suspension) and the brief's invariant is 'never degrade capture quality,' the design has no answer for what actually happens, and this will surface in real trail-run testing, not fixtures.",
+    "P1: BackgroundTasks scheduling is opportunistic and OS-controlled — the brief assumes 'docked/charging' reliably triggers deferred processing on a predictable timeline, but BGProcessingTask has no run-time guarantee; without a foreground catch-up path, sessions could sit unprocessed (and raw un-reclaimed) for days, colliding with the aggressive-storage-reclaim goal on a 128GB phone at 18GB/hr.",
+    "P2: The AVAudioSession fork's failure mode isn't specified — if SoundAnalysis's branch throws or the session gets interrupted by a phone call, does video muxing branch A continue independently, or does the shared engine instance take both down together?"
+  ],
+  "success_hints": [
+    "Flags concrete unhandled interruption/state-transition scenarios (thermal critical, session interruption, backgrounding, storage-full) with specific iOS API behavior, not generic 'what about edge cases'",
+    "Distinguishes between what the brief states as a design intent vs. what iOS actually guarantees at the API level (e.g., BackgroundTasks budget reality vs. 'defer to docked/charging')",
+    "Notes the device-agnostic-module intent vs. A15-specific hardcoding tension as a concrete architectural gap, not just a stylistic note",
+    "Ties findings back to milestone acceptance criteria (M1's 'no thermal shutdown/dropped audio' test doesn't cover the scenarios raised)",
+    "Avoids re-litigating already-decided invariants in §8; focuses on capture-layer mechanics not covered elsewhere in the brief"
+  ],
+  "task_context": "Find anything MISSING or underspecified in the JawnScope build brief before the sprint goal is created — blind spots, unstated assumptions, pipeline-contract gaps, privacy invariant holes (§8), milestone sequencing risks (M0–M5). Carried clarification (treat as part of the brief): the capture device is a dedicated retired iPhone 13 mini — no SIM, no daily-driver duties, can be dev-provisioned freely, assumed docked/charging overnight for deferred processing, and its storage can be filled aggressively with quarantined footage."
+}

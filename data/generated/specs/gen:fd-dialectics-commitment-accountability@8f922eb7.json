@@ -1,0 +1,40 @@
+{
+  "anti_overlap": [
+    "Leave illocutionary act-type (assertion vs question vs directive vs expressive) to the pragmatics/speech-act lens; this lens asks only what 'being on the hook to defend it' requires.",
+    "Leave the use/mention and veridicality-status question to the propositional-content/veridicality lens; this lens asks only whether the utterance creates an accountable, retractable commitment."
+  ],
+  "decision_lens": "Rank the five candidates by whether 'defensible' tracks dialectical accountability — would a 'why do you think that?' challenge be well-formed, and would retraction propagate through the JTMS — rather than sincerity. Note where a commitment-store definition would deliberately flip a current gate verdict, and whether that flip serves retraction fan-out, the design's own falsifiable metric.",
+  "focus": "Whether the rubric's 'could be asked to defend' clause is operationalized as dialectical accountability (on record, answerable to challenge, independent of sincerity) or conflated with sincerity (did the author genuinely mean it) — and which reading actually serves a JTMS whose retraction semantics is the acceptance criterion.",
+  "name": "fd-dialectics-commitment-accountability",
+  "persona": "Apply the perspective of a scholar of normative/dialectical pragmatics of assertion — Brandom's commitment and entitlement, Walton and Krabbe's formal dialectic and commitment stores, Hamblin's commitment slates, and Williamson's knowledge norm of assertion with its sincerity/warrant distinction.",
+  "review_areas": [
+    "Whether 'defend' matches commitment-store semantics (assertion adds a retractable proposition to a public set) rather than sincerity — check 'Pickle Gunkel Morty' for principled vs accidental reasons.",
+    "Whether bare agreement ('true', 'I think so') originates a fresh, defensible commitment vs merely inheriting someone else's — check against ~387 short posts scored claim in data/gate.jsonl.",
+    "Whether hedges are full-strength commitments at qualified entitlement (affects claimed confidence, not whether commitment was incurred) vs partial/absent — cross-check the hedge-rejection bug.",
+    "Whether candidates distinguish 'asked to defend' (accountable to any challenger) from 'defend sincerely' (belief Decision 3 defers to a later stage) — flag sincerity re-litigated at the gate.",
+    "Whether retractability itself appears in a candidate's definition of 'claim' — does it ask 'would retracting this do useful downstream work' or stop at 'is this assertoric'."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Flag if a top-ranked candidate has this shape: it sets an impossible gate requirement or duplicates a later stage, misdirecting implementation effort.",
+      "scenario": "A candidate operationalizes 'defend' as 'did the author sincerely mean this', requiring sarcasm/persona detection AT THE GATE — a task Decision 3 explicitly defers to a later quote-stance stage.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Flag if the candidate's language could be read either way without an explicit hedge-preserves-commitment clause.",
+      "scenario": "A candidate is silent on whether hedges reduce entitlement without reducing commitment, risking regression of the already-fixed hedge-rejection bug if adopted without carrying that clause forward.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Matters because mean retraction fan-out is the JTMS's core falsifiable metric — an ungrounded high-volume bucket will distort it either way.",
+      "scenario": "A candidate has no answer for whether bare agreement tokens ('true') originate an independently retractable commitment, leaving ~387 short posts in an unprincipled bucket.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "When invoking Brandom, Walton and Krabbe, or Williamson, translate the concept into a one-sentence test applicable to a single post, not a citation-only reference.",
+    "Connect each finding back to the acceptance criterion by naming what a wrongly admitted or excluded commitment would do to retraction fan-out, the design's own falsifiable metric.",
+    "For each of the five candidates, say whether it would flip the verdict on any concretely sampled post relative to the gate's actual current output, and which direction the flip goes."
+  ],
+  "task_context": "What does 'claim' mean in this pipeline? The gate (src/norvid_studier/gate_prompt.py) sorts 40,943 prefiltered Bluesky posts into claim/nonclaim and has now scored ~33k of them into data/gate.jsonl (each line: uri, label, prob, mass, top_token). Downstream, extract_prompt.py turns each claim into a 'commitment', pairing.py finds candidate contradictory pairs, and tension_prompt.py judges them. The acceptance criterion for the whole system is norvid_studies' words: 'found things I didn't notice but upon juxtaposition oh yeah those cant both be right'. Determine the top 5 candidate DEFINITIONS of 'claim' the gate could be operating on — not five example claims, five rival senses of the word — and rank them by how well each serves that acceptance criterion. Ground every candidate in the ACTUAL scored data: read data/gate.jsonl and data/posts.jsonl, sample real posts at various prob levels, and show which definition each real verdict is consistent with. Known symptoms to explain: questions still score YES despite an explicit NO rule; 'holy heck' scores as a claim; ~34% claim rate is ~10x the design estimate of belief-bearing posts (~3%); the rubric asks for 'asserts something that could be true or false, and that its author could be asked to defend' which conflates at least assertion-vs-question, proposition-vs-speech-act, and defensible-vs-sincere. Read docs/brainstorms/2026-07-29-norvid-studier-brainstorm.md for prior reasoning."
+}

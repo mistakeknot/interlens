@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "Does not review overall E2E trust boundaries (fd-e2e-encryption-architecture), key management protocols (fd-key-management-protocol), privacy compliance (fd-privacy-engineering), or AI proxy architecture (fd-ai-proxy-trust-boundary). Focuses exclusively on the intersection of CRDT mechanics and encryption — merge correctness, compaction, metadata leakage, and offline reconciliation.",
+  "decision_lens": "CRDT encryption compatibility is evaluated by asking: does the encryption scheme preserve the algebraic properties CRDTs require for convergence, what operations can still be performed on encrypted state, and does the approach require changes to Yjs itself or only to the application layer above it?",
+  "focus": "Reviews the compatibility between encryption and CRDT-based real-time collaboration — whether encrypted content can be merged, whether metadata leaks compromise privacy, and whether existing CRDT encryption research applies to Garden Salon's architecture",
+  "name": "fd-crdt-encryption-compat",
+  "persona": "Distributed systems researcher specializing in encrypted CRDTs, with deep knowledge of the Ink & Switch CRDT research agenda, Yjs internals, the academic literature on searchable/homomorphic encryption over CRDTs, and the practical limitations of every approach that has been attempted in production.",
+  "review_areas": [
+    "Encrypt-then-CRDT vs CRDT-then-encrypt — this is the fundamental architectural fork. Encrypting before CRDT operations requires the CRDT to operate on ciphertext (only possible with homomorphic or structure-preserving encryption, which does not exist at practical performance for text CRDTs). Encrypting after CRDT operations means the CRDT operates on plaintext locally, and only the wire format and storage are encrypted. The design must choose and name the consequences.",
+    "Yjs update vector encryption granularity — Yjs synchronizes via binary update vectors. Encrypting entire update vectors preserves CRDT semantics (the decrypting client applies the update normally) but means the server cannot perform update compaction, garbage collection, or conflict resolution on encrypted updates. Over time, this causes unbounded state growth.",
+    "Metadata leakage in encrypted Yjs — even with encrypted payloads, Yjs update vectors contain structural metadata: client IDs, logical clocks, document structure paths. This metadata reveals who is editing, when, how often, and which parts of the document are being changed. The encryption may protect content but not collaboration patterns.",
+    "Existing research applicability — Ink & Switch's work on 'local-first software' and encrypted CRDTs (particularly the 2023-2024 papers on encrypted Automerge) describes approaches where the CRDT metadata is public but values are encrypted. This 'encrypt values, not structure' approach may be directly applicable to Yjs but requires per-field encryption keys and changes to how Yjs documents are structured.",
+    "Offline participant reconciliation under encryption — Yjs supports offline editing with eventual reconciliation. If an offline participant edits locally under the current key, and the group key rotates while they are offline (due to a membership change), their updates cannot be decrypted by other participants when they reconnect. The design does not address this race condition."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If the architecture encrypts content before passing it to Yjs, the CRDT merge function receives ciphertext that it cannot structurally merge. Two concurrent encrypted edits to the same text region will not converge — the CRDT will either crash, produce garbage, or silently drop one edit. This is a correctness failure that makes the system unusable.",
+      "scenario": "CRDT convergence failure on encrypted payloads",
+      "severity": "P0"
+    },
+    {
+      "condition": "Yjs servers can compact update history by merging sequential updates. With encrypted updates, the server cannot perform this compaction because it cannot parse the update structure. Over months of use, encrypted gardens accumulate unbounded update history, degrading sync performance and storage costs with no server-side remedy.",
+      "scenario": "Unbounded state growth from encrypted update compaction failure",
+      "severity": "P1"
+    },
+    {
+      "condition": "A participant goes offline, edits locally, and reconnects after the group key has rotated (another participant was removed). Their updates are encrypted under the old key. Other participants cannot decrypt them. The edits are lost or require a manual re-encryption step the user does not understand.",
+      "scenario": "Offline participant's edits rejected after key rotation",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "A viable CRDT encryption design explicitly chooses CRDT-then-encrypt (encrypting wire format and storage, CRDT operates on plaintext locally), addresses server-side compaction of encrypted updates (or accepts the cost), names the metadata that remains visible, references applicable research (Ink & Switch, encrypted Automerge), and handles the offline-edit key-rotation race condition.",
+  "task_context": "Garden Salon uses Yjs for CRDT-based real-time collaboration. The encryption brainstorm identifies Yjs binary updates as the unit of real-time sync and acknowledges that encryption must happen 'before or after Yjs encoding.' The system supports multi-participant concurrent editing and offline-capable clients."
+}

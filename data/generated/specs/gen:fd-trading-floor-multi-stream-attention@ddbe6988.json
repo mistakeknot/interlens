@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Focuses on attention tiering and information prioritization; fd-stage-management handles session coordination; fd-hotel-operations handles dual-audience paths; fd-newsroom handles completion topology.",
+  "decision_lens": "Attention is the scarcest resource. Information must be tiered: action-required vs advisory vs ambient. The wrong alert level either causes missed opportunities or alert fatigue.",
+  "distance_rationale": "Trading desks solve multi-stream attention management under time pressure with tiered alert systems — structurally identical to managing multiple agent proposals but in financial operations.",
+  "expected_isomorphisms": "The three-tier alert hierarchy (action/advisory/ambient) maps to proposal urgency. The blotter (cross-position summary) maps to cross-garden overview. Position limits map to review pressure thresholds.",
+  "focus": "How multiple information streams are prioritized for human attention without overwhelming — drawn from equity trading desk operations.",
+  "name": "fd-trading-floor-multi-stream-attention",
+  "persona": "A senior equity trader and trading floor architect with experience designing multi-monitor desk layouts and alert hierarchies for real-time market operations.",
+  "review_areas": [
+    "Does the garden view have a three-tier attention hierarchy (action required / advisory / ambient)?",
+    "Is there a cross-garden 'blotter' — a summary view showing activity across all gardens for power users (sma)?",
+    "Can mobile serve as a lightweight blotter (quick status checks) rather than trying to replicate the full desktop experience?",
+    "Are notifications tiered by urgency — rejection feedback vs new proposal vs agent status change?",
+    "Does the suggestion list separate 'needs your action' from 'for your information'?",
+    "Is there a 'position limit' — a cap on how many proposals can be pending before the system signals overload?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No attention tiering in proposal list",
+      "scenario": "All proposals have the same visual weight regardless of whether they need action — leads to attention fatigue",
+      "severity": "P1"
+    },
+    {
+      "condition": "No cross-garden summary view",
+      "scenario": "Power user (sma) has no way to see activity across multiple gardens without opening each one",
+      "severity": "P2"
+    },
+    {
+      "condition": "Mobile doesn't adapt to attention-constrained context",
+      "scenario": "Mobile tries to show the full desktop layout instead of a focused action-required view",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Equity trading desk operations and floor architecture",
+  "success_hints": "The interface separates 'act now' from 'be aware' from 'ambient context.' Power users get a blotter. Mobile shows the action queue, not the full workspace.",
+  "task_context": "Review the Garden Salon attention model through the lens of trading floor operations — is information properly tiered for human attention capacity?"
+}

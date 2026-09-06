@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Leave whether SPAN/ARTIFACT are mathematically/statistically sound to the construct-validity reviewer.",
+    "Leave whether 'nobody is auditing arenas' is empirically true across the competitive landscape to the benchmark-landscape reviewer — this agent should assume that finding and reason about distribution consequences, not re-litigate it.",
+    "Do not render a verdict on the cognitive-core-vs-eval-methodology fork — surface the positioning tradeoffs it turns on."
+  ],
+  "decision_lens": "Prioritize by which distribution failure mode would most cheaply be discovered before building rather than after — a channel-fit mismatch that only becomes visible after publication is more costly than a scoping question resolvable now.",
+  "focus": "Failure modes of shipping the validity work as a tool (arena-lint), a paper, or a public audit of someone else's leaderboard, and how that choice interacts with the primary fork between eval-validity methodology and the cognitive-core mission as zahro's visible output.",
+  "name": "fd-critiquetool-distribution-risk",
+  "persona": "Apply the perspective of a research-tooling positioning and distribution specialist — familiar with how methodology critique work actually gets adopted (or doesn't) across academic publication, open-source dev-tooling, and public audits/blog-post critiques of others' benchmarks or products, including the social and incentive dynamics of publicly auditing a peer project's leaderboard.",
+  "review_areas": [
+    "arena-lint-as-tool failure modes: assess adoption mechanics for a standalone validity linter — who would run it, given arena builders have no incentive to install a tool that might invalidate months of work, and the doc's own 'cheap and illegible, nobody's résumé improves from it' line is itself a demand argument against the builder persona ever installing it voluntarily.",
+    "Paper-as-output failure modes: check whether the six-killed-claims narrative and the four assets have the shape of a publishable methodology paper (novel generalizable claims, related-work coverage) versus a well-documented internal postmortem — flag if the 'instrument' framing overclaims paper-readiness the doc hasn't actually done (no related-work section exists in the doc as given, no comparison to generalizability theory or RL sanity-check literature).",
+    "Public-audit-of-someone-else's-leaderboard failure modes: name the reception risks specifically for auditing fort-gym, the most credible peer and one actively building toward a 'lab brand' per the doc — unsolicited critique of a live, actively-developed peer project reads differently than critiquing a retired or abandoned one, and the doc's own 'grep, not a full read' caveat means the audit as currently evidenced is not ready to publish against a named target without a full read first.",
+    "Distribution-vs-demand diagnosis: apply the doc's own 'cheap and illegible... nobody's résumé improves from it' logic symmetrically — if that is true, it predicts low demand for zahro's own audit tool too, and the review should check whether the doc's competitive-gap argument and its own adoption prognosis are in tension.",
+    "Mission-fork positioning consequences: for each of the three shipping vehicles (tool, paper, audit), assess which mission ('eval-validity methodology' vs 'cognitive core') it visibly commits zahro to in an outside observer's eyes — a published audit of fort-gym reads as a methodology project regardless of what MISSION.md says, while a paper that foregrounds the cognitive-core motivation throughout can carry both — and surface this as an input to mk's fork decision without resolving it.",
+    "Sequencing risk: given evals/tasks/ shows two of eleven planned categories built and zero capability numbers exist yet, assess whether shipping any public-facing validity artifact now forecloses or defers the cognitive-core work in a way that is hard to reverse (reputational lock-in to 'the eval-audit project') versus keeping the instrument internal until capability numbers exist."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Any public-facing artifact names fort-gym or another specific repo before a full-read verification pass.",
+      "scenario": "Shipping a public audit specifically targeting fort-gym while the current evidence base is 'grep, not a full read' risks publishing a specific, falsifiable claim ('no sign of SPAN or artifact control') about a named, actively-developed peer project that turns out to be wrong on a full read — a reputational and factual risk that blocks the audit branch entirely until resolved.",
+      "severity": "P0"
+    },
+    {
+      "condition": "The design session moves toward implementation without picking a primary distribution vehicle.",
+      "scenario": "The tool (arena-lint) and audit (public critique) branches have opposite distribution logics — a tool needs voluntary installs by arena builders who have no incentive to run it per the doc's own 'cheap and illegible' argument, while an audit needs zahro to do the work itself against others' arenas — and the doc doesn't yet pick one, so a plan that tries to be both risks building neither's distribution path.",
+      "severity": "P1"
+    },
+    {
+      "condition": "A public artifact ships before delegation/ or dial/ produce their first capability numbers.",
+      "scenario": "Framing the eval-validity work as 'the product' risks the visible-output pivot committing zahro publicly to a methodology-project identity before the cognitive-core thesis has produced a single capability number, a reversible-in-principle but costly-in-practice branding decision given evals/tasks/ is two of eleven categories built.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Ground each distribution-failure claim in the doc's own stated facts (134 repos, the 'cheap and illegible' framing, fort-gym's active-development signals) rather than generic startup/GTM platitudes.",
+    "Treat the tool/paper/audit choice as three genuinely different distribution mechanics with different audiences and different risk profiles — don't collapse them into 'how do we publicize this.'",
+    "When discussing the fork between eval-validity and cognitive-core, sharpen the considerations mk would weigh (audience, reversibility, what each vehicle visibly commits zahro to) rather than recommending which mission to pick.",
+    "Flag explicitly if a finding depends on mk's taste rather than a fact about the world — this doc defers that call on purpose, and the review should preserve the fork rather than quietly resolve it."
+  ],
+  "task_context": "Settle what zahro differentiates on. The reframe: 22 stages of fort-bench produced zero capability measurements but built an eval-validity instrument with six killed claims to its name — the arena was the test subject, the instrument is the product. The competitive read is that 134 DF-agent/benchmark repos are building arenas since June 2026 and none appear to be auditing them; the most rigorous (lemoz/fort-gym) independently rediscovered three arena-registry rules and still has no SPAN and no artifact control. Four assets look unique and none are DF-specific: SPAN (can a metric see a perfect scripted policy — 5 of 7 cannot), ARTIFACT (how much range a content-preserving prompt permutation manufactures — moved a headline 3/18 to 18/18 with zero world effect), rule 16 paired-difference sizing (15x correction, infinite at temperature 0 where replicate sd is exactly 0), and rule 17 cross-contract replication (651 calls said capability, one call outside the contract said artifact). PRIMARY FORK TO SETTLE: does zahro's visible output become eval-validity methodology when MISSION.md says cognitive core? Arguments both ways are in the doc; this is mk's taste call and the session should sharpen it, not resolve it silently. Wanted: attack the 'nobody is auditing arenas' claim hard — is the gap real, or does it just look open because the checks are already standard practice under other names, or because auditing has no distribution and no demand? Stress-test whether SPAN/ARTIFACT survive contact with benchmarks that have no scripted-optimal policy available. Find the failure modes of shipping this as a tool (arena-lint) versus a paper versus a public audit of someone else's leaderboard. Name what I am not seeing. Out of scope: building a better fort-gym."
+}

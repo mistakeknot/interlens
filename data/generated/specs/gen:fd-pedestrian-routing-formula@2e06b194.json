@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "Does not cover Python type system or Protocol/dataclass configuration — that is fd-python-type-system.",
+    "Does not cover Dijkstra/A* preconditions or NetworkX API contract — that is fd-routing-algorithm-correctness.",
+    "Does not cover GraphML type round-trip or edge attribute lifecycle — that is fd-graphml-attribute-hygiene."
+  ],
+  "decision_lens": "Where does the brainstorm's formula or its default parameters produce weights that either fail to discriminate routes by shade or produce non-monotonic outcomes relative to pedestrian comfort expectations?",
+  "focus": "Walking/pedestrian routing formula correctness: felt-minute model validity, sun_coefficient calibration, pace_mps defaults, perceived-cost model assumptions, unit consistency",
+  "name": "fd-pedestrian-routing-formula",
+  "persona": "Apply the perspective of a pedestrian routing researcher familiar with thermal comfort and perceived-cost walking models — they care about whether the felt-minute formula produces outputs that meaningfully discriminate route quality in practice, measure validity by whether the formula's outputs for representative DTLA edges produce weights that a routing engine would use to prefer shaded routes, and flag anywhere that default coefficients, unit handling, or formula structure produce degenerate or misleading weights.",
+  "review_areas": [
+    "The formula felt_minutes = (length_m / pace_mps / 60) * (1 + 0.5 * sun_fraction) produces a sun penalty multiplier in [1.0, 1.5] — the maximum penalty for a fully sunny edge is 50% over a fully shaded edge of the same length. The brainstorm notes synthesis finding 65 suggests this may not discriminate in DTLA's regular grid but does not document the implied trade-off: the optimizer accepts up to a 50% longer route for full shade over full sun. This is the primary UX policy statement of the formula and should be explicitly documented.",
+    "The formula treats sun_fraction as a linear penalty factor — this is a simplification relative to UTCI (Phase 2), which is nonlinear in solar radiation. The v0 formula makes shade preference independent of absolute walking time: a 1-second sunny edge costs 1.5x a 1-second shaded edge, same as a 10-minute edge. The routing optimizer is equally willing to take a 1-second detour to avoid a 1-second sunny edge as a 10-minute detour to avoid a 10-minute sunny edge — the brainstorm does not document whether this linear scaling is intentional for v0.",
+    "The default pace_mps = 1.4 m/s is ~5.0 km/h, consistent with typical adult walking pace. However, the formula uses pace_mps only to convert length_m to walking_minutes — it does not affect the sun penalty multiplier. A pace_mps=1.1 (StepsDaddy stroll mode) produces longer walking_minutes but the same relative sun penalty. The brainstorm notes 'persona-aware pace = different FeltMinutesV0 instance' but does not verify that slower pace does not cause unexpected routing artifacts on very short sunny detours.",
+    "The formula assumes length_m is in meters and pace_mps is in m/s, producing walking_minutes in minutes — this is dimensionally correct. However, edge_attrs.get('length', 0.0) trusts the OSMnx-provided length attribute. The brainstorm does not verify that the Phase 1.5 GraphML preserves the length attribute with meter units after projection, or that reprojection from WGS84 changes the stored length value.",
+    "The NaN fallback policies assign sf values of 0.5 ('neutral'), nan_fallback_value, 0.0 ('shade'), or 1.0 ('sun'). The 'neutral' policy rationale states 'the router neither preferences nor avoids unknown-coverage edges' — but sf=0.5 produces a 1.25x multiplier, meaning unknown edges cost 25% more than fully shaded. The router does modestly prefer unknown-coverage over sunny (1.25x vs 1.5x) — calling this 'neutral' is inaccurate and could mislead Phase 1.7 calibration."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Phase 1.7's route comparison card will show shade% and felt-minutes deltas. If users see the optimal route taking a 45% longer path to gain 90% shade, sun_coefficient=0.5 is the policy making that trade-off — but it is not documented as a policy choice. Calibration in Phase 1.7 that changes sun_coefficient changes the trade-off, and without documentation the 0.5 default looks like an arbitrary placeholder.",
+      "scenario": "50% detour limit not documented as the primary UX policy",
+      "severity": "P2"
+    },
+    {
+      "condition": "For a 5-minute trip with one sunny segment and a 60-minute trip with one sunny segment of the same shade fraction, the routing optimizer is proportionally equally willing to detour. This means the felt-minute model does not capture that users tolerate a short sunny stretch on a long walk more than on a short errand — if this is a known v0 limitation, it should be documented.",
+      "scenario": "Linear sun penalty produces equal routing preference independent of trip length",
+      "severity": "P2"
+    },
+    {
+      "condition": "Calling the 1.25x multiplier 'neutral' is incorrect if the design intent is that unknown-coverage edges have no routing preference. True neutrality would require the unknown multiplier to equal the population-average multiplier of known edges, which depends on the DTLA distribution of sun_fraction values.",
+      "scenario": "Neutral fallback policy (0.5) is not neutral — it preferences unknown over sunny",
+      "severity": "P3"
+    }
+  ],
+  "success_hints": [
+    "Add a formula semantics section documenting the maximum shade-preference detour as a function of sun_coefficient: detour_factor = 1 + sun_coefficient, so the default 0.5 means the optimizer accepts up to 50% longer routes for full shade over full sun.",
+    "Document that 'neutral' means 'small penalty for unknown edges, not zero penalty' — either rename to 'moderate' or document why 0.5 is the chosen fallback given DTLA's expected sun_fraction distribution.",
+    "Verify that the OSMnx length attribute in the Phase 1.5 output GraphML is in meters by spot-checking a known DTLA street segment against measured distance."
+  ],
+  "task_context": "Reviewing the brainstorm's felt-minute formula design, default parameters, and NaN fallback policy semantics for correctness relative to pedestrian routing and perceived-cost model expectations."
+}

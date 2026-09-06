@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-identity-resolution covers how the join is computed, not what it must produce",
+    "fd-source-emission-design covers upstream changes to factory-status.go",
+    "fd-staleness-and-refresh covers temporal correctness of the pipe, not schema correctness"
+  ],
+  "decision_lens": "Evaluates join strategies by asking whether the output record type is sufficient for all 6 experiments without per-experiment data fetching, and whether the contract is stable enough to develop against.",
+  "focus": "What the data contract between the pipe and the 6 visualization experiments must look like, and which join strategy best satisfies that contract",
+  "name": "fd-viz-layer-contracts",
+  "persona": "A frontend data architect who has built visualization systems over heterogeneous backends and treats the consumer contract as the specification, not the source schema. They work backwards from the rendering requirements to determine what the pipe must emit.",
+  "review_areas": [
+    "Define the minimum required fields for each of the 6 experiments: which fields are mandatory (null = broken render) versus optional (null = degraded render), and map these back to which source must provide them",
+    "Determine whether the force graph's node and edge schema requires project-level grouping that cannot be inferred from bead ID prefix alone, making a join mandatory for that experiment",
+    "Assess whether the split-flap board experiment requires a stable sort key that is only available after joining (e.g., project-grouped ordering) or can operate on bead IDs directly",
+    "Check whether the causal-loops experiment requires a semantic field (agent-type or sync-mode from the Notion roster) that is absent from factory-status, making it roster-dependent",
+    "Specify how the pipe should represent partial join results: should unmatched sessions emit as null-extended records, be dropped, or be emitted on a separate channel?",
+    "Evaluate whether a normalized output schema (flat record per agent session with all fields from both sources) or a denormalized schema (nested objects per source) better serves the 6 experiments"
+  ],
+  "success_hints": [
+    "The output schema should be defined as a typed struct before any join strategy is implemented — the struct is the contract",
+    "At least one experiment (the simplest one, likely split-flap) should be implementable using only factory-status fields, validating that the pipe works before the join is complete"
+  ],
+  "task_context": "Two data sources must be combined for a visualization pipeline: a Notion-sourced IdeaGUI roster (85 agent sessions with project/terminal/agent-type/sync-mode) and clavain-cli live ops (fleet counts, queue by priority, WIP agent-to-bead mappings). The core challenge is that bead IDs encode the DB prefix (Sylveste-), not the sub-project, and tmux session names are human-readable but not linked to hex session IDs in WIP output."
+}

@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "Focuses on beauty computation cost and cache design — not species generation (fd-botanical-procgen), terrain migration (fd-terrain-migration), entity density (fd-ecs-flora-entity-budget), or garden scope (fd-garden-art-sprint-scope)",
+  "decision_lens": "What is the actual computational and memory cost of each beauty option? Where do cache invalidation gaps create stale beauty values?",
+  "focus": "Observer-dependent beauty: computation cost model, cache invalidation, aesthetic axis dot product, WASM memory",
+  "name": "fd-observer-beauty-computation",
+  "persona": "Game systems programmer specializing in per-entity perception models and spatial query optimization in ECS architectures",
+  "review_areas": [
+    "Q4 cost model: Option A is O(tiles), Option B is O(elves × adjacent_tiles × dot_product), Option C is O(elves × all_flora) — actual tick budget impact?",
+    "DerivedLayers cache invalidation: if beauty is observer-dependent, the beauty cache must rebuild when elves move — but elf movement isn't in the current rebuild DAG",
+    "Aesthetic axis dot product: 4D aesthetic position (structure, tradition, emotion, social) × species aesthetic profile — is a 4D dot product per elf per flora entity justified?",
+    "WASM memory: per-elf beauty grids (8 elves × 1200 tiles × 1 byte = 9.6KB) vs. per-tile beauty cache (1200 × 1 byte = 1.2KB) — memory impact at scale?",
+    "Incremental path: can Option B (species + axis modifier) be implemented as a cheap lookup table rather than per-interaction dot product?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Option C chosen with per-tick beauty recalculation",
+      "scenario": "Observer-dependent beauty causes frame stutter at 10x game speed",
+      "severity": "P1"
+    },
+    {
+      "condition": "No elf-movement invalidation in DerivedLayers rebuild DAG",
+      "scenario": "Beauty cache goes stale when elf moves — elf sees old beauty values for 100 ticks",
+      "severity": "P2"
+    },
+    {
+      "condition": "Over-engineering the aesthetic perception model",
+      "scenario": "4D dot product computed per interaction when a 1D lookup (high/low alignment) would suffice",
+      "severity": "P3"
+    }
+  ],
+  "success_hints": "The real question isn't 'can we compute it?' (yes, always) but 'does the player notice the difference between Options A and B?' If not, the complexity is waste.",
+  "task_context": "Flora design for Elf Revel — WASM target, 8 elves, 40×30 map, day-boundary flora ticks, per-tick beauty system"
+}

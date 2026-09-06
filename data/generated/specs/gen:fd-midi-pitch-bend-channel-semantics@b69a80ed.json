@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "Does not cover RNG seed stability or determinism across re-runs — that is fd-determinism-rng-seed-propagation's domain",
+    "Does not cover whether clip-replace API actually exists in upstream — that is fd-live-api-surface-assumptions's domain",
+    "Does not evaluate the two-PRD contract boundary for TrackMutationResult — that is fd-two-prd-contract-interlock's domain"
+  ],
+  "decision_lens": "MIDI 1.0 spec: pitch-bend is channel-global, not per-note. Every design decision in §3.4 that implies per-note bend isolation must be interrogated against this constraint. If Play's MCM mode assigns one channel per plugin instance and stems are monophonic, the polyphony claim softens — but that assumption must be verified, not inherited.",
+  "focus": "MIDI pitch-bend channel-global semantics, per-note bend lifecycle, polyphony collision, and MCM mode correctness under EWQL Play",
+  "name": "fd-midi-pitch-bend-channel-semantics",
+  "persona": "Apply the perspective of a MIDI protocol engineer who has spent time debugging DAW-to-plugin channel-state bugs in polyphonic orchestral samplers. They care about whether bend events land on the right channel at the right tick relative to note-on/note-off boundaries, measure correctness by replaying the MIDI in isolation (no plugin) and verifying that a single-channel MIDI monitor shows the expected event sequence, and flag any place where a channel-global CC or bend event is assumed to be per-note in scope.",
+  "review_areas": [
+    "§3.4 adjacent-note bend-reset semantics: the PRD specifies 'reset-bend at note_off + 1 tick' — verify this is sufficient to prevent the bend from bleeding into the silence between notes, and that the next note-on therefore starts at bend=0 without requiring a second reset",
+    "§3.4 polyphony on the same MIDI channel: the PRD's 'lowest-pitch note dominates' rule applies the bend globally, but what if Play's MCM gives each layer its own channel? The PRD does not verify that EWQL Silk/Play actually maps one channel per instance vs. one plugin per channel — this assumption is load-bearing for the polyphony edge-case handling",
+    "§3.1 Pass 0 reset-controllers ordering: all four events (CC123, CC121, pitch-bend=0, CC64) are inserted at tick 0 on 'the clip's primary channel' — the PRD does not define 'primary channel' when the clip contains events on multiple channels (possible for polyphonic santoor content), creating an underspecified reset",
+    "§3.7 per-pass, per-note RNG sampling in iteration order: the PRD says 'sampled in iteration order' but does not specify the iteration order for note events that share the same tick — simultaneous note-ons are an undefined ordering, and different orderings produce different RNG states even with the same seed",
+    "§3.4 adjacent same-pitch legato merge: the 'within 1 tick' merge rule for bend-reset omission — is 1 tick at arbitrary PPQ values (Live uses 96 PPQ by default but some MIDI imports may differ) always sub-audible, or does the PPQ of the imported stem need to be normalized first?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "If the santoor stem (polyphonic, accepts_microtonal_mutation=false) carries multi-channel MIDI, Pass 0's reset lands on channel 1 only. Channel 2 retains any bend from the prior per-track call. The per-track state-isolation guarantee (§3.1) is violated and the bug is silent — no error, just wrong audio.",
+      "scenario": "Bend events assigned to channel 1 but polyphonic clip has notes on channels 1 and 2",
+      "severity": "P0"
+    },
+    {
+      "condition": "Python's MIDI parsing libraries (mido, pretty_midi) do not guarantee order for events at the same tick across different runs or Python versions. If the RNG consumes simultaneous note-ons in varying order, the seed produces different ornament and cent-offset assignments across runs — the M1 audition A/B is then unreliable even with a fixed seed_salt.",
+      "scenario": "Note iteration order for simultaneous note-ons is non-deterministic",
+      "severity": "P1"
+    },
+    {
+      "condition": "At 96 PPQ and 88 BPM, 1 tick is ~7ms — probably sub-audible. At 480 PPQ (some DAW exports), 1 tick is ~1.4ms. The PRD does not pin PPQ or normalize it, so the merge heuristic may behave differently depending on the stem's source PPQ.",
+      "scenario": "1-tick bend-reset window is PPQ-relative and not specified",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "The PRD correctly identifies pitch-bend as channel-global and documents the polyphony edge case with a 'lowest-pitch dominates' rule — this is the right instinct",
+    "Pass 0's four-event reset sweep is specified clearly and covers the documented state-leak hazard from companion-PRD §2.8",
+    "The legato merge optimization (§3.4) is a reasonable audibility heuristic but needs a PPQ normalization note to be implementable without surprise"
+  ],
+  "task_context": "Reviewing the apply_tonal_grammar PRD's MIDI mutation pipeline specification (§§3.1–3.8) for correctness of pitch-bend semantics, channel-state management, and note-event ordering under MIDI 1.0's channel-global constraints, specifically as they interact with EWQL Play's MCM mode and polyphonic MIDI stems."
+}

@@ -1,0 +1,32 @@
+{
+  "anti_overlap": "Representation quality and information loss, not extraction validity (fd-clinical-intake) or scoring (fd-lens-evolution)",
+  "decision_lens": "Every projection preserves some properties and distorts others — what does the system prompt preserve and what does it lose?",
+  "distance_rationale": "Map projections are the canonical example of lossy representation — every choice preserves area OR angle OR distance, never all three",
+  "expected_isomorphisms": "Mercator distortion at poles maps to entity overflow in system prompt; equal-area projections map to token-budgeted profile sections; multi-scale maps map to macro/meso/micro lens selection",
+  "focus": "Representation distortion when rich user context is projected into system prompt tokens",
+  "name": "fd-cartographic-projection-distortion",
+  "persona": "Cartographer specializing in projection theory — how representing a sphere on a flat surface necessarily distorts some property",
+  "review_areas": [
+    "System prompt as projection: 291 lenses × user context × history compressed into finite token window",
+    "Working profile narrative as lossy compression: what information survives profile_gen and what is dropped?",
+    "Lens selection as dimensionality reduction: 291 → 0-3 per turn, what signals drive the projection?",
+    "Entity count scaling: what happens when a user has 50+ active entities? Does the projection degrade?",
+    "Domain gap detection (ALL_DOMAINS - explored) as negative space: are unexplored areas weighted correctly?",
+    "Style fingerprint projection: per-mode metrics collapsed into single mirroring instruction"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Working profile narrative hits token limit, profile_gen silently truncates",
+      "scenario": "User with 50+ entities gets truncated profile that loses key constraints",
+      "severity": "P1"
+    },
+    {
+      "condition": "Mirroring instruction doesn't distinguish mode-specific vs global style",
+      "scenario": "Style fingerprint from advisory mode applied in casual mode",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Cartographic Projection Theory",
+  "success_hints": "Focus on prompts.py build_system_prompt, profile_gen.py, and lenses.py get_lens_index",
+  "task_context": "Signal-first refactor adds more context (signal metadata) — projection budget is already tight"
+}

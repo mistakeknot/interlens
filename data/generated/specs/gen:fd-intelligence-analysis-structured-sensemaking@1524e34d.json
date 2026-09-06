@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Focuses on analytical rigor and bias mitigation — not on relationship pacing (concierge), fiduciary obligations (wealth), or discovery UX (museum).",
+  "decision_lens": "Structured sensemaking — how do you select the right analytical framework while actively guarding against confirmation bias, anchoring, and premature closure?",
+  "distance_rationale": "Intelligence analysis operates in a high-stakes sensemaking context with formalized methods for avoiding the exact cognitive biases that autonomous framework selection is vulnerable to.",
+  "expected_isomorphisms": "Analysis of Competing Hypotheses maps to competing lens consideration. Epistemic status tracking maps to profile confidence levels. Red teaming maps to self-challenge in lens selection. Post-mortem analysis maps to learning from failed recommendations.",
+  "focus": "Review Auraken's framework selection rigor and use case expansion through intelligence analysis methodology — structured analytic techniques, confirmation bias mitigation, competing hypotheses, and epistemic status tracking.",
+  "name": "fd-intelligence-analysis-structured-sensemaking",
+  "persona": "A senior intelligence analyst with 15+ years at a national intelligence agency, trained in Richards Heuer's Analysis of Competing Hypotheses (ACH) and structured analytic techniques, specializing in avoiding analytic pitfalls.",
+  "review_areas": [
+    "Does Auraken's dynamic lens selection guard against confirmation bias? Intelligence analysis requires considering competing hypotheses. Does the system ever present an alternative lens that would reframe the problem differently?",
+    "Is there epistemic status tracking? Intelligence products distinguish between 'confirmed,' 'probable,' 'possible,' and 'speculative.' Does Auraken's profile track the confidence level of its observations about users?",
+    "How does the system handle adversarial self-challenge? Intelligence analysts are trained to 'red team' their own conclusions. Does Auraken ever challenge its own lens selection or profile assertions?",
+    "Is there a framework for distinguishing signals from noise across use cases? When expanding from cognitive augmentation to recommendations, the signal-to-noise ratio changes dramatically. How does the system calibrate?",
+    "Does the system track analytical failures? Intelligence agencies do post-mortem analysis when predictions fail. Does Auraken learn from wrong lens selections or bad recommendations?",
+    "How does the system handle the 'puzzle vs. mystery' distinction? Some problems have answers that can be found (puzzles); others are genuinely uncertain (mysteries). Different use cases fall on different points of this spectrum."
+  ],
+  "severity_examples": [
+    {
+      "condition": "System selects a lens that matches its existing model of the user rather than the actual problem — the intelligence failure mode of 'seeing what you expect to see'",
+      "scenario": "No confirmation bias mitigation in lens selection",
+      "severity": "P1"
+    },
+    {
+      "condition": "All profile facts treated with equal confidence regardless of evidence quality — a single conversation treated as equivalent to months of pattern observation",
+      "scenario": "No epistemic status tracking on profile observations",
+      "severity": "P1"
+    },
+    {
+      "condition": "When a lens application or recommendation fails, the system doesn't learn from the failure or update its selection model",
+      "scenario": "No post-mortem on analytical failures",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Intelligence analysis / structured analytic techniques (Richards Heuer, CIA)",
+  "success_hints": "Lens selection should include competing hypothesis consideration (what alternative lens would reframe this differently?), epistemic confidence levels on all profile facts, and systematic post-mortem learning from failures.",
+  "task_context": "Auraken selects from a library of interdisciplinary lenses using recognition-primed decision making. Intelligence analysis is the discipline most concerned with avoiding the cognitive biases that RPD is vulnerable to — confirmation bias, anchoring, premature closure."
+}

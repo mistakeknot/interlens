@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "Does not cover schema design (fd-ontology-schema-evolution), entity resolution (fd-entity-resolution-identity), agent integration patterns (fd-agent-ontology-runtime), or architectural philosophy (fd-composition-coupling-philosophy)",
+  "decision_lens": "Every query capability evaluated for: what's the worst-case traversal cost? Can the query be satisfied from a materialized view or does it require live traversal? What's the write amplification of maintaining the materialized views? Is the freshness guarantee compatible with the update rate?",
+  "focus": "Graph query language design and runtime performance — traversal patterns, query planning, materialization strategy, and the cost model for agent-issued graph queries at runtime",
+  "name": "fd-graph-query-runtime",
+  "persona": "A graph database engineer who has built and optimized query engines for Neo4j, TigerGraph, and Amazon Neptune. Expert in Cypher/GQL/SPARQL query planning, traversal complexity, materialized view maintenance, and the specific performance characteristics of property graphs vs. RDF triples. Has seen graph databases fail spectacularly when traversal depth is unbounded or when materialized views can't keep up with write rates.",
+  "review_areas": [
+    "Query cost model: the brief proposes 'show me everything related to X' — this is an unbounded traversal. What's the depth limit? What's the fan-out at each hop? At 6 entity categories with cross-links, this could touch the entire graph.",
+    "Materialized view feasibility: the brief suggests a 'read-only projection' — what's the write amplification? If code changes every commit and work changes every sprint, how often must the materialized view refresh?",
+    "Live traversal vs. pre-computation: which queries can be pre-computed (entity neighborhood) and which must be live (cross-system path finding)? The brief doesn't distinguish these.",
+    "Index strategy: property graphs need indexes on relationship types, node properties, and often composite indexes for efficient multi-hop queries — what's the index maintenance cost?",
+    "Query language choice: agents need a query interface — is it a DSL, a natural language layer, or direct graph queries? Each has different performance and expressiveness tradeoffs."
+  ],
+  "severity_examples": [
+    {
+      "condition": "A high-connectivity node (e.g., a core utility function) has thousands of transitive connections, and the query returns all of them",
+      "scenario": "Unbounded 'everything related to X' traversal causes agent timeout or token explosion",
+      "severity": "P0"
+    },
+    {
+      "condition": "Agent queries the graph immediately after a code change, but the materialized view hasn't refreshed yet, producing incomplete results",
+      "scenario": "Materialized view staleness causes agents to miss recently created relationships",
+      "severity": "P1"
+    },
+    {
+      "condition": "Every git commit triggers a full graph recomputation because the materialization strategy doesn't support incremental updates",
+      "scenario": "Write amplification from materialized view maintenance slows down the primary work loop",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "The brief's most ambitious query — 'show me everything connected to this function' — is also the most expensive. Evaluate whether the concept addresses query cost at all, and whether the proposed read-only projection can actually be maintained at the rate agentic development produces changes.",
+  "task_context": "Reviewing a concept brief that proposes a unified entity graph with cross-system traversal. The platform produces high write volumes (code changes per commit, beads per sprint, sessions per hour) and agents would query the graph at runtime."
+}

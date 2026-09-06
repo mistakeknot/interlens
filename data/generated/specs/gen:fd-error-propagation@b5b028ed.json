@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "fd-migration-correctness covers schema logic correctness, not error surfacing",
+    "fd-goroutine-lifecycle covers goroutine lifecycle, not error collection",
+    "fd-persistence-integrity covers rollback correctness, not rollback error reporting"
+  ],
+  "decision_lens": "A swallowed error that allows the handler to report success while in a bad state is P0. An error that surfaces but loses context is P1.",
+  "focus": "Error handling chain: swallowed errors, sentinel vs. wrapped errors, and caller visibility into failure modes",
+  "name": "fd-error-propagation",
+  "persona": "A reliability engineer who has triaged production incidents caused by silently-ignored errors. Treats every _ on the left of an error return as a potential incident.",
+  "review_areas": [
+    "Ignored errors: every error return from DB calls and channel receives is checked",
+    "Error wrapping: are errors wrapped with fmt.Errorf '%w' to preserve the chain?",
+    "Sentinel error contracts: does the handler define its own sentinel errors?",
+    "Partial success handling: if some workers succeed and some fail, is the error clear?",
+    "Context error vs. domain error distinction",
+    "Panic-to-error conversion in recovered workers"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Occurs when the DB returns an error late on stream close, common with server-side cursors.",
+      "scenario": "A goroutine worker calls rows.Close() and ignores its error; the deferred query error is silently dropped, causing the handler to return nil while the migration failed.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Triggered when multiple workers fail simultaneously.",
+      "scenario": "Errors from workers are collected via an unbuffered channel smaller than the worker count; workers block on send when the collector has exited.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Affects any caller using errors.Is or errors.As for flow control.",
+      "scenario": "Errors are wrapped with fmt.Sprintf instead of fmt.Errorf '%w', so errors.Is always returns false.",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "A grep for '= err' with no subsequent check returns zero results",
+    "Worker error collection uses a buffered channel sized to worker count, or errgroup"
+  ],
+  "task_context": "This handler coordinates schema changes and worker goroutines; errors can originate from DDL, data writes, or concurrent workers. Silent failures mean a caller believes the migration succeeded."
+}

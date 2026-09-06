@@ -1,0 +1,32 @@
+{
+  "anti_overlap": "Sequence and diversity quality, not scoring validity (fd-lens-evolution) or DB schema (fd-sqlalchemy)",
+  "decision_lens": "Each turn's lens selection is locally optimal but the sequence across turns must tell a coherent story — repetition kills reader engagement",
+  "distance_rationale": "Editorial beat pool management parallels lens corpus curation — both need proximity metadata to avoid repetition",
+  "expected_isomorphisms": "Feature commissioning diversity rules map to lens selection diversity; editorial calendar pacing maps to OODARC depth gating",
+  "focus": "Cross-turn lens sequence coherence and corpus diversity enforcement",
+  "name": "fd-editorial-lens-sequence-coherence",
+  "persona": "Magazine editor-in-chief who commissions feature stories from a pool of specialist writers",
+  "review_areas": [
+    "Per-turn Haiku lens selection produces locally optimal but potentially incoherent cross-turn sequences",
+    "291-lens corpus lacks family/cluster metadata for diversity enforcement",
+    "OODARC stage gates: does lens selection respect conversation depth (shallow turns get lighter lenses)?",
+    "Lens repetition across turns: is there memory of recently used lenses to avoid staleness?",
+    "Community structure (7 Louvain communities) unused in selection — missed diversity signal",
+    "Bridge lenses (high betweenness centrality) underutilized for connecting user's disparate topics"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No recency penalty in Haiku selector, user gets repetitive reframes",
+      "scenario": "Same lens selected 3 turns in a row because message themes are similar",
+      "severity": "P1"
+    },
+    {
+      "condition": "Community structure not passed to selector, no diversity enforcement",
+      "scenario": "User explores 3 topics across turns but all get lenses from same community",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Magazine Editorial / Feature Commissioning",
+  "success_hints": "Focus on lenses.py select_lenses and the Haiku selector prompt construction",
+  "task_context": "F7 (lens gating) needs to understand current selection quality before adding filtering"
+}

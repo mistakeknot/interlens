@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "Focuses on spatial hierarchy and persona layering; fd-polynesian handles orientation; fd-tea-ceremony handles temporal transitions; fd-persian-bazaar handles social discovery.",
+  "decision_lens": "A well-designed space serves multiple audiences simultaneously through spatial hierarchy — the casual visitor, the regular participant, and the expert all find their path through the same environment without the space being redesigned for each.",
+  "distance_rationale": "Cathedral architecture solved the problem of serving multiple simultaneous audiences (clergy, congregation, pilgrims) in a single space through spatial hierarchy — a design challenge identical to Garden Salon's multi-persona requirement but from a completely different era and medium.",
+  "expected_isomorphisms": "Progressive revelation (narthex to sanctuary) maps to information density layers. Side chapels map to deep-dive panels. The processional axis maps to the natural flow of attention through the garden view.",
+  "focus": "Whether the spatial layout serves multiple personas simultaneously through progressive revelation and layered information density.",
+  "name": "fd-cathedral-liturgical-space-information-hierarchy",
+  "persona": "A medieval architectural historian specializing in Romanesque and Gothic cathedral design, expert in how processional axes, light gradients, and spatial hierarchy guide attention and serve simultaneous audiences (clergy, congregation, pilgrims).",
+  "review_areas": [
+    "Does the garden view have a processional axis — a natural flow of attention from overview to detail, or is all information presented at equal weight?",
+    "Is there progressive revelation (narthex → nave → chancel → sanctuary) — can users go deeper into detail by moving further 'into' the space?",
+    "Are there 'side chapels' — spaces for focused investigation (agent reasoning, proposal history) that don't disrupt the main communal experience?",
+    "Does the layout serve Ryan (pilgrim — occasional visitor needing clear wayfinding) and sma (clergy — daily participant needing deep access) simultaneously?",
+    "Is there a 'clerestory' — light that draws attention upward to the most important information without hiding the foundation?",
+    "Does mobile layout preserve the processional hierarchy, or does it flatten everything into a single scrollable column?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No information hierarchy in the layout",
+      "scenario": "All information is presented at equal visual weight — new users can't distinguish what matters from what's ambient",
+      "severity": "P1"
+    },
+    {
+      "condition": "Personas require separate UIs rather than layered access",
+      "scenario": "Ryan and sma need completely different views rather than different depths into the same view",
+      "severity": "P1"
+    },
+    {
+      "condition": "Responsive design doesn't preserve information hierarchy",
+      "scenario": "Mobile layout destroys the progressive revelation — everything collapses to a flat list",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Medieval European cathedral architecture (Romanesque/Gothic liturgical space design)",
+  "success_hints": "The layout has natural depth — you can glance and understand the overview, or lean in and see the detail. Different personas naturally find their level without the interface splitting into separate modes.",
+  "task_context": "Review the Garden Salon navigation and layout model for information hierarchy and progressive revelation that serves multiple personas (editor, developer, agent) through spatial design rather than separate views."
+}

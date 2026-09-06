@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Does not assess Rust API design, event-sourcing, or extraction shape — those are implementation concerns",
+    "Does not audit Banks-faithfulness at the adaptation/canon level — the showrunner agent covers that",
+    "Does not assess migration sequencing or demo-vs-migration priority — the pharma pipeline agent covers that"
+  ],
+  "decision_lens": "Every mechanic is a decision. If you can't describe the player's decision — what they know, what they choose, what they feel when they do it — the mechanic is not designed, it is described. Literary faithfulness in games is achieved through decision structure, not through naming.",
+  "distance_rationale": "Tabletop game designers have developed explicit practices for translating a literary source into player-facing decisions — they work at the same abstraction level as the brainstorm (mechanic design, not implementation) and have hard-won heuristics for distinguishing 'described mechanic' from 'designed mechanic' that apply directly to the brainstorm's Claims.",
+  "expected_isomorphisms": "The tabletop 'what is the player's decision?' test maps directly onto every mechanic described in the brainstorm — SC missions, Subliming, Mind-naming, civ diplomacy all have inputs and outputs described but no player decision frame. The tabletop practice of identifying 'which mechanics must exist in the greenbox prototype vs. which can be added later' maps directly onto the brainstorm's expansion item prioritisation question: items 4-6 may be required for any playtest at all, contradicting their 'Culture-game-driven, not migration-critical' classification.",
+  "focus": "Board game and tabletop RPG design practice for mechanising a literary or thematic source — applied to the question of whether the proposed mechanics can be playtested in isolation, whether the expansion roadmap items are load-bearing for core play, and whether the open questions are design gaps or correctly deferred",
+  "name": "fd-tabletop-mechanical-source-fidelity",
+  "persona": "Apply the perspective of a tabletop game designer who has brought several literary-source games from greenbox prototype to publication — they care about whether each mechanical claim produces the intended player experience, measure fidelity by asking 'what decision does this give the player and does that decision feel like the source material', and flag whenever a mechanic is described in terms of its inputs and outputs but not its moment-to-moment player experience.",
+  "review_areas": [
+    "Player decision structure for SC operations: the brainstorm describes SC missions as 'blowback engine' deployments that cascade through institutional actors — but does not describe the player's actual decision at the mission level; what does the player choose, what information do they have, and what is the texture of the tradeoff?; a tabletop designer notes that the most important design question in any SC-type game is 'what does the player NOT know', and the brainstorm does not address this",
+    "Subliming as a mechanical endpoint: the brainstorm correctly identifies Subliming as 'an ending and a form of irrelevance' and maps it to the no-win-condition rule; a tabletop designer asks: what is the player's agency over Subliming?; can they push a civ toward Subliming deliberately?; can they prevent it?; what does the player feel when it happens?; the mechanic is described in terms of its preconditions (scar resolution, facet integration, relational closure) but not in terms of the player-facing experience",
+    "Mind-naming as a legibility test: the brainstorm identifies ship-naming as 'the most legible Banks-faithfulness check'; a tabletop designer treats this as a playtest criterion — if you showed a player a Mind's name and asked them to describe the Mind's personality, and they got it right, the naming mechanic works; if they couldn't, it doesn't; the brainstorm describes the naming derivation but doesn't propose a playtest criterion",
+    "The six expansion items and their play dependencies: the brainstorm lists six Palettice expansion items in 'rough dependency order', but dependency order and play-criticality order are different things; a tabletop designer asks: which expansion items are required for the game to feel like the intended experience, even in a prototype?; aggregation Souls (item 4) and Mind-scale time (item 5) are listed as Culture-game-driven, but without them the prototype cannot produce a functioning civ-Soul — can the game be playtested at all without them?",
+    "The 'Culture is a Soul' problem as a design gap vs. a deferred question: the brainstorm correctly identifies this as 'the hardest design question' and defers it; a tabletop designer pushes back — if this question is unresolved, the game cannot be prototyped, because every other mechanic (SC missions, Subliming, Contact decisions) reads from and writes to the civ-Soul; deferring this is not 'correctly deferred' but 'blocks prototype'",
+    "Open Question 6 (Palettice shadow mechanic) — design opportunity not just a flag: the brainstorm floats 'the gap between a Soul's self-model and its actual state' as a Phase 2+ concept; a tabletop designer recognises this immediately as the core mechanic of asymmetric information games (Battlestar Galactica, Cosmic Encounter, The Resistance) — a Soul that is wrong about itself is a player-facing legibility problem and a design opportunity; the brainstorm should evaluate whether this concept is necessary for the SC information-asymmetry mechanic"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The brainstorm defers the Culture-as-Soul design question to a future brainstorm, but SC missions, Subliming, and Contact diplomacy all require reading from and writing to the civ-Soul; without a provisional design — even a wrong one — the game cannot be prototyped at any fidelity level; 'deferred' is effectively 'blocked' for prototype purposes",
+      "scenario": "Culture-as-Soul blocks prototype",
+      "severity": "P1"
+    },
+    {
+      "condition": "The brainstorm describes the SC blowback mechanic as an input-output system (deployment → cascade → consequence) but does not describe the player's decision frame — what they know, what they choose, what the texture of the tradeoff is; without this, the mechanic cannot be playtested because the playtest card cannot be written",
+      "scenario": "Player decision structure for SC missions is undescribed",
+      "severity": "P2"
+    },
+    {
+      "condition": "The preconditions for Subliming (scar resolution, facet integration, relational closure) are described but the player's agency over Subliming is not — can they push for it, resist it, or only observe it?; without an intentionality model, Subliming is a consequence that happens to the player rather than a decision the player makes, which contradicts the no-win-condition design philosophy",
+      "scenario": "Subliming endpoint lacks player-facing intentionality model",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Tabletop and board game design — mechanising a literary or thematic source, greenbox prototyping, playtest-driven iteration",
+  "success_hints": [
+    "The document or a follow-up explicitly describes the player's decision frame for SC missions — what they know, what they choose, what they feel",
+    "The Culture-as-Soul deferral is reclassified as 'blocks prototype' rather than 'correctly deferred'",
+    "The Mind-naming legibility test is framed as a concrete playtest criterion, not just a design aspiration",
+    "Open Question 6 (shadow mechanic) is evaluated against the SC information-asymmetry requirement rather than left as a vague future exploration"
+  ],
+  "task_context": "Review /Users/sma/projects/palettice/docs/brainstorms/2026-05-24-culture-game-north-star-brainstorm.md — specifically the North Star section, the open questions on Culture-as-Soul and timescale, and the expansion roadmap. The review goal is to surface where the mechanical claims lack a player decision structure, where deferred questions actually block prototype, and whether the expansion items are correctly prioritised for playtest-readiness. Apply a tabletop game designer lens."
+}

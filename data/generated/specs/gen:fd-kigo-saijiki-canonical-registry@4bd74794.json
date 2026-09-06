@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Defer witness-attribution and ritual-invocation questions to fd-griot-jeliya-praise-name-salience.",
+    "Defer salience-curve-shape questions to fd-parfumerie-drydown-salience-phases.",
+    "Defer decay-tick cadence and determinism questions to fd-horological-escapement-tick-cadence."
+  ],
+  "decision_lens": "Evaluate whether LexemeKind with placeholder Saying/Proverb/Slang variants, plus per-variant admission-via-trigger, scales to a real multi-kind registry without requiring retroactive schema churn — and whether the decision to keep lexemes forever (no retirement even below zero) creates registry pollution.",
+  "distance_rationale": "Classical Japanese literary-canon editorial practice sits far from ECS sim design in both domain and method.",
+  "expected_isomorphisms": "The saijiki's per-class admission rules, sharp-category boundaries, canonical-vs-regional tension, and periodic retirement cycles map onto LexemeKind variants, per-variant admission via triggers, per-world scope, and permanent-retention policy.",
+  "focus": "Audit ColonyLexicon as a canonical-but-living registry: admission criteria per lexeme kind, variant placeholders (Saying/Proverb/Slang), and the consequences of never retiring lexemes even at negative salience.",
+  "name": "fd-kigo-saijiki-canonical-registry",
+  "persona": "Apply the perspective of a saijiki editor in the classical Japanese kigo tradition — they care about admission rules for each lexeme class, seasonal/contextual coherence, the discipline of variant categorization, and the regional-versus-canonical tension; they measure whether a registry's schema supports orderly growth across lexeme kinds, and they flag registries that conflate categories, admit lexemes without clear criteria, or accumulate obsolete entries that pollute lookup.",
+  "review_areas": [
+    "Placeholder variants (Saying, Proverb, Slang) are typed-for-growth but unpopulated. A saijiki insists that category boundaries be SHARP before admission begins — audit whether LexemeKind::Epithet sets enough of a precedent (prestige_score, elf ownership) that a later Proverb variant will have to fit that shape or fork it, causing schema churn the brainstorm tried to avoid.",
+    "Admission-criteria discipline: the 7 triggers act as admission rules for the Epithet class. A saijiki would demand each rule be (a) unambiguous, (b) non-overlapping with other rules, (c) reproducible. Audit the 7 for overlap (e.g., an elf could plausibly trigger both the Defiant and Stormborn on the same composition — is double-admission permitted? Expected?).",
+    "Regional drift analog: kigo traditions accept that different regional saijiki admit different words. ColonyLexicon is per-GameWorld — no cross-colony drift concern yet. But if/when multiple colonies coexist, the per-world registry means no shared canonical. Flag whether the current schema forecloses cross-colony lexical convergence, or leaves that door open.",
+    "Retirement/obsolescence: saijiki periodically RETIRE kigo that no longer make sense (e.g., 'telegraph' as a modern kigo). Brainstorm says lexemes never vanish. For the Epithet variant that's ritually correct (the bearer keeps the name forever) — but for future Slang/Proverb, permanent-retention will pollute lookup. Recommend the schema anticipate a retirement/archive flag before Saying is populated.",
+    "Canonical text storage: Lexeme.text: String in ColonyLexicon is the canonical form; Epithets carries LexemeId. In a saijiki, the canonical entry also carries example usages and etymological notes. Audit whether usage_count + earned_tick capture enough provenance, or whether the first Proverb will want a citations vec that would require schema migration.",
+    "Open Question 6 (wiki page vs extension): the saijiki perspective would insist epithets get their own canonical reference page — an elf-identity section is like burying kigo in a general poetry page. Recommend the wiki decision."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Trigger rules allow admission overlap on a single event with no tie-break or mutual-exclusion rule.",
+      "scenario": "Stormborn and the Defiant both fire on a single ArtCompleted when a composer is in a rivalry peak during extreme weather. The two epithets coexist in Epithets.earned, both consume display slots, and the colony effectively learns the elf earned a 'double-name' from one deed — but the brainstorm has no policy for this overlap.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Per-variant payload shapes were not thought through before placeholder enum variants were committed.",
+      "scenario": "LexemeKind::Epithet hard-codes { elf: EntityId, prestige_score: u32 }. When the Proverb variant is added later, it has no 'elf owner' but wants 'origin_context' — forcing either a variant-per-shape (fine) or retrofit of the Epithet-specific fields, churning save schemas the brainstorm tried to avoid by splitting storage.",
+      "severity": "P2"
+    },
+    {
+      "condition": "Wiki scope decision defers lexeme-class taxonomy, mirroring registry schema vagueness.",
+      "scenario": "A populated wiki glossary for Epithets exists; a later Saying/Proverb feature adds 40 entries and the single glossary page becomes unnavigable, because no taxonomy was specified at registry-design time.",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Japanese classical saijiki kigo registry — the editorial tradition governing admission, categorization, and retirement of canonical seasonal words in haikai poetry",
+  "success_hints": [
+    "Require per-variant admission criteria be specified before each variant is populated.",
+    "Audit the 7 triggers for pairwise overlap and decide admission policy explicitly.",
+    "Leave an archive/retirement flag in Lexeme even if unused this sprint — permanent-retention will regret this call at Slang scale.",
+    "Recommend a dedicated epithets.md wiki page, not an extension of elf-identity.md."
+  ],
+  "task_context": "The brainstorm introduces ColonyLexicon as a canonical-but-growing registry with placeholder lexeme kinds; review through a classical-registry-editor lens to surface admission, category-boundary, and retirement issues."
+}

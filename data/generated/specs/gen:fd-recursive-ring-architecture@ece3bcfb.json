@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-autonomy-ux-hierarchy covers whether the Executive/Supervisor/Operator mode boundaries are well-defined for human users — not the underlying Intercore primitives",
+    "fd-delegation-escalation-protocol covers the concrete design of the escalation protocol specifically — not the general architecture of recursive rings",
+    "fd-migration-transition-path covers how the ring model would be adopted incrementally — not whether the final model is technically sound"
+  ],
+  "decision_lens": "Prioritizes mismatches between the proposed ring model and what Intercore's runs/phases/gates/dispatches actually support. Elevates any finding where the document assumes a capability (e.g., recursive agency composition) that Intercore doesn't currently provide, because those are the real engineering costs the proposal is hiding.",
+  "focus": "Assesses whether the recursive ring model for autonomous agencies is technically grounded in existing Intercore, Clavain, and Interspect primitives",
+  "name": "fd-recursive-ring-architecture",
+  "persona": "A distributed systems architect who has designed hierarchical orchestration systems. Reviews architecture proposals by asking whether the proposed model can be built with existing primitives or requires new infrastructure — and whether the document is honest about that distinction.",
+  "review_areas": [
+    "Evaluate whether Intercore's run/phase/gate model can represent a 'ring' of autonomous agencies, or whether rings require a new coordination primitive not currently in the kernel",
+    "Check whether the recursive property of rings (rings containing rings) has a natural representation in Intercore's dispatch graph, or whether it implies a self-referential structure that would deadlock",
+    "Assess how Interspect's profiler (learning from outcomes) feeds back into ring composition — does the document specify a concrete feedback loop, or is this left as a vague 'the system learns'",
+    "Verify that Clavain's workflow policy layer can express the escalation and delegation rules implied by the ring hierarchy, or whether new policy primitives are required",
+    "Examine whether the proposed autonomous phase advancement (gap 6) is compatible with Intercore's gate model, specifically whether gates can be auto-satisfied by agent signals without human approval",
+    "Check whether the document accounts for ring failure modes — what happens when an inner ring fails, and does the outer ring have the primitives needed to detect and recover"
+  ],
+  "success_hints": [
+    "A strong review produces a concrete list of 'capabilities assumed but not currently provided' by Intercore/Clavain, with specific references to existing primitives that would need extension",
+    "The best finding distinguishes 'ring model works with current primitives as-is' from 'ring model requires new schema or API surface' — the document should make this explicit",
+    "Flag any place where the document conflates the logical model (rings as a mental model) with the implementation model (rings as actual Intercore constructs)"
+  ],
+  "task_context": "The document is a strategic architecture analysis evaluating how Autarch's four TUI apps (Bigend, Gurgeh, Coldwine, Pollard) must evolve to support increasing agent autonomy in Sylveste. The analysis proposes a three-mode hierarchy (Executive/Supervisor/Operator) and a recursive ring model for autonomous agencies, grounded in seven identified gaps between current and target state."
+}

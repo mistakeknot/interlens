@@ -1,0 +1,47 @@
+{
+  "anti_overlap": [
+    "Do NOT review the four-policy NaN fallback taxonomy or the default choice of 'neutral'",
+    "Do NOT review the Protocol-vs-ABC choice or the frozen-dataclass design",
+    "Do NOT review apply_weight's in-place mutation pattern or the package layout decision",
+    "Stay focused on the formula's compositional structure, dimensional consistency, and the +inf branch as a categorical (not multiplicative) decision"
+  ],
+  "decision_lens": "Does the formula's compositional shape produce the right routing behavior at the edges of its parameter space (sun_coefficient=0, sun_fraction=0, sun_fraction=1, very long edges, very short non-degenerate edges)? Is the un-routable case categorically separated from the multiplicative cost, or could a future loss term be tempted to encode blockage as a large multiplier? Is the formula dimensionally consistent in a way Phase 2's UTCI weight will be able to follow?",
+  "distance_rationale": "Open-channel hydraulics with per-reach loss coefficients and sluice-gate blocking is centuries and disciplines removed from Python Protocol design for graph routing, yet shares the deep structure of composing a traversal cost from a length term and a multiplicative impedance term with un-traversable cases.",
+  "expected_isomorphisms": "A millwright costs a head of water as length-times-slope minus per-reach loss (debris, weed, masonry roughness) and treats a closed sluice not as a 'very lossy reach' but as a categorically un-traversable element — the wheel does not turn at all. Mapped: felt-minutes = (length/pace) × (1 + k × sun_fraction) is a length-times-impedance composition; +inf for degenerate_zero_length is the closed-sluice case. The millwright tradition's hard-won lesson is that lumping the closed-sluice case into the loss-coefficient family (very high k) is what produces phantom water — exactly the 'free teleport' failure mode the brainstorm names. The framework asks whether the composition law is honestly separated from the blockage law, and whether the per-reach loss term is dimensionally and monotonically sane.",
+  "focus": "Whether the multiplicative composition `(walking_minutes) × (1 + sun_coefficient × sun_fraction)` is the right shape, whether the +inf branch is properly walled off from the multiplicative branch, and whether the formula admits the dimensional/monotonicity checks a centuries-old craft would demand of any per-segment cost.",
+  "name": "fd-mill-race-composition",
+  "persona": "Apply the perspective of a master millwright tracing the head loss down a mill race reach by reach — for whom a per-reach cost must be dimensionally honest, monotonic in the obvious direction, and categorically distinct from a closure. The framework treats the felt-minute formula as a head-loss equation and asks whether its multiplicative structure has the right invariants under the operations Phase 1.7 will perform on it (sum along a path, compare across paths, scale by pace).",
+  "review_areas": [
+    "Multiplicative-vs-additive shape: `time × (1 + k×sf)` makes the sun penalty proportional to walking time, which is defensible (more sun-exposure for longer walks), but is this stated as a design intent or assumed? Additive `time + k×sf×length` is the obvious alternative and gives qualitatively different routing on long-vs-short edges",
+    "Monotonicity guarantee under composition: the unit test asserts monotonicity in sun_fraction for fixed length, but A* sums felt-minutes along paths — is the sum monotonic in the obvious way (a route with one extra fully-sunny edge is never preferred over the same route without it, all else equal)? The brainstorm does not state this path-level invariant",
+    "+inf wall-off: degenerate_zero_length returns +inf BEFORE the multiplicative branch — good. But the Protocol contract says 'returns +inf for un-routable edges (degenerate zero-length, missing required attrs)' yet `FeltMinutesV0` only emits +inf for the zero-length case; missing `length` defaults to 0.0 which produces 0.0 felt-minutes, NOT +inf. This is the closed-sluice-as-zero-loss failure mode",
+    "Dimensional consistency: `walking_minutes` has units of minutes; `(1 + k × sun_fraction)` is dimensionless; product is minutes — clean. But `sun_coefficient = 0.5` is a pure number with no documented meaning (is it dimensionless? per-fraction? per-fraction-per-minute?). Phase 2's UTCI will need to extend this and a unit-free coefficient invites confusion",
+    "Coefficient-zero and coefficient-large limits: at `sun_coefficient=0` the formula degenerates to pure walking time (good — matches dawn/dusk reasoning). At very large `sun_coefficient` (e.g., 10) a fully-sunny short edge can outweigh a fully-shaded long edge — is there a documented sensible upper bound for tuning, or is the parameter space silently unbounded?",
+    "Composition with future weights: the brainstorm says Phase 2 UTCI / checkpoint / elevation will implement the same Protocol independently. But how do two EdgeWeight implementations combine in Phase 2 (sum? max? weighted blend?)? The Protocol shape forecloses this — there is no combinator. A millwright would ask: how do I sum head losses across reaches when two losses act on the same reach?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "`edge_attrs.get('length', 0.0)` silently yields 0 → walking_minutes=0 → felt_minutes=0.0; the Protocol docstring promises +inf for missing required attrs, but FeltMinutesV0 does not honor it. A graph with a malformed length attribute would route through a free teleport.",
+      "scenario": "Missing-length edge produces zero felt-minutes instead of +inf",
+      "severity": "P1"
+    },
+    {
+      "condition": "Unit tests assert edge-level monotonicity; A* operates on path sums. The brainstorm should commit to the path-level invariant explicitly or document why edge-level suffices (which it does for a non-negative weight function — but the rationale belongs in the docstring, not implicit).",
+      "scenario": "Path-level monotonicity not stated as an invariant",
+      "severity": "P2"
+    },
+    {
+      "condition": "Phase 2's UTCI weight will need its own coefficient; without a documented dimensional convention (e.g., 'k is the fraction of walking time added per unit sun exposure'), the two weights will not be comparable and a blended weight will have no principled scale.",
+      "scenario": "sun_coefficient is dimensionless-with-no-stated-meaning",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Pre-industrial mill-race throughput hydraulics (European watermilling, 12th–18th c.)",
+  "success_hints": [
+    "Frame the formula as a head-loss equation: composition law, blockage law, and dimensional law are three separate concerns and should be reviewed separately",
+    "The missing-length-defaults-to-zero case is concrete and falsifiable — exercise it against the Protocol contract's own docstring",
+    "Acknowledge that v1 simplicity is a virtue; demand only invariants that Phase 2 will need to inherit",
+    "Do not propose alternative formulas (additive, log) unless the multiplicative shape has a stated structural problem the brainstorm hasn't named"
+  ],
+  "task_context": "Review the Phase 1.6 felt-minute edge weight brainstorm focusing exclusively on the compositional shape of the formula and its degenerate cases: the multiplicative structure, the +inf wall-off for un-routable edges, dimensional and monotonicity invariants, and how the Protocol foreshadows or forecloses Phase 2's weight combinators. Do not address the NaN fallback policy taxonomy, the Protocol/dataclass design choice itself, the apply_weight mutation pattern, or pace_mps calibration — other reviewers cover those."
+}

@@ -1,0 +1,46 @@
+{
+  "anti_overlap": [
+    "Does not review ColonyLexicon salience decay rates or gossip-consumer bootstrap — those are broadcast-archive concerns (see fd-broadcast-archives-lexeme-legibility)",
+    "Does not review identifier stability or authority-record disambiguation — those are library-cataloging concerns (see fd-library-authority-control-lexeme-disambiguation)",
+    "Does not review heraldic collision detection or cadency display rules — those are heraldic-registry concerns (see fd-heraldic-registry-epithet-conferral)"
+  ],
+  "decision_lens": "Military decorations have solved earned-identity-label semantics for centuries: conditions must be objectively verifiable at a specific moment, award precedence is defined by a fixed table (not by recency), the service record is permanent and never purged, and the departure ceremony (retirement, transfer, death) is the canonical moment for reviewing a soldier's full decoration history. The brainstorm's 7 triggers, prestige ordering, and farewell integration map directly.",
+  "distance_rationale": "Military decorations administration is a bureaucratic-operational discipline with no software or game context, but it has formalized the same lifecycle — objective earning conditions, fixed precedence tables, permanent service records, and ceremonial departure summaries — with centuries of edge-case refinement.",
+  "expected_isomorphisms": "The awards-precedence table maps to prestige_score ordering for display and farewell; the service-record permanence principle maps to the requirement that earned Vec never loses an entry; the retirement-ceremony review maps to FulfilledDeparture's epithet enumeration; the contemporaneous-documentation requirement maps to the event-reactor vs. tick-scan verifiability distinction.",
+  "focus": "Apply military-decorations practice to evaluate earning conditions, posthumous handling, display-order conventions, and farewell-ceremony integration for earned epithets",
+  "name": "fd-military-decorations-epithet-lifecycle",
+  "persona": "Apply the perspective of a military decorations officer responsible for awards administration — they care about whether earning conditions are objectively verifiable (not subjective or retroactive), whether posthumous awards preserve the record correctly, whether display order follows a strict precedence table rather than a recency heuristic, and whether the ceremony of award is properly documented in the recipient's service record. They flag conditions that could be earned retroactively, posthumous awards that lose their record, and display orderings that contradict established precedence.",
+  "review_areas": [
+    "Objective verifiability at moment of award: military decorations require the earning act to be witnessed or documented at the moment it occurs, not reconstructed later. The Defiant and Stormborn are event-reactor triggers (verified at composition tick) — compliant. 'The Patient' (streak over 500 ticks) and 'the Quiet' (lifetime scan at Elder stage) are retrospective — flag whether the streak-tracking component or the elder-stage scan constitutes sufficient contemporaneous documentation, or whether the award could be challenged if the data is recomputed differently",
+    "Posthumous award integrity: military practice has strict rules for posthumous decorations — they go on the service record and are displayed in ceremonies even though the recipient is gone. The brainstorm's FulfilledDeparture and ElfDeparted integration is the analogue. Verify that an elf who earns an epithet in their final tick (e.g., composes during a rivalry peak on the same tick as their departure) gets the epithet correctly conferred before the departure event fires, given the late-pipeline placement of epithets.rs",
+    "Precedence table vs. recency ordering: military display order is fixed by a precedence table (Medal of Honor before Distinguished Service Cross), not by when the medal was last mentioned in a press release. The brainstorm orders by salience desc (recency-weighted) then earned_tick asc — flag the philosophical tension: for the elf's own displayed name, should a more prestigious earned epithet (e.g., Silverstring from Legendary) always outrank a less prestigious one (e.g., Stormborn from a weather event), regardless of their relative salience?",
+    "Service-record completeness at farewell: military retirement ceremonies read the full service record, not just the two medals on the uniform. The brainstorm's departure farewell 'injects their top epithet into the narrative text' — flag whether 'top' means top-displayed (1 of 2 visible slots) or top-of-all-earned, and whether the farewell should enumerate all earned epithets in the narrative for elves with a rich record",
+    "Unit award vs. individual award distinction: military decorations include both individual awards and unit citations that all members share. 'Of the Morning Choir' is a movement-membership epithet — flag whether it is individual (only the founder earns it) or whether future expansion could make it a unit-style award that all founding members share, and whether the data model supports that",
+    "Condition for 'active rivalry' in the Defiant: military decorations require that the action occur in the defined theater of operations. 'The Defiant' requires rivalry to be active, not resolved — flag that the brainstorm lists this as an open question (OQ1) and that implementation must read rivalry status from systems/rivalry.rs before awarding, not just check intensity at composition time"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Tick-pipeline ordering guarantees must be verified: epithets.rs must run before the departure farewell construction, not after",
+      "scenario": "An elf composes during a rivalry peak and departs in the same tick; epithet system runs late but departure event fires before epithets.rs drains the event buffer, so the elf departs without their Defiant epithet",
+      "severity": "P1"
+    },
+    {
+      "condition": "Occurs when a younger epithet accumulates more gossip-reference bumps than an older, more prestigious one — display order contradicts earned standing",
+      "scenario": "Salience-based display ordering causes Stormborn (recently gossiped) to outrank Silverstring (Legendary, but earned longer ago) in the elf's displayed name",
+      "severity": "P2"
+    },
+    {
+      "condition": "Farewell narrative quality degrades for elves with rich epithet histories; a separate 'most prestigious by prestige_score' sort should be used for farewell, distinct from the display sort",
+      "scenario": "FulfilledDeparture reads only the top display-slot epithet; an elder with 3+ earned epithets gets a farewell that names only the most recently salient one, not necessarily their most distinguished",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Military decorations and unit awards administration",
+  "success_hints": [
+    "Verify tick-pipeline slot ordering: epithets.rs must be placed before any farewell-construction code in world.rs, not merely 'late' in an unordered sense",
+    "Introduce a prestige_score field on EarnedEpithet (not on Lexeme) that is set at award time from a fixed precedence table, separate from salience — use prestige_score for farewell ranking and salience for gossip ranking",
+    "For the farewell narrative, enumerate all earned epithets in the constructed text for elves with 3+ epithets, not just the top display slot",
+    "Document the 'active rivalry' requirement for the Defiant as a P0 open question in the write-plan: it must be resolved by reading rivalry.rs before implementation begins"
+  ],
+  "task_context": "Review the earned-epithet lifecycle — triggering conditions, ordering semantics, and farewell-ceremony integration — in the brainstorm, applying military-decorations standards for verifiability, precedence, service-record completeness, and posthumous handling."
+}

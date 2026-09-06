@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Do not review SQLite WAL checkpoint correctness — that is fd-sqlite-wal-safety's domain.",
+    "Do not review Discord/Telegram reconnect behavior after restart — that is fd-gateway-reconnect's domain.",
+    "Do not review file-system archiving reversibility — that is fd-migration-reversibility's domain."
+  ],
+  "decision_lens": "Rank findings by whether a wrong sequence can leave the unit failed, leave orphan processes holding file descriptors, or silently skip reload of updated drop-in overrides. Prefer the minimal corrective action that matches systemd's documented behavior — not workarounds.",
+  "focus": "systemd user unit semantics: KillMode, TimeoutStopSec, Restart policy, daemon-reload ordering, process tree ownership, and failed-state recovery.",
+  "name": "fd-systemd-lifecycle",
+  "persona": "Apply the perspective of a systemd internals expert who has debugged unit lifecycle races in production — they care about process group semantics under KillMode=mixed, measure whether stop sequences actually drain gracefully before SIGKILL fires, and flag sequencing errors in daemon-reload / reset-failed workflows that leave units in split-brain state.",
+  "review_areas": [
+    "Verify that daemon-reload precedes reset-failed, not follows it — reset-failed only clears the ActiveState, while daemon-reload loads the updated unit; reversing the order means the service starts with the old ExecStart/Environment values until the next reload.",
+    "Check that KillMode=mixed semantics are understood: on stop, systemd sends SIGTERM to the main process only (not the whole cgroup), then sends SIGKILL after TimeoutStopSec; any subprocess that is not a direct child PID is not touched — confirm the plan's orphan-process cleanup accounts for processes that outlive the main process.",
+    "Confirm that TimeoutStopSec=60 is sufficient for the gateway's graceful drain under the worst case (2 active agent tasks + OpenAI in-flight calls) — if the gateway takes longer than 60s to drain, systemd sends SIGKILL mid-tool-use, which is exactly the failure mode that already occurred.",
+    "Verify Environment= directive change in the unit file actually takes effect after daemon-reload without a full service restart being skipped — check that no ConditionPathExists or PartOf= stanzas would short-circuit reload.",
+    "Check that systemctl --user reset-failed correctly clears the failed exit status from the Apr 23 incident before start — if the unit is still in failed state when start is issued, confirm the plan does not rely on Restart=on-failure to auto-restart (it does not fire on manual start, only on unexpected exit).",
+    "Validate that WorkingDirectory= change is paired with a meaningful impact assessment — if hermes_cli.main resolves relative paths against CWD at startup, pointing WorkingDirectory at the profile dir could affect config or log file resolution in unexpected ways."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Step 14 ordering is: reset-failed then daemon-reload, but the plan currently shows daemon-reload && reset-failed (correct order). Confirm this is not accidentally swapped during execution.",
+      "scenario": "daemon-reload runs after reset-failed, so the updated Environment=HERMES_HOME line is not parsed; gateway starts pointing at the old root HERMES_HOME, writing 13+ hours of state to the archived location.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Gateway has active agent tasks at stop time and OpenAI API round-trip exceeds 60s (common for long tool chains).",
+      "scenario": "TimeoutStopSec=60 fires during Phase 4 stop/restart cycle while an agent task is in mid-tool-use, causing a SIGKILL that corrupts the in-progress session JSON and leaves state.db WAL partially applied.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Gateway spawns MCP subprocesses as children that are not in the main process group.",
+      "scenario": "KillMode=mixed leaves MCP child processes alive after the main gateway PID exits, because mixed mode only SIGTERMs the main PID. These children hold open file descriptors on state.db, defeating the lsof pre-flight check in Phase 0.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Check the exact ordering of daemon-reload vs reset-failed in step 14 against systemd man page semantics.",
+    "Verify whether the plan's TimeoutStopSec=60 gives the gateway enough time to drain under realistic worst-case latency.",
+    "Flag any assumption that reset-failed is idempotent if the unit is not in failed state — it is, but note it."
+  ],
+  "task_context": "Reviewing the Hermes Amtiskaw migration plan (hermes-amtiskaw-migration-plan.md) for correctness of systemd user unit lifecycle operations. The plan stops hermes-amtiskaw.service, performs filesystem restructuring, updates the unit file's Environment= and WorkingDirectory= directives, then calls daemon-reload and reset-failed before restarting. The service uses KillMode=mixed, TimeoutStopSec=60, and Restart=on-failure."
+}

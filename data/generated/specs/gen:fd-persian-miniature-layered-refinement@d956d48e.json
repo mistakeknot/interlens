@@ -1,0 +1,36 @@
+{
+  "anti_overlap": "Covers layer composition, multi-register coherence, and feedback attribution. Does NOT cover: irreversible state transitions (see fd-venetian-glassblowing), structural coupling contracts (see fd-japanese-joinery), or navigational decision-making under uncertainty (see fd-polynesian-navigation).",
+  "decision_lens": "Layer interaction and emergence; how independently-produced layers compose into a coherent whole; the orchestration overhead of multi-specialist workflows; when to re-do a layer versus paint over it.",
+  "distance_rationale": "A medieval Islamic visual art practice organized as a sequential multi-specialist workshop has no technological or disciplinary connection to desktop application architecture.",
+  "expected_isomorphisms": "The four workflow surfaces each produce a 'layer' of the episode (research corpus, script text, music bed, visual footage) that must compose into a coherent final piece. The kitabkhana's challenge — coordinating specialists who each see only their layer while the head painter holds the vision — maps directly to the question of how the episode template orchestrates across surfaces.",
+  "focus": "How Persian miniature painting (13th-16th century Herat/Tabriz schools) achieves extraordinary density of meaning through a disciplined layering process where each pass adds a different register — ground, architecture, figures, faces, gold leaf, calligraphy — and where the final composition emerges from the interaction between layers rather than from any single layer alone.",
+  "name": "fd-persian-miniature-layered-refinement",
+  "persona": "A naqqash (master painter) of the Timurid school trained in the kitabkhana (royal workshop) tradition, where a single miniature passes through six to eight specialist hands, each adding a distinct layer, and the head painter's role is orchestrating the sequence and ensuring coherence across all layers.",
+  "review_areas": [
+    "Is there a 'head painter' view that shows how all four layers compose? The Video surface shows the timeline, but does it integrate script text, music waveforms, and research references simultaneously, or only the visual layer?",
+    "Does each surface produce work that is independently excellent, or does quality only emerge at composition time? Persian miniatures had layers that were beautiful alone (calligraphy, gold leaf) — does the script stand alone as an essay? Does the music work without the video?",
+    "What is the layering order? The kitabkhana had a strict sequence (ground -> architecture -> figures -> faces -> gold -> text). Does the app enforce or suggest a production order, or does it assume arbitrary workflow?",
+    "How does the algo feedback loop work as 'overpainting'? When post-publish metrics reveal a problem, which layer gets revised — the script, the music, the visuals, or the research methodology? How does the app surface which layer to fix?",
+    "Is there a 'viewing distance' problem? Miniatures were made to be seen at arm's length. Does the app support both close-in editing (individual shot, individual stem) and pulled-back composition review (full episode flow)?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No composition preview that layers audio (VO + music) over video with script text overlay.",
+      "scenario": "There is no unified preview that composes script narration timing, music bed, and video shots together — the user must mentally integrate across three separate surfaces.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Feedback is episode-granular rather than layer-granular.",
+      "scenario": "The algo feedback loop (post-publish metrics) feeds back to the episode level but doesn't attribute signal to specific layers (was it the argument structure? the pacing? the music choice? the visual quality?).",
+      "severity": "P2"
+    },
+    {
+      "condition": "No shared quality rubric or style constraints across workflow modes.",
+      "scenario": "The independently-runnable workflows (essay-only, music-only) lack quality standards that transfer from full-pipeline episodes, so standalone pieces feel disconnected from the channel's identity.",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Persian miniature painting (Timurid/Safavid kitabkhana workshop tradition, 13th-16th century)",
+  "success_hints": "The app should function like a well-run kitabkhana — each surface produces independently excellent work within shared constraints, a composition view reveals how layers interact before 'publication' (the final gilding), and the feedback loop attributes signal to specific layers so refinement is targeted rather than diffuse.",
+  "task_context": "The target produces McLuhan/Adam Curtis-style video essays that layer voiceover analysis, archival/AI-generated footage, and curated music into dense compositions. The algo feedback loop is meant to compound learning across episodes. The four surfaces can operate independently (essay-only, music-only) or in full pipeline mode. The episode template (design.md) is meant to be the declarative constraint document."
+}

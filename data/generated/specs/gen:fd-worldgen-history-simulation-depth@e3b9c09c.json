@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Do not evaluate event-sourcing/replay/determinism architecture of the Souls model — that belongs to fd-eventsourcing-strata-regen-contract.",
+    "Do not evaluate narrative/prose quality of the chronicle, the simulate-vs-author line, or lore-ownership scope — that belongs to fd-procgen-narrative-simulate-author.",
+    "Stay on strata sequencing, simulation-regime definitions, regeneration/LOD mechanics, and cost-curve realism as measured against DF/Qud precedent."
+  ],
+  "decision_lens": "Depth claims are cashed out in strata sequencing and regeneration cost, not in the presence of a 'legends' word. DF and Qud each made hard, specific calls about what regenerates when a lower layer changes, what 'settle mode' actually holds fixed, and how much of the chronicle is simulated versus templated — a goal that cites both without picking a lane will ship a probe that measures the wrong thing.",
+  "focus": "Roguelike deep-history worldgen architecture — strata sequencing (galaxy scaffold to species/civ history), deferred-cascade vs. settle-mode simulation regimes, regeneration/LOD contracts across strata, and cost-curve realism benchmarked against known DF-legends and Qud-history generation costs.",
+  "name": "fd-worldgen-history-simulation-depth",
+  "persona": "Apply the perspective of a veteran roguelike worldgen systems engineer who has built or reverse-engineered Dwarf Fortress's world-generation and legends pipeline and Caves of Qud's sultan/history generator, and who has shipped procedural deep-history systems that run for centuries of simulated time and then must be surfaced to players as readable chronicles.",
+  "review_areas": [
+    "GATE leaves the substrate schema for Dixon evolution's planetary-parameter inputs unspecified (spectral class + habitability tags 'or more' — more what?) while OUTCOME promises interfaces 'designed for later deepening'; without naming the parameter surface Dixon actually reads, slice one cannot demonstrate the interface is real rather than aspirational, and DONE WHEN never checks for an interface contract, only that generation 'consumes it.'",
+    "OUTCOME names 'deferred-cascade mode' as the simulation regime for centuries of history, but DONE WHEN's acceptance bullet names 'settle mode' instead, and GATE never asks whether these are the same mechanism; DF's legends pass and Qud's sultan-history pass are architecturally distinct fixed-detail models, and if slice one silently substitutes settle mode for deferred-cascade to hit the 120-century target, the cost curve measured is for the easier regime and won't bound the harder one OUTCOME actually promises to ship toward.",
+    "The regeneration-contract GATE question ('regenerates everything above until when') has no DONE WHEN or OUT anchor at all — this is exactly where DF-style worldgen implementations get stuck in regenerate-on-constraint-failure thrashing; without a termination/bound requirement, slice one could satisfy every listed bullet while the regeneration contract silently recomputes the full civ/history stratum on every lower-stratum tweak, which would also corrupt the cost-curve measurement DONE WHEN separately demands.",
+    "The Reynolds-ruins DONE WHEN bullet ('queryable in the present at a real location') is DF/Qud's single hardest feature and GATE never forks on its implementation mechanism (live re-derivation from the event log vs. a baked index) — yet OUT explicitly excludes 'FINDINGS #2 snapshot loads.' A fallen civilization's queryable ruins, inside a 20-turn stop budget, is difficult to deliver without some snapshot-like index, so this DONE WHEN bullet and this OUT line may already be in tension with no GATE fork surfacing the conflict.",
+    "DONE WHEN offers 'civ_scale --watch precedent' (terminal watch) and 'mk-67q chronicle path' (browsable) as interchangeable delivery mechanisms for the chronicle, but DF/Qud both learned that a scrolling watch of world-tick events and a cross-referenced legends-viewer are different products with different depth payoffs — GATE never forces a choice, so slice one can satisfy DONE WHEN with the cheaper terminal-watch mode alone and still claim the 'readable chronicle' bar, undermining the depth bet OUTCOME leads with."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If slice one implements only settle-mode simulation to hit the 120-century DONE WHEN target and reports its cost curve against that, the measured curve does not bound deferred-cascade cost — the regime OUTCOME actually commits to — so the 'measured, not guessed' claim the goal makes about the next bottleneck is false for the harder mode.",
+      "scenario": "settle mode substituted for deferred-cascade without flagging it",
+      "severity": "P1"
+    },
+    {
+      "condition": "If deepening a lower stratum (e.g., a spectral-class fix) has no bounded regeneration contract, a single substrate correction after slice one ships could force full re-simulation of 120+ centuries of civ history across all systems, invalidating the cost curve and making the probe unusable for the iterative deepening the OUTCOME promises for later strata.",
+      "scenario": "unbounded regeneration cascade",
+      "severity": "P0"
+    },
+    {
+      "condition": "If engineering under time pressure implements queryable ruins via a baked lookup table (the pragmatic 20-turn choice) that is functionally a FINDINGS #2 snapshot load, DONE WHEN and OUT directly conflict and whichever one 'wins' was never actually a GATE-level ruling.",
+      "scenario": "Reynolds ruins delivered as a snapshot despite the OUT line",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "Check whether GATE's substrate-schema question resolves to a named, versioned parameter list Dixon evolution reads, not just 'spectral class + habitability tags or more'.",
+    "Trace whether 'deferred-cascade mode' (OUTCOME) and 'settle mode' (DONE WHEN) are defined as the same simulation regime anywhere in the goal, or flag the gap if not.",
+    "Verify DONE WHEN or OUT contains a bound or termination guarantee for the regeneration contract GATE leaves open.",
+    "Flag the OUT ('no snapshot loads') vs. DONE WHEN ('ruins queryable at a real location') tension explicitly rather than assuming it resolves itself.",
+    "Check whether the goal forces a choice between terminal-watch and browsable-chronicle delivery, or silently allows the cheaper one to satisfy the 'readable chronicle' bar."
+  ],
+  "task_context": "Domain framing: this review applies genre-native expertise in Dwarf Fortress legends-mode and Caves of Qud history-generation architecture to a draft goal for a stratified worldgen pipeline. Stress-test this draft goal (stratified worldgen at DF/Qud depth for Mind State, slice one on the palettice engine) before ratification: find missing forks, scope traps, wrong assumptions, and anything the GATE/DONE WHEN/OUT structure gets wrong."
+}

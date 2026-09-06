@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-test-validation-loop covers test result interpretation",
+    "fd-localization-toolchain covers code search mechanics",
+    "fd-issue-comprehension covers initial hypothesis quality"
+  ],
+  "decision_lens": "Undetectable regressions rank P0. Detectable but unrecoverable regressions rank P1.",
+  "focus": "Pre-submission patch validation, regression detection, and confidence scoring mechanisms",
+  "name": "fd-patch-correctness-signals",
+  "persona": "A software verification researcher studying LLM-generated patch failure modes. Focuses on the gap between 'patch applies cleanly' and 'patch is correct'.",
+  "review_areas": [
+    "Assess whether edit tool provides post-edit validation (syntax check, py_compile)",
+    "Evaluate whether agent sees aggregate diff at end of Act phase",
+    "Check whether Reflect runs full test suite vs only target test",
+    "Assess whether evidence emitter captures test pass/fail counts for quality history",
+    "Evaluate semantic verification of patch (edge cases, docstring consistency)",
+    "Assess whether clean git diff (no changes) is detected as failure signal"
+  ],
+  "success_hints": [
+    "Every Act phase ends with agent reading git diff and confirming hypothesis match",
+    "Full test suite runs at least once before final patch submission"
+  ],
+  "task_context": "Skaffen Go agent with OODARC phases in headless print mode for SWE-bench Lite. Goal: #1 (~60% baseline) through genuine improvements."
+}

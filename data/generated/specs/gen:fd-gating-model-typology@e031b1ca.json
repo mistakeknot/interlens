@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-progressive-autonomy-gates covers autonomy dimension",
+    "fd-signal-verifiability-engineering covers improving signal verifiability",
+    "fd-false-block-cost-modeling covers token economics"
+  ],
+  "decision_lens": "Findings ranked by how well they translate to an AI factory where signal verifiability varies per CUJ and false blocks have concrete token cost.",
+  "focus": "How acceptance testing, manufacturing inspection, and certification frameworks classify gate types by verifiability",
+  "name": "fd-gating-model-typology",
+  "persona": "A quality systems architect who has implemented acceptance frameworks in both software CI pipelines and ISO 9001 manufacturing contexts.",
+  "review_areas": [
+    "Survey software acceptance testing frameworks (ATDD, BDD, Cucumber) for how they distinguish executable vs. judgment-based acceptance criteria",
+    "Examine manufacturing incoming/in-process/final inspection models (IPC-A-610, AIAG APQP) for attribute vs. variable inspection gate logic",
+    "Review aviation DO-178C and medical device IEC 62304 V&V for verification (automatable) vs. validation (human judgment) gate separation",
+    "Assess FDA design transfer gate models for evidence accumulation patterns: gates that log evidence for later milestone review",
+    "Research SPC control chart run rules as a model for trend-based CUJ signals that are not pass/fail",
+    "Identify frameworks with explicit gate bypass with evidence logging (deviation permit pattern)"
+  ],
+  "success_hints": [
+    "Clear mapping from CUJ signal types to gate enforcement modes backed by two framework precedents",
+    "At least one framework with formal treatment of false block cost"
+  ],
+  "task_context": "AI agent factory uses CUJs with typed success signals to gate work item completion. Challenge: prevent quality regression without wasting tokens on false blocks as human withdraws from review."
+}

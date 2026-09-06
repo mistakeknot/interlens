@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-triage-scoring-fidelity covers Stage 1 selection before staging",
+    "fd-dispatch-pipeline-latency covers staging timing not correctness",
+    "fd-token-budget-accounting covers budget enforcement not dropout policy"
+  ],
+  "decision_lens": "Flags threshold values that appear set heuristically without empirical grounding. Prioritizes cases where dropout prunes agents that would have found distinct issues, and where expansion fires for findings Stage 1 already covered.",
+  "focus": "Whether AgentDropout redundancy elimination and Stage 2 expansion scoring are correctly calibrated to the cost/quality tradeoff",
+  "name": "fd-agentdropout-and-expansion",
+  "persona": "A machine learning systems engineer with experience in ensemble pruning and dynamic resource allocation. Approaches dropout/expansion as adaptive policies needing explicit calibration.",
+  "review_areas": [
+    "AgentDropout threshold of 0.6 (lowered from 0.7): assess whether validated against recall loss or set based on token savings alone",
+    "Redundancy score composition: verify 0.4 (domain convergence) + 0.2 (finding density) computation and that finding density is available at decision time",
+    "Safety-critical agent exemption from dropout (fd-safety, fd-correctness): validate exemption is applied before scoring not post-hoc",
+    "Stage 2 expansion adjacency scoring: whether it considers thematic adjacency or simply fires whenever severity >= P1",
+    "Interaction between AgentDropout and dynamic slot ceiling: check if independently calibrated",
+    "flux-gen prompt-mode agents in expansion pool: verify dropout handles them correctly when content is unknown at triage time"
+  ],
+  "success_hints": [
+    "Dropout threshold should be validated against >= 30 historical reviews",
+    "Stage 2 expansion should fire in <= 30% of reviews",
+    "Dropped agents should have median finding count of 0 in historical data"
+  ],
+  "task_context": "flux-drive uses AgentDropout (threshold 0.6) to prune Stage 2 candidates whose domains overlap with Stage 1, and expansion scoring to add agents when Stage 1 reveals gaps."
+}

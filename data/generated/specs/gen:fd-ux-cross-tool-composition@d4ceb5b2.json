@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-ux-onboarding-friction covers the first-run wizard flow within Gurgeh exclusively",
+    "fd-ux-kernel-surface-gap covers the gap between Intercore/Clavain capabilities and TUI rendering",
+    "fd-ux-agency-layer-leak covers agency logic that has migrated into the TUI layer instead of living in Clavain/Intercore"
+  ],
+  "decision_lens": "Prioritizes findings where a user must perform manual bridging work (switching tabs, re-entering context, re-running commands) that the system could handle automatically, and cases where a tool's output is not visibly consumed by the downstream tool.",
+  "focus": "Review whether the four tools (Bigend, Gurgeh, Coldwine, Pollard) compose into a coherent product experience, specifically examining cross-tab navigation, handoff moments, and signal propagation",
+  "name": "fd-ux-cross-tool-composition",
+  "persona": "A product experience architect who has designed multi-tool development environments. Evaluates composition through the lens of progressive disclosure: can a user stay in flow as they move from ideation through execution, or do they experience jarring context breaks?",
+  "review_areas": [
+    "Trace the Gurgeh-to-Coldwine handoff: when 'Generate Epics' emits SpecHandoffMsg, does the TUI auto-navigate to Coldwine or leave the user stranded in Gurgeh? Check whether ColdwineView is even subscribed to SpecHandoffMsg when it is not the active tab",
+    "Evaluate Pollard-to-Gurgeh research integration: Pollard findings can be linked to specs via 'Link Insight', but does Gurgeh visibly reflect linked insights when browsing specs? Does Bigend surface active Pollard hunter runs as signals?",
+    "Check the Sprint tab's relationship to Coldwine: if Sprint is being merged into Coldwine (per the 2026-02-25 PRD), assess whether their current UX models are compatible or whether merging creates a split-personality view with incompatible information densities",
+    "Audit the command palette's cross-tool reach: are there palette commands for 'switch to Coldwine', 'link current spec to Pollard', or similar cross-tool navigation actions, or does the palette only expose within-tab actions?",
+    "Review slash command discoverability for tab navigation — /bigend, /gurgeh, /coldwine, /sprint, /pollard require the user to know the magic strings and have chat focused; compare this to the Ctrl+left/right cycling and assess which model wins for multi-tab power users",
+    "Verify that signals emitted by one tool (e.g., Pollard hunter completion, Coldwine dispatch completion) are visible on the Bigend signals panel, and that the signal flow documented in FLOWS.md matches the actual event wiring in the codebase"
+  ],
+  "success_hints": [
+    "A user completing a Gurgeh spec should be able to reach a running Coldwine dispatch in 3 or fewer explicit interactions, with no manual data re-entry",
+    "Bigend should be able to serve as a passive dashboard that a user can glance at from any other tab — signals from all tools should flow there without the user switching to Bigend"
+  ],
+  "task_context": "Autarch is a 4-tool tabbed Bubble Tea TUI (Bigend, Gurgeh, Coldwine, Pollard) serving as Layer 3 of the Demarch autonomous software development platform. The documented composition pipeline is Gurgeh-to-Coldwine-to-Pollard (Bigend observes all). FLOWS.md describes cross-tool handoffs via SpecHandoffMsg, EpicProposal, InsightLink, and the Event Spine."
+}

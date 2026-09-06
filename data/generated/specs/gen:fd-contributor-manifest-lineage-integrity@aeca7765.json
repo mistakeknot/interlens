@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "fd-schema-contract-crosslang (existing) owns whether the manifest schema itself is consistent across Swift/Python; this agent owns whether THIS pipeline's stages correctly populate that already-fixed schema with complete, audit-sufficient, non-placeholder lineage data",
+    "fd-privacy-invariant-enforcement (existing) owns structural flow-rule/transition enforcement (raw_quarantined to derived_redacted legality); this agent owns whether the resulting manifest is forensically self-describing after a legal transition has occurred",
+    "fd-redaction-irreversibility-threat-model owns whether the redacted pixels themselves are secure; this agent owns whether the manifest's record OF that redaction (which model, which parameters, which lock-file state) is complete and trustworthy enough to audit later"
+  ],
+  "decision_lens": "If this session's blurred_archive artifact were challenged later (a subject requests review, a model swap needs a re-run audit, or reclaim of quarantine raw needs to be justified), does the manifest alone contain enough to reconstruct exactly what happened, or does it depend on out-of-band information (which model file was actually on disk at the time, which config default was active)?",
+  "focus": "Contributor-session manifest correctness for coarsened geo/time provenance, lineage_entry completeness, and reclaim-prerequisite recording",
+  "name": "fd-contributor-manifest-lineage-integrity",
+  "persona": "Apply the perspective of a data lineage / provenance systems engineer who has built manifest-driven data pipelines for regulated or forensic contexts (chain-of-custody systems, data-clean-room provenance ledgers) where every derived artifact must be traceable to a specific source-transform-parameters triple, and treats a manifest that records 'redaction happened' without recording exactly which model/version/parameters produced it as an unauditable pipeline regardless of whether the redaction itself was correct.",
+  "review_areas": [
+    "Whether per-clip session_id derivation (UUIDv4 from content hash) is actually collision-safe and re-run-idempotent given that decision 1's contributor_ingest stage may be invoked multiple times on the same clip during development/debugging — a content-hash-derived ID is good for dedup but the brainstorm should specify whether a second ingest of the same clip creates a duplicate session, overwrites, or is rejected, since the manifest schema models one artifact per session",
+    "Coarsening order of operations: geohash-5 and hour-bucket coarsening happens once at ingest from QuickTime metadata, but whether the *raw* precise GPS/timestamp is retained anywhere in memory/temp files/logs after coarsening (e.g. an intermediate ffprobe dump, a debug log line) that would defeat the §8.4 guarantee even though the manifest itself only ever stores the coarsened form",
+    "lineage_entry.model_checkpoint and redaction_implementation completeness against decision 11's models.lock.json: whether every stage that touches pixels (tone-map, three detectors, tracker, encoder) has its exact version/hash captured in lineage, or whether only the top-level redaction_implementation tag (node_yolo_scrfd_v1) is recorded while the individual model hashes live only in models.lock.json with no link from a specific manifest back to which lock-file state was active for that session — a lock-file update six months later would make old manifests ambiguous about what was actually run",
+    "reclaim_events prerequisite recording (decision 9): whether 'wired but not armed' actually records real sink-verification checksums against the real blurred_archive output today, or whether the fields are structurally present but populated with placeholder/unvalidated values until reclaim is armed later — a manifest with a reclaim_events entry that looks verified but wasn't would be worse than one that's honestly empty, since it invites a future automated-deletion pass to trust unverified data",
+    "Per-session versus per-clip granularity mismatch risk: decision 2 commits to one session per clip for lineage-graph simplicity, but contributor footage may include related clips from the same walk/run (sequential timestamps, overlapping GPS) — whether anything in the manifest links sibling sessions from the same contributor outing, and if not, whether that's a deliberate simplicity trade-off (fine) or an unstated assumption that could surprise a later corpus-linkage analysis expecting session-level independence"
+  ],
+  "severity_examples": [
+    {
+      "condition": "lineage_entry records a stage-level tag (node_yolo_scrfd_v1) but not a lock-file content hash or version snapshot, so the manifest is not self-describing for audit purposes",
+      "scenario": "A models.lock.json update (e.g. swapping the face detector after fixture review demands better recall) happens after several sessions have already been processed and their manifests written, but nothing in those existing manifests pins which lock-file revision was active — six months later, auditing 'what model redacted this session's faces' requires correlating manifest timestamps against lock-file git history rather than reading the manifest directly",
+      "severity": "P1"
+    },
+    {
+      "condition": "no stated idempotency contract for repeated contributor_ingest invocations on identical source content",
+      "scenario": "Re-ingesting the same clip after a pipeline crash (common during prototype development against real footage) produces a second session with a colliding or near-colliding content-hash-derived session_id, and the brainstorm doesn't specify idempotency behavior, risking either silent overwrite of a partially-verified prior session's manifest or an orphaned duplicate session directory that reclaim logic never accounts for",
+      "severity": "P1"
+    },
+    {
+      "condition": "the manifest doesn't distinguish structurally between 'field present, verified' and 'field present, placeholder' states",
+      "scenario": "reclaim_events fields are populated with real-looking but not-yet-cryptographically-verified sink checksums during the 'wired but not armed' phase, and a future engineer arming reclaim trusts the existing field values without re-verifying, deleting quarantine raw based on unverified prerequisite data",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Ties every finding back to a concrete audit or reclaim scenario (subject review request, model-swap re-run, deletion justification) rather than abstract 'lineage should be complete'",
+    "Distinguishes manifest-schema gaps (the contract doesn't have a field for this) from manifest-population gaps (the field exists but this pipeline doesn't fill it correctly) since the brainstorm claims zero contract schema changes are expected and a finding should say which category it falls into",
+    "References the brainstorm's own named fields (lineage_entry.redaction_implementation, reclaim_events[], model_checkpoint, session_id) rather than generic provenance terminology"
+  ],
+  "task_context": "Review a brainstorm document for jawnscope-node's M2 contributor-path sprint, focusing on the contributor_ingest stage's manifest population: per-clip session creation, geo/time coarsening at ingest, lineage_entry recording of model/redaction provenance, and the not-yet-armed reclaim_events prerequisites. The review should find lineage/provenance completeness and auditability gaps distinct from the pipeline-contract schema design itself (which is fixed from M0) or the general privacy-flow enforcement machinery."
+}

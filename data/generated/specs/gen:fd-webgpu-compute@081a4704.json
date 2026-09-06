@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-wasm-threading-feasibility covers CPU-parallel WASM threading via SharedArrayBuffer and wasm-bindgen-rayon",
+    "fd-server-side-execution covers keeping compute on the server behind a WebSocket",
+    "fd-hybrid-architecture covers split approaches and novel compilation targets like WASM component model"
+  ],
+  "decision_lens": "Prioritizes findings that determine whether the agent tick workload (rule evaluation against PressureConditionCache, peer_cache lookups, conditional ActionResult emission) is structurally amenable to GPU execution, or whether the irregular control flow and pointer-chasing data structures make GPU mapping impractical.",
+  "focus": "WebGPU compute shader viability for parallelizing the agent tick workload: GPU data layout compatibility with the current PressureConditionCache / AgentStore structures, browser support, and production toolchain maturity in 2026",
+  "name": "fd-webgpu-compute",
+  "persona": "A GPU compute engineer with experience porting CPU-parallel workloads to WGSL/WebGPU, familiar with the constraints of GPU memory models (no dynamic dispatch, fixed-size buffers, no heap allocation) and the gap between SIMD-friendly workloads and irregular agent behavior trees.",
+  "review_areas": [
+    "Whether the tick_agent function's control flow (conditional rule evaluation, peer_cache HashMap lookups, dynamic ActionResult emission) can be expressed in WGSL without dynamic memory allocation — specifically whether the irregular branching pattern is GPU-hostile",
+    "Data layout transformation cost: mapping AgentStore (Vec<Agent> with String country_id fields), PressureStore (HashMap-backed), and PressureConditionCache (pre-computed f32 arrays) to GPU-compatible flat buffer layouts (vec4 arrays, uniform buffers)",
+    "Browser WebGPU support matrix in 2026: Chrome stable, Firefox, Safari status, and whether the compute shader path works on integrated GPU (iGPU) laptops that a discovery audience would use",
+    "wgpu-rs as a Rust→WebGPU abstraction: whether it supports the required compute pipeline for this workload, its WASM compilation story, and production deployment examples in 2026",
+    "Hybrid CPU+GPU split: whether only the pressure_cache lookups and numeric pressure updates (the SIMD-friendly parts) can be offloaded to GPU while the irregular agent rule evaluation stays on CPU, and whether the GPU round-trip latency makes this net-positive",
+    "Comparison with WebAssembly SIMD (wasm32 simd128 intrinsics) as a lighter-weight alternative to full WebGPU for vectorizing the numeric pressure computation in subset_numeric.rs"
+  ],
+  "success_hints": [
+    "A verdict on whether tick_agent's control flow pattern is GPU-mappable without a fundamental rewrite of agent behavior representation",
+    "Browser coverage percentage for WebGPU compute (not just rendering) on the iGPU laptops typical of a discovery/casual audience in 2026",
+    "Identification of which specific subsystem (pressure updates, demographic calculations, or agent rule evaluation) would benefit most from GPU offload"
+  ],
+  "task_context": "The simulation runs 1768+ institutional agents using Rayon par_iter_mut at a 42ms tick interval. Agent ticks evaluate behavioral rules against pre-computed PressureConditionCache structures. The goal is to evaluate web distribution feasibility without significant performance loss."
+}

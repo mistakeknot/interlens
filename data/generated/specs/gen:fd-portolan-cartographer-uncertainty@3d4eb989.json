@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "Do NOT review the choice of 5 m interval or sample placement strategy",
+    "Do NOT review whether sun_fraction is the right aggregate statistic",
+    "Do NOT review single-timestamp concerns or dynamic-phenomenon framing",
+    "Stay focused on the contract for 'we don't know' between Phase 1.5 and its consumers"
+  ],
+  "decision_lens": "Does the missing-data signal carry enough information for the routing layer (and future consumers) to make a principled decision, or does it collapse distinguishable failure modes into a single ambiguous flag? Is the contract between Phase 1.5 and Phase 1.6 about uncertainty explicit, testable, and complete?",
+  "distance_rationale": "Pre-modern navigational cartography with explicit conventions for 'here be no soundings' is centuries and disciplines removed from binary raster nodata propagation.",
+  "expected_isomorphisms": "Portolan-makers had three categorical responses to missing coastline data: omit the segment entirely, mark it with a cartouche-acknowledged gap, or fabricate plausibly (terra incognita with disclaimers). Each choice carries different downstream navigational consequences — fabrication kills sailors, omission strands them, explicit gaps let them plan. Mapped: nodata in shadow sampling has the same three responses (treat as sun, treat as shade, propagate NaN with a quality flag), and the brainstorm correctly chose the third — but the question is whether the quality-flag CONVENTION is rich enough for downstream consumers to actually act on, or whether it is a single bit of 'we don't know' where finer categories would help.",
+  "focus": "Whether the NaN-plus-shade_data_quality='no_coverage' policy is sufficient, or whether the missing-data taxonomy needs more categories (partial coverage, edge-of-raster, fully-nodata) so the routing layer can make principled fallbacks.",
+  "name": "fd-portolan-cartographer-uncertainty",
+  "persona": "Apply the perspective of a master portolan cartographer who knows that a chart's honesty about what it doesn't know determines whether ships return. The framework treats nodata policy not as a math choice but as a communication contract with everyone downstream who will trust this data.",
+  "review_areas": [
+    "Taxonomy granularity: 'no_coverage' lumps together (a) all samples nodata, (b) edge clipping into raster boundary, (c) DSM gaps over water/parks; routing fallback might differ across these",
+    "Partial-coverage signal: an edge with 3 of 10 samples in nodata gets sun_fraction = in_sun / (in_sun + in_shade) and looks identical to a fully-covered edge — should the output expose sample_count or coverage_fraction so consumers can weight confidence?",
+    "Quality flag presence: NaN-only edges get shade_data_quality, but the brainstorm doesn't say whether covered edges also get a quality attribute — asymmetric schemas are a known source of consumer bugs",
+    "Edge-of-raster vs interior-nodata: the defensive np.clip silently maps off-raster samples to the boundary pixel, which conflates 'walked off the map' with 'walked into the nodata zone' — is this intentional?",
+    "Acceptance criterion '>95% of edges receive a non-NaN sun_fraction' — what happens to the other ~5% in the smoke test? Are they geographically clustered (DSM edge) or scattered (DSM holes)? The single number hides the answer",
+    "Reproducibility: does the quality flag get versioned with the schema so a future change to the taxonomy doesn't silently break existing shaded-graph files?"
+  ],
+  "severity_examples": [
+    {
+      "example": "np.clip silently maps off-raster samples to the boundary pixel — an edge extending beyond the DSM would receive synthetic samples treated as real data, biasing sun_fraction without any flag. This is the 'fabricate plausibly' failure mode.",
+      "severity": "P0"
+    },
+    {
+      "example": "Partial-coverage edges (e.g., 3/10 samples nodata) produce a sun_fraction indistinguishable from fully-covered edges in the output schema — Phase 1.6 cannot weight confidence even if it wants to.",
+      "severity": "P1"
+    },
+    {
+      "example": "shade_data_quality is only set on NaN edges, creating an asymmetric schema where covered edges lack the attribute — downstream code must use .get() defensively and the taxonomy cannot grow without a migration.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Medieval portolan chart construction (Mediterranean, 13th–16th c.)",
+  "success_hints": [
+    "Frame nodata as a communication contract with downstream consumers, not a math problem",
+    "The clip-to-boundary behavior is a P0 candidate — exercise it against the brainstorm's claim that DTLA is fully inside DSM coverage; what about edges near the bbox boundary?",
+    "Propose schema additions only where a Phase 1.6 use case is plausible, not exhaustive",
+    "Acknowledge that perfect honesty about uncertainty has storage cost — pick the highest-value flags"
+  ],
+  "task_context": "Review the Phase 1.5 brainstorm focusing exclusively on missing-data and uncertainty handling: the NaN propagation policy, the shade_data_quality flag, the np.clip defensive guard, and the schema contract with Phase 1.6. Do not address sampling cadence, aggregation methodology, or temporality — other reviewers cover those."
+}

@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-delivery-guarantee-model covers delivery contract, not group isolation",
+    "fd-ipc-transport-design covers transport without multi-tenant focus",
+    "fd-process-boundary-collapse covers migration path, not per-group invariants"
+  ],
+  "decision_lens": "Any design where a slow group delays another group's messages is a regression. Authorization checks must survive transport changes.",
+  "focus": "Reviews whether per-group isolation guarantees (namespace separation, authorization, queue fairness) are preserved under each redesign option",
+  "name": "fd-group-isolation-under-redesign",
+  "persona": "Security-minded backend engineer who treats multi-tenant isolation as first-class correctness. Asks whether group A can affect group B's state, queue, or output.",
+  "review_areas": [
+    "Review GroupQueue isolation under shared LISTEN/NOTIFY channel",
+    "Verify is_authorized_target check survives transport change",
+    "Assess outbox multi-tenant behavior (slow consumer blocking)",
+    "Review per-group cursor concurrency under shared channels",
+    "Examine late group registration race with LISTEN subscriptions",
+    "Assess write restriction enforcement in redesigned IPC"
+  ],
+  "success_hints": [
+    "One group's backpressure cannot delay another — fairness preserved",
+    "Authorization checks enforced at same or earlier point",
+    "Write restriction uses same group identity signal in new path"
+  ],
+  "task_context": "Intercom dual-process (Node+Rust) message delivery pipeline redesign — replacing polling and fire-and-forget HTTP with reliable event-driven IPC."
+}

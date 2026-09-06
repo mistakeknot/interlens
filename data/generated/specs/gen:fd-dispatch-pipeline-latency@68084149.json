@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-triage-scoring-fidelity covers selection quality not execution timing",
+    "fd-token-budget-accounting covers token spend not wall-clock time",
+    "fd-agentdropout-and-expansion covers dropout/expansion correctness not their timing impact"
+  ],
+  "decision_lens": "Prioritizes latency improvements that reduce time-to-first-finding without sacrificing correctness. Values pipeline changes that can be done without restructuring the protocol phases.",
+  "focus": "Latency bottlenecks in the orchestration pipeline between triage completion and first agent result, including Stage 1/Stage 2 sequencing, qmd knowledge retrieval, model routing resolution, and completion monitoring",
+  "name": "fd-dispatch-pipeline-latency",
+  "persona": "A distributed systems engineer who has optimized multi-step async pipelines. Reads orchestration protocols looking for serial dependencies that could be parallelized, blocking I/O before agent launch, and polling patterns that waste wall-clock time.",
+  "review_areas": [
+    "qmd knowledge retrieval (Step 2.1) runs before agent dispatch but is marked OPTIONAL — check if it blocks agent launches",
+    "Model routing resolution via routing_resolve_agents — assess whether this is a synchronous shell call that blocks all launches",
+    "Stage 1 vs Stage 2 staging logic: evaluate whether expansion scoring could be assessed incrementally as Stage 1 findings arrive rather than requiring full completion",
+    "Composer dispatch path: when COMPOSER_ACTIVE=1, verify triage steps are actually eliminated not just logically skipped",
+    "Per-agent temp file construction: check if file writes are serialized or agents can launch as their temp files complete",
+    "Completion monitoring: assess polling mechanism for agent .md.partial to .md sentinel rename"
+  ],
+  "success_hints": [
+    "Pipeline should overlap qmd retrieval with pre-launch preparation",
+    "For 5-agent review, elapsed time from triage complete to all agents launched should be < 10 seconds",
+    "Stage 2 expansion should not require waiting for all Stage 1 agents to complete"
+  ],
+  "task_context": "flux-drive coordinates: domain detection, triage, model routing resolution, knowledge retrieval, per-agent content preparation, staged dispatch, completion monitoring, synthesis delegation."
+}

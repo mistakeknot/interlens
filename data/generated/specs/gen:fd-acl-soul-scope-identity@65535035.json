@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Do not cover SoulStore persistence internals, transaction semantics, or SQLite implementation — those belong to the persistence agent",
+    "Do not cover Rust trait bound design or derive macro correctness — those belong to the Rust ergonomics agent",
+    "Do not cover ECS tick-loop integration or per-tick performance — those belong to the ECS integration agent"
+  ],
+  "decision_lens": "ACL enforcement at the wrong layer is not enforcement. Every 'consumer-enforced' boundary is a boundary that a future consumer will skip. Every undocumented trust assumption is a future security bug. The access-control model is only as strong as its weakest enforcement point — and in a library crate, the weakest point is 'optional wrapper.'",
+  "focus": "Soul-per-(user,app) isolation model, ScopedStore ACL enforcement boundary, grant token shape and validation delegation, User/Character/NPC lifecycle semantics, snapshot federation consent model, audit log requirements",
+  "name": "fd-acl-soul-scope-identity",
+  "persona": "Apply the perspective of a security-conscious API designer who has built OAuth2 resource servers and multi-tenant SaaS platforms, with experience auditing identity models for GDPR/CCPA compliance and reviewing SDK designs where trust boundaries cross process boundaries.",
+  "review_areas": [
+    "ScopedStore is described as an 'ACL-gating wrapper' that is optional: 'Single-tenant consumers (elf-revel) skip the wrapper.' This means the access-control model is enforced by convention, not by the type system. A consumer that forgets to wrap their SoulStore in ScopedStore gets no compile error. For Phase 1 (elf-revel only), this is fine. For Phase 2 (Solwend, multi-user), this is a footgun. The spec should at minimum document the trust model explicitly: 'if you use SoulStore without ScopedStore in a multi-tenant deployment, you are responsible for all ACL enforcement.' Ideally, the spec should propose a type-level marker (e.g. a phantom-type parameter on SoulStore) that forces consumers to explicitly opt out of ACL.",
+    "GrantTokenRef appears in SoulEvent::SeededFrom { source_soul, granted_via: GrantTokenRef } but GrantTokenRef is never defined in the spec. It is mentioned in §4 as part of the lifecycle events but has no type definition. If GrantTokenRef is a UUID, a JWT, or an opaque blob, the serialization and storage semantics differ. This is a locked item (§4, SoulEvent) with an undefined dependency type.",
+    "The access-control-model.md says 'Palettice does not issue grants itself — it only honors them.' But ScopedStore.grants: GrantStore is a field in the ScopedStore definition in §2. GrantStore is never defined. If the GrantStore is consumer-supplied (Solwend's identity layer), the spec should say so. If it is a Palettice type, it needs a definition. The current spec implies Palettice has a GrantStore but does not define what it contains or how it validates tokens.",
+    "SoulKind::Character { user_soul: Option<SoulId>, app: AppId } — user_soul is optional. The access-control-model.md says Characters are 'owned by the game/app' and 'linked to a User-Soul (optional, scoped).' But the ACL semantics of a Character with user_soul=None are unspecified: can any scope read it? Can only the app read it? If the app is shut down, can the user claim it? These lifecycle edge cases are relevant to Phase 1 because elf-revel's NPC Souls will have user_soul=None (all elves are NPCs) — the spec should confirm that NPC Souls without a user_soul are readable by the app's scope without any grant.",
+    "The §0 Q-B resolution says 'cross-Soul reads go through the access-control scope layer like any other cross-Soul read.' But the SoulStore trait has no cross-Soul read method — only single-Soul load(). Cross-Soul reads are implemented by calling load() twice with appropriate grants. The spec does not specify what happens when Soul A's relationship facet references Soul B (by SoulId) and the caller does not have a grant for Soul B. Should the load return a Soul with an unresolvable SoulRef? Should the SoulRef field be redacted? The ACL model is silent on this.",
+    "Federation import creates a new NPC-Soul with federated_from: Some(FederationOrigin). The FederationOrigin type is never defined in the spec. The access-control-model.md describes federation semantics in detail (consent token, source-instance provenance stamp) but the Phase 1 API spec (§4, SoulEvent::FederatedFrom) leaves FederationOrigin as an undefined type. If federation is out of scope for Phase 1 (§11 says it is), the FederatedFrom event variant should either be gated behind a feature flag or the spec should note that FederationOrigin is a Phase 2 type placeholder."
+  ],
+  "severity_examples": [
+    {
+      "condition": "SoulEvent::SeededFrom { granted_via: GrantTokenRef } is in the locked §4 event type. GrantTokenRef has no definition anywhere in the spec. Phase 1 code cannot compile the event enum without a type definition for GrantTokenRef. This is a spec hole that blocks code start.",
+      "scenario": "GrantTokenRef used in locked SoulEvent but never defined",
+      "severity": "P0"
+    },
+    {
+      "condition": "SoulEvent::FederatedFrom { origin: FederationOrigin } is in the locked §4 enum. ScopedStore { grants: GrantStore } is in the §2 draft. Neither type is defined. If federation is Phase 2+ out of scope, these variants/fields should be marked with #[cfg(feature='federation')] or replaced with PhantomData placeholders. Otherwise Phase 1 code cannot compile.",
+      "scenario": "FederationOrigin and GrantStore are undefined types in locked/draft items",
+      "severity": "P1"
+    },
+    {
+      "condition": "In a library crate used by Phase 2 Solwend, a developer who calls SoulStore::load directly instead of ScopedStore::load_within_scope gets no compile warning, no runtime panic, and no ACL enforcement. The spec should at minimum define a Sealed trait or a type-state pattern to make unsandboxed SoulStore access visibly intentional.",
+      "scenario": "ScopedStore is optional with no type-level enforcement",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Find and list every undefined type that appears in the locked §1-4 signatures (GrantTokenRef, FederationOrigin, ProviderId, AppId, FederationOrigin, GrantStore) and assess which are blocking vs non-blocking for Phase 1",
+    "Check whether the NPC-Soul (user_soul=None) ACL model is explicitly documented — elf-revel will create hundreds of NPC Souls and needs a clear answer on who can read them",
+    "Evaluate whether ScopedStore's optional nature is acceptable for Phase 1 (elf-revel) and flag what must change for Phase 2 (Solwend) to be safe",
+    "Check §11 out-of-scope list for federation and grant-token verification — verify that the types they depend on are either defined as stubs or gated so Phase 1 compiles without them"
+  ],
+  "task_context": "The access-control model is locked in access-control-model.md. The SoulStore trait (§2) includes ScopedStore as an optional wrapper. The SoulEvent enum (§4, locked) references several undefined types. Phase 1 is elf-revel only (single-tenant, no ACL needed). Phase 2 is Solwend (multi-tenant, OAuth-shaped grants). The reviewer should identify undefined types that block Phase 1 compilation, flag ACL design gaps that will cause problems in Phase 2, and assess whether the §0 resolved questions are correctly scoped."
+}

@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "fd-place-authority-dissolution focuses on Meyrowitz's place/frontstage-backstage collapse and institutional authority; fd-societal-layer-gap-ranking focuses on ranking media ecology against other missing societal layers (finance, health, energy, crime, religion, education) and cheapest calibration-safe introduction path"
+  ],
+  "decision_lens": "A model that tracks press_freedom, disinformation_volume, censorship_intensity, and algorithmic_amplification as independent scalar channels is measuring who is saying what and how loudly, not what kind of cognitive/social operation the dominant medium of an era permits. The medium is the message: print-dominant societies and algorithmic-feed-dominant societies do not just have different content, they have structurally different capacities to sustain propositional argument, defer to expertise, or maintain a stable public sphere — regardless of press freedom or disinfo volume. If the lattice has no state variable for medium-type/dominant-modality (which determines the ceiling on narrative_coherence and rational-discourse capacity), it cannot express the Amusing Ourselves to Death dynamic even at maximum press freedom and zero disinformation.",
+  "focus": "Whether the simulation can represent the FORM/medium of communication (not just content-quality metrics) as a causal variable that reshapes what counts as legitimate discourse and how fast institutional authority erodes",
+  "name": "fd-media-ecology-medium-bias",
+  "persona": "Apply the perspective of a media ecology theorist in the McLuhan/Postman tradition (medium theory), for whom the technical form of a communication channel — not its content or its owner's intent — is the primary independent variable. McLuhan's tetrad (a medium enhances, obsolesces, retrieves, and reverses) and Postman's claim that typographic vs. televisual/algorithmic media set the epistemology of public discourse (what can even count as an argument) are treated as structural, not stylistic, claims.",
+  "review_areas": [
+    "Whether InformationNarrativePillar's channels (press_freedom, disinformation_volume, filter_bubble_intensity, algorithmic_amplification) can, even in combination, express a Postman-style epistemology shift — i.e. can the model show discourse degrading toward entertainment-logic even when disinfo=0 and press_freedom=1, or is 'quality of information' conflated with 'form of medium' such that a free, honest, algorithmically-dominant public sphere always scores as healthy",
+    "Whether a McLuhan tetrad style pass (what does the current/next dominant medium enhance, obsolete, retrieve, reverse) has any structural home — is there a medium-type or modality axis per country/era (oral -> print -> broadcast -> digital-algorithmic) distinct from the existing ownership/penetration/amplification metrics",
+    "Whether medium-driven effects are modeled as level shifts (a new pressure family) vs. as modulation/coupling on existing families (legitimacy_crisis ceiling, ideological_polarization coupling strength, attention-driven discount on institutional signals) — and per the B7 lesson/Gibson ruling, whether a modulation-only path is actually sufficient or whether the tetrad's 'reversal' effect requires genuinely new state",
+    "Whether narrative_coherence's linear defense-minus-attack equation (types.rs MEDIA_WEIGHT/EDUCATION_WEIGHT/etc.) can produce the specific Postman failure mode — public discourse becoming structurally incapable of sustaining an argument — or whether the equation's floor/ceiling behavior silently forecloses that failure mode regardless of parameter values",
+    "Whether algorithmic_amplification is modeled as a content-multiplier (current implementation) vs. a distinct medium-class with its own epistemic ceiling (per Postman, TV/algorithmic media structurally privilege the immediate/visual/emotional over the sequential/propositional, independent of what content flows through it)",
+    "Whether any per-country or per-era 'digital reversal' effect (Mir's extension: a medium originally used to democratize/decentralize information flips into its opposite — surveillance, centralization, engineered virality — past a saturation threshold) has a representable trigger condition, or whether social_media_penetration/algorithmic_amplification only ever move monotonically toward pressure"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The equation has no term that caps coherence based on medium-form alone — Postman's core claim (televisual/algorithmic media cannot sustain propositional discourse regardless of honesty or freedom) is structurally inexpressible",
+      "scenario": "narrative_coherence can be driven to 1.0 (fully coherent public discourse) purely by maximizing press_freedom, critical_thinking, epistemic_authority, and cultural_resistance while disinformation_volume=0 and censorship=0, even under maximal social_media_penetration and algorithmic_amplification",
+      "severity": "P0"
+    },
+    {
+      "condition": "Violates the B7 lesson (new additive fast clocks erode certified T0 dispersion) when a coupling-only or per-country structural-axis design would suffice",
+      "scenario": "A design doc proposes 'media ecology' as a literal 14th pressure family with its own growth/decay/saturation, duplicating the existing information/legitimacy/polarization coupling rather than adding a modulation layer",
+      "severity": "P1"
+    },
+    {
+      "condition": "No hysteresis or threshold-crossing mechanic distinguishes early-stage vs. late-stage social-media effects on the same underlying channel",
+      "scenario": "algorithmic_amplification is treated purely as a multiplier on existing disinfo/polarization pressures with no distinct 'medium reversal' state, so a country can never show the specific McLuhan reversal signature (a medium introduced to solve a problem becomes, past a threshold, the generator of the opposite problem)",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Reward review output that clearly separates 'content quality' (existing information module: disinfo, censorship, press freedom) from 'medium form' (missing: modality/epistemology ceiling) as two orthogonal axes",
+    "Reward a concrete minimal-state proposal: e.g. a per-country dominant_modality or media_temperature (McLuhan hot/cool distinction) scalar that modulates narrative_coherence's ceiling and legitimacy_crisis coupling strength, not a new pressure family",
+    "Reward explicit engagement with the Gibson ruling and B7 lesson — any proposal should state whether it's default-off, byte-identical at baseline, and re-provable via referee",
+    "Penalize any proposal that just adds more content-quality metrics (more disinfo submetrics) without addressing the form/medium gap specifically named in the review question"
+  ],
+  "task_context": "what pressure layers and systems are we missing? I feel like media ecology is very significant; c.f. McLuhan/Mir's four laws of media + Mir's digital reversal + Joshua Meyrowitz's No sense of place + Postman's Amusing Ourselves to Death"
+}

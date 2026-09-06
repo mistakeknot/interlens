@@ -1,0 +1,37 @@
+{
+  "anti_overlap": "fd-ethology-pair-bond-formation covers behavioral sequencing of bond formation; this covers the mathematical structure of the compatibility model itself",
+  "decision_lens": "Score calibration — compatibility formulas must produce diverse outcomes across the realistic range of input combinations, not just at extremes",
+  "distance_rationale": "Matchmaking engineers solve the exact same multi-factor compatibility scoring problem but operate under real-world validation pressure (did these people actually date?) rather than aesthetic preference.",
+  "expected_isomorphisms": "Driver weight calibration maps directly to feature importance in compatibility models. Asymmetric scoring (A likes B more than B likes A) is standard in recommendation systems and applies directly. Score saturation and decay functions for time-based drivers are well-studied in engagement modeling.",
+  "focus": "Romantic attraction driver design as a multi-factor compatibility scoring problem — how dating platform engineers balance driver weights, asymmetry, and emergent preference discovery",
+  "name": "fd-matchmaking-compatibility-weighting",
+  "persona": "Senior ML engineer at a large-scale matchmaking platform who has designed and A/B-tested compatibility models across millions of user pairs",
+  "review_areas": [
+    "Evaluate whether the 7 driver categories are additive, multiplicative, or threshold-gated — and whether the chosen combination avoids score compression (where all pairs converge toward 0.5)",
+    "Check for the 'dominant driver problem': if aesthetic proximity is already the backbone of friendship, it will dominate attraction scoring and make other drivers cosmetic modifiers",
+    "Assess whether asymmetric attraction is structurally supported — most real compatibility models must handle A→B scores independently from B→A; the brainstorm flags this as an open question",
+    "Evaluate whether 'spark' vs 'gradual accumulation' is a model parameter or an emergent property — platform engineers found that purely accumulative models produce clingy dynamics while threshold-event models create brittle pairing",
+    "Check whether the circumstantial/proximity driver creates a recency bias that overwhelms quality signals — elves who happen to share a workshop would always outcompete distant but highly compatible elves",
+    "Assess whether the system produces the 'long tail' of unexpected pairings that make simulations feel alive, rather than only matching the obvious top-scoring pairs"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No driver hierarchy, no gating logic, additive scoring without normalization",
+      "scenario": "All 7 drivers feed into a single summed score with equal-ish weights, causing aesthetic proximity (already high between friends) to make friendship a near-prerequisite for romance — elves never develop attraction to strangers or rivals",
+      "severity": "P1"
+    },
+    {
+      "condition": "Time-based drivers lack decay or saturation functions",
+      "scenario": "Proximity/circumstantial driver accumulates unboundedly — two elves in the same workshop for 500 ticks develop maximum attraction regardless of compatibility, crowding out all other drivers",
+      "severity": "P2"
+    },
+    {
+      "condition": "Attraction computed as a single pairwise score rather than two directed scores",
+      "scenario": "Attraction is always symmetric — both elves feel exactly the same score — eliminating all unrequited love and one-sided longing from the simulation",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Dating platform ML and recommendation system engineering",
+  "success_hints": "A batch of 20 randomly generated elves produces a distribution of attraction scores where the top few pairs are not the same elves who are already best friends. Unrequited cases appear naturally without special-casing.",
+  "task_context": "The brainstorm defines 7 driver categories for elf romantic attraction and identifies design tensions around legibility, overlap with friendship, and number of active drivers."
+}

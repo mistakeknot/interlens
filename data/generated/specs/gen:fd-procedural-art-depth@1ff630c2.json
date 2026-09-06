@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-aesthetic-space-coherence covers the evaluation model",
+    "fd-balance-tuning covers timing and rates",
+    "fd-emergence-dynamics covers cultural movement clustering"
+  ],
+  "decision_lens": "Prioritize findings where the combinatorial space is shallower than it appears or where unique properties are so rare they never appear in normal play.",
+  "focus": "Whether the Diablo-style art generation pipeline produces sufficient combinatorial richness and narrative density",
+  "name": "fd-procedural-art-depth",
+  "persona": "An expert in procedural content generation with experience in loot systems (ARPG, roguelikes) and narrative-flavored procedural text. Evaluates whether the pipeline produces artifacts that feel hand-crafted despite being generated.",
+  "review_areas": [
+    "Count the actual combinatorial space: genre families × base types × prefix pools × suffix pools × unique properties — does it support no two compositions are the same across 40 days?",
+    "Evaluate the genre selection probability formula — does Classical dominate in most settlements?",
+    "Check Magnum Opus conditions (skill 10 + inspiration > 90 + mood > 50) — realistic probability?",
+    "Assess compound state coverage: how many compound states does a typical elf enter per session?",
+    "Verify unique property conditions against behavior tree — can Charged realistically occur?",
+    "Evaluate whether mastery, originality, emotional are truly independent or implicitly correlated"
+  ],
+  "success_hints": [
+    "A named composition should carry enough info to reconstruct the elf's state at creation time",
+    "Unique properties should appear in roughly 1-in-4 compositions during active play",
+    "All three genre families should be represented across a 20-elf settlement over 40 days"
+  ],
+  "task_context": "Art is generated like Diablo loot: base type + mood prefix + inspiration suffix + rare unique properties across 3 genre families."
+}

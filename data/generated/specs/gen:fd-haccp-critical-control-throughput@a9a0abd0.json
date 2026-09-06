@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "fd-privacy-invariant-enforcement covers the substance of the §8 invariants; this agent covers the process discipline of treating them as CCPs with hold-for-release and re-validation-on-change",
+    "fd-lawful-intercept-minimization (this batch) covers retention/minimization/purge; this agent covers throughput-vs-quality tradeoffs and lot/batch release gating",
+    "Existing fd-koji-batch covers batch processing scheduling; this agent is specifically about critical-limit integrity under throughput pressure, not scheduling mechanics"
+  ],
+  "decision_lens": "If this were a food safety plan, would the redaction stage's critical limit ('zero unredacted faces/plates') survive a rushed production day — or does a throughput knob (stride, batch size, timeout) exist that can be turned up without also re-triggering the verification/hold gate?",
+  "distance_rationale": "Same abstraction level (a multi-stage physical/digital processing line with per-batch lots, throughput targets, and mandatory hold points before release) but a different industry where the discipline of 'critical control point' identification and lot-level verify-before-release is decades-mature and legally codified.",
+  "expected_isomorphisms": "HACCP identifies a small number of Critical Control Points (CCPs) where a hazard MUST be eliminated or reduced to an acceptable level, sets a measurable critical limit at each, and requires the batch to be held (not shipped) until that CCP passes — with monitoring, corrective action, and record-keeping for every batch; this maps onto JawnScope's per-clip 'session' as a lot, redaction as the CCP with a zero-miss critical limit, and the verify-then-reclaim gating as the hold-for-release step, while surfacing whether throughput pressure (stride=4 default, 46-57fps normalize) is ever allowed to silently relax the CCP rather than just extend processing time.",
+  "focus": "Whether the pipeline identifies redaction (and metadata-strip) as true zero-tolerance Critical Control Points with hold-until-verified release discipline, and whether throughput/config knobs (detection stride, tracker hold windows) are structurally prevented from becoming backdoor relaxations of the critical limit under time or resource pressure.",
+  "name": "fd-haccp-critical-control-throughput",
+  "review_areas": [
+    "Whether 'stride' (detect every 4th frame) is documented as a *quality* parameter that changes review/fixture status, or could be silently tuned as a throughput lever without re-running the golden-fixture recall gate — HACCP requires re-validation whenever a process parameter at a CCP changes",
+    "Whether each per-clip session (the 'lot') has an unambiguous hold-vs-release state machine: quarantined-raw → processing → held-pending-verification → released-to-corpus/archive, with no path that treats 'processing completed' as equivalent to 'verified'",
+    "Whether corrective-action paths are defined for a CCP failure (e.g. tracker loses a subject entirely, detector crashes mid-clip) — does the session go to a defined dead-letter/quarantine state, or silently produce a partial artifact that could be mistaken for a passing one",
+    "Whether the 46-57fps throughput number (decision 8) is ever used to justify reducing sampling rigor rather than just processing time, and whether there's a documented lower bound below which the CCP is considered under-monitored",
+    "Whether lot traceability is complete: given a released blurred_archive artifact, can the exact detector/tracker config, model hashes, and stride used be reconstructed from the manifest alone (HACCP-equivalent of batch records)"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The stride value is read from a config file with no linkage asserting 'this stride was validated against fixture recall' — i.e., stride is a free-floating performance knob rather than a versioned, re-validated CCP parameter.",
+      "scenario": "A future performance tuning pass raises detection stride from 4 to 8 (to hit a throughput target) on the Mac path without updating the golden-fixture recall test or re-running it against the new stride.",
+      "severity": "P0"
+    },
+    {
+      "condition": "A session with a tracker excursion beyond documented bounds is treated identically (same lineage/state) to a session where tracking stayed within bounds, with no distinguishing record for later audit.",
+      "scenario": "The tracker enters fail-closed hold-last-box mode (decision 6) for an extended period (e.g. subject occluded for 40+ frames, beyond the 15-frame extension default) and the session manifest records no explicit flag that this session exceeded the tracker's designed confidence envelope.",
+      "severity": "P1"
+    },
+    {
+      "condition": "No versioned pairing of (model hash, stride, tracker config) to 'last fixture validation date/result' exists in models.lock.json or the manifest schema.",
+      "scenario": "The manifest records `model_checkpoint` hash and stride config but not the combination that was actually validated together (e.g. detector v1 + stride 4 was fixture-tested, but detector v2 + stride 4 was never re-tested before being used in production).",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Food safety engineering — HACCP (Hazard Analysis Critical Control Points) for cold-chain / batch food processing",
+  "success_hints": [
+    "Look for stride/config changes explicitly gated behind a re-run of the fixture recall test, not just a config file edit",
+    "Look for a clear session state machine distinguishing 'processed' from 'verified' from 'released'",
+    "Look for explicit handling of tracker-excursion-beyond-bounds as a flaggable, auditable event rather than silent pass-through",
+    "Flag any throughput number presented as a capability claim without a corresponding recall/quality claim at that same setting"
+  ]
+}

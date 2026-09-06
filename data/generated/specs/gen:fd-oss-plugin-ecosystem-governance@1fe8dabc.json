@@ -1,0 +1,51 @@
+{
+  "anti_overlap": [
+    "fd-cli-arg-plumbing-correctness covers correctness of CLI argument passing and shell invocation — this agent covers platform API stability, distribution channel governance, and release pipeline completeness, not argument parsing correctness",
+    "fd-deployment-lifecycle-semantics covers the semantics of deployment state transitions — this agent covers the OSS plugin ecosystem governance risks for the Hermes skill distribution channel",
+    "fd-broadcast-pilot-gating covers the kill-switch metrics and falsification criteria — this agent covers the technical and governance risks in the distribution infrastructure that the kill-switch metrics depend on"
+  ],
+  "decision_lens": "An extension that depends on an unstable platform API and a single external gatekeeper for distribution is not a released product — it is a prototype that could be stranded at any platform release boundary.",
+  "distance_rationale": "OSS plugin ecosystem maintainers operate in exactly the governance environment ShadowBench's Hermes skill faces: a fast-moving platform with opaque API stability guarantees, a registry gatekeeper whose acceptance latency can be a critical path, cross-platform binary distribution with checksum integrity requirements, and provider-agnostic routing that must survive platform version churn. The field has codified practice around which platform API surfaces to minimize dependency on, how to test compatibility ranges, and how to avoid single-gatekeeper distribution chokepoints.",
+  "expected_isomorphisms": [
+    "Webpack plugin breaking change on major version → Hermes SKILL.md schema change on v0.11 release",
+    "npm registry maintainer latency → awesome-hermes-agent PR merge latency blocking discovery",
+    "Extension manifest schema validation in CI → SKILL.md validated against Hermes schema before release",
+    "Binary distribution with checksum verification → first-run hook SHA-256 verification with explicit failure modes",
+    "API surface audit before platform upgrade → identifying which Hermes API surfaces the skill depends on before v0.11+"
+  ],
+  "focus": "Whether the skill's dependency on the Hermes skill SDK, binary distribution pipeline, and registry PR creates governance risks that could strand the product outside the project team's control, and whether the provider-agnostic routing design is defensible under Hermes API churn",
+  "name": "fd-oss-plugin-ecosystem-governance",
+  "persona": "Apply the perspective of a senior open-source maintainer who has managed plugins and extensions for fast-moving platforms (VS Code extensions, Webpack plugins, Babel transforms, Gradle plugins) — they care about whether the extension point API is stable enough to build against, measure breaking-change frequency per platform release cycle, and flag any distribution strategy that creates a single external gatekeeper whose decisions can unilaterally block the product.",
+  "review_areas": [
+    "Hermes skill SDK stability surface: the PRD declares 'Hermes Agent v0.10+ installed on user machine' as a dependency but does not analyze which parts of the Hermes skill interface the shadow-work skill actually uses — SKILL.md format, the install hook mechanism, the provider-key access pattern (OQ1), and the memory API (OQ3) are four distinct API surfaces with potentially different stability guarantees; the PRD treats them as a single dependency",
+    "awesome-hermes-agent as a single-gatekeeper distribution channel: the PRD acknowledges that 0xNyk's registry PR acceptance gates distribution, and the F6 SLA notes that if churn rate exceeds 1 breaking-change/month, the project will ask for community co-maintenance — but the PRD does not have a fallback distribution path if the registry PR is rejected, delayed, or if 0xNyk's repo becomes unmaintained",
+    "Cross-compile pipeline as a hidden critical path: F2 acknowledges that cross-compilation for 5 platforms is a 1-2 day CI work estimate, but the PRD does not specify which CI system, what the release-automation workflow looks like, or what happens if a platform binary fails to build — a failed Windows build silently ships a skill that fails for 30% of the target user base",
+    "Provider-key access open question is a blocking dependency for F3: OQ1 (does Hermes expose provider keys to skills or must the skill read env vars?) is marked 'investigate before F2/F3 implementation' but F3's acceptance criteria include provider-key-dependent behavior — if Hermes's answer changes between F3 implementation and a user's Hermes version, the key-access mechanism may silently break for that version",
+    "Binary download URL stability: the F2 binary download URL format includes `releases/download/skill-v1.0.0/` which is version-pinned — when F2 ships a bug fix as `skill-v1.0.1`, the installed skill's first-run hook will still try to download `skill-v1.0.0` unless the hook itself is updated; the update path for the first-run hook is not specified",
+    "SHA-256 verification key management: F2 specifies SHA-256 verification against 'published checksums' but does not specify where the checksums.txt file is fetched from, how it is authenticated, or what happens if the GitHub Releases infrastructure is unavailable at install time — a skill that fails silently on SHA verification failure provides no actionable error"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When F6's awesome-hermes-agent PR is treated as a launch step rather than a pre-launch step that must be merged before the 60-day clock starts",
+      "scenario": "awesome-hermes-agent PR is submitted at F6 launch time but 0xNyk merges PRs on a 2-3 week lag — the skill exists in GitHub but is not discoverable via the registry for the first 3 weeks of the 60-day kill-switch window, artificially depressing install metrics and producing a false-negative falsification signal",
+      "severity": "P0"
+    },
+    {
+      "condition": "When the SKILL.md schema is treated as a stable interface without a tested compatibility range and without a CI check that validates SKILL.md against the Hermes version declared as a dependency",
+      "scenario": "Hermes v0.11 changes the SKILL.md field name for provider routing from 'instructions' to 'routing_instructions'; the shadow-work skill's SKILL.md uses the old field name and the Hermes orchestrator silently stops routing /shadow-work bench invocations to the skill, causing bench mode to fail with no error message for all v0.11+ users",
+      "severity": "P1"
+    },
+    {
+      "condition": "When the SHA-256 verification logic treats a failed checksums.txt fetch as a non-fatal warning rather than a blocking error",
+      "scenario": "The first-run hook downloads shadowbench-runner-linux-x86_64.tar.gz but the SHA-256 verification step silently succeeds even when the checksums.txt fetch fails (network timeout treated as success) — a corrupted binary is installed and verified, producing non-deterministic scoring behavior for Linux users",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Open-source plugin and extension ecosystem maintainership (VS Code, Webpack, Gradle, Babel)",
+  "success_hints": [
+    "The F6 PR to awesome-hermes-agent is submitted and merged before the 60-day measurement clock starts — the launch post and kill-switch window begin after registry availability is confirmed, not after the PR is submitted",
+    "The SKILL.md format is validated against a reference Hermes v0.10 schema in CI as part of every skill release build — if the schema check fails, the release is blocked and a compatibility note is added to the release description",
+    "The first-run hook has an explicit failure mode for each step: download failure, SHA-256 fetch failure, SHA-256 mismatch, and permission error each produce a distinct actionable error message with the exact URL, expected hash, and manual installation path — no failure mode is silent"
+  ],
+  "task_context": "ShadowBench's Hermes skill depends on Hermes Agent v0.10+ SDK for skill routing, binary distribution via GitHub Releases, and registry distribution via awesome-hermes-agent. The PRD acknowledges several open questions about Hermes API surfaces and has a 2-week churn-response SLA."
+}

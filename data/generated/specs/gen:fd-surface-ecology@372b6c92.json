@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-ecs-wasm-architecture covers data model and performance concerns for the coupling",
+    "fd-procgen-geology covers generation quality of the underground layers themselves",
+    "fd-cultural-contamination covers how discoveries affect social dynamics (the cultural side of excavation consequences)"
+  ],
+  "decision_lens": "Prioritize findings where (a) surface-underground coupling creates obligatory busywork that distracts from the art/social core, (b) cascading failures (aquifer breach flooding the colony, cave-in destroying buildings) are too punishing for a game about cultural flourishing rather than survival, or (c) the coupling is so complex it requires a second mental model that players must maintain alongside the social simulation. A system where ignoring geology causes colony death is P1 in a game whose philosophy says the threat is never starvation. A coupling that requires constant micro-management is P2.",
+  "focus": "Whether the underground-to-surface coupling systems (aquifers, soil fertility, ancient species, structural risk) create interesting strategic tradeoffs without introducing simulation complexity that dominates the core art/social gameplay",
+  "name": "fd-surface-ecology",
+  "persona": "A simulation game designer specializing in interconnected systems — experienced with Dwarf Fortress aquifer mechanics, RimWorld terrain fertility, and Oxygen Not Included layered resource systems. Understands how underground-surface coupling creates both emergent gameplay and cascading failure modes that can overwhelm players. Evaluates whether each coupling adds meaningful decisions or just maintenance burden.",
+  "review_areas": [
+    "Evaluate aquifer mechanics against the game identity: draining an aquifer dries streams and deep excavation risks flooding are survival-game mechanics. Do they serve Elf Revel flourishing not survival philosophy, or do they import DF failure modes that contradict the design?",
+    "Check structural risk (cave-ins, sinkholes, subsidence) against the departure-not-death failure model — what happens when a cave-in destroys a workshop? Does it kill elves (wrong game) or destroy art (devastating but appropriate)?",
+    "Assess the ancient seeds/species system: dormant flora/fauna from previous eras, beautiful but invasive is evocative but adds a whole ecosystem management layer. Is this scoped or does it require a full invasive species simulation?",
+    "Evaluate soil fertility coupling: ancient civilization compost = rich, vitrified stone = barren — does this create meaningful garden placement decisions or is it just a static modifier that is set-and-forget at world gen?",
+    "Check whether the four surface coupling systems (aquifer, fertility, ancient species, structural risk) can be implemented incrementally or if they are tightly interdependent and must ship together",
+    "Assess the ForestSpirit anger system (0-100, already exists): how does underground excavation interact with it? Extensive digging near ancient forests should presumably anger the spirit, but this is not specified"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No specification of damage caps, recovery mechanics, or soft-failure modes for geological hazards",
+      "scenario": "Aquifer breach or cave-in can destroy the colony, creating a survival-game failure mode in a game explicitly designed around cultural flourishing and departure-as-failure",
+      "severity": "P1"
+    },
+    {
+      "condition": "Ancient species are described as beautiful but invasive without specifying whether they are a one-time event or an ongoing management obligation",
+      "scenario": "Ancient invasive species require constant management attention, pulling player focus from the art/social core loop",
+      "severity": "P2"
+    },
+    {
+      "condition": "Aquifer affects water which affects fertility which affects flora which interacts with ancient species — circular dependency chain",
+      "scenario": "The four surface coupling systems are so interdependent that none can be implemented without all four, creating a massive implementation cliff",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Each surface coupling should create an aesthetic or cultural decision (where to place gardens for beauty, which areas to preserve from cave-in risk) not a survival decision",
+    "Geological hazards should threaten art and infrastructure, not elf lives — a sinkhole destroys a gallery, not elves",
+    "The coupling systems should be independently implementable so they can ship incrementally across multiple development phases"
+  ],
+  "task_context": "Elf Revel philosophy states the threat is never starvation or invasion — it is stagnation, ennui, factional fracture. The existing failure mode is departure (elves leave when dissatisfied), not death. The brainstorm proposes aquifer mechanics, structural risk, soil fertility coupling, and ancient species release — all of which import simulation complexity from survival-focused games. The ForestSpirit anger system (0-100) already tracks environmental harm. Current resources are Food, Wood, Stone, FineWood."
+}

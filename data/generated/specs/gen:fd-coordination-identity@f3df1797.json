@@ -1,0 +1,26 @@
+{
+  "anti_overlap": [
+    "fd-persistence-durability covers how identity state is stored and recovered — not the identity model itself",
+    "fd-messaging-protocol covers how messages are routed between identities — not how identities are established",
+    "fd-tool-surface covers the API surface of registration and policy tools — not the security semantics they enforce",
+    "fd-workflow-macros covers how macros orchestrate multi-agent workflows — not how agents authenticate to participate"
+  ],
+  "decision_lens": "Prioritizes findings where mcp_agent_mail's contact/policy model reveals gaps in Sylveste's agent identity story — specifically Intercore's agent lock/claim model and Interlock's file-reservation ownership. Elevates anything that could prevent agent impersonation or accidental cross-agent interfernce.",
+  "focus": "Agent identity, contact policies, registration lifecycle, and trust boundaries between agents",
+  "name": "fd-coordination-identity",
+  "persona": "A security-oriented systems designer with experience in capability-based security and distributed identity. Examines how agents are named, how they establish trust, and how policies prevent unauthorized coordination.",
+  "review_areas": [
+    "Agent registration flow: what information is required at register_agent time, whether identities are ephemeral or persistent across restarts, and how identity is proven on each request",
+    "Contact policies: what the set_contact_policy tool enforces (allow-list, deny-list, rate-limit?) and whether policies are per-agent or global",
+    "request_contact / respond_contact handshake: what prevents an agent from spoofing another's identity during the contact negotiation, and whether the handshake is replayable",
+    "Window identity vs agent identity: what list_window_identities exposes and whether windows are a sub-identity (session) or an alias for an agent",
+    "Identity cleanup on agent exit: whether orphaned registrations accumulate (similar to Intercore's orphaned_at pattern) and how they are detected and expired",
+    "Sylveste gap analysis: does Intercore's agent lock/claim model provide equivalent identity guarantees, or does it only protect files without establishing agent trust?"
+  ],
+  "success_hints": [
+    "Identify whether contact policies create a composable capability model that Interlock's file-reservation ownership model could benefit from",
+    "Determine if mcp_agent_mail's identity layer is portable (could wrap Intermute's agent registry) or tightly coupled to SQLite schema",
+    "Flag any identity design where mcp_agent_mail is weaker than Sylveste's current model — these are areas where Sylveste should not regress"
+  ],
+  "task_context": "mcp_agent_mail is a Python/FastMCP coordination server with explicit agent registration, contact policies, and window-based sub-identities. Sylveste's Intercore manages agent locks and phase gates; Interlock manages file reservations by agent. Neither has an explicit contact-policy layer. The goal is to identify identity patterns worth adopting."
+}

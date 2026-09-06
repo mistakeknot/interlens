@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Do not design commit pinning, stale-state rejection, idempotency, or cross-item concurrency controls; the distributed-systems handoff reviewer owns them.",
+    "Do not decide whether frozen criteria are complete or whether Opus judgments are epistemically independent; the verification reviewer owns those questions.",
+    "Do not flag generic implementation style or documentation wording unless it makes a pilot metric ambiguous or unauditable."
+  ],
+  "decision_lens": "A gate is decision-worthy only when its system boundary, numerator, denominator, attribution window, and outcome guardrails make improvement in the metric imply improvement in the resource-to-outcome ratio.",
+  "focus": "Measurement validity for the <=50% main-thread generated-token gate and the pilots' ability to attribute context, cost, latency, and quality effects to Pattern F.",
+  "name": "fd-observability-token-gate-cox",
+  "persona": "Apply the perspective of an observability, performance-engineering, and workload-economics reviewer who treats the token-share gate as an operational service-level indicator vulnerable to boundary errors, proxy gaming, and omitted resource classes.",
+  "review_areas": [
+    "Audit what main-thread generated-token share excludes: input and cache volume, cache writes, hidden reasoning, tool output, subagent amplification, validator duplication, wall time, and human intervention.",
+    "Test denominator and boundary gaming through verbose executor reports, extra validators, session splitting, goal splitting, or shifting work into unmetered Codex lanes.",
+    "Specify phase-level attribution for orchestrator planning, dispatch, report ingestion, repair, landing, and frontier-in-the-loop escalation so Q-B can be answered without rereading transcripts.",
+    "Check that the three pilots have comparable baselines, outcome-quality guardrails, workload normalization, and enough repeated observations to separate task mix from routing effect.",
+    "Evaluate Q-C and Q-D under multiple accounting regimes, including nominally cost-free Codex work, cache reads charged or ignored, and throughput or latency becoming the binding constraint.",
+    "Require a total-resource and successful-outcome measure alongside the share gate so local optimization cannot increase total spend or reduce landable quality."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Generated-token share is treated as the sole success criterion without absolute-resource and quality guardrails.",
+      "scenario": "All pilots pass the <=50% gate only because executors and validators emit more tokens, while total context traffic, cost, and time rise and successful outcomes fall.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Events lack phase labels, artifact sizes, or a stable goal and session boundary before pilots begin.",
+      "scenario": "The instrumentation cannot attribute main-thread context growth to planning versus report ingestion, leaving Q-B unanswered and preventing a targeted follow-up.",
+      "severity": "P1"
+    },
+    {
+      "condition": "The comparison records API-equivalent spend but omits wall time, queue time, retries, and human touches.",
+      "scenario": "A pilot appears cheaper because work moved to an unpriced Codex lane but takes materially longer and needs extra human recovery.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Propose a compact pilot scorecard containing share, absolute input and output tokens, cache traffic, wall time, attempts, human touches, and quality outcomes.",
+    "Give one concrete Goodhart scenario for the numerator, denominator, attribution window, and unmetered-lane boundary.",
+    "Separate metrics available from interstat today from fields that must be instrumented before pilot one.",
+    "State whether Q-D's claim of robustness across accounting regimes is unsupported because optimization order or even the preferred topology can change."
+  ],
+  "task_context": "Review the cited Pattern F design before three pilots. Stress-test the main-thread offload architecture (Pattern F) before its pilots run: what silently fails when execution moves from a 300K-context frontier main thread to fresh-context Sonnet executors and Opus validators; whether the validator adds information or only cost; where the orchestrator's context still bloats; plan-drift and stale-state failure modes; what the token-share gate (<=50% main-thread generated tokens) fails to capture; and which of the five open questions Q-A..Q-E has a wrong premise."
+}

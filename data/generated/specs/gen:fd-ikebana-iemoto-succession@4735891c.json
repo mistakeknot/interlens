@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "fd-falconry-manning-imprint covers the bond formation mechanics and personality gating at the individual mentor-student pair level",
+    "fd-alchemy-chrysopoeia-transformation covers what graduation means for the student's interior aesthetic identity and whether it should be a phase change rather than a threshold crossing"
+  ],
+  "decision_lens": "Prioritize findings where school identity is modeled as a static badge granted at graduation rather than as an ongoing political relationship between the graduate and the school's current aesthetic doctrine. The iemoto tradition teaches that school membership is a subscription to a living canon, not a historical credential — a graduate who innovates away from the school's current doctrine faces expulsion, not merely gentle divergence. Also flag any design where school formation is automatic and threshold-based: in the iemoto system, a new school requires not just a body of graduates but an act of institutional recognition by existing schools or a dramatic break that can only be understood retrospectively.",
+  "distance_rationale": "Ikebana school governance is one of the world's most precisely documented systems for managing aesthetic lineage as a political and intellectual property relationship — yet no game designer reaches for it as a model for fictional school formation mechanics, because the domain is highly specific to Japanese institutional history.",
+  "expected_isomorphisms": "Iemoto headmaster's living aesthetic doctrine maps to the school's evolving canonical center (not a founding-moment freeze). Expulsion of heterodox graduates maps to a missing school-rejection mechanic. Succession crisis on headmaster death maps to missing school leadership transition. Retroactive canon revision maps to whether composition attribution properties can be contested or revoked. Natori license hierarchy maps to whether graduation should be multi-stage rather than binary.",
+  "focus": "Whether the school formation and lineage mechanics correctly implement the iemoto system's management of aesthetic canon across centuries — specifically the tension between headmaster-controlled aesthetic doctrine and the graduate's inevitable individual expression, and whether school 'Of the [Name] School' attribution functions as a living identity or a frozen historical label",
+  "name": "fd-ikebana-iemoto-succession",
+  "persona": "A scholar of Japanese iemoto governance who has spent 20 years studying the succession politics of the Ikenobo, Ohara, and Sogetsu ikebana schools, including the institutional crises that occur when a headmaster's aesthetic philosophy diverges from the school's classical canon, when an innovative graduate threatens school orthodoxy, and when the iemoto dies without a designated successor. Understands that the iemoto is not merely a teacher but a living copyright holder — compositions performed in a school's name belong to the iemoto, not the practitioner, and the iemoto's aesthetic judgment can retroactively invalidate a student's entire body of work.",
+  "review_areas": [
+    "Aesthetic canon as living document vs. founding-moment freeze: the brainstorm freezes the school's aesthetic center at the founding mentor's AestheticPosition at founding time. But in the iemoto tradition, the headmaster's aesthetic evolves and the school canon must follow — a graduate whose work was orthodox when it was produced can become heterodox if the headmaster's doctrine shifts. Does the school's canonical aesthetic update as the founding mentor continues to develop, and does this create orthodoxy/heterodoxy dynamics among existing graduates?",
+    "Expulsion mechanics: iemoto schools actively expel graduates whose public work diverges too far from school doctrine — not as punishment but as institutional self-preservation. The brainstorm has no mechanic for a school's existing members to reject a graduate. If a graduate's aesthetic drifts far from the school center after graduation, can the school disown them, and what are the social consequences for both parties?",
+    "Succession crisis: when the founding iemoto dies, schools frequently split between those who accept the designated successor and those who found a breakaway school claiming to preserve the original doctrine. Does the system model what happens when the founding mentor of a school dies — does the school persist unchanged, dissolve, elect a new leader from among graduates, or fracture along aesthetic fault lines?",
+    "Retroactive canon revision: an iemoto can declare that a technique thought orthodox is now heterodox, invalidating compositions that used it. Does the 'Of the [School Name] School' property on compositions have any instability — can the school's evolving canon make a previously attributed composition an embarrassment to the school?",
+    "The natori (license) hierarchy: ikebana schools issue licenses at defined skill levels, not just at graduation — a student can be licensed at the third level but not the fourth, and each license level unlocks specific compositional forms. Does the graduation threshold (student matches mentor skill) collapse what should be a multi-level credentialing system into a single binary event?",
+    "Founder's paradox: the first generation of iemoto schools were founded by renegades who broke from an existing school, but subsequent schools can only be founded with institutional legitimacy. Does the system treat colony-founding-moment schools the same as schools that form mid-game from a third-generation lineage, ignoring that mid-game school formation should require either institutional legitimacy or a dramatic schism event?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The founding mentor develops aesthetically after founding the school — their AestheticPosition drifts — but the school's canonical center stays frozen at founding. Over enough ticks, the founding mentor is the most heterodox member of their own school, which is mechanically absurd and kills the school's function as a living aesthetic community",
+      "scenario": "School aesthetic center never updates after founding, creating permanent divergence between living practice and institutional identity",
+      "severity": "P1"
+    },
+    {
+      "condition": "A graduate whose aesthetic drifts three standard deviations from the school center remains a full member with full attribution rights — the school cannot protect its identity, creating impossible situations where a school's most visible public graduate is making work antithetical to its doctrine",
+      "scenario": "No expulsion or disownment mechanic — all graduates retain school membership regardless of aesthetic drift",
+      "severity": "P2"
+    },
+    {
+      "condition": "Three graduates of the same mentor automatically constitute a school even if they have radically divergent aesthetic positions and no social cohesion. The iemoto tradition requires school formation to be a deliberate institutional act, not a consequence of counting heads",
+      "scenario": "School formation threshold is universal and automatic — 3 graduates always triggers a school, regardless of whether the graduates recognize each other as a coherent movement",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Japanese ikebana iemoto system — the hereditary headmaster succession structure of flower arrangement schools (Ikenobo, Ohara, Sogetsu), where the iemoto holds absolute authority over school doctrine, issues licenses, can invalidate students' work, and owns the intellectual property of the school's aesthetic canon across centuries",
+  "success_hints": [
+    "A school should be a live political object, not a historical record — graduates should need to maintain aesthetic proximity to the school's current doctrine or face expulsion, and the school's doctrine should evolve with its leadership",
+    "Succession events (founding mentor death or retirement) should create observable colony-level drama: a school without a clear successor should fracture, with each faction claiming to be the legitimate heir to the founding aesthetic",
+    "The 'Of the [School Name] School' attribution on a composition should be contestable — the school should be able to dispute whether a work truly represents their doctrine, especially if the producing graduate has drifted or been expelled"
+  ],
+  "task_context": "Brainstorm for elven colony sim. School formation at 3+ graduates. School gets a name, tracks founding mentor's AestheticPosition as school center, and attributes compositions with 'Of the [School Name] School'. Lineage chains tracked. Existing sim has 4D aesthetic space, personality axes, relationships, revels, and aging/lifecycle."
+}

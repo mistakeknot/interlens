@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Leave the competitive landscape (which of the 134 repos already do something equivalent, whether fort-gym's rule-rediscovery is meaningful) to the benchmark-landscape reviewer.",
+    "Leave the 'should this ship as a tool/paper/audit' distribution question to the positioning reviewer.",
+    "Leave mk's cognitive-core-vs-eval-methodology taste call unresolved — surface the measurement-theory considerations that bear on it (e.g., is the instrument's generality actually proven) but do not render a verdict on which mission zahro should pick."
+  ],
+  "decision_lens": "Prioritize by whether a construct or claim generalizes beyond the single arena it was discovered in, and whether the 'instrument' framing survives a case where its own preconditions (a scripted-optimal policy, a content-preserving permutation) don't exist. A claim of portability that was never tested outside fort-bench outranks a polish issue in the writeup.",
+  "focus": "Whether SPAN, ARTIFACT, rule 16 (paired-difference sizing), and rule 17 (cross-contract replication) are valid, generalizable measurement-theory constructs rather than fort-bench-specific patches dressed as a portable instrument.",
+  "name": "fd-evalvalidity-construct-generalization",
+  "persona": "Apply the perspective of a measurement-theory specialist working the psychometrics / ML-evaluation-validity boundary — trained in classical test theory, generalizability theory, minimum-detectable-difference and power analysis for paired designs, and the NLP/ML literature on benchmark construct validity (spurious benchmark wins, sanity-check baselines for saliency/attribution methods, RL-environment reward-hacking audits).",
+  "review_areas": [
+    "SPAN's dependency on a scripted-optimal policy — examine whether the 'none of it is DF-specific' claim survives contact with benchmark families (LLM-judge rubrics, open-ended dialogue, creative-writing evals) where no scripted-optimal action sequence can even be defined, and flag where the doc asserts general applicability without stating this precondition.",
+    "Rule 16's 'infinite at temperature 0' claim — check whether the paired-difference correction is being generalized from a single degenerate case (replicate sd == 0 at temp 0) into a universal sizing rule, and whether the doc distinguishes 'the naive MDD formula breaks' from 'the paired-difference correction is the right fix in all cases.'",
+    "Rule 17's contract-vs-model distinction — audit whether '651 calls inside one prompt family could not see it; one call outside it settled the question' generalizes to an actual falsifiability criterion or is a post-hoc story fit to n=1, the classic single-counterexample overclaim risk in construct-validity work.",
+    "ARTIFACT's dependence on 'content-preserving' being well-defined — interrogate whether content-preservation is itself measurable/verifiable for prompt permutations outside the menu-reorder case, or whether it is eyeballed, and what happens when preservation itself is contested.",
+    "The MDD/SPAN/ARTIFACT admission table as a portable instrument — check whether verdict categories (KEEP/MARGINAL/BLIND/SATURATED/DISQUALIFIED) have decision boundaries defined anywhere, or whether they are qualitative labels dressed as a quantitative gate.",
+    "Compare the six killed claims against the base rate for benchmark validity failures already documented in adjacent fields (RL reward hacking, computer-vision saliency-map sanity checks, psychometric test-retest failures) — is six a genuinely rare credential or an unsurprising count given how many defects large benchmarks typically carry?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Any of the four stress-test benchmark classes (WebArena, OSWorld, tau-bench, SWE-bench-like) turns out to have no clean scripted-optimal analog, and the doc's generality claim stands unqualified anyway.",
+      "scenario": "SPAN or ARTIFACT is claimed to be 'not DF-specific' and portable to any agentic leaderboard, but the doc never demonstrates either construct on a benchmark lacking a scripted-optimal policy — if the primary differentiation claim rests on generality that was never tested, the whole positioning argument is unfalsified.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Rule 16 is cited in the admission table as settled methodology rather than as one instance requiring further validation.",
+      "scenario": "Rule 16's '∞ at temperature 0' is stated as a finding but the fix (paired-difference sizing) is not shown to hold under other degenerate variance conditions — a correction validated on one degenerate case sold as the general rule.",
+      "severity": "P1"
+    },
+    {
+      "condition": "The admission table is presented as ready to run against a new arena without an operationalized threshold per category.",
+      "scenario": "The KEEP/MARGINAL/BLIND/SATURATED/DISQUALIFIED verdict categories lack numeric thresholds, so two auditors could file the same metric under different verdicts — degrades the instrument's reproducibility without invalidating it outright.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Cite the specific rule number (2, 5, 6, 16, 17) or asset (SPAN, ARTIFACT) being scrutinized and quote the exact generalization claim from the doc before critiquing it.",
+    "Distinguish 'this construct is valid for fort-bench' from 'this construct is valid as a portable instrument' — the doc conflates these and the review should name where.",
+    "Draw the comparison to an established measurement-theory or adjacent-field precedent (generalizability theory, RL sanity-check literature, saliency-map sanity checks) by name, not just in the abstract.",
+    "Do not propose a redesign of SPAN/ARTIFACT — the task is to determine whether the existing claims survive scrutiny, not to fix them."
+  ],
+  "task_context": "Settle what zahro differentiates on. The reframe: 22 stages of fort-bench produced zero capability measurements but built an eval-validity instrument with six killed claims to its name — the arena was the test subject, the instrument is the product. The competitive read is that 134 DF-agent/benchmark repos are building arenas since June 2026 and none appear to be auditing them; the most rigorous (lemoz/fort-gym) independently rediscovered three arena-registry rules and still has no SPAN and no artifact control. Four assets look unique and none are DF-specific: SPAN (can a metric see a perfect scripted policy — 5 of 7 cannot), ARTIFACT (how much range a content-preserving prompt permutation manufactures — moved a headline 3/18 to 18/18 with zero world effect), rule 16 paired-difference sizing (15x correction, infinite at temperature 0 where replicate sd is exactly 0), and rule 17 cross-contract replication (651 calls said capability, one call outside the contract said artifact). PRIMARY FORK TO SETTLE: does zahro's visible output become eval-validity methodology when MISSION.md says cognitive core? Arguments both ways are in the doc; this is mk's taste call and the session should sharpen it, not resolve it silently. Wanted: attack the 'nobody is auditing arenas' claim hard — is the gap real, or does it just look open because the checks are already standard practice under other names, or because auditing has no distribution and no demand? Stress-test whether SPAN/ARTIFACT survive contact with benchmarks that have no scripted-optimal policy available. Find the failure modes of shipping this as a tool (arena-lint) versus a paper versus a public audit of someone else's leaderboard. Name what I am not seeing. Out of scope: building a better fort-gym."
+}

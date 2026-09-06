@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-batch-dependency-order covers batch ordering",
+    "fd-port-strategy-fidelity covers ported invariants",
+    "fd-wasm-target-feasibility covers WASM concerns"
+  ],
+  "decision_lens": "Prioritize new systems that read components modified in the same tick without collect-then-mutate, or that are missing from the tick pipeline.",
+  "focus": "Whether the 3 new systems (art pipeline, revel engine, movements) wire into the hecs ECS tick loop correctly",
+  "name": "fd-new-system-integration-risk",
+  "persona": "A game engine programmer who has integrated novel subsystems into ECS architectures. Focuses on seams between new and ported systems.",
+  "review_areas": [
+    "compose_progress_system writes then complete_composition reads in same tick — collect-then-mutate guard needed?",
+    "Inspiration fill cadences (per 10t and per 50t) — where in tick order relative to behavior tree?",
+    "Revel state machine must gate the behavior tree during active revel — how is CurrentTask overridden?",
+    "Cultural movement clustering after revel — synchronous in aftermath or separate scheduled system?",
+    "evaluate_art called by both revel (Batch 5) and grudging respect (Batch 4) — reusable signature?",
+    "compositions and revel_history are world-level collections not ECS components — plan consistent?"
+  ],
+  "success_hints": [
+    "Every new system is in the world.rs tick pipeline with explicit order",
+    "Revel gates the behavior tree so elves don't pursue needs during performances",
+    "evaluate_art has single canonical signature for both callers"
+  ],
+  "task_context": "MVP plan ports agent-fortress to elf-revel across 10 batches, each claimed independently testable."
+}

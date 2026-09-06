@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Do not cover event-sourcing replay semantics or derivation cost-hint correctness — those belong to fd-eventsourced-sim-derivation-model",
+    "Do not cover whether the 31-facet model transfers cleanly at the conceptual level — that belongs to fd-personality-sim-facet-transfer",
+    "Do not cover migration sequencing risk and refactor anti-patterns at the process level — that belongs to fd-migration-refactor-risk"
+  ],
+  "decision_lens": "A Rust library extraction is not an organisational move — it is a contract change. Every pub item becomes a semver promise. Path dependencies hide API instability that crates.io publication will expose. The moment shadow-work's Agent holds a SoulId instead of an AgentPersonality struct, every downstream match on AgentPersonality variants breaks. The risk is not in the design; it is in the gap between 'works in the workspace' and 'works when locked by cargo'.",
+  "focus": "Cargo workspace topology, API surface design for personality-engine extraction, workspace-vs-published-crate tradeoffs, extraction failure modes specific to Rust",
+  "name": "fd-rust-cargo-workspace-extraction",
+  "persona": "Apply the perspective of a Rust ecosystem architect who has managed multi-crate workspace extractions, published crates to crates.io with downstream consumers, and debugged the semver-surface problems that arise when a working-code library is promoted to a published dependency.",
+  "review_areas": [
+    "The doc proposes three extraction shapes (A: published crate, B: workspace path dependency, C: reverse migration) and recommends B+C now with A later. But the brainstorm does not address the workspace topology question it defers: does 'one workspace' mean a monorepo (shadow-work and palettice merged into one git repo), a git submodule arrangement, a separate meta-repo, or two repos with a Cargo.lock-pins-path approach? Each has distinct CI, ownership, and fork-safety implications. The deferred extraction-shape Open Question leaves the migration plan underspecified at the git/workspace layer, which is where Rust extraction failures actually bite.",
+    "Shadow-work's AgentPersonality struct is described as the reference implementation that Palettice Phase 2 absorbs. But Rust does not have a clean 'absorb' primitive: either shadow-work re-exports Palettice types (requiring shadow-work to depend on Palettice), or Palettice grows types that shadow-work switches to (requiring shadow-work to be edited everywhere AgentPersonality is destructured or pattern-matched). The doc does not distinguish these — calling both paths 'migration' — but their impact on shadow-work's existing test suite and call sites differs radically. The pattern-match surface area for a 31-field struct that has survived real gameplay is substantial.",
+    "The doc lists six Palettice expansion items in dependency order but does not specify which require a breaking Palettice API change. FacetCatalogueId registration (item 1) and FacetEvolutionPolicy (item 2) both require additions to the Soul API surface. If Palettice is a path dependency (option B), breaking changes are refactored across the workspace in one commit. If it becomes a published crate mid-migration (option A transition), these become major version bumps that must be coordinated with shadow-work's Cargo.lock. The sequencing risk is not acknowledged.",
+    "The LlmCurated cost-hint derivation for ship names requires an actual LLM call path registered in the derivation system. The doc notes the invalidation strategy: re-roll when a significant scar lands, not every tick. But in Rust, a DerivationFn is typically a pure Fn — integrating async LLM calls into a synchronous derivation registry requires either a blocking executor call (unsound in async contexts) or a redesign of the DerivationFn signature to be async-capable. This is an API-surface question the doc treats as a configuration question, and the two are not the same.",
+    "The doc does not specify where Palettice's FacetCatalogue will live in the crate graph. If FacetCatalogue is in the core palettice crate, shadow-work's 31 facets become a compile-time dependency of palettice, which inverts the intended layering (palettice should not know about shadow-work's domain model). If they are in a separate palettice-shadow-catalogue crate, that crate needs to be created, versioned, and owned. The layering question is not resolved and it affects every item in the expansion roadmap."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If the git/workspace topology question is not answered before migration begins, shadow-work's CI will break the first time a Palettice API changes, because there is no agreed mechanism for keeping the two repos in sync. Option B (workspace path dependency) requires a topology decision before it can be implemented; the brainstorm defers topology but names B as the recommendation, which is inconsistent.",
+      "scenario": "Workspace topology left unresolved before migration starts",
+      "severity": "P1"
+    },
+    {
+      "condition": "Shadow-work has 31 personality facets working in production with tests. Any Rust migration that replaces AgentPersonality with a Soul-backed model requires finding every destructure, match, and field access on the old struct. The brainstorm treats this as assumed-tractable without acknowledging the risk. If shadow-work's codebase has 50+ pattern-match sites, the migration is not 'swap personality module' — it is a full rewrite of the personality call graph.",
+      "scenario": "AgentPersonality pattern-match sites not enumerated before migration",
+      "severity": "P1"
+    },
+    {
+      "condition": "A synchronous DerivationFn that calls an LLM is architecturally unsound in an async game sim. If this is not resolved at the API design stage, the ship-name derivation will require a workaround (tokio::task::block_in_place, a pre-computed cache, or an async derivation registry redesign) that was not planned for.",
+      "scenario": "LlmCurated derivation treated as configuration rather than API design",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Check whether the three extraction shape options map cleanly to actual Cargo features (workspace members, path deps, [patch] overrides) and flag any that assume git infrastructure not yet in place",
+    "Look for places where the doc says 'absorbs' or 'grows' Palettice to cover shadow-work's types — these require concrete Rust refactor steps the brainstorm has not named",
+    "Verify that each Palettice expansion item is characterised as either additive (no breaking change) or breaking, since that determines whether option B and A can transition without a major version bump",
+    "Flag any derivation described as involving external I/O (LLM, database lookup) that is being treated as a pure synchronous computation"
+  ],
+  "task_context": "The document is a brainstorm-stage design record proposing a migration of shadow-work's personality system into Palettice, alongside an expansion roadmap. This review focuses on whether the Rust-specific extraction mechanics are sound: workspace topology, API surface tradeoffs, pattern-match migration risk, and async integration concerns for derived values."
+}

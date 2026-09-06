@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-gating-model-typology covers gate type structure",
+    "fd-signal-verifiability-engineering covers signal quality improvement",
+    "fd-progressive-autonomy-gates covers authority delegation"
+  ],
+  "decision_lens": "Findings giving concrete gate sensitivity tuning guidance rank highest. Abstract principles without tuning mechanisms rank low.",
+  "focus": "How CI/CD, game QA quality bars, and SPC frameworks model the cost of false positives in quality gates when false blocks cost agent tokens",
+  "name": "fd-false-block-cost-modeling",
+  "persona": "A platform reliability and cost engineer who treats gate false positive rate as a first-class engineering metric denominated in agent execution tokens.",
+  "review_areas": [
+    "Survey feature flag progressive rollout frameworks for how they model premature gate passage cost vs. false block cost",
+    "Research game QA quality bars: how AAA studios set ship gates and tune to avoid blocking on cosmetic issues",
+    "Examine SPC acceptance sampling theory (MIL-STD-1916) for producer's risk / consumer's risk framework",
+    "Assess CI/CD gate tuning from large-scale systems (Google TAP, Meta Sapling) for flaky test and retry budget patterns",
+    "Survey A/B testing guard rail metrics pattern for gate sensitivity with noisy measurement",
+    "Research token cost compounding of gate false positives in LLM agent loops"
+  ],
+  "success_hints": [
+    "Concrete recommendation for parameterizing CUJ gate sensitivity given token cost vs. regression cost",
+    "Practical technique for distinguishing flaky gates from real regressions",
+    "Gating strategy for low-criticality CUJs that reduces false block exposure"
+  ],
+  "task_context": "AI agent factory uses CUJs with typed success signals to gate work item completion. Challenge: prevent quality regression without wasting tokens on false blocks as human withdraws from review."
+}

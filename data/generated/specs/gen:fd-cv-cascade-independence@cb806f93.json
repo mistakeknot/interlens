@@ -1,0 +1,31 @@
+{
+  "anti_overlap": [
+    "Do not evaluate whether the recall gate's 'exercised' predicate is statistically sound as a test-design construct -- that is fd-verification-exercised-semantics' focus",
+    "Do not evaluate the honesty/scoping of the person_silenced_face out-of-scope entry or docstring/enum consistency across files -- that is fd-contracts-scope-honesty's focus",
+    "Stay on detection geometry, thresholds, weight-sharing, and false-positive/negative mechanics; do not review test code structure or gate pass/fail semantics in depth"
+  ],
+  "decision_lens": "Ask: if the thing that makes the person detector miss a face (occlusion, pose, lighting, motion, weight bug) is present in this frame, does that SAME condition also suppress the full-frame face pass? An 'independent' pass that shares weights, preprocessing, or a systematic blind spot with the path it's meant to backstop is not independence -- it's a second copy of the same single point of failure wearing a different variable name.",
+  "focus": "Detector-cascade engineering: whether the full-frame face pass is actually an independent detection surface, and whether its geometry/threshold/weight-sharing choices silently reintroduce coupling to the failure mode it exists to break.",
+  "name": "fd-cv-cascade-independence",
+  "persona": "Apply the perspective of a computer-vision engineer who has shipped multi-stage detection cascades in production safety/redaction systems and has been burned by 'independent' passes that turned out to share a failure mode with the primary path.",
+  "review_areas": [
+    "Weight-sharing: vision_face and the crop-face pass both resolve to face_yolov8n in check_redaction_recall.py -- assess what failure modes this shares with the crop-face pass vs. what it genuinely decouples from (only the PERSON detector's failure), and whether the 'genuine person-independence win' framing in the comment overstates what's proven pending mk-bqz",
+    "Letterbox/geometry correctness for the full-frame pass at input_resolution_vision_face=640 on a 1920x1080+ frame: a face that occupies a small fraction of pixels after full-frame letterboxing (vs. a person-crop's tighter letterbox) may fall below effective detector resolution -- check whether this systematically under-detects small/distant faces that the crop pass would have caught at higher effective resolution",
+    "Threshold interaction: vision_face_conf_x100 defaults equal to face_conf_x100 (20) but the pass sees more background/full-frame context than a person-cropped face pass -- assess whether this default is validated for the full-frame false-positive/false-negative tradeoff or just inherited without justification",
+    "Union-only dedup rationale: verify the 'no NMS needed, overlap only adds coverage' claim actually holds downstream (tracker/timeline consumers) and doesn't create double-counting or identity-confusion side effects elsewhere in the pipeline that this diff doesn't show",
+    "Degenerate/false-positive surface: the full-frame pass runs without a person-box prior, so its false-positive risk profile differs from the crop pass -- assess whether _is_degenerate and dilation are sufficient or whether full-frame false-positives could blur out non-face regions in ways that mask a genuine miss elsewhere (e.g., budget/attention effects in downstream stages not shown in this diff)",
+    "Detector absence semantics: vision_face_detector is None -> pass silently skipped (backward compat) -- assess whether a detector that is PRESENT but misconfigured/failing (vs. genuinely absent) could be silently indistinguishable from 'not wired', reintroducing a detector-silence gap at the None-check boundary"
+  ],
+  "severity_examples": [
+    "P0: if the vision_face model is confirmed identical weights to face model in ALL deployments (not just current stopgap), the independent pass provides zero incremental recall for any failure caused by the face model itself misfiring, only for person-detector failures -- if this is misrepresented anywhere as full independence, that's a redaction-recall correctness claim that doesn't hold",
+    "P1: full-frame letterboxing to 640 on high-resolution capture frames (jawnscope targets 1080p30/4K30 per CLAUDE.md) could push a real distant/small face below effective detection resolution in a way the crop pass (which letterboxes a tighter, already-localized region) does not -- if unverified, this is an unquantified recall gap in exactly the scenario mk-tne is meant to cover",
+    "P2: vision_face_conf_x100 defaulting to face_conf_x100 without full-frame-specific tuning could either over-redact (acceptable per §8.5 safe-direction) or under-detect relative to what a properly tuned full-frame threshold would achieve -- worth flagging even though not blocking"
+  ],
+  "success_hints": [
+    "cites the specific model_id string collision (face_yolov8n used for both 'face' and 'vision_face' keys) in check_redaction_recall.py as the concrete mechanism, not just 'weights may be shared' in the abstract",
+    "reasons about effective detection resolution using the actual numbers in the diff (640 letterbox target vs. 1080p/4K frame dimensions) rather than asserting a general CV principle without grounding it in this cascade's config",
+    "distinguishes clearly between 'person-detector independence' (genuinely achieved) and 'face-detector independence' (not achieved while weights are shared) rather than treating mk-tne as achieving blanket independence",
+    "flags the mk-bqz dependency as a tracked-but-unresolved gap rather than either dismissing it (it's noted in a comment) or treating it as equivalent to already being fixed"
+  ],
+  "task_context": "Find any path where this independent full-frame face pass lets a face go unredacted, silently disables the person->crop path, or lets the recall gate go green while a real face is uncovered. Verify the exercised-predicate decoupling can't be tricked into marking a genuine miss as 'exercised'. Rank by §8.5 redaction-recall risk, not style."
+}

@@ -1,0 +1,23 @@
+{
+  "anti_overlap": [
+    "fd-routing-dispatch-quality covers whether routing decisions degrade when prompts are compressed",
+    "fd-session-startup-latency covers wall-clock time and subprocess counts at startup",
+    "fd-plugin-scaling covers what happens as plugin/command counts grow"
+  ],
+  "decision_lens": "Prioritizes findings where context is loaded unconditionally but used conditionally, and where structural changes (lazy loading, progressive disclosure, on-demand fetch) would reduce median session token cost without degrading routing accuracy.",
+  "focus": "Architectural patterns for token efficiency in session bootstrap and command prompt loading",
+  "name": "fd-context-loading-architecture",
+  "persona": "A systems engineer specializing in lazy evaluation and deferred context loading in LLM orchestration frameworks. Approaches every prompt injection as a cost center that must justify its presence at load time versus on demand.",
+  "review_areas": [
+    "session-start.sh: the full using-clavain SKILL.md is injected via additionalContext on every session start — audit whether this content is used in every session or only when commands are invoked, and whether it could be replaced with a compact index",
+    "session-start.sh: delegation policy text, drift summary, companion context, upstream staleness, and sprint scan are all assembled and injected unconditionally — identify which are high-frequency no-ops (no drift, no companions, no active sprint) and could be gated behind a cheap pre-check",
+    "commands/*.md: commands reference skills and agents by sourcing lib-routing.sh which loads and parses routing.yaml into associative arrays — verify whether this parse is happening multiple times per session or is properly guarded by the _ROUTING_LOADED sentinel across hook invocations",
+    "lib-sprint.sh sources lib-intercore.sh, lib-spec.sh, and lib-compose.sh at source time — identify which of these are only needed for sprint_claim/sprint_create paths and could be deferred to call time",
+    "Companion discovery in lib.sh uses a single batched find but falls through to a full traversal on cache miss — verify cache key correctness (session ID) and whether stale-session cache entries accumulate across sessions"
+  ],
+  "success_hints": [
+    "Median session-start additionalContext token count reduced by >30% without changing routing accuracy on the heuristic routing table",
+    "At least 2 injection blocks in session-start.sh are gated behind a cheap sentinel (file existence, env var, or cached bool) that was previously always evaluated"
+  ],
+  "task_context": "Clavain is the L2 OS layer of the Sylveste autonomous software agency stack, with 18 skills, 48 commands, and 10 hooks. The session-start.sh hook (524 lines) assembles a multi-part additionalContext payload injected on every session start."
+}

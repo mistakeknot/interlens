@@ -1,0 +1,31 @@
+{
+  "anti_overlap": "fd-personality-emergence-dynamics covers group-level emergence; this covers individual behavioral visibility",
+  "decision_lens": "Observable behavioral signatures — temperament must be visible through actions, not just internal state",
+  "distance_rationale": "Animal behaviorists have refined the science of assessing personality purely through observable behavior — exactly what a game simulation needs.",
+  "expected_isomorphisms": "Behavioral signature concept (personality visible through actions), threshold vs intensity distinction, and the boldness-shyness spectrum as a fundamental temperament dimension.",
+  "focus": "How animal behaviorists assess and work with individual temperament variation in groups",
+  "name": "fd-animal-training-temperament",
+  "persona": "Applied animal behaviorist who assesses temperament in social species (dogs, horses, primates) for group housing and training programs",
+  "review_areas": [
+    "Evaluate whether personality produces OBSERVABLE BEHAVIORAL SIGNATURES that the player can learn to read (like an animal handler reads body language)",
+    "Check whether the boldness-shyness spectrum (animal behavior's most robust personality dimension) maps to any proposed axis or is missing",
+    "Assess the 'temperament vs state' distinction: temperament is stable baseline, state is current condition — does the system separate personality (stable) from mood (transient)?",
+    "Evaluate whether personality affects behavioral THRESHOLDS (what triggers a response) not just behavioral INTENSITY (how strong the response is)",
+    "Check for the 'reactive vs proactive' dimension: some animals wait for stimuli (reactive), others seek them out (proactive) — this maps to gameplay but isn't clearly covered by the 3 proposed axes"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Personality has no effect on visible elf behavior (movement, task selection, social seeking)",
+      "scenario": "Personality is only visible in stats screens and curator messages — no behavioral signature on the map or in events that lets the player identify personality through observation",
+      "severity": "P2"
+    },
+    {
+      "condition": "Axis only modifies existing timers, doesn't change what triggers a response",
+      "scenario": "Patience axis modifies duration but not threshold — patient elves tolerate the SAME situations longer rather than tolerating DIFFERENT situations",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Applied animal behavior and temperament assessment",
+  "success_hints": "After 10 minutes of play, the player can identify each elf's rough personality from watching their behavior on the map — without opening the stats panel.",
+  "task_context": "The game is a visual simulation where the player watches elves move and interact on a map. Personality should be visible through behavior, not just through data."
+}

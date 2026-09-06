@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "Does not evaluate Yjs/Postgres technical scale bounds or CRDT failure modes — fd-crdt-canvas-scale-model owns data-model/infra findings",
+    "Does not evaluate atproto/DID auth mechanics or identity lock-in — fd-atproto-identity-lockin owns that, except where a role/identity gap is itself the governance finding",
+    "Focuses on governance-mechanism and scope-integrity findings, not on visual or rendering design of the canvas"
+  ],
+  "decision_lens": "Does propose-not-move actually resolve reorganization-vs-spatial-memory for this specific cohort (an existing X group chat with established norms) rather than in the abstract, and is v1's feature list the minimum sufficient to clear three concurrent topics for a week with no 'where was that thing'?",
+  "focus": "Propose-not-move agent governance under real group-chat dynamics, and v1 scope integrity against the stated launch gate",
+  "name": "fd-agent-governance-launch-gate",
+  "persona": "Apply the perspective of a CSCW and community-software design practitioner who has shipped and observed real small-group chat/groupware products in production, versed in why silence-is-consent/cooling-period mechanisms curdle in real friend groups, paired with launch-scoping judgment.",
+  "review_areas": [
+    "Whether silence-is-consent/cooling-period governance, carried over from the git-repo proposal lifecycle, degrades gracefully in live chat where the artifact is a message in conversation, not a file",
+    "Whether agents 'placing new/unplaced content freely' can misfire in ways propose-not-move doesn't cover — a wrong initial clustering isn't technically a 'move' but breaks spatial memory the same way",
+    "Whether the design names who ratifies contested proposals in a ~10-person friend/community chat with no formal admin role, since 'explicit approval' implies someone with standing to approve",
+    "Whether the v1 tending-action list (cluster, summarize, digest) proves the launch-gate claim, given a tangent 'that gets traction' budding into a new region is core behavior but not a listed v1 action",
+    "Whether anything in v1 is scope beyond what's required to clear the launch gate, risking timeline slip for a patience-limited cohort — e.g. hybrid meadowsyn rendering vs DOM-only regions for week one",
+    "Whether 'digest on arrival' as the primary fix for scroll-up pain is stress-tested against this cohort's actual arrival cadence — frequent, short, interleaved presence, not daily-standup cadence"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No v1 tending action covers region creation/splitting despite it being load-bearing for the concurrent-topics launch-gate claim.",
+      "scenario": "The v1 tending vocabulary is cluster/summarize/digest, but the canvas-as-place model describes a tangent that gets traction budding off into a new region as core behavior, with no corresponding v1 agent action to propose or create that region. If region-budding isn't buildable in v1, the canvas degenerates into one big region under sustained multi-topic use — precisely the 'one thing at a time' failure the pivot exists to fix.",
+      "severity": "P0"
+    },
+    {
+      "condition": "No approver role or mechanism is defined for contested proposals prior to implementation.",
+      "scenario": "Propose-not-move's ratification path ('contested ones require explicit approval') names no approver for a leaderless friend-group cohort; contested reorganizations either stall indefinitely because nobody has standing to approve, or default to whoever happens to be online — which a real, opinionated group will notice and resent.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Ceremony timing defaults are reused from the code-review context without a stated re-tuning pass for chat cadence.",
+      "scenario": "Cooling-period ceremony timing, inherited from the file/proposal governance engine tuned for async code-review cadence, is carried over without re-tuning for live-chat cadence, risking ceremony that either drags out an obviously-fine fix or silently commits a contested one before anyone who'd object has logged back in.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Tests every governance/scope claim against the actual named cohort (mk's X group chat: norvid_studies and the simcluster) and its real usage cadence, not a generic groupware user",
+    "Separates 'this mechanism is theoretically sound' from 'this mechanism survives contact with a leaderless, opinionated, low-patience friend group'",
+    "For scope findings, states which launch-gate clause (three concurrent topics / one week / no 'where was that thing') each missing or superfluous v1 item threatens"
+  ],
+  "task_context": "This targets docs/brainstorms/2026-07-26-infinite-canvas-pivot.md, an adopted brainstorm (epic garden-salon-x9l) pivoting Garden Salon to an infinite-canvas chat space for mk's X group chat (norvid_studies + simcluster). Core tension: propose-not-move — agents place unplaced content freely but only propose moves/merges/splits/summaries of existing regions, via silence-is-consent or explicit approval when contested. V1 gate: three concurrent topics for a week, nobody asks 'where was that thing.' Goal: Stress the adopted pivot design before build phases start: (1) the propose-not-move resolution of agent-reorganization vs spatial memory — does it actually hold under real group-chat dynamics? (2) atproto OAuth + DID identity risks and lock-in; (3) canvas data-model split (Yjs vs Postgres) and scale bounds for a 10-human cohort; (4) v1 scope integrity — what's missing that would block the launch gate (X group chat cohort actually moving in), and what's included that shouldn't be."
+}

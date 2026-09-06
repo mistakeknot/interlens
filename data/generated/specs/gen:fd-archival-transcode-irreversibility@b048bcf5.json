@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "fd-postproduction-pipeline-staging covers general pipeline staging conventions; this agent focuses specifically on irreversible transform provenance and preservation-vs-access derivative tradeoffs",
+    "fd-koji-batch covers batch processing mechanics; this agent covers archival documentation/reproducibility of the transform itself",
+    "fd-dicom-deidentification-recall (this batch) covers metadata/identity leak completeness; this agent covers pixel/fidelity transform provenance, a different failure class entirely"
+  ],
+  "decision_lens": "Would a preservation archivist looking at the blurred_archive artifact five years from now be able to determine exactly which transform chain (tone-map curve, colorspace, ffmpeg version, ffmpeg build/library versions like zscale) produced it, and would they raise concerns about using the same derivative for both machine detection and human-facing archive purposes?",
+  "distance_rationale": "Same abstraction level (an irreversible transformation from a high-fidelity master format into a derived access/preservation format, with explicit, documented quality-loss tradeoffs and provenance of exactly which transform chain was applied) but situated in preservation practice rather than privacy engineering — archivists optimize for 'never lose information you can't get back' rather than 'never leak information that shouldn't be shared.'",
+  "expected_isomorphisms": "Film/video preservation labs document every lossy transform applied during migration (colorspace conversion, codec transcode, frame-rate conversion) as a first-class, versioned decision separate from the 'access copy' derived from it, explicitly distinguishing 'preservation master' from 'access derivative' quality tiers and recording the exact tool/version/parameter chain used — this maps onto JawnScope's HLG→SDR tone-map being an irreversible, one-way transform bundled into the same stage as detection-frame generation, and the explicit deferral of full-fidelity HDR-domain redaction as a 'known archive-quality limitation, not a privacy limitation.'",
+  "focus": "Whether the irreversible HLG→SDR tone-map and metadata-strip transform chain is documented and pinned with archival-grade provenance (exact tool version, filter chain, parameters) sufficient to reproduce or audit the transform later, and whether conflating the detection-frame derivative with the archive derivative in one shared output creates a quality/provenance ambiguity a preservation lab would flag.",
+  "name": "fd-archival-transcode-irreversibility",
+  "review_areas": [
+    "Whether the tone-map filter chain (hable/zscale) and exact ffmpeg build (the brief notes stock brew ffmpeg lacks libzimg/zscale, requiring ffmpeg@6) is recorded per-artifact in the manifest, not just as a pipeline-wide assumption checked at startup — archival provenance is per-artifact, not per-pipeline-run",
+    "Whether sharing one normalize output between the detection path and the human-facing archive path (decision 8) is a deliberate, documented tradeoff or an unexamined convenience — preservation practice treats 'access copy' and 'analysis derivative' as distinct outputs precisely because optimizing for one can silently degrade the other (e.g. detection-oriented sharpening/exposure choices affecting archive watchability, or archive-oriented choices reducing detector recall)",
+    "Whether the deferred full-fidelity HDR-domain redaction (explicitly deferred to CUDA-era M2) has a documented migration path for *already-produced* SDR archives — will the M2 prototype's archives need to be regenerated from raw later, and is that dependency (raw retention duration) reconciled with the reclaim/purge design",
+    "Whether frame-rate/resolution fidelity claims ('source resolution/fps... every frame kept') are verified against actual output rather than assumed from encoder settings — archival QC always spot-checks output against the stated preservation policy, not just the intended config",
+    "Whether the models.lock.json pinning (decision 11) extends the same rigor to the ffmpeg/tone-map toolchain itself (version, build flags, library versions) or only to ML model artifacts — an archival transform chain is only reproducible if every tool in it is pinned, not just the detectors"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No per-artifact record of the exact transform chain (filter graph string, tool version, library versions) exists outside of an assumed 'the pipeline always uses ffmpeg@6 with this chain' convention, unpinned at the artifact level.",
+      "scenario": "A blurred_archive artifact is produced with a given hable/zscale tone-map chain, but the manifest only records that normalization occurred, not the exact filter graph, ffmpeg version/build, or library versions used — six months later a fixture regression can't determine whether a visual difference is a real bug or a toolchain version drift.",
+      "severity": "P0"
+    },
+    {
+      "condition": "No test or documentation compares detection recall on the shared derivative against a hypothetical detection-optimized derivative, so a recall regression caused by archive-oriented tuning would be indistinguishable from a genuine detector limitation.",
+      "scenario": "The shared normalize output is exposure/sharpness-tuned for archive watchability in a way that subtly reduces face-detector recall in low-light windows, but because detection and archive share one derivative, this tradeoff is invisible — there's no separate detection-optimized derivative to compare against.",
+      "severity": "P1"
+    },
+    {
+      "condition": "The archive-quality-limitation deferral (decision 8) isn't linked to a retention-duration commitment for the raw it would need to reprocess from, creating a silent dependency between two independently-decided policies (archive fidelity roadmap vs. raw purge timing).",
+      "scenario": "Full-fidelity HDR-domain redaction is deferred, meaning today's SDR archives are provisional/lower-fidelity relative to a future re-processing — but no field in the manifest marks an artifact as 'may be superseded by a future higher-fidelity reprocessing from raw,' and no policy states how long raw must be retained to make that reprocessing possible.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Moving-image archival preservation — film/video digitization and format migration at national archives and studio preservation labs",
+  "success_hints": [
+    "Look for per-artifact (not just per-pipeline) recording of the exact transform chain: filter graph, tool version, library versions",
+    "Look for explicit acknowledgment (or rejection with rationale) of the shared detection/archive derivative tradeoff",
+    "Look for a stated link (or explicit absence, flagged) between the deferred-HDR-redaction roadmap and raw-retention duration policy",
+    "Flag any 'every frame kept' or fidelity claim that isn't backed by an output-level spot-check rather than encoder-config assumption"
+  ]
+}

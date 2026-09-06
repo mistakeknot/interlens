@@ -1,0 +1,29 @@
+{
+  "anti_overlap": "Focuses on the token architecture connecting the two sites, not the visual design of either one",
+  "decision_lens": "Token coherence — do both consumers (landing page and wiki) always agree on what --color-primary means?",
+  "focus": "Shared design token architecture between the landing page and wiki theme — preventing drift while allowing independent deployment",
+  "name": "fd-css-design-token-system",
+  "persona": "Design systems architect who builds token pipelines for multi-product organizations",
+  "review_areas": [
+    "Token file architecture — single source of truth vs duplicated variables",
+    "Deployment dependency — can the wiki deploy without the landing page and vice versa?",
+    "Token naming conventions (semantic vs primitive, dark mode handling)",
+    "Version drift — what happens when tokens change but only one consumer updates?",
+    "CSS custom property vs preprocessor variable tradeoffs for this use case",
+    "Token documentation — how do future contributors know which tokens to use?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Token duplication without a single source of truth",
+      "scenario": "Landing page and wiki define the same token name with different values",
+      "severity": "P0"
+    },
+    {
+      "condition": "No naming convention documented",
+      "scenario": "Token naming is inconsistent (--color-bg vs --bg-color vs --background)",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "Single token file imported by both consumers, semantic naming convention, dark/light mode handled at the token level, deployment independence preserved",
+  "task_context": "The brainstorm proposes a shared design system — this review ensures the architecture actually prevents the drift it claims to prevent"
+}

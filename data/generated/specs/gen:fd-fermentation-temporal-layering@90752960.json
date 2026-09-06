@@ -1,0 +1,32 @@
+{
+  "anti_overlap": "Temporal dynamics across modules, not schema correctness (fd-sqlalchemy) or async lifecycle (fd-asyncio)",
+  "decision_lens": "Every system has fast processes (yeasts, immediate extraction) and slow processes (terroir development, profile evolution) — the interaction between timescales determines quality",
+  "distance_rationale": "Fermentation manages multi-timescale processes (hours to decades) in a single vessel — completely different domain from software but structurally identical temporal coupling",
+  "expected_isomorphisms": "Starter culture stability maps to core profile stability; batch vs continuous fermentation maps to event-driven vs periodic profile regen; terroir development maps to long-term preference drift",
+  "focus": "Temporal layering of preference extraction and profile evolution — how fast and slow processes coexist",
+  "name": "fd-fermentation-temporal-layering",
+  "persona": "Master fermentation scientist who manages microbial cultures across timescales from hours to decades",
+  "review_areas": [
+    "Fast extraction (3-second burst) feeding slow profile evolution (30-day TTL): is the coupling appropriate?",
+    "Momentum field on PreferenceEntity: does it capture trend direction or just recency?",
+    "EMA scoring window implicit in delta values: does it match the actual feedback timescale?",
+    "Session retention (90 days) vs entity retention (30-day expired hard-delete): gap allows orphaned references",
+    "Profile regeneration triggered by dirty flag: is it batch (periodic) or event-driven (every entity change)?",
+    "Contradiction tracking (source_contradicts): does it preserve the temporal arc of changing mind?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "User discusses a topic once, 5 entities extracted, profile narrative dominated by single conversation",
+      "scenario": "Fast extraction overwhelms slow profile with transient preferences",
+      "severity": "P1"
+    },
+    {
+      "condition": "source_contradicts UUID points to entity hard-deleted after 30-day TTL",
+      "scenario": "Contradiction link to expired entity leaves dangling reference",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Fermentation Science / Microbial Culture Management",
+  "success_hints": "Focus on temporal coupling between extraction.py, lens_evolution.py, profile_gen.py, and retention.py",
+  "task_context": "Signal-first refactor must preserve temporal layering — fast subscribers must not overwhelm slow ones"
+}

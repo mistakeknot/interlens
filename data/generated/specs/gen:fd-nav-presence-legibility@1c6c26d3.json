@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Focuses on participant visibility and type legibility; fd-nav-spatial-wayfinding handles structural navigation; fd-nav-agent-status-ux handles deeper agent communication.",
+  "decision_lens": "Presence information should answer 'who's here and what are they doing' at a glance — without requiring interaction or reading labels.",
+  "focus": "How the multiplayer presence model communicates who is here, what they're doing, and whether they're human or agent.",
+  "name": "fd-nav-presence-legibility",
+  "persona": "A CSCW (computer-supported cooperative work) researcher specializing in presence awareness in real-time collaborative systems.",
+  "review_areas": [
+    "Can users distinguish human participants from agent participants at a glance in all views (ribbon, sidebar, suggestion cards)?",
+    "Is agent activity state communicated in plain language that Ryan understands, not developer jargon?",
+    "How does the UI handle participant overflow — what happens with 10+ agents and 5+ humans?",
+    "Is there a distinction between 'connected right now' and 'was here earlier' for async collaboration?",
+    "Do presence indicators degrade gracefully on mobile — can you still see who's here on a small screen?",
+    "Is there visual continuity between participant representation in the ribbon, sidebar, and suggestion cards?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Participant type not visually encoded",
+      "scenario": "Agent and human participants look identical in the ribbon — no type distinction",
+      "severity": "P1"
+    },
+    {
+      "condition": "Agent status not human-readable",
+      "scenario": "Agent activity description uses technical terms ('processing Y.Doc update') instead of plain language ('reviewing section 3')",
+      "severity": "P1"
+    },
+    {
+      "condition": "No graceful overflow handling",
+      "scenario": "With many participants, the ribbon overflows and important presence info is hidden",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "A new user can look at any screen and immediately answer: who's here, are they human or agent, and what are they doing?",
+  "task_context": "Review the Garden Salon presence model for legibility — can all personas quickly understand who is participating and what they're doing?"
+}

@@ -1,0 +1,44 @@
+{
+  "anti_overlap": [
+    "Focus is on live picture primacy, layer-toggle immediacy, and z-layer visibility of the HUD legend — not selection polymorphism (broadcast-switcher domain), not procedure gate formality (nuclear domain), not ticket-state mutual exclusivity (restaurant domain)"
+  ],
+  "decision_lens": "Does the overlay/camera architecture maintain the live world view as the primary operational surface — information panels should be reference layers the player reads alongside the live map, not modals that freeze or occlude the map — and does each layer toggle produce a predictable, immediate state change with no ambiguity about what is currently active?",
+  "distance_rationale": "ATC radar systems are the professional domain that has most rigorously solved the problem of information overlays coexisting with a live operational picture — their layer-toggle design, alert-dialog state preservation, live picture primacy rule, and data legend conventions map directly onto camera-live-under-overlays, Esc stack model state capture, digit-direct-switch, and HUD legend design.",
+  "expected_isomorphisms": "Radar live picture → live world map (camera always live under overlays). Data layer toggle → digit overlay switch (1-6). Alert dialog → pause menu (preempts current layer, restores on dismiss). Layer manifest display → HUD legend strip. Prior layer restoration → OverlayState.screen preserved through pause menu open/close. Sector eject → backtick top-of-stack pop. Layer toggle dead zone → same-digit-toggles-off.",
+  "focus": "Live radar overlay management, data layer toggle protocol, alert dialog gating of underlying map interaction, and camera/viewport behavior under information overlays in air traffic control systems",
+  "name": "fd-atc-radar-layer-toggle-gating",
+  "persona": "Apply the perspective of an en-route air traffic controller and radar systems instructor with experience on STARS and ERAM terminal/en-route platforms — they care about which data layers are active and how layer toggling works without disrupting situational awareness of the live picture, what gets gated when a system alert fires, and the strict rule that the live radar picture must never be obscured or frozen by an information panel that a controller can dismiss.",
+  "review_areas": [
+    "Live picture primacy: ATC radar systems are designed so that no information overlay (weather, sector boundaries, flight-strip windows) freezes the underlying radar sweep — Option C (camera live under screen overlays) is correct; verify that this is enforced by the GatedCamera SystemSet checking only is_pause_menu(), and that no screen overlay accidentally adds a camera gate via its own input handling",
+    "Layer-toggle immediacy: ATC controllers expect that pressing a layer toggle key produces an immediate, visible state change on the radar — the direct-switch digit model (digit-N atomically closes M and opens N) must produce a visual update on the same frame; verify that Bevy UI visibility changes for overlay panels flush within the same Update cycle as the OverlayState write",
+    "Alert dialog and layer state preservation: when an ATC system alert fires (pilot emergency, conflict alert), a modal dialog overlays the picture but the controller must return to the same layer configuration after dismissal — the Esc stack model (pause menu over screen overlay, backtick restores screen overlay) is this pattern; verify that prior_paused and screen state are correctly captured before the pause menu opens",
+    "HUD data legend as layer manifest: every ATC radar display has a data tag legend showing which data layers are active — the persistent HUD strip [1]Settlement [2]Art ... [6]Work is this legend; review whether the legend's active chip is visible enough to confirm layer state at a glance without requiring the player to press keys to probe it",
+    "Layer toggle dead zone: in ATC, pressing the key for an already-active layer should be safe and predictable — the same-digit-toggles-off design is this; verify that pressing the currently-active overlay digit (1 when [1] is active) reliably closes the overlay and transitions to game-running state, not a silent no-op or an unexpected second-open",
+    "Backtick as sector-eject: ATC controllers have an emergency strip-bay eject that clears the current sector work without touching other layers — backtick as top-of-stack pop is this pattern; verify that backtick with pause menu over overlay closes only the pause menu (leaving the overlay), and backtick with only overlay open closes only the overlay (leaving game-running), with no cross-contamination"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Screen overlay keyboard input is not isolated; overlay WASD handling and camera WASD handling both fire in the same frame because the overlay system does not gate the camera system",
+      "scenario": "A screen overlay's input handler captures WASD keys for internal navigation (e.g., scrolling a list) and does not stop propagation — WASD also triggers camera pan, so the camera moves while the player intended to scroll the overlay list; the overlay and camera both respond to the same keypress",
+      "severity": "P0"
+    },
+    {
+      "condition": "prior_paused is written in the same system that reads the current pause state, but runs after the pause_menu flag is set, capturing the already-modified state",
+      "scenario": "After Esc opens the pause menu over an overlay, prior_paused is not captured correctly — it reads the current sim pause state rather than the pre-pause-menu state; when the pause menu closes, it restores the wrong paused value and either double-resumes or leaves the sim paused unintentionally",
+      "severity": "P1"
+    },
+    {
+      "condition": "HUD legend GlobalZIndex not explicitly set; defaults to 0 and is rendered behind the screen overlay's panel (also at 0 or higher default), making the legend unreadable when an overlay is open",
+      "scenario": "The HUD legend strip active chip is 60% alpha and uses a 12px font — under a screen overlay that also renders UI panels, the legend strip may be visually occluded by the overlay's z-layer if GlobalZIndex constants are not set correctly, leaving the player unable to confirm which overlay is active",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Air traffic control radar display management and STARS/ERAM overlay layer protocol",
+  "success_hints": [
+    "Verify that no screen overlay input handler captures WASD, arrow keys, or scroll events without stopping their propagation to the camera system",
+    "Check prior_paused capture timing: it must be written before pause_menu is set to true, not after, to capture the pre-pause-menu sim state",
+    "Confirm GlobalZIndex ladder: HUD=10, Sidebar=10, ScreenOverlay=100, PauseMenu=200, Tooltip=300 — HUD legend must be above any screen overlay panel that could occlude it",
+    "Test the backtick ladder independently: backtick with pause+overlay → only pause menu closes; backtick with overlay only → only overlay closes; backtick with nothing → no-op"
+  ],
+  "task_context": "Reviewing camera gating under overlays (Option C hybrid), direct-switch digit model, Esc stack model with prior_paused capture, HUD legend visibility, backtick top-of-stack pop, and GlobalZIndex layering for a Bevy 0.18 native renderer input system."
+}

@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Does not evaluate beads label conventions or issue hierarchy (fd-beads-semantics)",
+    "Does not evaluate PRD scope or acceptance criteria (fd-prd-craft)",
+    "Does not evaluate agent query patterns or coordination mechanics (fd-agent-infra-design)"
+  ],
+  "decision_lens": "Would a cold Notion API call return enough structured data for an agent to answer 'what is the highest-priority initiative across all projects' without needing secondary lookups or human interpretation?",
+  "focus": "Review the Notion DB design for relation correctness, rollup viability, sync pattern safety, and view architecture suitability for the operator's scan-and-drill CUJ.",
+  "name": "fd-notion-architecture",
+  "persona": "Apply the perspective of a Notion workspace architect who has built production team databases — they care about whether relation fields are bidirectional vs unidirectional by design, whether rollups survive schema changes, whether view filters degrade gracefully when rows are stale, and whether the API provisioning script handles idempotency correctly.",
+  "review_areas": [
+    "Evaluate whether the three-DB relation topology (Projects ↔ Initiatives ↔ Sessions) is specified with explicit relation directionality — particularly whether Projects→Initiatives is a one-to-many relation stored on Initiatives or a rollup on Projects.",
+    "Check whether the `last_synced` timestamp field (referenced in the operator CUJ failure mode) is specified in the schema and populated by the sync script, not manually.",
+    "Assess the upsert strategy in F3: what is the unique key for Initiatives rows, how are conflicts detected, and what happens if a portfolio beads issue is deleted.",
+    "Review whether the Notion API provisioning script (F2) is idempotent — if run twice, does it create duplicate DBs or safely detect existing ones via `sync/notion-ids.yaml`.",
+    "Evaluate the view design requirements: the operator CUJ requires sort-by-priority + filter-by-status as defaults — are these view specs captured somewhere beyond the CUJ prose.",
+    "Check whether JSON Schema validation (required before any API call) covers all edge cases: nullable fields, enum values for status/priority, and the cross-reference format for source beads IDs."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Non-idempotent provisioning on a one-way write system causes unrecoverable state divergence.",
+      "scenario": "F2 provisioning script is not idempotent — a second run creates duplicate DBs with different IDs, corrupting sync/notion-ids.yaml and orphaning all downstream sync work.",
+      "severity": "P0"
+    },
+    {
+      "condition": "Without a stable unique key, repeated syncs accumulate corrupt rows silently.",
+      "scenario": "Initiatives DB upsert key is not specified — script uses title-match as identity, but portfolio initiatives with similar titles create duplicates or incorrect merges.",
+      "severity": "P1"
+    },
+    {
+      "condition": "CUJ mitigations without schema backing are documentation debt that gets dropped during implementation.",
+      "scenario": "`last_synced` field is described in the CUJ but not in any schema spec, so the operator's stale-view mitigation has no implementation anchor.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Initiatives DB upsert key is explicitly specified (beads issue ID, not title)",
+    "Provisioning script checks sync/notion-ids.yaml before creating DBs",
+    "`last_synced` field appears in the Initiative JSON Schema",
+    "Default view specs (sort, filter) are documented alongside DB schema, not only in CUJ prose"
+  ],
+  "task_context": "The ideagui foundation provisions three Notion DBs via API and syncs portfolio beads data as a one-way push. The review goal is to identify Notion-specific architecture gaps — relation design, upsert safety, idempotency, and view specification — that would cause data corruption or silent failures during the F2/F3 implementation."
+}

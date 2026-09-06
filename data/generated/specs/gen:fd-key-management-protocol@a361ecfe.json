@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does not review overall E2E architecture or trust boundaries (fd-e2e-encryption-architecture), CRDT-layer encryption compatibility (fd-crdt-encryption-compat), privacy regulation compliance (fd-privacy-engineering), or AI proxy trust (fd-ai-proxy-trust-boundary). Focuses exclusively on key lifecycle: generation, distribution, rotation, revocation, storage, and recovery.",
+  "decision_lens": "Key management is evaluated against: can a new participant join without re-encrypting everything, can a removed participant be cryptographically excluded, can a lost key be recovered without breaking the threat model, and does the protocol survive realistic failure modes (lost devices, expired keys, clock skew)?",
+  "focus": "Reviews the key management design — generation, distribution, storage, rotation, revocation, and recovery — for correctness and operational survivability in a multi-participant collaborative system",
+  "name": "fd-key-management-protocol",
+  "persona": "Key management and PKI specialist with production experience in group key agreement protocols (MLS, Sender Keys, TreeKEM), hardware security modules, and the operational realities of key recovery when users lose devices. Has seen key management systems that are cryptographically perfect but operationally unusable.",
+  "review_areas": [
+    "Group key agreement protocol selection — the design mentions client-managed keys and threshold keys but does not name a protocol. For a multi-participant collaborative workspace, the choice between Sender Keys (Signal's group protocol), MLS (IETF standard for large groups), or a simpler shared-secret model determines scalability, forward secrecy, and post-compromise security properties.",
+    "Key distribution on participant join — when a new participant is added to an encrypted garden, they need the current group key. The mechanism for this (invite link with embedded key material, key server, or direct peer-to-peer exchange) has profound trust implications. An invite link is phishable. A key server is a trust anchor the E2E model claims to eliminate.",
+    "Key rotation on participant removal — removing a participant requires generating a new group key and re-encrypting or re-keying forward content. For a Yjs CRDT with potentially large document state, this is expensive. The design does not address whether historical content remains accessible to removed participants or whether retroactive re-encryption is attempted.",
+    "Threshold key (Dimension 2D) operational complexity — N-of-M threshold keys require a ceremony for key reconstruction and introduce availability risks. If exactly N participants are online and one disconnects mid-operation, the garden becomes inaccessible. The design mentions this option without analyzing its liveness properties.",
+    "Key storage on client devices — client-managed keys must be stored somewhere (browser localStorage, IndexedDB, OS keychain, hardware token). Each storage mechanism has different security properties and different data loss characteristics. Browser storage is cleared by cache purges. The design does not specify where keys live.",
+    "Recovery and succession — Question 6 in the brainstorm asks what happens when an owner goes inactive and holds the only key. This is the single-point-of-failure problem that threshold keys are meant to solve, but the design presents threshold keys as one option among equals rather than as the solution to a named existential risk."
+  ],
+  "severity_examples": [
+    {
+      "condition": "In the client-managed key model (Dimension 2B), if the garden owner's device is lost and no key backup or escrow mechanism exists, all garden content is permanently encrypted with an irrecoverable key. This is not an edge case — it is the expected outcome for a meaningful fraction of users over time. The design does not specify any recovery path.",
+      "scenario": "Garden becomes permanently inaccessible due to key loss",
+      "severity": "P0"
+    },
+    {
+      "condition": "To deliver the group key to a new participant, some mechanism must be trusted. If the server facilitates key exchange (even as an encrypted relay), the server becomes a trust anchor for key distribution even though the E2E model claims to exclude it. The design does not address how keys reach new participants without reintroducing server trust.",
+      "scenario": "Key distribution creates a new trust anchor",
+      "severity": "P1"
+    },
+    {
+      "condition": "In a Yjs-based system, the document state can be large (megabytes of CRDT history). Re-encrypting under a new group key after participant removal requires every remaining client to re-encrypt their local state and synchronize. For large gardens with frequent membership changes, this creates a performance and coordination bottleneck the design does not acknowledge.",
+      "scenario": "Key rotation cost on participant removal scales with document size",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "A viable key management design names a specific group key agreement protocol (or explains why a simpler model suffices), specifies where client keys are stored and what happens when storage is cleared, provides a recovery mechanism that does not violate the threat model, addresses key rotation cost for CRDT documents, and resolves the succession problem (Question 6) with a concrete mechanism rather than leaving it open.",
+  "task_context": "Garden Salon encryption brainstorm where Dimension 2 explores server-managed, client-managed, hybrid, and threshold key approaches. Gardens are multi-participant, participants join and leave over time, and the platform uses Yjs CRDTs with potentially large document state. The brainstorm's Question 6 identifies owner inactivity as an open key management problem."
+}

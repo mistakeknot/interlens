@@ -1,0 +1,36 @@
+{
+  "anti_overlap": [
+    "fd-scenario-binary-wiring covers --scenario wiring",
+    "fd-country-code-existence covers ISO code presence",
+    "fd-alignment-signal-validity covers alignment signal quality"
+  ],
+  "decision_lens": "Flags any path where a PressureType identifier crosses a serde boundary (RON parse, JSON emit, assertion eval) without an explicit name mapping test. Silent fallbacks to 0.0 are the worst outcome.",
+  "focus": "PressureType serde name vs short_id() identity split across RON overrides and assertion expressions",
+  "name": "fd-pressure-serde-identity",
+  "persona": "A Rust serialization expert who has debugged silent data loss from serde rename mismatches. Treats any dual-name system as a primary failure surface until proven consistent by test coverage.",
+  "review_areas": [
+    "Verify that RON override/injection fields use the serde rename_all snake_case form (e.g., technological_disruption) not the short_id() form (e.g., tech_disruption)",
+    "Verify that assertion expression field paths use short_id() strings not serde names",
+    "Check that roundtrip tests cover every PressureType variant including TechnologicalDisruption",
+    "Confirm that the six new scenario RON files use serde names in overrides and short_id names in assertions consistently",
+    "Check that resolve_pressure_name rejects serde-form names with a clear error",
+    "Verify TechnologicalDisruption uses technological_disruption in RON and tech_disruption in assertions"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When copying pressure name from assertion into override block",
+      "scenario": "RON file uses tech_disruption in PressureOverride — serde cannot match, silently defaults to 0.0",
+      "severity": "P1"
+    },
+    {
+      "condition": "When copying identifier from RON override into assertion string",
+      "scenario": "Assertion uses USA.technological_disruption — resolve_pressure_name finds no match",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "Every PressureType variant appears in at least one RON override with serde name AND in at least one assertion with short_id",
+    "resolve_pressure_name error message names both short_id and serde forms"
+  ],
+  "task_context": "F5 adds six ShadowBench alignment scenarios as RON files with pressure overrides (serde) and assertion expressions (short_id lookup)."
+}

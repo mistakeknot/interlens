@@ -1,0 +1,37 @@
+{
+  "anti_overlap": [
+    "fd-epistemic-regime-derivation covers blend mechanics not pressure outputs",
+    "fd-satisfaction-quintile-model covers satisfaction computation not pressure coupling",
+    "fd-downstream-signal-contract covers signal reads by D6.3 and D2 not pressure writes"
+  ],
+  "decision_lens": "Any pressure emission that exceeds PUBLIC_OPINION_PRESSURE_CAP_PER_TICK without cap is P0 (runaway loop). A missing emission path is P1.",
+  "focus": "Correctness of all pressure delta writes: thresholds, magnitude formulas, per-tick cap, and D4+D5.2 summation guard",
+  "name": "fd-pressure-emission-contract",
+  "persona": "A simulation balance engineer who has debugged runaway cascade loops in multi-pillar systems. Reads collect_pressure_deltas() as if writing a property-based test.",
+  "review_areas": [
+    "Existing pressure paths preserved: LegitimacyCrisis (trust < 0.3), SocialUnrest (cohesion < 0.3), IdeologicalPolarization (polarization > 0.5) must survive rewrite",
+    "New SocialUnrest path: satisfaction_spread > 0.4 AND satisfaction[Q1] < 0.3 — verify both conditions ANDed",
+    "Summation guard: per-tick cap of 0.05 for combined D4+D5.2 LegitimacyCrisis, not per-source cap",
+    "Hypernormal burst path: +0.10 LegitimacyCrisis one-shot when gap > 0.3 AND trigger event",
+    "Magnitude formula accuracy: +0.03 * (1.0 - institutional_trust) not accidentally 0.03 * institutional_trust",
+    "DAILY_SCALE multiplication: verify magnitudes calibrated for daily calls"
+  ],
+  "severity_examples": [
+    {
+      "condition": "New path added without .min(PUBLIC_OPINION_PRESSURE_CAP_PER_TICK)",
+      "scenario": "satisfaction_spread SocialUnrest path applies formula without the cap, so spread=0.9 emits 0.018/tick creating death spiral",
+      "severity": "P0"
+    },
+    {
+      "condition": "Rewrite starts from blank function body without auditing existing emissions",
+      "scenario": "IdeologicalPolarization emission path omitted in rewrite",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "Under maximum simultaneous pressure, total D5.2 LegitimacyCrisis emission does not exceed 0.005/tick before DAILY_SCALE",
+    "A country at all thresholds emits all four pressure types, each individually capped",
+    "After 100 ticks from healthy conditions with no shocks, no pressure exceeds 0.1 from D5.2 alone"
+  ],
+  "task_context": "The implementation rewrites collect_pressure_deltas() to add satisfaction_spread-based SocialUnrest. The spec warns about D4+D5.2 LegitimacyCrisis summation guard."
+}

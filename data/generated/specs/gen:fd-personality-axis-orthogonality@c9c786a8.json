@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "fd-personality-llm-legibility covers curator perception; this agent covers the mathematical/systemic independence of axes",
+  "decision_lens": "Axis independence — each axis must produce distinct behavioral signatures that cannot be predicted from other axes",
+  "focus": "Whether the proposed 3 personality axes are truly independent or redundant with existing aesthetic axes",
+  "name": "fd-personality-axis-orthogonality",
+  "persona": "Psychometric systems designer who builds personality instruments for simulation and assessment",
+  "review_areas": [
+    "Check for covariance between proposed personality axes and existing aesthetic axes (e.g., social axis already drives company behavior — does extroversion duplicate this?)",
+    "Evaluate whether 3 axes produce sufficient combinatorial variety (2^3=8 archetypes vs 3^3=27 gradient positions) for a colony of 8-20 elves",
+    "Assess whether each axis has at least 3 distinct gameplay effects that no other axis provides",
+    "Check for 'dead zones' — axis value ranges that produce no observable behavioral difference",
+    "Verify that axis interactions (e.g., proud + impulsive) create emergent behaviors beyond what either axis alone produces"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Correlation between axes > 0.7 in expected behavioral outputs",
+      "scenario": "Extroversion axis overlaps so heavily with aesthetic social axis that adding it produces no new behavioral variety",
+      "severity": "P1"
+    },
+    {
+      "condition": "Axis affects fewer than 3 game systems",
+      "scenario": "Pride axis only matters during revel critique events, making it irrelevant 95% of gameplay",
+      "severity": "P2"
+    },
+    {
+      "condition": "No gameplay effect for moderate personality values",
+      "scenario": "Middle values (0.4-0.6) on all axes produce indistinguishable behavior from the default",
+      "severity": "P3"
+    }
+  ],
+  "success_hints": "Each axis has clear, non-overlapping behavioral consequences visible in normal gameplay. Two elves with identical aesthetics but different personalities behave observably differently.",
+  "task_context": "The game already has a 4-axis aesthetic system driving taste and social dynamics. Adding 3 personality axes risks redundancy or noise."
+}

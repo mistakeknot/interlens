@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-trigger-and-idle-detection covers when to look for work",
+    "fd-backlog-priority-and-matching covers which bead to select",
+    "fd-failure-recovery-and-zombies covers post-claim failure"
+  ],
+  "decision_lens": "Prioritizes findings implementable using existing beads/Dolt primitives without new infrastructure.",
+  "focus": "Atomic claiming and optimistic-lock semantics for distributed agent-to-bead assignment",
+  "name": "fd-claiming-protocol-atomicity",
+  "persona": "A distributed systems engineer who has designed job queues for high-throughput cloud platforms.",
+  "review_areas": [
+    "How Celery and Temporal implement at-most-once vs at-least-once task delivery with distributed workers",
+    "Contract Net Protocol bidding vs optimistic-lock grab-and-validate for small fleets (<20 agents)",
+    "Kubernetes lease objects for distributed claiming without a lock server",
+    "Failure modes when claim succeeds but claimant crashes before writing claimed_by: heartbeat and stale-claim TTL",
+    "Whether beads bd set-state can implement compare-and-swap or needs Dolt transactions",
+    "Rideshare dispatch race handling when multiple drivers see same ride"
+  ],
+  "success_hints": [
+    "Concrete decision between optimistic vs pessimistic claiming for beads/Dolt",
+    "Correct heartbeat interval and stale-claim expiry for coding tasks",
+    "bd set-state key schema for detecting zombied claims"
+  ],
+  "task_context": "Sylveste AI factory uses beads (Dolt-backed) with bd update --claim and bd set-state. Agents in tmux panes via intermux. Goal: Phase 1 self-dispatching loop."
+}

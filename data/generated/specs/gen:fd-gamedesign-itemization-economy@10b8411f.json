@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Leave ontology/canon-clause interpretation — whether §9-A/9-B/9-F's readings of ontology.md and universe.md are honest or motivated — to the canon-continuity reviewer; assess only whether the resulting mechanic, once adopted, would work as a game system.",
+    "Leave the observation-vs-extraction philosophical question — whether R8's thesis survives Uncs deployed as combat abilities — to the collection-ethics reviewer; assess only whether the combat mechanic itself is well-formed as a system.",
+    "Do not adjudicate Met/cultural-heritage provenance ethics (§9-D); treat CIDOC-CRM only as a data schema and evaluate it for mechanical fitness as an affix system, not for its ethical stance."
+  ],
+  "decision_lens": "Would this mechanic survive first contact with a spreadsheet: does the gem-axis mapping, the inverted socket, and the artifact affix schema each resolve to concrete, buildable numbers and interaction rules, or is it a metaphor doing the work a mechanic should do? Does every claimed 'costs nothing' actually cost nothing once implemented, and does every '§8 ratified' claim actually settle something contestable?",
+  "focus": "Cross-mode itemization and economy design in the composition: whether the gem/socket mapping, the inverted-socket mechanic, the CIDOC-CRM artifact schema, and each §9 recommendation resolve to buildable, balanceable mechanics rather than metaphor standing in for mechanic, and whether any §8 'ratified ruling' is actually a design bet that belongs in §9.",
+  "name": "fd-gamedesign-itemization-economy",
+  "persona": "Apply the perspective of a senior systems designer who has shipped and post-mortemed action-RPG itemization (Diablo/Path-of-Exile-class gem and socket economies) and cross-genre economy coupling between a fast combat loop and a slow simulation loop, carrying particular scar tissue from watching colony-sim/action hybrids collapse into chore-queue economies.",
+  "review_areas": [
+    "Verify the Way-depth/Way-orientation → gem-level/support-behavior mapping (§3.3) produces distinct, balanceable mechanical behavior at the stated probability distributions, not just a flavor-to-mechanic gloss with no numbers behind it.",
+    "Test whether the inverted socket (§4) is mechanically identical to a normal socket as claimed, or whether reversing the possession vector leaves the equip/swap/persistence rules unspecified — e.g. can one artifact be given to multiple Uncs, what un-equips an artifact, what happens when an Unc is not on the current roster.",
+    "Check the CIDOC-CRM E22/E13 artifact schema (§5.2) for whether 'RNG variants are real art-historical variance' actually yields a legible, balanceable affix/rarity curve once real Met data distributions (long-tail culture/period/medium skew) are dropped in, versus assuming a uniform roll table that the real corpus won't produce.",
+    "Audit §8's eight 'ratified rulings' for load-bearing contestability — flag any that are actually an untested design bet dressed as settled fact and should be demoted to §9.",
+    "Evaluate each §9 open call's recommendation for mechanical soundness independent of canon: does 9-A's un-queryable crit stay un-farmable under real player behavior (pattern-matching, community wikis)? Does 9-B Option 1's walk-gating created a strict progression wall that contradicts Ruling 3 ('ranch progress is never gated on Delve output') in spirit by gating the Delve on the ranch instead?",
+    "Check whether the §7/§9-C entity-resolution proposal (Encryptids → bestiary stock, Eidogens retired) actually removes complexity or relocates it — e.g. does the Delve bestiary now need to carry lineage-feed and combat-stat duty that 351 hand-authored Encryptids previously split across two representations."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If no consistent equip/unequip/transfer rule can be derived from §4 as written, the composition's central mechanic is unbuildable, not merely underspecified, and blocks implementation entirely.",
+      "scenario": "The inverted-socket mechanic in §4 has no specified rule for what happens when the same artifact is offered to a second Unc, or when an Unc leaves the ranch while holding an artifact.",
+      "severity": "P0"
+    },
+    {
+      "condition": "If the fast tempo has no entry point for a new player and the doc does not name a bootstrap path, this must be resolved before implementation, not treated as launch polish.",
+      "scenario": "§9-B Option 1 (Delve gated on walk-acquired Uncs) is adopted without resolving how a zero-Uncs player experiences the Delve on day one.",
+      "severity": "P1"
+    },
+    {
+      "condition": "If this produces a strictly dominant orientation roll without breaking any stated rule, it degrades the intended texture of the roll rather than blocking implementation — flag as quality risk, not a blocker.",
+      "scenario": "The five Way-orientation support behaviors (§3.3) are adopted as literal mechanics without a balancing pass — self-only vs. scales-off-highest-depth are structurally different power ceilings.",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Cites specific numbers already in the doc (probability distributions, per-object fields, request rate limits) rather than reasoning about the mechanics in the abstract.",
+    "Works through at least one concrete play scenario (a specific Unc + specific artifact + specific Delve run) to test whether the described interaction rules actually hold end to end.",
+    "Distinguishes 'this is genuinely unresolved and correctly flagged as an open call' from 'this is asserted as §8-ratified but is actually an untested bet.'",
+    "Stays on mechanical soundness and does not re-litigate canon/ontology interpretation questions or the observation-vs-extraction ethics question — those belong to the other two reviewers."
+  ],
+  "task_context": "Stress-test this cross-repo game-design composition before mk ratifies it. Three concerns, in priority order. (1) The seven open calls in §9 — are the recommendations right, and is any 'ratified ruling' in §8 actually load-bearing enough to be an open call instead? (2) Ontology and canon compliance: the doc runs into uncrancher/docs/ontology.md §5 (Uncanny-as-unlock marked a PERMANENT v0 constraint; sitting-only play modes forbidden) and After-Them/docs/universe.md (canonical: 'Encryptids as skill-entities agents equip — none of this is renamed or restructured'). Are the proposed reconciliations honest readings or motivated ones? (3) Does the composition actually hold as a game — three tempos, Uncs as skills, artifacts as loot, inverted socket — or does it collapse under a failure mode the doc has not named? Especially: does R8's observation-not-collection thesis survive Uncs being deployed as combat abilities at all? Read the cited sources rather than trusting the doc's summaries of them: docs/ontology.md, docs/uncrancher-vision.md, docs/axis-vocabulary.md, docs/research/2026-07-25-*.md, /Users/sma/projects/After-Them/docs/universe.md, /Users/sma/projects/After-Them/game-design-docs/after-them-{core-gameplay-loop,encryptid-and-skill-system,agent-system}.md, /Users/sma/projects/infinite-fun-space/docs/canon/pace-layer-universe.md"
+}

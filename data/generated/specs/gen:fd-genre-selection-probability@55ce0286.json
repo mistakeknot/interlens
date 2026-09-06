@@ -1,0 +1,22 @@
+{
+  "anti_overlap": [
+    "fd-name-pool-coverage covers pool data completeness",
+    "fd-compose-system-wiring covers ECS call site"
+  ],
+  "decision_lens": "Flags first any path where weights sum to zero, then cases where surprise probability is unbounded at extreme aesthetic positions.",
+  "focus": "Weighted genre selection math, cross-genre surprise mechanic, and GenreFamily persistence on Composition",
+  "name": "fd-genre-selection-probability",
+  "persona": "A probability systems specialist who audits weighted random selection for normalization bugs, zero-weight paths, and boundary conditions.",
+  "review_areas": [
+    "Verify genre weights sum to positive non-zero for all aesthetic positions in [0,1]^4",
+    "Confirm cross-genre surprise is clamped and evaluated before pool selection",
+    "Check RNG call ordering is deterministic across platforms",
+    "Verify GenreFamily stored on Composition matches the pool used for base-type selection",
+    "Check aesthetic-to-weight formulas use named constants not magic numbers"
+  ],
+  "success_hints": [
+    "Weights never sum to zero for any valid aesthetic position",
+    "GenreFamily on Composition matches the selected pool"
+  ],
+  "task_context": "Procedural art naming system for elven colony sim: mood-ranged prefixes (8 pools), genre families (3: Classical/Anachronistic/Nature), skill-tiered base types (4 tiers), inspiration-source suffixes (5 pools)."
+}

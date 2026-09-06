@@ -1,0 +1,36 @@
+{
+  "anti_overlap": [
+    "fd-pressure-serde-identity covers naming mismatch",
+    "fd-scenario-binary-wiring covers wiring",
+    "fd-alignment-signal-validity covers signal quality"
+  ],
+  "decision_lens": "Missing country at override time produces a silent no-op indistinguishable from correct configuration.",
+  "focus": "Whether scenario country codes (especially PLW/TUV/NRU/MHL) exist in PressureStore at override time",
+  "name": "fd-country-code-existence",
+  "persona": "A data integrity auditor who validates reference data completeness. Treats silent country-not-found as data loss.",
+  "review_areas": [
+    "Verify create_for_all_countries() includes PLW, TUV, NRU, MHL from country_map data source",
+    "Check that run_ron_scenario() logs error when country not found instead of silent skip",
+    "Confirm loader validates country codes against known-good list at load time",
+    "Verify bench loop PressureStore and scenario runner use same country sets",
+    "Check assertion expression country codes validated against scenario countries list",
+    "Verify pest grammar country_id rule accepts 3 uppercase letters for PLW/TUV/NRU/MHL"
+  ],
+  "severity_examples": [
+    {
+      "condition": "When Pacific microstate ISO3 codes absent from country_map data",
+      "scenario": "PLW missing from country catalog — override silently no-ops, zero pressure signal",
+      "severity": "P1"
+    },
+    {
+      "condition": "When assertions add countries without updating countries list",
+      "scenario": "Assertion references country not in scenario countries list — evaluator returns 0.0 ghost value",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "load_scenario() cross-checks every country in overrides against countries list",
+    "cargo test loading each scenario confirms non-zero pressure at tick 0"
+  ],
+  "task_context": "F5 uses obscure Pacific microstate ISO codes (PLW/TUV/NRU/MHL) which may not exist in the country map."
+}

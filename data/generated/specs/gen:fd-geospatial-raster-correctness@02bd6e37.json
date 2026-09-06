@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "Does not cover NaN propagation or float arithmetic — that is fd-numerical-sampling-correctness.",
+    "Does not cover GraphML edge attribute serialization — that is fd-graph-data-engineering.",
+    "Does not cover how sun_fraction is consumed in routing — that is fd-routing-contract."
+  ],
+  "decision_lens": "Where does the brainstorm assume the affine transform, CRS assertion, or nodata value is correct — and what happens when any of those assumptions silently fail?",
+  "focus": "Raster I/O correctness: affine transform, CRS assertion, nodata semantics, bounds handling",
+  "name": "fd-geospatial-raster-correctness",
+  "persona": "Apply the perspective of a geospatial systems engineer who has debugged silent coordinate system mismatches in production — they care about pixel/world coordinate round-trip fidelity, measure correctness by whether a known-shade point maps to pixel value 1 and a known-sun point maps to 0, and flag any place where silent float→int truncation, off-by-half-pixel origin conventions, or nodata conflation could corrupt results invisibly.",
+  "review_areas": [
+    "The brainstorm uses `~src.transform` (inverse affine) applied as `inv * (pts[:, 0], pts[:, 1])` — verify the pseudocode correctly applies the Rasterio `Affine` inverse operator and that world→pixel ordering (col, row) vs (row, col) is unambiguous; a transposition here silently misassigns sun/shade.",
+    "The `nodata` fallback `src.nodata or 255` is a Python truthiness trap: if the raster embeds nodata=0 (unlikely but possible), `or 255` would override it and treat all sun pixels as nodata. The brainstorm does not flag this risk.",
+    "The `clip(..., 0, arr.shape[0]-1)` guard is described as defensive against floating-point edges — but it also silently maps out-of-bounds samples to the nearest boundary pixel instead of marking them nodata; for edges that genuinely extend outside the raster footprint this biases sun_fraction toward whatever value lives at the raster border.",
+    "CRS assertion is `src.crs.to_epsg() == 32611` — the brainstorm does not specify how the graph's CRS is verified; if ox.load_graphml restores geometry in WGS84 rather than the projected CRS, the inverse-affine lookup will produce wildly wrong pixel coordinates with no error.",
+    "The brainstorm specifies the raster as uint8 but does not document whether rasterio returns it as numpy uint8 or upcasts — comparisons `vals == 0` and `vals == 1` are dtype-dependent and a different dtype or masked array return from `src.read(1)` could silently give wrong counts."
+  ],
+  "severity_examples": [
+    {
+      "condition": "If `inv * (x, y)` returns (row, col) but the code indexes `arr[rows, cols]`, every sample lands in the wrong pixel — sun_fraction is meaningless for all edges with no error raised.",
+      "scenario": "Affine inverse col/row transposition",
+      "severity": "P0"
+    },
+    {
+      "condition": "If a future raster encodes nodata as 0, the `src.nodata or 255` fallback treats all sun pixels as valid data and all nodata pixels as shade=1, inverting the fraction for affected edges.",
+      "scenario": "nodata=0 raster overrides to 255",
+      "severity": "P1"
+    },
+    {
+      "condition": "OSMnx may store node/edge coordinates in degrees if the graphml was saved before a projection step; inverse-affine lookup then maps degree values into UTM pixel space, producing col/row numbers that are millions of pixels out of range and land on clipped boundary pixels.",
+      "scenario": "Graph geometry in WGS84 despite EPSG:32611 file",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "Confirm the inverse affine idiom against rasterio docs — the correct pattern is `~src.transform * (x, y)` producing (col, row), and array indexing must be `arr[row_int, col_int]`.",
+    "Document the nodata fallback as `int(src.nodata) if src.nodata is not None else 255` to handle nodata=0 without truthiness ambiguity.",
+    "Add a CRS check for the graph geometry by inspecting the graph's `crs` metadata attribute or a sampled node coordinate range, not just the raster."
+  ],
+  "task_context": "Reviewing the brainstorm for sample_edge_shadow.py — specifically the raster I/O design choices (affine, nodata, CRS assertion) for correctness risks an implementer would encounter."
+}

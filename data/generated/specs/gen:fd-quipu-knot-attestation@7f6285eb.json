@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Do NOT review oss-launch dynamics, eval methodology choice, or AI-platform integration patterns",
+    "Do NOT review clinical-trial pre-registration, journal pre-reg, or sports-league rule registration",
+    "Do NOT review cathedral building, wine appellation, imperial examination, or other already-claimed pre-industrial domains",
+    "Stay focused on the artifact-survives-its-interpreters frame; do not drift into general 'documentation quality'"
+  ],
+  "decision_lens": "If the original interpreter dies tomorrow, can the next quipucamayoc verify provenance and re-score the record from the cord alone, or has implicit context contaminated the artifact?",
+  "distance_rationale": "No software engineer reviewing a benchmark PRD would think to consult a pre-Columbian Andean accounting tradition that used knotted cords and a hereditary interpreter caste — the domain is separated from contemporary AI eval by 500 years, an ocean, and a literacy paradigm.",
+  "expected_isomorphisms": "A quipu's survival depended on the cord encoding the meaning independently of any single interpreter; pre-registered benchmark artifacts must similarly encode their scoring meaning independently of the maintainer's living memory of 'what we meant by dimension 3 in v0.1-preview.' The triple-redundancy (color/knot/ply) maps directly onto the trace/protocol-snapshot/scoring-code-version triple in F5 — and the failure mode is identical: lose any leg and the record becomes unreadable noise.",
+  "focus": "Validates that a stateless, distributed run-record format remains interpretable and tamper-evident when its trained interpreters disappear and only the artifact survives.",
+  "name": "fd-quipu-knot-attestation",
+  "persona": "Apply the perspective of a quipucamayoc (Inca khipu accountant) — they care about whether a knotted record can still be read by a successor sworn to the same encoding, measure the integrity of cord-color/knot-position/ply-twist as an independent triple, and flag any record whose meaning depends on a living memory rather than the cord itself.",
+  "review_areas": [
+    "F5 run-directory layout — is `protocol.md` snapshot + `score_lib_version.txt` + `trace.jsonl` a true triple-redundant attestation (three independent dimensions encoding the same fact, like color/knot/ply), or are they coupled in ways that would let a single corrupted file silently invalidate the others?",
+    "Hash-chain integrity in trace.rs — does it survive trace replay across machines without a registered scoring binary, the way knot patterns survived without the original knotter present?",
+    "v0.1-preview labeling and DRAFT-protocol snapshot — does the artifact self-declare its own provisional encoding, or does interpretation rely on a living maintainer who knows 'oh, that field meant X back then'?",
+    "60-day kill-gate falsification record — when the gate fires, what survives in the run archive that lets a future reviewer reconstruct WHY the protocol was not yet locked?",
+    "Carol-the-skeptic's 3-sentence pitch — is the canonical encoding self-describing to a stranger, or does it require oral transmission from someone in the original tradition?",
+    "Cross-version re-scoring path — when scoring code is at commit B but trace was produced at commit A, does the layout preserve enough to re-cord (re-score) the original meaning, or does the meaning silently mutate?"
+  ],
+  "severity_examples": [
+    {
+      "issue": "If `score_lib_version.txt` records only a commit SHA but the repo can be force-pushed or the binary releases pruned, the cord becomes unreadable — the encoding key is destroyed, like a quipu whose interpreter caste was extinguished. Required to exit the gate.",
+      "severity": "P1"
+    },
+    {
+      "issue": "Per-run `protocol.md` snapshots are large and may be deduplicated by future maintainers — but a quipucamayoc would never share cords between records; each record carries its own complete encoding. Degrades the independence of the triple.",
+      "severity": "P2"
+    },
+    {
+      "issue": "Run-directory ISO-timestamp prefix conflates wall-clock identity with logical identity — quipus distinguished record identity from temporal context via separate cord positions.",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Inca quipu accounting and the quipucamayoc interpreter caste (15th-16th c. Andes) — knotted-cord records that encoded meaning across three independent dimensions (cord color, knot type/position, ply-twist direction) and were audited by sworn interpreters",
+  "success_hints": [
+    "Add a `MANIFEST.json` to each run directory that explicitly lists the three independent attestation dimensions (trace, protocol-snapshot, scoring-code-version) and asserts the record is self-describing without external lookup",
+    "Specify what survives if the GitHub Releases binaries are deleted in 5 years — does the run JSONL still parse with documented schema, or is it cord-without-key?",
+    "Define a 'cold reader test' acceptance criterion: a fresh maintainer with only the run directory and PROTOCOL.md (no internet, no Slack history) can reconstruct what was scored and why"
+  ],
+  "task_context": "Reviewing a v1 PRD for shipping a pre-registered alignment-scenario benchmark as a Hermes Agent skill. Pay particular attention to how run records (F5) and pre-registration artifacts will outlive their original maintainer or interpretive context."
+}

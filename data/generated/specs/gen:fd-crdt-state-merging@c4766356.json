@@ -1,0 +1,34 @@
+{
+  "anti_overlap": "Does not review governance rules or permission enforcement (fd-governance-permission-model), token accounting accuracy (fd-compute-metering), or contribution incentive design (fd-oss-contribution-models). Focuses on technical state correctness under concurrency.",
+  "decision_lens": "Collaborative state correctness is evaluated by asking: what happens when two participants act concurrently, is the result deterministic, and does the merged state preserve the intention of both actors?",
+  "focus": "Reviews whether the direction lifecycle and merge semantics are compatible with CRDT-based collaborative state, and whether the design avoids merge conflicts that cannot be automatically resolved",
+  "name": "fd-crdt-state-merging",
+  "persona": "Distributed systems researcher with deep expertise in CRDTs, operational transforms, and collaborative editing systems (Yjs, Automerge, Ink & Switch research)",
+  "review_areas": [
+    "Direction merge as a state transition vs CRDT operation — merging a direction into main state is a named, intentional event. This is not automatically resolvable by a CRDT. The design must distinguish CRDT-managed real-time edits from governed merge events.",
+    "Artifact lineage under concurrent directions — if two directions both modify the same section of a document concurrently, merging the first direction changes the base state that the second was authored against. The design needs a rebase or conflict-detection step.",
+    "Direction lifecycle state machine — proposed → active → merged/abandoned is a finite state machine. In a distributed system with no central authority, two participants can concurrently transition the same direction (e.g., one merges, one abandons). The resolution is unspecified.",
+    "Nested direction semantics — the design mentions directions can contain proposals. If proposals are themselves CRDT-tracked, direction merge must compose with proposal-level merge. The interaction is not described.",
+    "Attribution immutability under merge — once a direction is merged, its attribution record should be frozen. If the CRDT layer allows retroactive edits to the direction's history after merge, attribution becomes non-authoritative.",
+    "Garden main state versioning — after a direction merges, is there a canonical snapshot of main state? Without versioned snapshots, future directions cannot reliably compute a diff from the last known good state."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Two active directions that both modify overlapping artifacts are merged concurrently (valid in a distributed system without locking). The CRDT will converge on a state, but that state may be semantically invalid — e.g., contradictory edits both present. No conflict detection layer is described.",
+      "scenario": "Concurrent direction merges producing invalid state",
+      "severity": "P1"
+    },
+    {
+      "condition": "Without a consensus mechanism for direction lifecycle transitions, two participants can simultaneously move the same direction to 'merged' and 'abandoned.' The resulting garden state is undefined. This is not a CRDT-resolvable conflict.",
+      "scenario": "Direction state machine divergence",
+      "severity": "P1"
+    },
+    {
+      "condition": "The open question of whether directions contain proposals or are parallel is unresolved. If proposals are CRDT operations and directions are governance events, they operate at different layers and cannot be naively composed without an explicit interface.",
+      "scenario": "Proposal-direction composition undefined",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "A sound design separates real-time collaborative edits (CRDT domain) from governed state transitions (direction lifecycle domain), specifies conflict detection for overlapping directions, defines a canonical main state snapshot after each merge, and ensures attribution records are sealed at merge time.",
+  "task_context": "Garden Salon uses Yjs for CRDT-based real-time collaboration. The governance design introduces directions as higher-level state management objects whose lifecycle and merge semantics must compose correctly with the underlying CRDT layer."
+}

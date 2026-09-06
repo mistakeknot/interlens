@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-batch-dependency-order covers sequencing",
+    "fd-batch-scope-calibration covers LOC estimates",
+    "fd-new-system-integration-risk covers wholly new systems"
+  ],
+  "decision_lens": "Prioritize substitutions that change an interface, not just a name. Silent semantic changes are port errors.",
+  "focus": "Whether the agent-fortress port correctly substitutes domain without losing architectural invariants",
+  "name": "fd-port-strategy-fidelity",
+  "persona": "A Rust architect with deep hecs ECS experience who has read the agent-fortress source. Focuses on preserving collect-then-mutate, mood stacks, standing orders, and sidecar patterns.",
+  "review_areas": [
+    "Batch 1.2 replaces Personality with AestheticPosition — verify all PersonalityTrait match arms are handled",
+    "Batch 1.4 replaces StandingOrders with CulturalPolicies — verify 'systems read as data each tick' invariant preserved",
+    "Batch 2.4 ports task_decision_system — verify 5-priority tree preserves critical-needs-override invariant",
+    "Batch 6.1 ports AiConsultant trait — verify event-driven not accidentally tick-polling",
+    "storyteller.rs → cultural_pacing.rs — verify drama-tension mechanism preserved, not replaced by simple cooldown",
+    "DummyCurator bootstrap handles all-skill-1 tie-breaking"
+  ],
+  "success_hints": [
+    "Every AF pattern from AGENTS.md is explicitly preserved or redesigned in the plan",
+    "No substitution silently changes a system's invariant without a catching test",
+    "Port type column matches test adaptation count"
+  ],
+  "task_context": "MVP plan ports agent-fortress to elf-revel across 10 batches, each claimed independently testable."
+}

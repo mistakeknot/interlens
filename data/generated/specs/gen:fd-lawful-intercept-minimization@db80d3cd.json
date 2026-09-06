@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "fd-trust-boundary-governance covers the encrypted transfer protocol and trust-boundary crossing; this agent covers pre-transfer raw handling, purge discipline, and failure-state distinctness",
+    "fd-haccp-critical-control-throughput (this batch) covers CCP/throughput tradeoffs; this agent covers retention/minimization/purge-audit discipline specifically",
+    "fd-dicom-deidentification-recall (this batch) covers metadata/pixel de-identification completeness; this agent covers raw-retention lifecycle and access accounting, not the de-identification content itself"
+  ],
+  "decision_lens": "If a regulator or auditor asked 'prove that raw footage for session X was never retained longer than necessary and was only purged after downstream confirmation,' could the manifest alone answer that — including who/what accessed the raw footage while quarantined, and why a not-yet-purged session hasn't been purged yet?",
+  "distance_rationale": "Same abstraction level (a system that ingests bulk raw signal, structurally guarantees minimization before any output leaves a controlled boundary, and enforces retention/purge discipline under audit) but an entirely different regulatory and industry context — telecom LI systems are built around 'never retain more than the mandate allows' rather than JawnScope's aesthetic/consent-driven privacy design.",
+  "expected_isomorphisms": "LI mediation systems structurally separate raw intercepted signal (never persisted beyond the mandate window, access-logged, purge-verified) from the minimized/authorized output handed to requesting agencies, with purge only occurring after delivery confirmation and an unconfirmed-delivery record never being force-purged nor left in indefinite limbo — this maps directly onto quarantine-raw handling, the 'reclaim wired but not armed' verify-then-delete design, and the dead-letter requirement for sessions whose sinks never confirm.",
+  "focus": "Whether raw-retention minimization, purge-only-after-confirmed-delivery, and dead-letter handling for stuck sessions meet the rigor LI/CALEA mediation systems require for defensibility under audit — specifically around access control to quarantined raw and the finality/logging of purge decisions.",
+  "name": "fd-lawful-intercept-minimization",
+  "review_areas": [
+    "Whether access to quarantined raw (during the local operator-drain window, ahead of the encrypted device→node protocol) is logged at all, or only the eventual reclaim_events/verified_sinks are recorded — LI systems log every touch of raw signal, not just the final disposition",
+    "Whether the 'reclaim wired but not armed' design (decision 9) has an explicit, bounded operator-visible queue of 'eligible for purge but not yet purged' sessions, or whether that state is invisible until someone thinks to check",
+    "Whether the dead-letter path (required by the storage-ceiling policy in CLAUDE.md §3) is actually implemented in this M2 slice for sessions whose redact_video stage crashes or never confirms, or only reclaim-side confirmation is handled",
+    "Whether purge/reclaim decisions, once made, are irreversible and logged (append-only) the way LI purge-certification records are, versus being a mutable manifest field that could be silently altered",
+    "Whether the manifest distinguishes 'no redaction needed' from 'redaction attempted and failed' from 'redaction not yet attempted' — LI systems require these to be structurally distinct states so a failure can never be mistaken for a pass"
+  ],
+  "severity_examples": [
+    {
+      "condition": "No explicit 'redaction_failed' or dead-letter state exists distinct from 'redaction_pending' — an operator or automated sweep could mistake a crashed session for one simply not yet processed, risking either premature raw purge or indefinite silent quarantine.",
+      "scenario": "A session's redact_video stage throws mid-clip (e.g. ONNX runtime crash) and the pipeline leaves the session in whatever partial manifest state existed at crash time, indistinguishable in the schema from a session that hasn't started redaction yet.",
+      "severity": "P0"
+    },
+    {
+      "condition": "The manifest's provenance/lineage only begins recording at contributor_ingest; nothing records raw-file access prior to or outside that stage, so 'was raw ever copied/viewed before ingest' is unanswerable.",
+      "scenario": "Quarantined raw sits in `~/JawnScope/quarantine-inbox/` for the manual-drain window with no access log — any process or operator action touching those files leaves no trace in the session manifest.",
+      "severity": "P1"
+    },
+    {
+      "condition": "An eligible-for-purge backlog could grow unnoticed since nothing surfaces it, defeating the purpose of computing eligibility in the first place.",
+      "scenario": "The reclaim_events prerequisites (verified_sinks, checksums) are computed and stored, but there's no operator-facing surface listing 'these N sessions are reclaim-eligible now' — the design in decision 9 is described as computed-but-inert with no visibility mechanism mentioned.",
+      "severity": "P2"
+    }
+  ],
+  "source_domain": "Telecommunications — lawful intercept (LI) / CALEA compliance engineering, data minimization under legal mandate",
+  "success_hints": [
+    "Look for a distinct, named dead-letter/failed state in the session manifest schema, separate from pending and complete",
+    "Look for any access-logging concept applied to the pre-ingest quarantine window, not just post-ingest lineage",
+    "Look for an operator-visible surface (even just a query/report) over reclaim-eligible-but-not-yet-reclaimed sessions",
+    "Flag any purge/reclaim mechanism described as reversible or silently mutable rather than append-only/logged"
+  ]
+}

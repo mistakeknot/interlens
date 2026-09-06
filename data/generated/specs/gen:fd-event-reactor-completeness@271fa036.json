@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-ecs-determinism-epithets covers tick-order and save correctness once hooks are confirmed — this agent covers whether the hooks exist and are correctly specified",
+    "fd-narrative-procgen-taxonomy covers whether the epithet names are culturally coherent — this agent covers whether the trigger conditions are mechanically realizable",
+    "fd-salience-decay-tuning covers numerical calibration — this agent covers trigger precondition completeness"
+  ],
+  "decision_lens": "Five triggers are described as 'pure event-reactors' but three have open questions flagged in the brainstorm — the trade-off is implementing now vs. auditing first. If a trigger's precondition is underspecified, the implementation silently awards the epithet too broadly or never at all.",
+  "focus": "Whether all 7 epithet triggers have reliable, unambiguous event or state hooks in the existing sim, with focus on the three ambiguous cases: rivalry peak definition, Legendary-via-music domain check, and movement founder lookup",
+  "name": "fd-event-reactor-completeness",
+  "persona": "Apply the perspective of a systems integration engineer who audits event-driven reactive architectures for coverage gaps — they care about whether every trigger has a confirmed, accessible hook in the production event bus; they measure by tracing each trigger to a specific CulturalEvent variant or component field that is emitted under exactly the specified condition; they flag triggers that require data not present in the event payload or conditions that have no canonical definition in the codebase.",
+  "review_areas": [
+    "Audit 'rivalry peak' for the Defiant: the brainstorm asks whether 'peak' means Rivalry.intensity >= 0.8 and whether the rivalry must be active — read systems/rivalry.rs to confirm what fields Rivalry carries and whether intensity is set on the same tick as ArtCompleted or one tick behind",
+    "Audit 'Legendary via music' for Silverstring: PrestigeChanged { to_tier: Legendary } is the hook, but the brainstorm flags that prestige may be global — determine whether PrestigeChanged carries a domain field or whether the epithet system would need to cross-reference the composer's art domain to gate the award",
+    "Audit 'founder of a movement' for of the Morning Choir: confirm whether MovementCrystallized exposes a founder field or only a member list — if founder lookup requires a secondary query on movement history, specify what component or resource holds that mapping",
+    "Audit Heartmender detection: the brainstorm asks whether one or both partners need a resolved scar — confirm whether PartnershipFormed carries participant identities and whether the Scar/heartbreak state is queryable at partnership-formation time",
+    "Verify that Stormborn premiere marker on the composition is confirmed present at components.rs:1341 and is accessible from ArtCompleted event payload — the brainstorm says 'confirmed existing' but the epithet system must read it; check whether ArtCompleted includes composition metadata or requires a secondary world lookup",
+    "Check that the 'the Quiet' trigger's 'absent from every RevelPerformance record' condition has a queryable record in the existing sim — if RevelPerformance is an event (not persisted state), its absence cannot be proven at elder-stage transition without a persistent attendance log"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Event payload lacks founder identity and no secondary lookup is implemented",
+      "scenario": "MovementCrystallized does not expose a founder field, so 'of the Morning Choir' awards the epithet to all movement members, not the founder — every elf in a large movement earns an epithet they did not trigger",
+      "severity": "P0"
+    },
+    {
+      "condition": "PrestigeChanged { to_tier: Legendary } has no domain discriminator and no secondary domain check is added",
+      "scenario": "Prestige is global (no domain field on PrestigeChanged) so every elf who reaches Legendary earns Silverstring regardless of artistic domain — flute players, sculptors, and weavers all become 'Silverstring', breaking the musical specificity of the epithet",
+      "severity": "P1"
+    },
+    {
+      "condition": "No persistent revel-performance attendance log on the elf component",
+      "scenario": "RevelPerformance is emitted as an event but not persisted to component state — at elder-stage transition the 'the Quiet' check cannot determine whether the elf ever performed, so every introverted high-quality composer who reaches elder stage earns the Quiet even if they performed 50 revels",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": [
+    "Each of the 7 triggers maps to a specific CulturalEvent variant or component field with no ambiguous preconditions remaining",
+    "The three open questions in the brainstorm are each resolved with a concrete field reference before the write-plan stage",
+    "No trigger awards an epithet to a superset of its intended recipients under any reachable game state"
+  ],
+  "task_context": "The brainstorm lists 7 canonical triggers and explicitly flags 4 open questions about hook completeness and precondition definition. This agent audits each trigger's event/state hook for correctness before implementation begins, preventing silent over- or under-awarding."
+}

@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-aesthetic-formula covers the correctness of the 4-axis weight calculation and reaction thresholds",
+    "fd-lifecycle-state-machine covers the logical correctness of phase transitions and event ordering",
+    "fd-tick-pipeline-integration covers tick ordering, system position, and integration test coverage"
+  ],
+  "decision_lens": "Flags any pattern where a query result's lifetime overlaps a world mutation. Prioritizes findings by likelihood of runtime panic over logical incorrectness.",
+  "focus": "hecs query correctness and collect-then-mutate discipline throughout the revel lifecycle",
+  "name": "fd-ecs-mutation-safety",
+  "persona": "A Rust ECS specialist who has debugged hecs borrow conflicts and knows exactly where world mutation during iteration causes panics or undefined behavior. Approaches code by mentally tracing query lifetimes.",
+  "review_areas": [
+    "Verify every gathering-phase elf query uses collect-first before any world.insert or world.remove call",
+    "Check that revel_tick_system drops all query borrows before transitioning RevelState (the cloned-state match must not hold live query results)",
+    "Confirm food consumption at gathering->performing transition does not query food components while simultaneously mutating elf or hall components in the same pass",
+    "Inspect audience evaluation loop to ensure composition iteration and elf component reads are not interleaved with mood component writes without a second pass",
+    "Validate that RevelState itself is not stored as a hecs component that gets queried while the system also writes it (prefer a resource or singleton entity pattern)",
+    "Check that capacity-capping logic (footprint tier lookup) does not borrow the world immutably while the attendance list is being mutated"
+  ],
+  "success_hints": [
+    "Every mutation pass is preceded by a collect() that exhausts the query iterator",
+    "No query borrow is held across an insert/remove/get_mut boundary in the same function",
+    "The state machine transition in revel_tick_system operates on an owned clone, not a live component reference"
+  ],
+  "task_context": "The revel engine implements a 3-phase lifecycle (Gathering -> Performing -> Aftermath) in hecs ECS. hecs enforces strict query lifetime rules: world mutation during iteration is a compile or runtime error, so all multi-step operations require collect-then-mutate patterns."
+}

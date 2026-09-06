@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "fd-hermes-runtime-surface-fidelity covers whether the upstream observations are correctly characterized; this agent covers whether the downstream-facing decisions distilled from those observations are operationally usable",
+    "fd-skill-design-convention-fit covers ecosystem convention conformance of specific decisions; this agent covers the structural traceability of all decisions to F-feature ACs",
+    "fd-research-synthesis-audit-discipline covers the self-audit's methodological rigor; this agent covers the per-decision operational completeness that the audit evaluates"
+  ],
+  "decision_lens": "Can an F2/F3/F5 plan-writer reading only the Decisions Summary table and the §10 input map write feature ACs that reference D1-D8 verbatim without embedding new open questions — or do the decisions push residual uncertainty downstream under the guise of being 'closed'?",
+  "focus": "Audits whether D1-D8 in the Decisions Summary (§ Layer 2) and the F2/F3/F5 input map (§10) are sufficiently traceable, operationally complete, and AC-ready — specifically whether a plan-writer for F2 skill scaffolding, F3 bench mode, or F5 run storage/telemetry can lift the decisions verbatim into acceptance criteria without re-investigating Hermes source.",
+  "name": "fd-decision-downstream-traceability",
+  "persona": "Apply the perspective of a feature-AC-scoping specialist who has authored 5+ downstream plans from upstream research spikes — they care about whether each decision row contains a one-sentence operational recommendation (not a multi-paragraph discussion), measure whether the F2/F3/F5 input map identifies decisions by ID-and-quoted-recommendation (not just decision number), and flag any decision row whose recommendation requires a downstream plan-writer to make a sub-decision the spike was supposed to close.",
+  "review_areas": [
+    "Decisions Summary 8-column table (§ Layer 2, lines ~821-837): verify all 8 rows D1-D8 are populated (no TBD, no placeholder), every column is non-empty, and each row's recommendation is a single operational sentence (not a multi-clause hedge).",
+    "F2 input map (§10, lines ~838-864): verify which decisions are listed as F2 inputs (skill scaffolding context: SkillContext shape, lifecycle, manifest, repo location). Each input must cite the decision ID AND quote the recommendation text so F2 ACs don't drift when D1-D8 rows are edited.",
+    "F3 input map: F3 bench mode depends on subprocess pattern (D3), provider-key access (D4 → OQ1), and gateway emit (D7) for cost-preview rendering. Verify all three are explicitly listed and that the input map states what F3 AC each decision unblocks.",
+    "F5 input map: F5 run storage/telemetry depends on persistent memory absence (D5 → OQ3) — without which F5 can't justify the 'own JSONL' design. Verify D5's recommendation is operationally specific enough (path convention, file format, rotation policy) to inform F5 ACs.",
+    "Cross-decision conflicts: D8 (manifest dependencies) and D2 (lifecycle install via terminal()) potentially overlap or conflict — if Hermes resolves deps from manifest, the terminal() install pattern is redundant. The doc must flag this so F2 doesn't ship both.",
+    "Self-audit §12 (F0 Acceptance Criteria audit, lines ~873-909): verify each F0 AC bullet is paired with the specific decision row(s) that satisfy it, and that 'PASS' verdicts cite evidence rather than asserting completion. A self-audit that says 'PASS — see §3' without a one-sentence justification is not an audit, it's a checkbox."
+  ],
+  "severity_examples": [
+    {
+      "condition": "F3 plan-writer cannot write an AC like 'F3 reads provider key via X' because X is unspecified; F3 either re-investigates Hermes source (defeating the spike) or writes a vague AC that the implementer interprets ad-hoc",
+      "scenario": "D4 (provider-key access) recommendation column reads 'use SkillContext-mediated access' without specifying the method name, return type, or fallback for keyless users",
+      "severity": "P1"
+    },
+    {
+      "condition": "F5 ACs continue referencing 'D5' which now means something different; F5 plan-writer doesn't notice the drift; F5 ships with wrong storage assumption; weeks of rework",
+      "scenario": "§10 F5 input map lists 'D5: persistent memory' without quoting the recommendation — the recommendation text in the table is later edited from 'own JSONL' to 'Hermes built-in if available'",
+      "severity": "P1"
+    },
+    {
+      "condition": "Audit appears clean but cross-references are broken; a future maintainer cannot follow PASS verdicts to their evidence; F0 closure is fragile to subsequent edits",
+      "scenario": "§12 self-audit shows all F0 ACs as PASS but each PASS row is a single word with no evidence sentence; the §9 unresolved-gaps section was renamed §11 mid-spike and the audit still references §9",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Require each F-input map entry to use the format `D<n>: '<verbatim recommendation text>' (file:line in §<section>)` so future edits to the recommendation are immediately visible as drift in the input map",
+    "Add a 'cross-decision conflict' subsection to §11 Unresolved Gaps if any two decisions overlap or contradict (e.g., D2 + D8 dependency-resolution conflict) — explicit conflict-acknowledgement is better than silent inconsistency",
+    "Require §12 self-audit to use the format `F0 AC bullet N: PASS/FAIL — evidence: <one-sentence summary> (§<section>, lines X-Y)` — bare PASS or PASS+section reference is insufficient",
+    "Add a sample F3 AC drafted using D3+D4+D7 verbatim at the end of §10 — if the sample AC still contains 'TBD' or 'depends on implementation,' the decisions are not operationally closed and §12 cannot honestly PASS"
+  ],
+  "task_context": "The synthesis produces 8 decisions D1-D8 and maps them to inputs for three downstream feature plans (F2 skill scaffolding, F3 bench mode, F5 run storage/telemetry), with a self-audit in §12 against four F0 acceptance criteria. The review goal is to verify each decision row is operationally complete, the F-input map is drift-resistant, and the self-audit's PASS verdicts cite specific evidence rather than asserting completion by fiat."
+}

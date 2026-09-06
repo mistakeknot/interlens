@@ -1,0 +1,45 @@
+{
+  "anti_overlap": [
+    "fd-synth-signal-chain: that agent focuses on modularity at the pluggability boundary; this agent focuses on auditability and provenance of parameter choices within a single formula instance",
+    "fd-portfolio-risk-sensitivity: that agent focuses on parameter sensitivity analysis and A/B comparison mechanics; this agent focuses on the logging, versioning, and regulatory-grade documentation of factor choices",
+    "fd-pid-tuner-hotswap: that agent focuses on runtime replacement of the formula without restart; this agent focuses on the audit trail that makes each formula version distinguishable after the fact"
+  ],
+  "decision_lens": "Can a downstream auditor (or Phase 1.7 calibration notebook) reconstruct the exact felt_minutes value for any edge solely from the FeltMinutesV0 instance repr() and the edge attribute dict, without inspecting source code?",
+  "distance_rationale": "Underwriters assemble per-factor weight functions into an aggregate premium score — the same pluggable-formula concern as EdgeWeight Protocols composing into an A* routing cost — but in a regulatory environment that demands each factor's contribution be independently auditable and hot-swappable without rerating the entire portfolio.",
+  "expected_isomorphisms": "The actuarial 'filed rating factor' maps to FeltMinutesV0's sun_coefficient: both are a tuneable scalar applied to a base rate, must survive repr() for audit trails, and are replaced via instance substitution rather than code change. The 'manual rate override for uninspectable risks' maps to the nan_fallback_policy field — insurers have explicit filed rules for how to handle missing data rather than leaving the gap implicit.",
+  "focus": "Parameter cohesion, auditability of factor contributions, and regulatory-grade documentation of fallback choices",
+  "name": "fd-insurance-risk-scoring",
+  "persona": "Apply the perspective of a personal-lines underwriting actuary who designs composable rating algorithms where each factor must be independently auditable, filed with regulators, and replaceable without affecting sibling factors.",
+  "review_areas": [
+    "The frozen dataclass repr() exposes pace_mps, sun_coefficient, nan_fallback_policy, and nan_fallback_value — but not the formula version itself. If FeltMinutesV0 is later modified in place (new field added, formula corrected), persisted GraphML files with felt_minutes have no provenance string linking them to the formula version that produced them.",
+    "The nan_fallback_policy field accepts four Literal values, but the rationale for the default 'neutral' choice (0.5 fixed sun fraction) is only in the brainstorm doc, not in the dataclass docstring or __repr__. Actuarial practice requires each filed exception policy to have a stated business rationale embedded in the rating manual — not just in design documents.",
+    "The open question of whether to persist felt_minutes back to GraphML (Decision 6, Open Question 2) is left unresolved for Phase 2. An underwriting parallel: rating factors must be persisted with each policy record so that a future re-rate can distinguish 'different input data' from 'different formula' as the source of a premium change. The same discipline applies to cached felt_minutes vs. formula version drift.",
+    "FeltMinutesV0(sun_coefficient=0.8) and FeltMinutesV0(sun_coefficient=0.5) are structurally distinguishable via repr() — good. But apply_weight writes to attr='felt_minutes' regardless of which instance produced it. Two runs with different coefficients produce identical attribute names, silently overwriting each other. The A/B support in apply_weight (attr='felt_minutes_a') is optional and undocumented as the correct practice.",
+    "The 'degenerate_zero_length' → +inf hardcode is not exposed in the Protocol docstring or in FeltMinutesV0's docstring as a class-level invariant. Underwriting practice: every hardcoded exclusion must be explicitly documented as a rule, not a code comment, so downstream consumers (Phase 1.7 A*) know it is contractual.",
+    "The sun_coefficient default of 0.5 is described as provisional pending Phase 1.7 calibration, but the dataclass has no mechanism to communicate 'this instance uses an uncalibrated default.' Actuarial tools distinguish 'filed factor' from 'interim development factor' — the dataclass could carry a calibration_status: Literal['provisional', 'calibrated'] field to surface this."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Phase 1.7 runs apply_weight(graph, FeltMinutesV0(sun_coefficient=0.5)) during smoke test and then apply_weight(graph, FeltMinutesV0(sun_coefficient=0.8)) in a calibration loop — the second call silently overwrites all edges. There is no error, no version stamp, and no way to tell from the GraphML which coefficient produced the persisted values. This is a silent data corruption path during any parameter sweep.",
+      "scenario": "apply_weight with two different FeltMinutesV0 instances both write to attr='felt_minutes'",
+      "severity": "P1"
+    },
+    {
+      "condition": "When Phase 2 introduces FeltMinutesV1 alongside FeltMinutesV0, any cached GraphML with 'felt_minutes' is ambiguous about which version wrote it. Without a formula_version field on the Protocol or a convention for the attr name to include the version, Phase 1.7's routing layer cannot detect staleness.",
+      "scenario": "No formula version provenance on the weight instance or on persisted edge attributes",
+      "severity": "P2"
+    },
+    {
+      "condition": "A future maintainer reading FeltMinutesV0 in isolation sees four fallback policy options but no embedded explanation of why 'neutral' is the default or what routing artifact each policy is designed to prevent. Actuarial practice embeds the rule rationale in the rating algorithm itself; the dataclass docstring should carry a one-line rationale per policy value.",
+      "scenario": "nan_fallback_policy rationale exists only in the brainstorm doc",
+      "severity": "P3"
+    }
+  ],
+  "source_domain": "Insurance underwriting composable risk-scoring pipelines",
+  "success_hints": [
+    "Add a formula_id: str = 'felt-minutes-v0' field to FeltMinutesV0 so apply_weight can write it alongside felt_minutes as a provenance attribute",
+    "Document in the Protocol docstring that degenerate_zero_length → +inf is a contractual invariant, not an implementation detail",
+    "Recommend that apply_weight default attr to f'felt_minutes_{weight.formula_id}' so A/B runs are named by default without requiring explicit attr= overrides"
+  ],
+  "task_context": "Phase 1.6 brainstorm for Solwend felt-minute edge weight — Protocol + frozen dataclass architecture, FeltMinutesV0 with sun_coefficient and nan_fallback_policy, apply_weight helper, per-quality dispatch for shade_data_quality values."
+}

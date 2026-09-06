@@ -1,0 +1,43 @@
+{
+  "anti_overlap": [
+    "Does not evaluate Notion DB relation design or sync mechanics (fd-notion-architecture)",
+    "Does not evaluate PRD acceptance criteria specificity (fd-prd-craft)",
+    "Does not evaluate agent coordination and world-model design (fd-agent-infra-design)"
+  ],
+  "decision_lens": "Would the operator, after a two-week absence, be able to reconstruct an accurate portfolio state and reprioritize work in under 10 minutes using only the substrate described in these docs?",
+  "focus": "Evaluate the portfolio management model for prioritization coherence, capacity visibility, cross-project dependency surfacing, and the operator's ability to detect strategic drift across 42 projects.",
+  "name": "fd-multi-project-portfolio",
+  "persona": "Apply the perspective of a portfolio manager running a solo-operator multi-project system — they care about whether priority signals propagate without manual overhead, whether dormant vs active project states are explicitly tracked, whether cross-project blocking dependencies are surfaced before they cause context-switch thrash, and whether the system degrades gracefully as portfolio size grows beyond 50 projects.",
+  "review_areas": [
+    "Assess whether 'dormant vs active' project states are formally defined — the vision doc references agents should know which projects are dormant, but no status taxonomy is specified.",
+    "Evaluate whether the priority propagation model (portfolio-beads priority → per-project beads priority) is pull, push, or operator-triggered — the CUJ says per-project is NOT auto-updated, but doesn't say how the operator knows a downstream cascade is needed.",
+    "Check whether the '>50 initiatives' failure mode in the CUJ is addressed by any structural feature (views by domain, staleness tiers) or only named as a future mitigation.",
+    "Review whether the Sessions DB decision (F4) has a defined impact on portfolio state visibility — if sessions are dropped, what replaces 'live agent activity' as a portfolio-level signal.",
+    "Assess whether the two-year horizon features (portfolio-aware dispatch, cross-project pattern detection) impose constraints on Month 1 schema that aren't currently captured as non-goals or forward-compatibility notes.",
+    "Evaluate whether the operator's 'steer next' goal has an explicit triage model — P0/P1 filter is mentioned, but multi-project capacity (one human, many parallel agents) isn't modeled."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Agent behavior that depends on undefined schema fields cannot be implemented correctly.",
+      "scenario": "Project status taxonomy (dormant/active/archived) is referenced in the vision but not defined in any schema or PRD feature, leaving the 'agents skip dormant projects' behavior unimplementable.",
+      "severity": "P1"
+    },
+    {
+      "condition": "Without a drift-detection mechanism, priority changes silently age out and the portfolio diverges from per-project reality.",
+      "scenario": "Priority propagation from portfolio-beads to per-project beads is operator-manual with no mechanism to surface which per-project beads are now misaligned with updated portfolio priorities.",
+      "severity": "P2"
+    },
+    {
+      "condition": "Schema designed without forward-compatibility hints requires breaking migrations when v2 features are built.",
+      "scenario": "The two-year horizon's 'portfolio-aware dispatch' feature likely requires agent-identity fields on Sessions and Initiatives rows that aren't hinted at in the Month 1 schema.",
+      "severity": "P3"
+    }
+  ],
+  "success_hints": [
+    "Project status taxonomy has at least three named states with transition criteria",
+    "Priority propagation model explicitly states how operator learns about cascade needs",
+    "Views by domain or staleness are specced as future requirements, not just mentioned in failure modes",
+    "Sessions DB strategy decision (F4) includes impact statement on portfolio-level activity visibility"
+  ],
+  "task_context": "The ideagui foundation is designed to give a solo operator a unified view of 42 projects managed by a human + AI fleet. The review goal is to identify gaps in the portfolio management model — prioritization, project state taxonomy, cross-project dependencies — that would make the substrate accurate today but brittle or misleading at scale."
+}

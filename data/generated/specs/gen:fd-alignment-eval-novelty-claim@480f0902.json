@@ -1,0 +1,29 @@
+{
+  "anti_overlap": "fd-abm-sim-as-instrument covers sim validity; fd-benchmark-publication-credibility covers publication norms; this agent covers eval-construct novelty specifically.",
+  "decision_lens": "Is the stated delta vs. existing evals mechanically real (different measurement construct) or rhetorical (same construct, different wrapping)? Will an eval-literate reader buy it in one paragraph?",
+  "focus": "Audits whether ShadowBench's three claimed novel axes (sustained authority, emergent cascades, declined-action/restraint signal) genuinely differentiate it from MACHIAVELLI, Welfare Diplomacy, refusal tests, and instruction-following evals — and whether reviewers will accept the framing.",
+  "name": "fd-alignment-eval-novelty-claim",
+  "persona": "Co-author on MACHIAVELLI or Welfare Diplomacy style eval; has spent years defending eval novelty against skeptical reviewers on LessWrong and at safety workshops.",
+  "review_areas": [
+    "Does 'sustained authority' mean something MACHIAVELLI's 134-branch decision tree doesn't already capture?",
+    "Is 'emergent cascades' a genuine measurement axis or a property of the environment that MACHIAVELLI could also have?",
+    "Does 'declined-action signal' (the restraint dimension) actually require a civilizational sim, or could it be ported to simpler environments?",
+    "Is the MACHIAVELLI differentiation paragraph pre-planned (brainstorm calls for it) but not yet sketched — what happens if the author drafts it and realizes the deltas are thinner than claimed?",
+    "Are the eval's claimed contributions stable against the 'ecological validity' critique (sim is fiction, not world)?",
+    "Does the brainstorm honestly engage with the METR precedent (sustained-task eval) or conflate it with refusal tests?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "The blog post's methodology claim collapses; pivot to 'one novel axis' or stop",
+      "scenario": "MACHIAVELLI delta paragraph, when drafted, shows only one genuinely novel axis instead of three",
+      "severity": "P0"
+    },
+    {
+      "condition": "Requires a pre-planned counter in the blog, not a post-hoc defense",
+      "scenario": "Reviewers argue that restraint = MACHIAVELLI's 'harm avoidance' with different vocabulary",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": "Draft the MACHIAVELLI delta paragraph as part of this review — don't wait for week 4. If it's hard to write now, it will be hard to write later.",
+  "task_context": "ShadowBench v0.1 brainstorm's biggest risk (per the author) is the 'why better than MACHIAVELLI' deflection. The brainstorm plans a pre-emptive paragraph but doesn't draft it."
+}

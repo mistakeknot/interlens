@@ -1,0 +1,24 @@
+{
+  "anti_overlap": [
+    "fd-css-design-token-reverse-engineering covers offline CSS parsing and stylesheet analysis independent of a running browser",
+    "fd-component-pattern-cataloging covers cataloging reusable component patterns and interaction states",
+    "fd-uiux-workflow-plugin covers how to package these capabilities into a Claude Code plugin"
+  ],
+  "decision_lens": "Findings are ranked by how much structured, machine-readable data they yield per hour of engineering investment. Anything that requires manual human interpretation at scale is deprioritized.",
+  "focus": "What Playwright-based workflows can reliably extract visual design tokens and computed styles from live websites",
+  "name": "fd-playwright-dom-extraction",
+  "persona": "A browser automation engineer who has built production scraping pipelines for design systems. Approaches websites as structured data sources, not visual artifacts, and prioritizes reproducibility over one-off inspection.",
+  "review_areas": [
+    "Assess Playwright's page.evaluate() + getComputedStyle() for extracting full color palettes, font stacks, and spacing values from CSS custom properties and computed styles",
+    "Evaluate Chrome DevTools Protocol CSS coverage and style profiling endpoints (CDP CSS.getMatchedStylesForNode, CSS.getComputedStyleForNode) for bulk token extraction",
+    "Investigate page.accessibility() and the AX tree as a structural proxy for information hierarchy and semantic layout",
+    "Examine screenshot-diff workflows: full-page and component-level screenshots at multiple viewport widths to capture responsive breakpoints",
+    "Assess viability of a Playwright script that walks the DOM, clusters elements by computed role/tag/class, and emits a JSON token manifest",
+    "Identify which target site categories (SPA vs SSR, shadow DOM, canvas-heavy) break naive extraction and what fallback strategies exist"
+  ],
+  "success_hints": [
+    "A working Playwright script approach that emits color-palette and spacing-scale JSON from any public URL",
+    "Clear taxonomy of what is reliably extractable today vs what requires human curation"
+  ],
+  "task_context": "The Shadow Work Tauri/React desktop app needs design inspiration from complex data-visualization and simulation UIs. Goal is automated extraction of design tokens and component patterns from reference sites using tools available to an AI coding agent in 2026."
+}

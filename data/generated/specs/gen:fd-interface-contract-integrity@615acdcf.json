@@ -1,0 +1,27 @@
+{
+  "anti_overlap": "Does NOT review goroutine lifecycle, TUI threading, or agentloop phase sequencing.",
+  "decision_lens": "Does every caller that discovers an optional interface handle the absent case with the correct safe default?",
+  "focus": "Soundness of the ConcurrencyClassifier and PropagatesErrorToSiblings optional interfaces: discovery, fallback defaults, and contract invariants.",
+  "name": "fd-interface-contract-integrity",
+  "persona": "Go API designer specializing in interface evolution, backward compatibility, and the optional-interface (type-assertion) pattern.",
+  "review_areas": [
+    "Default classification when ConcurrencyClassifier is absent: confirm the fallback is conservative (serial)",
+    "Classification granularity: verify the classifier returns per-invocation decisions based on argument content",
+    "Interface documentation: check godoc specifies calling goroutine, concurrency requirements, and valid return values",
+    "toolBridge wrapping fidelity: confirm type assertion exposes inner ConcurrencyClassifier correctly without double-wrapping",
+    "PhasedTool interaction: verify documented precedence rule when tool implements both interfaces",
+    "Compile-time interface satisfaction checks: look for var _ ConcurrencyClassifier = (*ConcreteType)(nil) guards"
+  ],
+  "severity_examples": [
+    {
+      "condition": "toolBridge double-wraps the tool and the inner ConcurrencyClassifier is unreachable via type assertion",
+      "severity": "P0"
+    },
+    {
+      "condition": "ConcurrencyClassifier contract does not state thread-safety requirements; a tool author writes non-thread-safe classification logic",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": "Every type assertion has an explicit else branch with safe default; godoc is specific about concurrency guarantees; bridge tests confirm assertion passthrough.",
+  "task_context": "The optional-interface pattern is Skaffen's extension mechanism. A contract gap causes silent misclassification with no compile-time warning."
+}

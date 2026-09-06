@@ -1,0 +1,42 @@
+{
+  "anti_overlap": [
+    "fd-bevy-input-state-revisit covers which input events drive selection changes — this agent covers the Selection resource's type safety and consumer correctness, not the input API",
+    "fd-tooltip-content-lifecycle covers how the tooltip reads entity data per tile — this agent covers how Selection is updated and validated, not how tooltip content is assembled",
+    "fd-overlay-state-machine covers OverlayState transitions — this agent focuses on Selection enum transitions and consumer blast radius"
+  ],
+  "decision_lens": "After the Selection enum gains Building(u64) and Flora(u64) variants: (1) does validate_selection generalize correctly for all three variants, (2) does the tile highlight in tiles.rs extend to building/flora positions, (3) does every if-let consumer in the codebase get audited and either converted to match or explicitly documented as intentionally variant-specific?",
+  "focus": "Selection enum polymorphism safety — u64 entity_id stability across snapshot rebuilds, if-let blast radius in existing consumers (tiles.rs, sidebar.rs, selection.rs), validate_selection generalization to Building/Flora variants, and compiler-invisible coverage gaps from if-let patterns that silently absorb new variants.",
+  "name": "fd-selection-polymorphism-revisit",
+  "persona": "Apply the perspective of a Rust type system engineer who has refactored enum-based state in production ECS codebases — they care about which call sites use match (compiler-checked exhaustiveness) vs if-let (silently absorbs new variants), measure safety by whether adding a new Selection variant causes a compile error at every consumer, and flag any if let Selection::Elf(id) that will silently become a dead branch when Selection::Building(id) is on the resource but no code handles it.",
+  "review_areas": [
+    "M1 fix correctness: BuildingVis and FloraVis in bridge.rs:48-63 currently lack entity_id fields — the spec calls for adding entity_id: u64 to both; verify the spec's fix includes the bridge.rs query at lines 252-280 that rebuilds these Vecs from hecs::Query and confirm entity_id is sourced from the hecs entity id (cast to u64), not from a Vec index",
+    "validate_selection generalization: selection.rs:82-91 currently only validates SelectedElf (checks snapshot.elves for the id) — with polymorphic Selection, validate_selection must check snapshot.buildings for Building(id) and snapshot.flora for Flora(id); the spec must describe this generalization; flag if it only describes the elf case",
+    "tiles.rs highlight extension: tiles.rs:218,226 highlights the selected elf's tile via selected_elf.0 — M2 confirms tiles.rs is a consumer; the spec must describe extending compose_tiles to highlight building/flora tiles; check whether the same highlight color/glyph is appropriate for all three or whether variant-specific rendering is needed",
+    "sidebar.rs variant rendering: the spec defers the 'three sets of text nodes vs repurpose existing nodes' question to brainstorm v2 — verify this deferral is explicitly marked as an open question in the locked decisions doc so it doesn't block the Selection enum refactor commit",
+    "if-let blast radius audit: grep for 'if let Selection::' or 'if let SelectedElf' across the renderer — currently selection.rs and tiles.rs are confirmed consumers; any if-let that only handles the Elf case will silently stop firing when a Building is selected; the spec must include a manual grep step in the commit 1 checklist (as listed in the open questions section item 7)",
+    "cycle_selection Tab behavior with polymorphic Selection: the existing cycle_selection in selection.rs only cycles elves — with the new enum, pressing Tab while Selection::Building(id) is active should cycle to the next elf, or at minimum not panic; verify the spec describes Tab behavior for non-elf selection states"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Always reproducible after any building demolition; silent data corruption with no panic",
+      "scenario": "BuildingVis.entity_id is sourced from the Vec index (0, 1, 2...) rather than the hecs entity id — when a building is demolished, indices shift, so Selection::Building(2) now points to a different building on the next tick, silently selecting the wrong entity and updating the sidebar with wrong data",
+      "severity": "P0"
+    },
+    {
+      "condition": "Always reproducible after demolishing a selected building",
+      "scenario": "validate_selection only checks snapshot.elves for the stored id — if Selection::Building(id) is active and the building is demolished, validate_selection does not clear the selection, leaving the sidebar displaying stale building data indefinitely until the player clicks elsewhere",
+      "severity": "P1"
+    },
+    {
+      "condition": "Always reproducible; discovered only through manual testing, not cargo clippy",
+      "scenario": "tiles.rs compose_tiles uses if let SelectedElf to highlight the selected tile — after the Selection enum refactor, compose_tiles is updated to use Selection but uses if let Selection::Elf(id) only; selecting a building produces no tile highlight, a silent regression that's invisible at compile time",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "Grep crates/er-renderer/src/ for 'SelectedElf' and 'if let Selection' to enumerate all consumers before the refactor — the spec should list each file and the required change",
+    "Verify that bridge.rs FloraVis and BuildingVis both gain entity_id: u64 sourced from hecs entity ids, not Vec positions",
+    "Confirm validate_selection's new body uses match on Selection variants (compiler-enforced) rather than chained if-let blocks that silently miss new variants"
+  ],
+  "task_context": "Reviewing the M1 and M2 mechanical fixes in the Revel-14e locked-decisions document alongside the actual er-renderer source (selection.rs, bridge.rs, tiles.rs) to verify the polymorphic Selection refactor is safe, complete in consumer coverage, and immune to silent variant-miss regressions before implementation begins."
+}

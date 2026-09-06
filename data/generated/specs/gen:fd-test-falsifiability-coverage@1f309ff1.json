@@ -1,0 +1,41 @@
+{
+  "anti_overlap": [
+    "Does not cover MIDI pitch-bend channel semantics or polyphony at the protocol level — that is fd-midi-pitch-bend-channel-semantics's domain",
+    "Does not cover RNG seed derivation correctness or hash stability — that is fd-determinism-rng-seed-propagation's domain",
+    "Does not cover Live API surface uncertainty or clip-replace mechanism — that is fd-live-api-surface-assumptions's domain"
+  ],
+  "decision_lens": "The PRD states 'CI green is the gate for the bead close' — meaning the 25-test suite is the quality gate for medset-nr3.2. A test suite that passes against a broken implementation (because the wrong thing is being asserted, or the fixture doesn't exercise the edge case) creates a false-clean gate. Every test must be specified precisely enough to be written without ambiguity and to fail if the implementation is wrong.",
+  "focus": "Whether the 25 host-side test contract and the 3 Live-side integration tests actually falsify each of the 6 pipeline passes, the RNG determinism guarantee, and the failure-mode catalog at every counter boundary",
+  "name": "fd-test-falsifiability-coverage",
+  "persona": "Apply the perspective of a mutation-testing practitioner who evaluates test suites not by line coverage but by falsifiability: for each behavioral claim in the spec, is there at least one test that would fail if that claim were false? They measure test quality by asking 'if I deleted this pass from the implementation, which test would catch it?' and flag any pass or counter that has no corresponding falsifying test.",
+  "review_areas": [
+    "§5.1 test 3 (Pass 1, forbidden notes): three test cases for three strictness levels, each with 'one forbidden note' — this fixture is too minimal. The 'nearest legal pitch biased toward melodic direction' logic (§3.2) is not tested with a case where two legal pitches are equidistant and the melodic direction must be consulted. A broken tie-breaking implementation passes test 3 as written",
+    "§5.1 test 5 (Pass 3, cent offsets): the adjacent-note merge case is specified ('assert one bend reset is merged when offsets match, not merged when they differ') but the fixture for the polyphony case is absent — the PRD's most complex Pass 3 edge case (multiple simultaneous notes on the same channel, lowest-pitch dominates) has no corresponding test. A broken polyphony handler passes test 5",
+    "§5.1 test 6 (Pass 4, ornaments): 'fixture clip with one long held note on a melodic-lead instrument; assert ornament event count = 1 with seed=fixed' — this test does not distinguish between the three ornament types (meend, gamak, murki). A broken ornament-type selector that always emits murki regardless of the next-note interval passes test 6. At minimum, three fixture clips (one per ornament-triggering condition) are needed to falsify the ornament-type logic",
+    "§5.1 test coverage for Pass 2 (ascent/descent): test 4 specifies 'fixture clip with a clear ascending span containing a descent-only pitch' — but §3.3's definition of a 'span' requires 'each note's pitch is ≥ the previous (and at least one is strictly greater).' A clip where all notes are the same pitch (a drone) is neither ascending nor descending; the span-detection logic is untested for the monotone-pitch case where the algorithm could misclassify",
+    "§5.1 test 10 (accepts_microtonal_mutation=False short-circuit): asserts 'Pass 1 (forbidden) still ran' but does not assert the counter value. A broken implementation that skips Pass 1 entirely but returns forbidden_note_replacements=0 (the correct value for a clip with no forbidden notes) passes this test if the fixture clip happens to have no forbidden notes. The test fixture must include at least one forbidden note to make the Pass 1 assertion falsifiable"
+  ],
+  "severity_examples": [
+    {
+      "condition": "If the implementation of Pass 3's polyphony handler emits a bend for the highest-pitch note rather than the lowest (a common inversion error), the M1 bansuri stem (which has a wide melodic range) will receive bends on the wrong note in chordal passages. The 25-test suite passes, CI is green, bead closes, but the audition hears wrong bends. The failure is detected only at the M1 audition, not at the test gate.",
+      "scenario": "Polyphony edge case in Pass 3 has no test — broken lowest-pitch-dominates logic ships",
+      "severity": "P1"
+    },
+    {
+      "condition": "If the implementation always emits murki (the simplest ornament, 3 grace notes at phrase entry) regardless of whether the interval to the next note is 1–3 semitones (meend) or same-pitch (gamak), the ornament count is correct (test 6 passes) but the musical character is wrong. The 'orthodox-hindustani' patch sounds different from straight-12-tet (because ornaments are present) but sounds wrong for the tradition — the 'different-but-wrong' failure mode from the audition protocol. Test 6 as specified cannot catch this.",
+      "scenario": "Ornament type selector is untested — murki always fires regardless of interval context",
+      "severity": "P1"
+    },
+    {
+      "condition": "The determinism test (§5.1 test 8) calls the function twice in the same Python process. If resolved_knobs uses dict iteration that is stable within a process but unstable across processes (due to PYTHONHASHSEED), two CI runs on the same inputs may produce different MIDI output. The test passes in both runs individually, but the M1 A/B comparison across operator sessions sees different renders.",
+      "scenario": "test 8 determinism check runs in-process only — cross-process PYTHONHASHSEED variation undetected",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": [
+    "The test structure (§5.1) correctly separates host-side unit tests from Live-side integration tests — the injection pattern from auditron.transcribe is a proven approach for Live-dependency isolation",
+    "The 10-category test plan covers all 6 passes plus determinism, manual_program short-circuit, and microtonal-mutation short-circuit — the categories are right even if some fixtures need more depth",
+    "The Live-side integration test 3 (end-to-end on a fixture clip with count verification) is the right approach to close the gap between host-side unit test correctness and Live-side behavioral correctness"
+  ],
+  "task_context": "Reviewing the apply_tonal_grammar PRD's 25-test contract (§5.1) and 3 Live-side integration tests (§5.2) for falsifiability — specifically: whether each pipeline pass has at least one test that would fail if that pass were broken, whether fixture clips are specified precisely enough to exercise the edge cases documented in §§3.1–3.7, and whether the determinism test covers cross-process as well as in-process reproducibility."
+}

@@ -1,0 +1,31 @@
+{
+  "anti_overlap": "Does NOT review interface design, TUI thread safety, or phase-ordering semantics.",
+  "decision_lens": "Does every goroutine have a guaranteed exit path, and is every shared data structure accessed only under the correct lock or through channel ownership?",
+  "focus": "Correctness of concurrent tool execution: goroutine lifecycle, shared state protection, and WaitGroup/semaphore usage.",
+  "name": "fd-go-concurrency-safety",
+  "persona": "Go concurrency engineer with deep experience in goroutine leaks, channel semantics, and sync primitives under load.",
+  "review_areas": [
+    "WaitGroup Add/Done/Wait call sites: verify Add is called before goroutine launch, Done is deferred, and Wait is never called concurrently with Add",
+    "Pre-allocated result slot writes: confirm each goroutine writes only to its own index with no aliasing through loop variable capture",
+    "Semaphore channel acquire/release pairing: check that every acquire has a matching release in all exit paths including panics",
+    "Context cancellation propagation: verify goroutines check ctx.Done() and that cancellation drains the semaphore cleanly without deadlock",
+    "toolBridge adapter state: identify any mutable fields on the bridge struct that are read during concurrent tool calls and confirm they are read-only after construction",
+    "Error collection from concurrent slots: confirm the aggregation pass is sequential (after WaitGroup.Wait) and requires no additional synchronization"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Loop variable captured by goroutine closure causes all goroutines to execute the same (last) tool",
+      "severity": "P0"
+    },
+    {
+      "condition": "Semaphore channel release omitted on tool error path causes goroutine pool to deadlock",
+      "severity": "P0"
+    },
+    {
+      "condition": "WaitGroup.Add called inside goroutine after a preceding Wait returns, causing a panic",
+      "severity": "P1"
+    }
+  ],
+  "success_hints": "Every goroutine has a deferred Done, loop variables are captured by value, all semaphore paths release exactly once, and go test -race passes.",
+  "task_context": "The plan adds concurrent tool execution with WaitGroup and semaphore channels. Concurrency bugs produce silent wrong results or deadlocks."
+}

@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-token-schema-integrity covers token field semantics for a single transfer",
+    "fd-mcp-tool-surface covers tool API design for individual agent servers",
+    "fd-conflict-resolution-boundary covers resolution mechanics, not topology"
+  ],
+  "decision_lens": "Prioritizes findings where the two-party design bakes in assumptions (single sender, single recipient, bilateral trust) that are architecturally incompatible with N-party extension, versus findings that are additive.",
+  "focus": "Whether the attp protocol design generalizes cleanly from 2-agent to N-agent topologies without requiring breaking changes",
+  "name": "fd-multiparty-topology",
+  "persona": "A distributed systems architect who has designed peer-to-peer and federated protocols. Evaluates protocol designs for whether two-party assumptions are baked into the core in ways that would require a flag day to extend.",
+  "review_areas": [
+    "Check whether agent identity is bilateral (sender + receiver hardcoded) or general participant identity that works for N parties",
+    "Evaluate whether the sensitivity policy model supports multi-party trust differentiation — can agent A share path X with agent B but not agent C",
+    "Assess the conflict resolution model for N-party scenarios: if three agents push conflicting edits, does the protocol have enough information to reconstruct causal ordering",
+    "Check whether the Tailscale relay design scales to N agents — hub-and-spoke vs mesh topology assumptions",
+    "Evaluate session/handshake design: bilateral capability negotiation (O(N²)) or broadcast-compatible",
+    "Identify which parts are inherently bilateral versus which generalize to N-party without redesign"
+  ],
+  "success_hints": [
+    "The two-party protocol is a strict subset of the N-party protocol — no field would be invalid in a 3-agent session",
+    "Adding a third agent requires only incremental negotiation, not a full session restart",
+    "The sensitivity policy can express per-recipient exclusion within a single session"
+  ],
+  "task_context": "attp is a standalone, framework-agnostic protocol for structured bidirectional context transfer between AI coding agents on separate machines, using crypto-enforced sensitivity boundaries via Merkle tree exclusion proofs and Tailscale MCP relay for transport."
+}

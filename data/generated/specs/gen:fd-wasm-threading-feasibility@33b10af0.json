@@ -1,0 +1,25 @@
+{
+  "anti_overlap": [
+    "fd-server-side-execution covers the WebSocket bridge / server-hosted path and its latency/cost tradeoffs",
+    "fd-webgpu-compute covers GPU compute shader approaches for the agent parallel workload",
+    "fd-hybrid-architecture covers split approaches where only part of the simulation moves to the browser"
+  ],
+  "decision_lens": "Prioritizes findings that reveal blockers specific to this codebase's parallel mutation pattern (par_iter_mut over agents, post-parallel PressureStore write-back in apply_pressure_effects) rather than generic WASM threading limitations. Flags any finding that changes the go/no-go decision for wasm-bindgen-rayon as the primary path.",
+  "focus": "Feasibility and production-readiness of WASM threading via SharedArrayBuffer and wasm-bindgen-rayon for the specific Rayon par_iter_mut pattern used in agents_only.rs",
+  "name": "fd-wasm-threading-feasibility",
+  "persona": "A systems engineer specializing in Rust-to-WASM compilation with deep experience shipping wasm-bindgen-rayon in production browser applications. Evaluates browser compatibility matrices, COOP/COEP header requirements, and the specific constraints of mutable shared state across Rayon thread pools in WASM.",
+  "review_areas": [
+    "Whether wasm-bindgen-rayon supports par_iter_mut over a mutable Vec<Agent> where results are collected then applied to a separate &mut PressureStore — specifically whether the post-parallel apply_pressure_effects write-back pattern survives the WASM threading model",
+    "COOP/COEP header requirements for SharedArrayBuffer: which CDNs, hosting providers, and iframe embed scenarios block these headers in 2026, and what that means for discovery/distribution goals",
+    "Browser support matrix for SharedArrayBuffer + Atomics.wait in 2026: Safari's historical lag, whether iOS Safari has closed the gap, and what percentage of the target audience would be excluded",
+    "The wasm-bindgen-rayon thread pool initialization cost (postMessage-based worker spawning) relative to the 42ms tick budget, and whether the pool can be pre-warmed before the simulation starts",
+    "Whether the simulation-engine crate's cdylib output and lack of std dependencies (no tokio, no tauri) in its Cargo.toml makes it a clean WASM compilation target, or whether transitive deps pull in incompatible features",
+    "Known breakage patterns when mixing Rayon's work-stealing thread pool with WASM's cooperative threading model, specifically for the pressure_cache pre-computation step that feeds into par_iter_mut"
+  ],
+  "success_hints": [
+    "A go/no-go verdict with specific browser coverage percentage for the SharedArrayBuffer path given the distribution/discovery use case",
+    "Identification of whether apply_pressure_effects (the sequential post-parallel write-back) is safe or requires restructuring for WASM threading",
+    "A concrete estimate of WASM thread pool warm-up cost vs the 42ms tick budget at the 1768-agent scale"
+  ],
+  "task_context": "The simulation runs 1768+ institutional agents using Rayon par_iter_mut at a 42ms tick interval inside a Tauri/Tokio async runtime. The simulation-engine crate is a separate cdylib with minimal dependencies. The goal is to evaluate web distribution feasibility without significant performance loss."
+}

@@ -1,0 +1,32 @@
+{
+  "anti_overlap": "State machine correctness, not async lifecycle (fd-asyncio) or DB schema (fd-sqlalchemy)",
+  "decision_lens": "Every state transition must be guarded, idempotent, and recoverable — phantom advance under duplicate signal is a critical failure mode",
+  "distance_rationale": "Flight phase sequencing parallels OODARC stages — both are state machines where incorrect transitions have serious consequences",
+  "expected_isomorphisms": "Squawk code deduplication maps to message idempotency; flight plan amendments map to /mode switching mid-conversation",
+  "focus": "OODARC transition guards, idempotency under duplicate delivery, and crash recovery",
+  "name": "fd-air-traffic-state-sequencing",
+  "persona": "ATC systems engineer who designs flight phase sequencing and safety interlocks",
+  "review_areas": [
+    "OODARC stage transition completeness: can the system get stuck between stages?",
+    "Idempotency under duplicate Telegram webhook delivery (at-least-once semantics)",
+    "Race condition between SPO extraction and OODARC stage evaluation on same turn",
+    "Crash recovery: what happens mid-turn if the process restarts?",
+    "Session re-entry after timeout: does stale context from hours ago cause confusion?",
+    "Command handlers (/new, /mode) as manual override — do they properly reset state?"
+  ],
+  "severity_examples": [
+    {
+      "condition": "Telegram retries webhook, both invocations run extraction",
+      "scenario": "Duplicate webhook delivery processes same message twice, double-extracts",
+      "severity": "P0"
+    },
+    {
+      "condition": "Response sent to Telegram but not stored, next turn has gap in context",
+      "scenario": "Process crash between Claude response and DB write loses the response",
+      "severity": "P1"
+    }
+  ],
+  "source_domain": "Air Traffic Control Systems Engineering",
+  "success_hints": "Focus on agent.py handle_message flow and telegram.py webhook/polling paths",
+  "task_context": "F8 (state checkpoint) needs to know what state exists to checkpoint"
+}

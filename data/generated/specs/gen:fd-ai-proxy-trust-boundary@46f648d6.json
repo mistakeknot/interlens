@@ -1,0 +1,33 @@
+{
+  "anti_overlap": "Does not review overall E2E architecture (fd-e2e-encryption-architecture), key management (fd-key-management-protocol), CRDT encryption mechanics (fd-crdt-encryption-compat), or privacy regulation (fd-privacy-engineering). Focuses exclusively on the AI proxy trust boundary, client-side AI viability, and how encryption interacts with the platform's AI integration patterns.",
+  "decision_lens": "AI proxy trust is evaluated by asking: does the participant already trust the LLM provider with their content (making server-side decryption for AI a non-issue), does client-side AI actually eliminate the trust boundary or just move it, and are there intermediate approaches (confidential computing, secure enclaves) the design does not consider?",
+  "focus": "Reviews the trust architecture of the AI proxy under encryption — whether the design correctly models the LLM provider as a trust boundary, whether client-side AI is viable, and whether the encryption model survives contact with real AI integration patterns",
+  "name": "fd-ai-proxy-trust-boundary",
+  "persona": "AI infrastructure architect with production experience building LLM proxy layers, prompt pipelines, and confidential computing environments. Has designed systems where sensitive data must reach AI models without being readable by the platform operator, and knows exactly where those designs break.",
+  "review_areas": [
+    "Trust model incoherence — the design presents AI proxy plaintext access (Dimension 3A) as a trust compromise, but participants using 'bring your own key' already send their content to LLM providers. If the threat model is 'protect content from the server operator,' the AI proxy is a real concern. If the threat model is 'protect content from external parties,' the LLM provider is the larger exposure and the AI proxy is a secondary channel for the same trust decision.",
+    "Client-side AI viability (Option 4) — calling LLM APIs directly from the browser requires exposing API keys in client-side code, which is a security anti-pattern. Rate limiting, cost controls, and abuse prevention cannot be enforced client-side. The design presents this as a privacy win without acknowledging the security tradeoffs it introduces.",
+    "Confidential computing as a middle path — the design does not mention secure enclaves (Intel SGX, AWS Nitro Enclaves, Azure Confidential Computing) as a mechanism for the AI proxy to process plaintext without the operator being able to read it. This is an active area of industry practice for exactly this use case and its absence from the design space is a gap.",
+    "AI context window and encryption granularity — LLMs need coherent context (full document or large sections) to be useful. If encryption is per-field or per-update, the client must decrypt and reassemble full context before sending to the LLM. This means the client is the only place where full document plaintext exists, which may conflict with mobile or low-powered device targets.",
+    "Streaming responses under encryption — AI responses streamed from LLM providers must be encrypted before being relayed to other participants via the server. If the AI proxy is eliminated (client-side AI), only the requesting participant sees the response until they manually share it through the encrypted CRDT channel. This changes the collaborative AI interaction model the platform is built around."
+  ],
+  "severity_examples": [
+    {
+      "condition": "Option 4 (Client-Side AI) requires participants to call LLM APIs directly from the browser. API keys stored in browser memory or localStorage are extractable by browser extensions, XSS attacks, or any code running in the same origin. A single compromised participant leaks their API key, incurring unbounded cost. The design presents this as a feature without a security analysis.",
+      "scenario": "Client-side API keys exposed in browser",
+      "severity": "P1"
+    },
+    {
+      "condition": "In the Sealed Rooms model (Option 5), a sealed garden disables server-side AI. But if a participant uses the AI proxy in an open garden and pastes content from a sealed garden into a prompt, the server-side AI proxy sees sealed content through a side channel. The design does not address cross-garden content flow through the AI proxy.",
+      "scenario": "AI proxy as covert plaintext channel",
+      "severity": "P1"
+    },
+    {
+      "condition": "Garden Salon's core value proposition is collaborative human-agent work. If AI runs client-side only, agent contributions are not visible to other participants in real-time — they must be encrypted and pushed through the CRDT channel, adding latency and complexity. The design does not analyze how client-side AI affects the collaborative experience.",
+      "scenario": "Collaborative AI breaks under client-side-only model",
+      "severity": "P2"
+    }
+  ],
+  "success_hints": "A well-designed AI proxy trust boundary acknowledges that participants already trust LLM providers (so the incremental trust exposure of the server is precisely defined), evaluates confidential computing as a middle path, addresses API key security for client-side AI, prevents cross-garden content leakage through AI prompts, and specifies how collaborative AI interaction works when the server cannot see AI responses.",
+  "task_context": "Garden Salon's 'bring your own compute' model means participants supply their own LLM API keys. The AI proxy currently reads content to send to LLM providers. The encryption brainstorm presents four options for AI under encryption: server sees plaintext, encrypted AI (impossible today), opt-out, and client-side AI. The platform's core value is collaborative human-agent work."
+}
