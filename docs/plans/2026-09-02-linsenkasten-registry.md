@@ -65,7 +65,7 @@ distills: docs/brainstorms/2026-09-01-linsenkasten-gate-forks-brainstorm.md
 **Files:**
 - Create: `packages/mcp/test/smoke.test.mjs`
 - Modify: `.github/workflows/ci.yml` (add node step after the pytest step)
-- Modify: `packages/mcp/package.json` (add `"test": "node --test test/"`, bump `"version"` later in Task 19)
+- Modify: `packages/mcp/package.json` (add `"test": "node --test \"test/**/*.test.mjs\""` — a quoted glob, not a directory: checked 2026-09-06 on Node v22.22.3, `node --test test/` discovers the file from a shell but hit `MODULE_NOT_FOUND` inside the executor's sandbox (commit be278e5), and the glob works in both and never executes non-test helpers placed under `test/`; bump `"version"` later in Task 19)
 
 **Step 1: Confirm branch and landing order**
 Run from the worktree: `git status -sb && git log --oneline -3 && git log --oneline main..sweep/2026-09-02 | wc -l`
@@ -94,8 +94,8 @@ test('curated lens corpus is present and well-formed', async () => {
   for (const l of lenses) assert.ok(l.id && l.name && l.definition, `bad lens ${JSON.stringify(l).slice(0, 80)}`);
 });
 ```
-Run: `node --test packages/mcp/test/`
-Expected: FAIL (`data/curated/lenses.json` does not exist yet — Task 2 creates it).
+Run: `node --test "packages/mcp/test/**/*.test.mjs"`
+Expected: FAIL with `ENOENT … data/curated/lenses.json` (the file does not exist yet — Task 2 creates it); `# tests 1` must appear, proving discovery reached the file.
 
 **Step 4: CI step (only after the landing rule in Step 1 clears)**
 Append to `.github/workflows/ci.yml` under `steps:`:
@@ -103,10 +103,10 @@ Append to `.github/workflows/ci.yml` under `steps:`:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: node --test packages/mcp/test/
-      - run: python3 -m pytest tests -q
+      - run: node --test "packages/mcp/test/**/*.test.mjs"
+      - run: python3 -m pytest tests -q || [ $? -eq 5 ]
 ```
-(remove the earlier pytest line so pytest runs once, after node). **CI must actually go green (melange-2 f-034):** the structural tests import `interverse/_shared` from `parents[3]` of the test file, which on a GitHub checkout is empty. `_shared` is the repo `mistakeknot/interverse-shared` (visibility: PRIVATE — a CI clone would need a token, so do not add one). Add to `tests/structural/conftest.py`, before the `_shared` import: `import pytest; pytest.importorskip("_shared", reason="interverse-shared not checked out beside this repo")` — the harvest and node tests carry CI. After the first landing, `gh run list -R mistakeknot/interlens -L 1 --json conclusion -q '.[0].conclusion'` must print `success`; a red run blocks the next stage.
+(remove the earlier pytest line so pytest runs once, after node; the `|| [ $? -eq 5 ]` guard: on a GitHub checkout the structural tests skip for lack of `_shared`, and pytest exits 5 for "no tests collected" until Stage C's `tests/harvest/` exists — measured 2026-09-06). **CI must actually go green (melange-2 f-034):** the structural tests import `interverse/_shared` from `parents[3]` of the test file, which on a GitHub checkout is empty. `_shared` is the repo `mistakeknot/interverse-shared` (visibility: PRIVATE — a CI clone would need a token, so do not add one). The `tests/structural/conftest.py` guard — `import pytest; pytest.importorskip("_shared", reason="interverse-shared not checked out beside this repo")` before the `_shared` import — **is already landed (be278e5, 2026-09-06; that file is not in the sweep's list)**; the harvest and node tests carry CI. After the first landing, `gh run list -R mistakeknot/interlens -L 1 --json conclusion -q '.[0].conclusion'` must print `success`; a red run blocks the next stage.
 
 **Step 5: Commit**
 ```bash
