@@ -24,6 +24,6 @@ class TestStructure(StructuralTests):
             assert False, "Expected scripts/ directory"
             return
         scripts = list(scripts_dir.glob("*.sh"))
-        assert len(scripts) == 2, (
-            f"Expected 2 scripts, found {len(scripts)}: {[s.name for s in scripts]}"
+        assert len(scripts) == 3, (
+            f"Expected 3 scripts, found {len(scripts)}: {[s.name for s in scripts]}"
         )

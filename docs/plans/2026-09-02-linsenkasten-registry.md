@@ -602,6 +602,8 @@ All `harvest/` modules: stdlib + `pyyaml` only; deterministic output ordering (s
 
 ### Task 8: `harvest/scan.py` — sightings per machine
 
+**DONE 2026-09-06 (run 89d5cd41, bac942a; two approved deviations):** there is no `tests/harvest/__init__.py` — it would make pytest shadow the production `harvest` package — and lineage rows carry the melange kind as `lineage_kind` because `kind` is the row discriminator (`sighting` | `attribution` | `lineage`). Live dry-run the same day: `scanned=3314 unique_bodies=1836 unreadable=0` in 6 s.
+
 **Files:**
 - Create: `harvest/__init__.py`, `harvest/__main__.py` (argparse subcommands `scan`, `merge`, `stats`, `embed`, `edges`, `report`, `prune`), `harvest/thresholds.py`, `harvest/scan.py`
 - Test: `tests/harvest/__init__.py`, `tests/harvest/conftest.py` (builds a fixture tree under `tmp_path` with two repos, one worktree copy, three agent files of which two are byte-identical, one spec file, one melange run dir with a 3-row ledger and one lens record with `parents`), `tests/harvest/test_scan.py`
@@ -652,6 +654,8 @@ Output: `data/harvest/<machine>.jsonl` — rows of three kinds, `kind: "sighting
 
 ### Task 9: `harvest/merge.py` — union of machines into `index.jsonl`
 
+**DONE 2026-09-06 (run 89d5cd41, f9424b4).**
+
 **Semantics — the index is accretive (melange-2 f-028, the run's top finding: a merge that rebuilds from the current filesystem erases every record the moment prune removes the file, and the safety argument for prune is that record):** read the **existing** `data/generated/index.jsonl` first; then read every `data/harvest/*.jsonl`; group current sightings by `body_hash`. A record, once accessioned, is **never removed** by merge: `accessioned_at` is set once and never changes; `sightings` counts *current* files, `sightings_seen` the cumulative maximum, `last_sighted` the newest current sighting, and `on_disk: false` marks a record with zero current sightings (expected after prune; also how a lens that lived only in a deleted worktree is remembered). One index record per hash:
 ```json
 {"id":"gen:fd-x@1a2b3c4d","name":"fd-x","body_hash":"…","body_path":"generated/lenses/gen:fd-x@1a2b3c4d.md",
@@ -680,6 +684,8 @@ Output: `data/harvest/<machine>.jsonl` — rows of three kinds, `kind: "sighting
 
 ### Task 10: `harvest/stats.py` — hit-rates and usage
 
+**DONE 2026-09-06 (run 89d5cd41, b550d90 + 8f85644).**
+
 **Semantics — the join key is `(name, body_hash)`, not the bare name (melange-3 f-001/f-021/f-024, the run's top cluster: with a name-level join every same-name variant inherited a byte-identical track record, so Task 12's hit-rate head selection was a guaranteed tie exactly where variant clustering exists to discriminate):** first write `data/generated/attributions.jsonl` in **one global pass** over every attribution row from every harvest file, keyed `(run, finding_id, lens)` — one row per key however many index records share the name (melange-3 f-025) — each row carrying its `body_hash` (or `null`) and `attributed_to`: the index id whose `(name, body_hash)` matches, else `null`. Then, per index record, over rows with `attributed_to == id`: `findings` = rows, `upheld`/`refuted`/`raw` = counts by status, `surfaced` = rows with `surfaced`, `runs` = distinct `run`; `adjudicated = upheld + refuted`; `hit_rate = upheld / adjudicated` rounded to 3 places **only when `adjudicated >= 1`, else `null`**; `smoothed_hit_rate = (upheld + 1) / (adjudicated + 2)` (Laplace) **only when `adjudicated >= 1`, else `null`** — used for ranking so a 1/1 cluster never outranks a 39/40 one (melange convergence cluster: hit-rate carries no sample size). Rows with `attributed_to: null` (no hash, or a hash no longer in the index) are counted **name-level** into `stats.name_only` `{findings, upheld, refuted}` on every record of that name and never into `hit_rate` — an unattributed track record is shown, never inherited; the edges report lists their count beside the `weak` embodies. `drive_uses` = max over the record's **own** sightings (record-scoped, never name-scoped). Writes back into `index.jsonl` (rewrite whole file, sorted); the per-record loop reads `attributions.jsonl` and never writes it.
 
 **Test:** ledger fixture with 2 upheld, 1 refuted, 1 raw for `fd-a` (rows carrying `fd-a`'s hash) → `hit_rate == 0.667`, `smoothed_hit_rate == 0.6`, `adjudicated == 3`, `raw == 1`; `fd-b` with only raw → `hit_rate is None` and `smoothed_hit_rate is None`; **two index records named `fd-c` with different hashes, 3 rows carrying the first hash and 1 row with `body_hash: null`** → only the first record gets `adjudicated`, both get `name_only.findings == 1`, and `attributions.jsonl` holds each `(run, finding_id, lens)` exactly once (melange-3 f-024/f-025).
@@ -691,6 +697,8 @@ Output: `data/harvest/<machine>.jsonl` — rows of three kinds, `kind: "sighting
 
 ### Task 11: `harvest/embed.py` — vectors for both layers
 
+**DONE 2026-09-06 (run 89d5cd41, 7f75ea3).**
+
 **Semantics:** texts: curated = `f"{name}\n{definition}\n" + "\n".join(examples)`; generated = `thresholds.embedding_text(spec, body)`. Call Ollama `POST {url}/api/embed` with `{"model": EMBED_MODEL, "input": [batch of 32]}` (urllib, timeout 60 s, `--ollama-url` default `http://127.0.0.1:11434`); L2-normalize; write `data/embeddings/<layer>.f32` (`array('f')` little-endian, row-major) and `<layer>.ids.json` (ids in row order, sorted by id), and `meta.json` `{model, model_digest (from GET /api/tags on the embedding host), dim, pooling: "ollama-default", normalized: true, hash_recipe, thresholds: {VARIANT_MIN_COSINE, EMBODIES_MIN_COSINE, RESOLVE_MIN_COSINE}, embedded_on: <machine>, curated: n, generated: n, generated_at, index_sha256}` (melange f-017: a matrix without its realization record cannot be told apart from a desynced one). **Refuse** to append rows when the live digest differs from `meta.model_digest` unless `--reembed-all` is passed (then every row is regenerated and the digest updated). `--check` reloads both matrices and asserts `len(bytes) == n * EMBED_DIM * 4`. Incremental: `<layer>.hashes.json` is `{id: sha256(embedding_text)}`, written after every embed run; a record is (re-)embedded when its id is new or its `embedding_text` hash changed — so a spec attaching on a later harvest is detected even though `body_hash` did not move (melange-3 f-005). `meta.index_sha256` is the whole-index freshness stamp only, read by `--check`, never a per-record key. **Exit codes:** `3` on model-digest mismatch (printing `model digest changed: <recorded> -> <live>`), `1` on anything else, so a wrapper can tell the recurring case from a real failure (melange-3 f-017); `--reembed-all --check` combine (regenerate, then verify).
 
 **Test:** fake Ollama via `http.server` in a thread returning unit vectors; assert file sizes, id order, normalization, and that a second run with one new record embeds exactly one text (count requests); a third run where one existing record gains a spec (same body, new `embedding_text`) embeds exactly that one text; a run whose fake `/api/tags` digest differs from `meta.model_digest` exits 3 and writes nothing (melange-3 f-005/f-017).
@@ -701,6 +709,8 @@ Output: `data/harvest/<machine>.jsonl` — rows of three kinds, `kind: "sighting
 </verify>
 
 ### Task 12: `harvest/edges.py` — typed edges, clusters, calibration report
+
+**DONE 2026-09-06 (run 89d5cd41, 4e622d1).**
 
 **Semantics** (all cosines from the committed matrices; no Ollama calls):
 - `embodies`: for each generated row, top `EMBODIES_TOP_K` curated by cosine; keep those `≥ EMBODIES_MIN_COSINE`; if none clear the bar keep only the top-1 with `"weak": true`. Edge `{source: gen_id, target: curated_id, type: "embodies", score, weak}`; also written into the record's `embodies: [{id, score}]`.
@@ -717,6 +727,8 @@ Output: `data/harvest/<machine>.jsonl` — rows of three kinds, `kind: "sighting
 </verify>
 
 ### Task 13: Generated layer in the MCP: search across layers, `resolve_lens`, `record_reuse`, `registry_stats`
+
+**DONE 2026-09-06 (run 89d5cd41, a10baf9).**
 
 **Files:**
 - Modify: `packages/mcp/lib/store.js` (add `resolveLens`), `packages/mcp/index.js` (3 new tools; `search_lenses` gains optional `layer` arg, default `all`; results print `[generated]`/`[curated]` before each name; `get_lens` prints `cluster`, `hit_rate`, `embodies`, `sightings` for generated lenses)
