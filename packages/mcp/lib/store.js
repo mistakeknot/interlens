@@ -1,11 +1,11 @@
-import { readFile, readdir, appendFile } from 'node:fs/promises';
+import { readFile, appendFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { DATA_ROOT } from './constants.js';
 
 let _store = null;
 
 function tokens(s) {
-  return (s || '').toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').split(/\s+/).filter(t => t.length > 2);
+  return (s || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(t => t.length > 2);
 }
 
 async function readJsonl(p) {
@@ -75,14 +75,19 @@ export async function getLensesByEpisode(episode) {
 
 export async function getFrames() {
   const s = await loadStore();
-  return { success: true, frames: s.frames, count: s.frames.length };
+  return { success: true, frames: [...s.frames], count: s.frames.length };
 }
 
 export async function getRelatedLenses(nameOrId, limit = 5) {
   const s = await loadStore(); const lens = await getLens(nameOrId);
   if (!lens) return null;
   const conns = s.connections.filter(c => c.source_id === lens.id || c.target_id === lens.id)
-    .sort((a, b) => b.weight - a.weight).slice(0, limit);
+    .sort((a, b) => b.weight - a.weight).slice(0, limit)
+    .map(c => ({
+      ...c,
+      source_name: c.source_name ?? s.byId.get(c.source_id)?.name,
+      target_name: c.target_name ?? s.byId.get(c.target_id)?.name,
+    }));
   return { success: true, lens: { id: lens.id, name: lens.name }, count: conns.length, connections: conns };
 }
 
@@ -95,7 +100,9 @@ export async function getStats() {
 
 export async function recordReuse(entry) {
   const line = JSON.stringify({ ...entry, recorded_at: new Date().toISOString() }) + '\n';
-  await appendFile(path.join(DATA_ROOT, 'generated', 'reuse-log.jsonl'), line);
+  const p = path.join(DATA_ROOT, 'generated', 'reuse-log.jsonl');
+  await mkdir(path.dirname(p), { recursive: true });
+  await appendFile(p, line);
   return { success: true };
 }
 // resolveLens is added in Task 13 (needs embed.js)
