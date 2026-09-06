@@ -28,7 +28,7 @@ async function readFixture(name) {
 
 test('graph has the curated connection edges', async () => {
   const g = buildGraph(await loadStore());
-  assert.equal(g.ids.length, 258);
+  assert.equal(g.ids.filter(id => !id.startsWith('gen:')).length, 258);   // curated ids; the generated layer joins once data/generated exists
   assert.equal(g.adj.get(EYE).get(FOUNDER).type, 'contrast');
 });
 

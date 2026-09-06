@@ -119,15 +119,15 @@ def harvest_tree(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> SimpleNames
     melange = repo_one / "docs/research/flux-melange/run-001"
     ledger_rows = [
         {
-            "finding_id": "f-001",
-            "lens": "fd-alpha",
+            "id": "f-001",
+            "source": {"kind": "lens", "agents": ["fd-alpha"]},
             "status": "upheld",
             "novelty": 8,
-            "risk_product": 21,
+            "risk": {"blast_radius": 3, "likelihood": 7, "product": 21},
         },
         {
-            "finding_id": "f-002",
-            "lens": "fd-beta",
+            "id": "f-002",
+            "source": {"kind": "lens", "agents": ["fd-beta"]},
             "status": "refuted",
             "novelty": 4,
             "risk_product": 8,

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # harvest-and-push.sh <machine> — one atomic registry sweep: any failure discards what THIS run wrote under data/.
 set -euo pipefail
-MACHINE="${1:?machine name required}"; ROOTS="${LINSENKASTEN_ROOTS:-$HOME/projects}"
+MACHINE="${1:?machine name required}"; ROOTS="${LINSENKASTEN_ROOTS:-$HOME/projects $HOME/.claude}"
 STATE="$HOME/.local/share/linsenkasten"; mkdir -p "$STATE"
 cd "$(dirname "$0")/.."
 # Precondition (melange-3 f-020): never start over uncommitted work under data/ — the trap below would discard it.

@@ -262,24 +262,34 @@ def _melange_rows(
         if ledger_path.exists():
             for ledger_row in _read_jsonl(ledger_path, unreadable):
                 finding_id = ledger_row.get("finding_id") or ledger_row.get("id")
-                lens = ledger_row.get("lens") or ledger_row.get("agent")
-                rows.append(
-                    {
-                        "kind": "attribution",
-                        "machine": machine,
-                        "repo": _path_text(repo),
-                        "path": _path_text(ledger_path),
-                        "name": str(lens or ""),
-                        "run": run,
-                        "finding_id": finding_id,
-                        "lens": lens,
-                        "status": ledger_row.get("status"),
-                        "novelty": ledger_row.get("novelty"),
-                        "risk_product": ledger_row.get("risk_product"),
-                        "surfaced": str(finding_id) in surfaced if finding_id is not None else False,
-                        "body_hash": hashes_by_name.get(str(lens)) if lens is not None else None,
-                    }
-                )
+                # flux-melange's ledger names the lens inside `source: {kind, agents: [...]}` (checked across all
+                # 58 Mac ledgers 2026-09-06); `lens` / `agent` are accepted as legacy spellings.
+                source = ledger_row.get("source")
+                agents = [a for a in (source.get("agents") or []) if a] if isinstance(source, dict) else []
+                legacy = ledger_row.get("lens") or ledger_row.get("agent")
+                names = agents or ([legacy] if legacy else [None])
+                risk = ledger_row.get("risk")
+                risk_product = ledger_row.get("risk_product")
+                if risk_product is None and isinstance(risk, dict):
+                    risk_product = risk.get("product")
+                for lens in names:
+                    rows.append(
+                        {
+                            "kind": "attribution",
+                            "machine": machine,
+                            "repo": _path_text(repo),
+                            "path": _path_text(ledger_path),
+                            "name": str(lens or ""),
+                            "run": run,
+                            "finding_id": finding_id,
+                            "lens": lens,
+                            "status": ledger_row.get("status"),
+                            "novelty": ledger_row.get("novelty"),
+                            "risk_product": risk_product,
+                            "surfaced": str(finding_id) in surfaced if finding_id is not None else False,
+                            "body_hash": hashes_by_name.get(str(lens)) if lens is not None else None,
+                        }
+                    )
 
         lenses_dir = run_dir / "lenses"
         if not lenses_dir.is_dir():
@@ -464,7 +474,7 @@ def _counts(rows: Iterable[dict[str, Any]], unreadable: Sequence[str]) -> tuple[
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python3 -m harvest scan")
     parser.add_argument("--machine", required=True)
-    parser.add_argument("--roots", nargs="+", default=[str(Path.home() / "projects")])
+    parser.add_argument("--roots", nargs="+", default=[str(Path.home() / "projects"), str(Path.home() / ".claude")])
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
 

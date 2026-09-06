@@ -78,8 +78,8 @@ export async function fetchFromAPI() {
   throw new Error('linsenkasten: remote API retired; use the local store');
 }
 
-export async function searchLenses(query, limit = 10) {
-  return safely(() => storeSearchLenses(query, limit));
+export async function searchLenses(query, limit = 10, options = {}) {
+  return safely(() => storeSearchLenses(query, limit, options));
 }
 
 export async function getLens(name) {

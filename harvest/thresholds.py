@@ -27,4 +27,8 @@ def embedding_text(spec: dict | None, body: str) -> str:
     import re
     m = re.search(r"^Apply the perspective.*?(?=\n\n)", body, re.S | re.M)
     heads = re.findall(r"^### \d+\. (.+)$", body, re.M)
-    return "\n".join([m.group(0) if m else "", *heads]).strip()
+    # Lead of the whitespace-normalized body (code points, not bytes): pre-v5 bodies have neither the persona
+    # paragraph nor numbered headings, and an empty text embeds to one shared vector (2026-09-06 calibration:
+    # a 28-member spurious cluster of empty-text records).
+    lead = normalize_body(body)[:1200]
+    return "\n".join(p for p in [m.group(0) if m else "", *heads, lead] if p).strip()

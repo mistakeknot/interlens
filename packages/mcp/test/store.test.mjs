@@ -53,6 +53,12 @@ test('getLens returns a decoratable copy, not the frozen cache entry', async () 
   const l = await getLens('Founder Mode'); l.score = 1; assert.equal(l.score, 1);
   assert.equal((await getLens('Founder Mode')).score, undefined);
 });
+test('all-layer search keeps both layers visible', async () => {
+  const s = await loadStore();
+  if (s.generated.length === 0) return;   // curated-only checkout: nothing to interleave
+  const r = await searchLenses('feedback', 10);
+  assert.ok(r.lenses.some(l => l.layer === 'curated') && r.lenses.some(l => l.layer === 'generated'));
+});
 test('getLens by name and by id', async () => {
   assert.equal((await getLens('Founder Mode')).id, 'lens_161_headline_founder_mode');
   assert.equal((await getLens('lens_161_headline_founder_mode')).name, 'Founder Mode');

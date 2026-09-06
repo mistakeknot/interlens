@@ -40,7 +40,7 @@ test('retired cache and remote API compatibility exports are inert', async () =>
 });
 
 test('store-backed lookup exports preserve handler result shapes', async () => {
-  const search = await api.searchLenses('feedback', 10);
+  const search = await api.searchLenses('situation behavior impact', 10);
   assert.ok(search.lenses.some(lens => lens.name === 'Situation-Behavior-Impact'));
   assert.ok(Array.isArray(search.results));
   assert.equal(typeof search.count, 'number');

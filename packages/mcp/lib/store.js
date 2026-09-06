@@ -29,7 +29,8 @@ export function embeddingText(spec, body = '') {
   const source = String(body || '');
   const perspective = source.match(/^Apply the perspective.*?(?=\n\n)/ms)?.[0] || '';
   const headings = [...source.matchAll(/^### \d+\. (.+)$/gm)].map(match => match[1]);
-  return [perspective, ...headings].join('\n').trim();
+  const lead = Array.from(source.replace(/\s+/g, ' ').trim()).slice(0, 1200).join('');   // code points, like Python's [:1200]
+  return [perspective, ...headings, lead].filter(Boolean).join('\n').trim();
 }
 
 async function readJsonl(p) {
@@ -141,8 +142,21 @@ function lexicalScore(q, lens) {
 
 export async function searchLenses(query, limit = 10, { layer = 'all' } = {}) {
   const all = await getAllLenses(layer);
-  const scored = all.map(l => ({ l, s: lexicalScore(query, l) })).filter(x => x.s > 0)
-    .sort((a, b) => b.s - a.s || a.l.name.localeCompare(b.l.name)).slice(0, limit);
+  const byScore = (a, b) => b.s - a.s || a.l.name.localeCompare(b.l.name);
+  const ranked = all.map(l => ({ l, s: lexicalScore(query, l) })).filter(x => x.s > 0).sort(byScore);
+  let scored;
+  if (layer === 'all') {
+    // Both layers must stay visible: generated names carry the query term far more often than curated names do
+    // (first real harvest, 2026-09-06: 'feedback' returned nine fd-*-feedback lenses and no curated lens), so
+    // ranks alternate between the two layers' own orderings, the better-scored of each pair first.
+    const cur = ranked.filter(x => x.l.layer === 'curated'), gen = ranked.filter(x => x.l.layer !== 'curated');
+    scored = [];
+    for (let i = 0; scored.length < limit && (i < cur.length || i < gen.length); i++) {
+      for (const x of [cur[i], gen[i]].filter(Boolean).sort(byScore)) if (scored.length < limit) scored.push(x);
+    }
+  } else {
+    scored = ranked.slice(0, limit);
+  }
   const items = scored.map(({ l, s }) => ({ ...l, score: s }));
   return { success: true, query, count: scored.length,
     lenses: items, results: items.map(item => ({ ...item })) };
@@ -210,7 +224,8 @@ export async function recordReuse(entry) {
 }
 
 function isGeneratedHead(lens) {
-  return lens?.layer === 'generated' && lens.cluster?.head === true && !lens.corrupt;
+  // A corrupt body with a spec is still reusable: consumers re-render from the spec, never copy the body.
+  return lens?.layer === 'generated' && lens.cluster?.head === true && !(lens.corrupt && !lens.spec_path);
 }
 
 function resolutionMatch(lens, score) {

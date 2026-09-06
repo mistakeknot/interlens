@@ -148,7 +148,7 @@ def _generated_inputs(data_root: Path) -> list[tuple[str, str]]:
             spec = _read_json(data_root / spec_path)
             if not isinstance(spec, dict):
                 raise ValueError(f"generated record {lens_id} has a non-object spec")
-        inputs.append((lens_id, embedding_text(spec, body)))
+        inputs.append((lens_id, embedding_text(spec, body) or lens_id))
     return _sorted_unique(inputs, "generated")
 
 

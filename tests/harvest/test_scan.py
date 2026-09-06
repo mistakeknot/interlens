@@ -38,7 +38,11 @@ def test_embedding_text_prefers_spec_and_has_deterministic_body_fallback() -> No
     assert embedding_text(None, body) == (
         "Apply the perspective of evidence before confidence.\n"
         "Trace the claim\n"
-        "Test the boundary"
+        "Test the boundary\n"
+        "Apply the perspective of evidence before confidence. Details. ### 1. Trace the claim ### 2. Test the boundary"
+    )
+    assert embedding_text(None, "Just a bare body with no persona paragraph or headings.") == (
+        "Just a bare body with no persona paragraph or headings."
     )
 
 
@@ -89,6 +93,7 @@ def test_scan_harvests_sightings_provenance_and_lineage(harvest_tree) -> None:
     assert len(attributions) == 3
     assert {row["status"] for row in attributions} == {"upheld", "refuted", "raw"}
     assert all(row["body_hash"] for row in attributions)
+    assert {row["risk_product"] for row in attributions} == {21, 8, 13}   # risk.product and legacy risk_product both read
     assert {row["finding_id"] for row in attributions if row["surfaced"]} == {
         "f-001",
         "f-003",
